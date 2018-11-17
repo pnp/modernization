@@ -1,0 +1,129 @@
+﻿<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2018/05/ProvisioningSchema">
+  <pnp:Preferences>
+    <pnp:Parameters>
+      <pnp:Parameter Key="ModernizationCenterUrl">/sites/modernizationcenter</pnp:Parameter>
+    </pnp:Parameters>
+  </pnp:Preferences>
+  <pnp:Templates ID="Modernization">
+    <pnp:ProvisioningTemplate ID="Modernization_Client" Version="1" >
+      <!-- Ensure the modern pages feature is enabled, this is a pre-req for the created modern pages -->
+      <pnp:Features>
+        <pnp:WebFeatures>
+          <pnp:Feature ID="B6917CB1-93A0-4B97-A84D-7CF49975D4EC" Description="Modern pages web feature"/>
+        </pnp:WebFeatures>
+      </pnp:Features>
+      <!-- Provisioning Page Modernization UI integration points -->
+      <pnp:CustomActions>
+        <pnp:SiteCustomActions>
+          <!-- Wiki Page library user custom actions -->
+          <pnp:CustomAction Name="CA_Modernize_SitePages_ECB"
+                            Description="Create a modern version of this page."
+                            Location="EditControlBlock"
+                            RegistrationType="List"
+                            RegistrationId="119"
+                            Title="Create modern version"
+                            Sequence="3000"
+                            Rights="EditListItems"
+                            Url="{parameter:ModernizationCenterUrl}/SitePages/modernize.aspx?SiteUrl={SiteCollection}&amp;ListId={ListId}&amp;ItemId={ItemId}"
+                            Enabled="true">
+          </pnp:CustomAction>
+          <pnp:CustomAction Name="CA_Modernize_SitePages"
+                            Description="Create a modern version of this Wiki or Web Part page."
+                            Location="CommandUI.Ribbon"
+                            RegistrationType="List"
+                            RegistrationId="119"
+                            Title="Create modern version"
+                            Sequence="6000"
+                            Rights="EditListItems"
+                            Enabled="true">
+            <pnp:CommandUIExtension>
+              <CommandUIDefinitions>
+                <CommandUIDefinition Location="Ribbon.Documents.Copies.Controls._children">
+                  <Button
+                    Id="Ribbon.Documents.Copies.ModernizePage"
+                    Command="SharePointPnP.Cmd.ModernizePage"
+                    Image16by16="{parameter:ModernizationCenterUrl}/siteassets/modernize16x16.png"
+                    Image32by32="{parameter:ModernizationCenterUrl}/siteassets/modernize32x32.png"
+                    LabelText="Create modern version"
+                    Description="Create a modern version of this page."
+                    ToolTipTitle="Create modern version"
+                    ToolTipDescription="Create a modern version of this page."
+                    TemplateAlias="o1"
+                    Sequence="15"/>
+                </CommandUIDefinition>
+              </CommandUIDefinitions>
+              <CommandUIHandlers>
+                <CommandUIHandler
+                  Command="SharePointPnP.Cmd.ModernizePage"
+                  CommandAction="{parameter:ModernizationCenterUrl}/SitePages/modernize.aspx?SiteUrl={SiteCollection}&amp;ListId={SelectedListId}&amp;ItemId={SelectedItemId}"
+                  EnabledScript="javascript:SP.ListOperation.Selection.getSelectedItems().length == 1;" />
+              </CommandUIHandlers>
+            </pnp:CommandUIExtension>
+          </pnp:CustomAction>
+          <!-- Wiki page ribbon user custom action -->
+          <pnp:CustomAction Name="CA_Modernize_WikiPage"
+                            Description="Create a modern version of this page."
+                            Location="CommandUI.Ribbon"
+                            Title="Create modern version"
+                            Sequence="6000"
+                            Rights="EditListItems"
+                            Enabled="true">
+            <pnp:CommandUIExtension>
+              <CommandUIDefinitions>
+                <CommandUIDefinition Location="Ribbon.WikiPageTab.PageActions.Controls._children">
+                  <Button
+                    Id="Ribbon.WikiPageTab.PageActions.ModernizeWikiPage"
+                    Command="SharePointPnP.Cmd.ModernizeWikiPage"
+                    Image16by16="{parameter:ModernizationCenterUrl}/siteassets/modernize16x16.png"
+                    Image32by32="{parameter:ModernizationCenterUrl}/siteassets/modernize32x32.png"
+                    LabelText="Create modern version"
+                    Description="Create a modern version of this page."
+                    ToolTipTitle="Create modern version"
+                    ToolTipDescription="Create a modern version of this page."
+                    TemplateAlias="o1"
+                    Sequence="1500"/>
+                </CommandUIDefinition>
+              </CommandUIDefinitions>
+              <CommandUIHandlers>
+                <CommandUIHandler
+                  Command="SharePointPnP.Cmd.ModernizeWikiPage"
+                  CommandAction="javascript:function redirect(){ var url = '{parameter:ModernizationCenterUrl}/SitePages/modernize.aspx?SiteUrl={SiteCollection}&#038;ListId=' + _spPageContextInfo.listId + '&#038;ItemId=' + _spPageContextInfo.pageItemId; window.location = url; } redirect();" />
+              </CommandUIHandlers>
+            </pnp:CommandUIExtension>
+          </pnp:CustomAction>
+          <!-- Web part page ribbon user custom action -->
+          <pnp:CustomAction Name="CA_Modernize_WebPartPage"
+                            Description="Create a modern version of this page."
+                            Location="CommandUI.Ribbon"
+                            Title="Create modern version"
+                            Sequence="6000"
+                            Rights="EditListItems"
+                            Enabled="true">
+            <pnp:CommandUIExtension>
+              <CommandUIDefinitions>
+                <CommandUIDefinition Location="Ribbon.WebPartPage.Actions.Controls._children">
+                  <Button
+                    Id="Ribbon.WebPartPage.Actions.ModernizeWebPartPage"
+                    Command="SharePointPnP.Cmd.ModernizeWebPartPage"
+                    Image16by16="{parameter:ModernizationCenterUrl}/siteassets/modernize16x16.png"
+                    Image32by32="{parameter:ModernizationCenterUrl}/siteassets/modernize32x32.png"
+                    LabelText="Create modern version"
+                    Description="Create a modern version of this page."
+                    ToolTipTitle="Create modern version"
+                    ToolTipDescription="Create a modern version of this page."
+                    TemplateAlias="o1"
+                    Sequence="1500"/>
+                </CommandUIDefinition>
+              </CommandUIDefinitions>
+              <CommandUIHandlers>
+                <CommandUIHandler
+                  Command="SharePointPnP.Cmd.ModernizeWebPartPage"
+                  CommandAction="javascript:function redirect(){ var url = '{parameter:ModernizationCenterUrl}/SitePages/modernize.aspx?SiteUrl={SiteCollection}&#038;ListId=' + _spPageContextInfo.listId + '&#038;ItemId=' + _spPageContextInfo.pageItemId; window.location = url; } redirect();" />
+              </CommandUIHandlers>
+            </pnp:CommandUIExtension>
+          </pnp:CustomAction>
+        </pnp:SiteCustomActions>
+      </pnp:CustomActions>
+    </pnp:ProvisioningTemplate>
+  </pnp:Templates>
+</pnp:Provisioning>
