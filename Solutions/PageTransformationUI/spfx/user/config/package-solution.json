@@ -1,0 +1,14 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "sharepointpnp-pagetransformation-client-solution",
+    "id": "34abc8e8-c631-4815-8ea5-c3ab783d4175",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false
+  },
+  "paths": {
+    "zippedPackage": "solution/sharepointpnp-pagetransformation-client.sppkg"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "page-transformator-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/pageTransformator/PageTransformatorWebPart.js",
+          "manifest": "./src/webparts/pageTransformator/PageTransformatorWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "PageTransformatorWebPartStrings": "lib/webparts/pageTransformator/loc/{locale}.js"
+  }
+}

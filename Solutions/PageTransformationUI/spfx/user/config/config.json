@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "page-banner-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/pageBanner/PageBannerWebPart.js",
+          "manifest": "./src/webparts/pageBanner/PageBannerWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "PageBannerWebPartStrings": "lib/webparts/pageBanner/loc/{locale}.js"
+  }
+}

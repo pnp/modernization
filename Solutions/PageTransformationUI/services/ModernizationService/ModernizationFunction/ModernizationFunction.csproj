@@ -5,6 +5,14 @@
     <RootNamespace>SharePointPnP.ModernizationFunction</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="webpartmapping.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="webpartmapping.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.14" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="SharePointPnPModernizationOnline" Version="1.0.1811.1" />
