@@ -183,6 +183,7 @@ Page transformation file. Describes:
             <ClientSideWebPart Type="ContentEmbed" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;captionText&quot;&#58;&quot;&quot;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.0&quot;,&quot;properties&quot;&#58;&#123;&quot;embedCode&quot;&#58;&quot;&lt;iframe width=\&quot;100%\&quot; height=\&quot;70%\&quot; src=\&quot;{EncodedContentLink}\&quot; allowfullscreen=\&quot;\&quot;&gt;&lt;/iframe&gt;&quot;,&quot;cachedEmbedCode&quot;&#58;&quot;&lt;iframe width=\&quot;100%\&quot; height=\&quot;70%\&quot; src=\&quot;{EncodedContentLink}\&quot; allowfullscreen=\&quot;\&quot;&gt;&lt;/iframe&gt;&quot;,&quot;shouldScaleWidth&quot;&#58;true,&quot;tempState&quot;&#58;&#123;&#125;&#125;&#125;"/>
           </Mapping>
           <Mapping Name="Content" Default="false">
+            
             <ClientSideWebPart Type="Custom" ControlId="3a328f0a-99c4-4b28-95ab-fe0847f657a3" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.0&quot;,&quot;properties&quot;&#58;&#123;&quot;script&quot;&#58;&quot;{Script}&quot;,&quot;title&quot;&#58;&quot;{Title}&quot;,&quot;removePadding&quot;&#58;false,&quot;spPageContextInfo&quot;&#58;false&#125;&#125;"/>
           </Mapping>
         </Mappings>
@@ -193,9 +194,11 @@ Page transformation file. Describes:
           <Property Name="Content" Type="string" Functions="{Script} = HtmlEncodeForJson({Content})" />
         </Properties>
         <Mappings>
+          <!--
           <Mapping Name="PuzzlePartScriptEditor" Default="true">
             <ClientSideWebPart Type="Custom" ControlId="3a328f0a-99c4-4b28-95ab-fe0847f657a3" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.0&quot;,&quot;properties&quot;&#58;&#123;&quot;script&quot;&#58;&quot;{Script}&quot;,&quot;title&quot;&#58;&quot;{Title}&quot;,&quot;removePadding&quot;&#58;false,&quot;spPageContextInfo&quot;&#58;false&#125;&#125;"/>
           </Mapping>
+          -->
         </Mappings>
       </WebPart>
       <!-- Image web part -->
@@ -507,9 +510,11 @@ Page transformation file. Describes:
           <Property Name="Content" Type="string" Functions="{Script} = HtmlEncodeForJson({Content})"/>
         </Properties>
         <Mappings>
+          <!--
           <Mapping Name="PuzzlePartScriptEditor" Default="true">
             <ClientSideWebPart Type="Custom" ControlId="3a328f0a-99c4-4b28-95ab-fe0847f657a3" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.0&quot;,&quot;properties&quot;&#58;&#123;&quot;script&quot;&#58;&quot;{Script}&quot;,&quot;title&quot;&#58;&quot;{Title}&quot;,&quot;removePadding&quot;&#58;false,&quot;spPageContextInfo&quot;&#58;false&#125;&#125;"/>
           </Mapping>          
+          -->
         </Mappings>
       </WebPart>
       <!-- InfoPath web part -->
