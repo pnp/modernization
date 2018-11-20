@@ -2,6 +2,9 @@
 
 The Page Transformation UI solution makes it possible for end users to request a modern version of a wiki or web part page. The generated modern page will have a page banner web part on top of the page which will allow the user to keep the generated page or discard it. When the user discards the page the solution will show a feedback dialog asking for a reason why the page was not good.
 
+> **Important**:
+> Please be aware that the **Page Transformation UI solution is currently in preview**
+
 Below diagram shows the high level architecture of the solution:
 
 1. From any of the UI elements the users triggers the creation of a modern version of the selected wiki or web part page. This will be done by calling a "central" proxy page which is hosted in the modernization center site collection
@@ -10,5 +13,21 @@ Below diagram shows the high level architecture of the solution:
 4. If the page is discard a feedback dialog is shown asking the user for a reason why the page was not good. This information is then stored in a central list in the modernization center site collection. If the users keeps the page then the modern page gets the name of the original page and the original page is renamed with an old_ prefix
 
 ![page transformator web part](docs/images/PageTransformationUIarchitecture.png)
+
+## Getting started with the PnP Page Transformation UI solution
+
+### Pre-requirements
+
+Here are current pre-requirements for making this solution work in your tenant.
+
+- You will need to be a tenant administrator to be able to deploy this solution
+    - Notice that you can get free developer tenant from [Office 365 developer program](https://developer.microsoft.com/en-us/office/dev-program), if needed
+- Automatic end-to-end provisioning only works with English tenants
+    - All solutions and web parts are also English in the current implementation
+- A tenant 'App Catalog' must have been created within the 'Apps' option of the SharePoint Admin Center
+
+### Deploying the solution
+
+The shortest path to success is follow the steps outlined in the [deployment guide](docs/deploymentguide.md).
 
 <img src="https://telemetry.sharepointpnp.com/sp-dev-modernization/solutions/PageTransformationUI" />
