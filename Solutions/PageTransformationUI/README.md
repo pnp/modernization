@@ -9,4 +9,4 @@ Below diagram shows the high level architecture of the solution:
 3. The Azure Function uses the [SharePoint Modernization Framework](https://www.nuget.org/packages/SharePointPnPModernizationOnline) to create a modern version of the page. This created modern version does contain a banner web part which provides the end user with the option to keep or discard the created page. Important to understand is that this modern page is a **new** page with name like migrated_oldpagename.aspx
 4. If the page is discard a feedback dialog is shown asking the user for a reason why the page was not good. This information is then stored in a central list in the modernization center site collection. If the users keeps the page then the modern page gets the name of the original page and the original page is renamed with an old_ prefix
 
-![page transformator web part](docs/images/pagetransformationUIarchitecture.png)
+![page transformator web part](/docs/images/PageTransformationUIarchitecture.png)
