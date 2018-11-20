@@ -2,7 +2,7 @@
 
 The page transformation UI depends on an Azure function to do the actual transformation work. The function is being called from the UI entry points (e.g. button in the wiki page ribbon) and then uses the SharePoint PnP Modernization Framework to create a modern version of the requested page. As we want the Azure function to operate as the user clicking on the button in the ribbon the Azure function will be secured via an Azure AD application. In this chapter you'll find the needed instructions to configure all Azure hosted components.
 
-# Step 1: Create an Azure function App
+## Step 1: Create an Azure function App
 
 Start with creating a new Azure Function App: it's needed to create a new Azure function app as we're going to secure this Azure function app using Azure AD application with specific permissions.
 
@@ -15,7 +15,7 @@ Start with creating a new Azure Function App: it's needed to create a new Azure 
   
 ![Azure function app 2](images/azure_function_2.png)
 
-# Step 2: Create and configure an Azure AD application
+## Step 2: Create and configure an Azure AD application
 
 The Azure AD application will be used to secure the created Azure function.
 
@@ -48,7 +48,7 @@ The Azure AD application will be used to secure the created Azure function.
 
 ![Azure AD app consent 2](images/azure_app_5.png)
 
-# Step 3: Configure the Azure function created in step 1
+## Step 3: Configure the Azure function created in step 1
 
 Now that we created the Azure AD application we can finalize the configuration of our Azure Function App.
 
@@ -73,6 +73,6 @@ Now that we created the Azure AD application we can finalize the configuration o
 
 - Press **Save** to persist the changes
 
-# Step 4: deploy the SharePoint Modernization service binaries to the Azure Function App
+## Step 4: deploy the SharePoint Modernization service binaries to the Azure Function App
 
 todo
