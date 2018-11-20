@@ -1,0 +1,151 @@
+﻿<?xml version="1.0"?>
+<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2018/07/ProvisioningSchema" Author="SharePoint PnP" Generator="SharePoint PnP" Version="1.0" Description="SharePoint Starter Kit" DisplayName="SharePoint Starter Kit" ImagePreviewUrl="https://raw.githubusercontent.com/SharePoint/sp-dev-provisioning-templates/master/tenant/SP-Starter-Kit/sp-starter-kit-front-page-16x9.png">
+  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.1.1809.0, Culture=neutral, PublicKeyToken=null">
+    <pnp:Parameters>
+      <pnp:Parameter Key="CenterUrl">/sites/modernizationcenter</pnp:Parameter>
+      <pnp:Parameter Key="ModernizationFeedbackList">ModernizationFeedback</pnp:Parameter>
+    </pnp:Parameters>
+  </pnp:Preferences>
+  <pnp:Tenant>
+    <pnp:StorageEntities>
+      <pnp:StorageEntity Key="Modernization_AzureADApp" Value="79ad0500-1230-4f7a-a5bb-5e83ce9174f4" Description="ID of the Azure AD app is used for page transformation"/>
+      <pnp:StorageEntity Key="Modernization_FunctionHost" Value="https://contosomodernization.azurewebsites.net" Description="Host of the SharePoint PnP Modernization service"/>
+      <pnp:StorageEntity Key="Modernization_PageTransformationEndpoint" Value="api/ModernizePage" Description="Api endpoint for page transformation"/>
+      <pnp:StorageEntity Key="Modernization_CenterUrl" Value="{parameter:CenterUrl}" Description="Site relative URL for the modernization center in this tenant"/>
+      <pnp:StorageEntity Key="Modernization_FeedbackList" Value="{parameter:ModernizationFeedbackList}" Description="Name of the created feedback list" />
+      <pnp:StorageEntity Key="Modernization_LearnMoreUrl" Value="https://aka.ms/sppnp-modernize" Description="Url shown in the learn more link"/>
+    </pnp:StorageEntities>
+    <pnp:WebApiPermissions>
+      <pnp:WebApiPermission Resource="SharePointPnP.Modernization" Scope="user_impersonation"/>
+    </pnp:WebApiPermissions>
+    <pnp:AppCatalog>
+      <pnp:Package Action="UploadAndPublish" Overwrite="true" Src="..\assets\sharepointpnp-pagetransformation-central.sppkg" SkipFeatureDeployment="false"/>
+      <pnp:Package Action="UploadAndPublish" Overwrite="true" Src="..\assets\sharepointpnp-pagetransformation-client.sppkg" SkipFeatureDeployment="true"/>
+    </pnp:AppCatalog>
+  </pnp:Tenant>
+  <pnp:Sequence ID="sp-dev-modernization-sequence">
+    <pnp:SiteCollections>
+      <pnp:SiteCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="pnp:CommunicationSite" 
+                          ProvisioningId="MODERNIZATIONCENTER" 
+                          SiteDesign="Topic" 
+                          Title="Modernization Center" 
+                          Description="" 
+                          Url="{parameter:CenterUrl}" 
+                          IsHubSite="false" 
+                          Owner="{CurrentUserLoginName}">
+        <pnp:Templates>
+          <pnp:ProvisioningTemplateReference ID="MODERNIZATION-CENTER-TEMPLATE"/>
+        </pnp:Templates>
+      </pnp:SiteCollection>
+    </pnp:SiteCollections>
+  </pnp:Sequence>
+  <pnp:Templates ID="SP-DEV-MODERNIZATION-TEMPLATES">
+    <pnp:ProvisioningTemplate ID="MODERNIZATION-CENTER-TEMPLATE" Version="1" BaseSiteTemplate="SITEPAGEPUBLISHING#0" Scope="RootSite">
+      <pnp:Security>
+        <pnp:Permissions>
+          <pnp:RoleAssignments>
+            <pnp:RoleAssignment Principal="{everyonebutexternalusers}" RoleDefinition="Read"/>
+          </pnp:RoleAssignments>
+        </pnp:Permissions>
+      </pnp:Security>
+      <pnp:ApplicationLifecycleManagement>
+        <pnp:Apps>
+          <pnp:App AppId="{apppackageid:sharepointpnp-pagetransformation-central-solution}" Action="Install"/>
+        </pnp:Apps>
+      </pnp:ApplicationLifecycleManagement>
+      <pnp:Lists>
+        <pnp:ListInstance Title="{parameter:ModernizationFeedbackList}" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/{parameter:ModernizationFeedbackList}" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{E7582A54-D2D9-4D3B-A519-B840FD9BCA32}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/sites/ModernizationCenter/Lists/ModernizationFeedback/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" Ascending="FALSE" />
+                </OrderBy>
+                <Where>
+                  <Geq>
+                    <FieldRef Name="Created" />
+                    <Value Type="DateTime">
+                      <Today OffsetDays="-2" />
+                    </Value>
+                  </Geq>
+                </Where>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="FeedbackCategory" />
+                <FieldRef Name="Feedback" />
+                <FieldRef Name="ModernizationSubject" />
+                <FieldRef Name="Created" />
+                <FieldRef Name="Author" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <Aggregations Value="Off" />
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Note" DisplayName="Feedback" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="1" RichText="FALSE" Sortable="FALSE" ID="{bfd36de7-71fc-4cd6-a054-08da08c06ee7}" SourceID="{{listid:ModernizationFeedback}}" StaticName="Feedback" Name="Feedback" ColName="ntext2" RowOrdinal="0" />
+            <Field Type="Text" DisplayName="ModernizationSubject" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{ce96662c-45eb-4dd2-aebd-63f5ddd3f8b0}" SourceID="{{listid:ModernizationFeedback}}" StaticName="ModernizationSubject" Name="ModernizationSubject" ColName="nvarchar4" RowOrdinal="0" />
+            <Field Type="Text" DisplayName="FeedbackCategory" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" ID="{1233647e-c55c-4d71-9e6a-0b88f4e49b9d}" SourceID="{{listid:ModernizationFeedback}}" StaticName="FeedbackCategory" Name="FeedbackCategory" ColName="nvarchar5" RowOrdinal="0" />
+            <Field Type="Number" DisplayName="Year" Required="TRUE" EnforceUniqueValues="FALSE" Indexed="FALSE" Decimals="0" ID="{73d26c3d-3aea-4f8f-9edf-88e40dcc8732}" SourceID="{{listid:ModernizationFeedback}}" StaticName="Year" Name="Year" ColName="float1" RowOrdinal="0" />
+            <Field Type="Number" DisplayName="Month" Required="TRUE" EnforceUniqueValues="FALSE" Indexed="FALSE" Decimals="0" ID="{2c5f2992-a0e8-441b-b9ed-1a2e9b57e0c7}" SourceID="{{listid:ModernizationFeedback}}" StaticName="Month" Name="Month" ColName="float2" RowOrdinal="0" />
+            <Field Type="Number" DisplayName="Day" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Decimals="0" ID="{e97202da-0a81-4670-8b6a-5fd9885f6436}" SourceID="{{listid:ModernizationFeedback}}" StaticName="Day" Name="Day" ColName="float3" RowOrdinal="0" />
+          </pnp:Fields>
+          <pnp:Security>
+            <pnp:BreakRoleInheritance CopyRoleAssignments="false" ClearSubscopes="false">
+              <pnp:RoleAssignment Principal="{associatedownergroup}" RoleDefinition="Full Control" />
+              <pnp:RoleAssignment Principal="{associatedvisitorgroup}" RoleDefinition="Read" />
+              <pnp:RoleAssignment Principal="{associatedmembergroup}" RoleDefinition="Edit" />
+              <pnp:RoleAssignment Principal="{everyonebutexternalusers}" RoleDefinition="Edit" />
+            </pnp:BreakRoleInheritance>
+          </pnp:Security>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Site Assets" Description="Use this library to store files which are included on pages within this site, such as images on Wiki pages." DocumentTemplate="{site}/SiteAssets/Forms/template.doc" TemplateType="101" Url="SiteAssets" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-e717-4e80-aa17-d0c71b360101" EnableAttachments="false" DefaultDisplayFormUrl="{site}/SiteAssets/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/SiteAssets/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/SiteAssets/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=44" IrmExpire="false" IrmReject="false" IsApplicationList="true" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0101" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{0C23E843-A9D7-4110-B1B1-537B46FC7D73}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Documents" Url="/sites/ModernizationCenter/SiteAssets/Forms/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="FileLeafRef" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Editor" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field ID="{d1cff744-ba61-4189-94d6-97d0a9eb4f6a}" Type="Text" DisplayName="Tags" Name="MediaServiceAutoTags" Group="_Hidden" Hidden="FALSE" Sealed="TRUE" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInDisplayForm="FALSE" ShowInEditForm="FALSE" ShowInListSettings="FALSE" Viewable="FALSE" Json="FALSE" SourceID="{{listid:Site Assets}}" StaticName="MediaServiceAutoTags" ColName="nvarchar13" RowOrdinal="0" />
+          </pnp:Fields>
+        </pnp:ListInstance>
+      </pnp:Lists>
+      <pnp:ClientSidePages>
+        <pnp:ClientSidePage EnableComments="false" Layout="SingleWebPartAppPage" PageName="Modernize" Publish="true" PromoteAsNewsArticle="false" Title="Modernize">
+          <pnp:Sections>
+            <pnp:Section Order="1" Type="OneColumn">
+              <pnp:Controls>
+                <pnp:CanvasControl  WebPartType="Custom" CustomWebPartName="pageTransformator" JsonControlData="{&quot;controlType&quot;:3,&quot;displayMode&quot;:2,&quot;id&quot;:&quot;75380cf0-dd28-4d95-9664-e031e7a82195&quot;,&quot;position&quot;:{&quot;zoneIndex&quot;:1,&quot;sectionIndex&quot;:1,&quot;controlIndex&quot;:1},&quot;webPartId&quot;:&quot;c732da60-5eee-4dd0-8879-b89eec6d89df&quot;,&quot;webPartData&quot;:{&quot;id&quot;:&quot;c732da60-5eee-4dd0-8879-b89eec6d89df&quot;,&quot;instanceId&quot;:&quot;75380cf0-dd28-4d95-9664-e031e7a82195&quot;,&quot;title&quot;:&quot;pageTransformator&quot;,&quot;description&quot;:&quot;Calls the page transformation service on behalf of the user to create a modern version of the page&quot;,&quot;serverProcessedContent&quot;:{&quot;htmlStrings&quot;:{},&quot;searchablePlainTexts&quot;:{},&quot;imageSources&quot;:{},&quot;links&quot;:{}},&quot;dataVersion&quot;:&quot;1.0&quot;,&quot;properties&quot;:{&quot;description&quot;:&quot;pageTransformator&quot;}}}"></pnp:CanvasControl>
+              </pnp:Controls>
+            </pnp:Section>
+          </pnp:Sections>
+        </pnp:ClientSidePage>
+      </pnp:ClientSidePages>
+      <pnp:Files>
+        <pnp:File Src="..\assets\modernize32x32.png" Overwrite="true" Folder="SiteAssets"></pnp:File>
+        <pnp:File Src="..\assets\modernize16x16.png" Overwrite="true" Folder="SiteAssets"></pnp:File>
+      </pnp:Files>
+    </pnp:ProvisioningTemplate>
+  </pnp:Templates>
+</pnp:Provisioning>
