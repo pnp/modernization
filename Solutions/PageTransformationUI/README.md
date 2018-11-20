@@ -10,3 +10,5 @@ Below diagram shows the high level architecture of the solution:
 4. If the page is discard a feedback dialog is shown asking the user for a reason why the page was not good. This information is then stored in a central list in the modernization center site collection. If the users keeps the page then the modern page gets the name of the original page and the original page is renamed with an old_ prefix
 
 ![page transformator web part](docs/images/PageTransformationUIarchitecture.png)
+
+<img src="https://telemetry.sharepointpnp.com/sp-dev-modernization/solutions/PageTransformationUI" />
