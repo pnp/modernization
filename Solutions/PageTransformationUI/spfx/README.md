@@ -1,14 +1,11 @@
+# SharePoint Framework solutions
 
-# Contributing
+This folder contains the SharePoint Framework (SPFX) components of the Page Transformation UI solution. Following SharePoint Framework components are used:
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
+**A PageTransformator web part**: this web part is hosted on a central page (modernize.aspx) in the modernization center site collection. This web part is responsible for calling the Azure AD secured Azure Function on behalf of the current user
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+![page transformator web part](../docs/images/pagetransformatorwebpart.png)
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+**A PageAcceptBanner web part**: this web part will be added on the transformed pages and does allow an end users to accept/decline to transformed page
+
+![page accept banner web part](../docs/images/pagebannerwebpart.png)
