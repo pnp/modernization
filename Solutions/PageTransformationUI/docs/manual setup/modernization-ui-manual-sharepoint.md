@@ -58,7 +58,7 @@ The **Modernization center** site collection acts as a central hub to drive page
 
 ## Step 3: Configure the Storage entities
 
-Use the below PnP PowerShell cmdlets to add the needed configuration to make the solution come to live. Use the respective values from the earlier created Azure AD application and Azure Function app.
+Use the below [PnP PowerShell](http://aka.ms/sppnp-powershell) cmdlets to add the needed configuration to make the solution come to live. Use the respective values from the earlier created Azure AD application and Azure Function app.
 
 ```PowerShell
 Set-PnPStorageEntity -Key "Modernization_AzureADApp" -Value "79ad0500-1230-4f7a-a5bb-5e83ce9174f4" -Description "ID of the Azure AD app is used for page transformation"

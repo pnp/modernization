@@ -12,3 +12,6 @@ Since the Page Transformation UI solution depends on Azure and SharePoint the se
 ## Optional steps
 
 You can also configure the Azure Function app created in previous chapter as a multi-tenant function which will than allow you to share this Azure function app with multiple tenants needing page transformation.
+
+- [Configure your Azure Function app to be used from multiple tenants](modernization-ui-multitenant-setup.md)
+- [Configure your SharePoint tenant to consume a multi-tenant page transformation service](modernization-ui-multitenant-use.md)
