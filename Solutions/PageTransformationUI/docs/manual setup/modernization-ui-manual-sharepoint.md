@@ -5,7 +5,7 @@ Page transformation depends on a SharePoint modernization center site being pres
 ## Step 1: Deploy the SharePoint Framework solutions
 
 >Important:
->You'll the December 2018 or more recent version of PnP PowerShell
+>You'll need the December 2018 or more recent version of PnP PowerShell
 
 - Clone this repository to your local machine (git clone https://github.com/SharePoint/sp-dev-modernization.git) and checkout the dev branch (git checkout dev). Alternatively download the repository as zip file and unzip in local folder
 - Load up [PnP PowerShell](http://aka.ms/sppnp-powershell) and navigate to the `/Solutions/PageTransformationUI/provisioning` folder
