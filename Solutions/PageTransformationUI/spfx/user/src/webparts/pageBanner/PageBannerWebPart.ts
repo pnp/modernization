@@ -49,7 +49,7 @@ export default class PageBannerWebPart extends BaseClientSideWebPart<IPageBanner
           }
           else
           {
-            this.learnMoreUrl = "https://aka.ms/sppnp-modernize";
+            this.learnMoreUrl = "https://aka.ms/sppnp-pagetransformationui-manual";
           }
 
           resolve();
@@ -78,7 +78,7 @@ export default class PageBannerWebPart extends BaseClientSideWebPart<IPageBanner
   {
     // Set-PnPStorageEntity -Key "Modernization_CenterUrl" -Value "/sites/modernizationcenter" -Description "Site relative URL for the modernization center in this tenant"
     // Set-PnPStorageEntity -Key "Modernization_FeedbackList" -Value "ModernizationFeedback" -Description "Name of the created feedback list"    
-    // Set-PnPStorageEntity -Key "Modernization_LearnMoreUrl" -Value "/sites/modernizationcenter/sitepages/somepage.aspx" -Description "Url shown in the learn more link"  
+    // Set-PnPStorageEntity -Key "Modernization_LearnMoreUrl" -Value "https://aka.ms/sppnp-pagetransformationui-manual" -Description "Url shown in the learn more link"  
     const result: IStorageEntities = { 
       modernizationCenterUrl :  await sp.web.getStorageEntity("Modernization_CenterUrl"),
       feedbackList : await sp.web.getStorageEntity("Modernization_FeedbackList"),

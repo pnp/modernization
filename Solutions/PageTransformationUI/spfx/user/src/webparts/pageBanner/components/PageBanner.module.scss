@@ -10,6 +10,7 @@
 
   .lefticon {
     @include ms-font-xl;
+    @include ms-fontColor-white;
     margin-right: 10px;
     vertical-align: middle;
     padding: 5px;
