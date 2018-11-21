@@ -13,7 +13,7 @@
       <pnp:StorageEntity Key="Modernization_PageTransformationEndpoint" Value="api/ModernizePage" Description="Api endpoint for page transformation"/>
       <pnp:StorageEntity Key="Modernization_CenterUrl" Value="{parameter:CenterUrl}" Description="Site relative URL for the modernization center in this tenant"/>
       <pnp:StorageEntity Key="Modernization_FeedbackList" Value="{parameter:ModernizationFeedbackList}" Description="Name of the created feedback list" />
-      <pnp:StorageEntity Key="Modernization_LearnMoreUrl" Value="https://aka.ms/sppnp-modernize" Description="Url shown in the learn more link"/>
+      <pnp:StorageEntity Key="Modernization_LearnMoreUrl" Value="https://aka.ms/sppnp-pagetransformationui-manual" Description="Url shown in the learn more link"/>
     </pnp:StorageEntities>
     <pnp:WebApiPermissions>
       <pnp:WebApiPermission Resource="SharePointPnP.Modernization" Scope="user_impersonation"/>
