@@ -52,8 +52,8 @@ export default class PageTransformatorWebPart extends BaseClientSideWebPart<IPag
 
         // Get settings (stored as storage entities)
         // Load storage entities, only needed if we've found the page to transform
-        // Set-PnPStorageEntity -Key "Modernization_AzureADApp" -Value "79ad0500-1230-4f7a-a5bb-5e83ce9174f4" -Description "ID of the Azure AD app is used for page transformation"
-        // Set-PnPStorageEntity -Key "Modernization_FunctionHost" -Value "https://sharepointpnpmodernizationdemo.azurewebsites.net" -Description "Host of the SharePoint PnP Modernization service"
+        // Set-PnPStorageEntity -Key "Modernization_AzureADApp" -Value "277a116f-db6f-45f2-9f7a-f4f866424442" -Description "ID of the Azure AD app is used for page transformation"
+        // Set-PnPStorageEntity -Key "Modernization_FunctionHost" -Value "https://sharepointpnpmodernization.azurewebsites.net" -Description "Host of the SharePoint PnP Modernization service"
         // Set-PnPStorageEntity -Key "Modernization_PageTransformationEndpoint" -Value "api/ModernizePage -Description "Api endpoint for page transformation"
         
         // store storage entities for later use
