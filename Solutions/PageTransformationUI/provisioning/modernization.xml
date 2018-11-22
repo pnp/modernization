@@ -2,6 +2,7 @@
 <pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2018/07/ProvisioningSchema" Author="SharePoint PnP" Generator="SharePoint PnP" Version="1.0" Description="SharePoint Page Transformation UI" DisplayName="SharePoint Page Transformation UI" ImagePreviewUrl="https://raw.githubusercontent.com/SharePoint/sp-dev-provisioning-templates/blob/master/tenant/PageTransformationUI/PageTransformationUI.png">
   <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.1.1809.0, Culture=neutral, PublicKeyToken=null">
     <pnp:Parameters>
+      <pnp:Parameter Key="AzureAppID">79ad0500-1230-4f7a-a5bb-5e83ce9174f4"</pnp:Parameter>
       <pnp:Parameter Key="AzureFunction">https://contosomodernization.azurewebsites.net</pnp:Parameter>
       <pnp:Parameter Key="CenterUrl">/sites/modernizationcenter</pnp:Parameter>
       <pnp:Parameter Key="ModernizationFeedbackList">ModernizationFeedback</pnp:Parameter>
@@ -9,7 +10,7 @@
   </pnp:Preferences>
   <pnp:Tenant>
     <pnp:StorageEntities>
-      <pnp:StorageEntity Key="Modernization_AzureADApp" Value="79ad0500-1230-4f7a-a5bb-5e83ce9174f4" Description="ID of the Azure AD app is used for page transformation"/>
+      <pnp:StorageEntity Key="Modernization_AzureADApp" Value="{parameter:AzureAppID}" Description="ID of the Azure AD app is used for page transformation"/>
       <pnp:StorageEntity Key="Modernization_FunctionHost" Value="{parameter:AzureFunction}" Description="Host of the SharePoint PnP Modernization service"/>
       <pnp:StorageEntity Key="Modernization_PageTransformationEndpoint" Value="api/ModernizePage" Description="Api endpoint for page transformation"/>
       <pnp:StorageEntity Key="Modernization_CenterUrl" Value="{parameter:CenterUrl}" Description="Site relative URL for the modernization center in this tenant"/>
