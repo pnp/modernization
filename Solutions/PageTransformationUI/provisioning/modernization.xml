@@ -52,7 +52,7 @@
       </pnp:Security>
       <pnp:ApplicationLifecycleManagement>
         <pnp:Apps>
-          <pnp:App AppId="{apppackageid:sharepointpnp-pagetransformation-central-solution}" Action="Install"/>
+          <pnp:App AppId="{apppackageid:sharepointpnp-pagetransformation-central-solution}" SyncMode="Synchronously" Action="Install"/>
         </pnp:Apps>
       </pnp:ApplicationLifecycleManagement>
       <pnp:Navigation AddNewPagesToNavigation="true" CreateFriendlyUrlsForNewPages="true">
