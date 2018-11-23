@@ -17,7 +17,7 @@
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
     "group": { "default": "Other" },
     "title": { "default": "PageTransformatorAdmin" },
-    "description": { "default": "PageTransformatorAdmin description" },
+    "description": { "default": "Allows administrators to enable or disable sites for page transformation" },
     "officeFabricIconFontName": "Page",
     "properties": {
       "description": "PageTransformatorAdmin"

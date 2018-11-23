@@ -12,9 +12,9 @@ export default class PageTransformatorAdmin extends React.Component<IPageTransfo
 
   private SITEPAGESFEATUREID: string = 'B6917CB1-93A0-4B97-A84D-7CF49975D4EC';
   private CAPNPMODERNIZESITEPAGESECB: string = "CA_PnP_Modernize_SitePages_ECB";
-  private CAPNPMODERNIZESITEPAGES: string = "CA_PnP_Modernize_SitePages"
-  private CAPNPMODERNIZEWIKIPAGE: string = "CA_PnP_Modernize_WikiPage"
-  private CAPPNPMODERNIZEWEBPARTPAGE: string = "CA_PnP_Modernize_WebPartPage";
+  private CAPNPMODERNIZESITEPAGES: string = "CA_PnP_Modernize_SitePages_RIBBON";
+  private CAPNPMODERNIZEWIKIPAGE: string = "CA_PnP_Modernize_WikiPage_RIBBON";
+  private CAPPNPMODERNIZEWEBPARTPAGE: string = "CA_PnP_Modernize_WebPartPage_RIBBON";
 
   constructor(props: IPageTransformatorAdminProps, state: IPageTransformatorAdminState) {
     super(props);

@@ -10,5 +10,5 @@ export interface IPageTransformatorAdminState {
   siteUrl: string;
   buttonsDisabled: boolean;
   resultMessage :string;
-  resultMessageType: MessageBarType
+  resultMessageType: MessageBarType;
 }
