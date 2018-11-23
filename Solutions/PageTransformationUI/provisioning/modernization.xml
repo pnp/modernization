@@ -60,13 +60,10 @@
           <pnp:StructuralNavigation RemoveExistingNodes="true" />
         </pnp:GlobalNavigation>
         <pnp:CurrentNavigation NavigationType="StructuralLocal">
-          <pnp:StructuralNavigation RemoveExistingNodes="false">
+          <pnp:StructuralNavigation RemoveExistingNodes="true">
             <pnp:NavigationNode Title="Home" Url="{site}" />
             <pnp:NavigationNode Title="Modernization Feedback" Url="{site}/Lists/ModernizationFeedback/AllItems.aspx" />
-            <pnp:NavigationNode Title="Documents" Url="{site}/Shared Documents/Forms/AllItems.aspx" />
-            <pnp:NavigationNode Title="Pages" Url="{site}/SitePages/Forms/ByAuthor.aspx" />
             <pnp:NavigationNode Title="Site contents" Url="{site}/_layouts/15/viewlsts.aspx" IsExternal="true" />
-            <pnp:NavigationNode Title="Recent" Url="" IsExternal="true" />
           </pnp:StructuralNavigation>
         </pnp:CurrentNavigation>
       </pnp:Navigation>
@@ -113,10 +110,7 @@
             <Field Type="Number" DisplayName="Day" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Decimals="0" ID="{e97202da-0a81-4670-8b6a-5fd9885f6436}" SourceID="{{listid:ModernizationFeedback}}" StaticName="Day" Name="Day" ColName="float3" RowOrdinal="0" />
           </pnp:Fields>
           <pnp:Security>
-            <pnp:BreakRoleInheritance CopyRoleAssignments="false" ClearSubscopes="false">
-              <pnp:RoleAssignment Principal="{associatedownergroup}" RoleDefinition="Full Control" />
-              <pnp:RoleAssignment Principal="{associatedvisitorgroup}" RoleDefinition="Read" />
-              <pnp:RoleAssignment Principal="{associatedmembergroup}" RoleDefinition="Edit" />
+            <pnp:BreakRoleInheritance CopyRoleAssignments="true" ClearSubscopes="false">
               <pnp:RoleAssignment Principal="{everyonebutexternalusers}" RoleDefinition="Edit" />
             </pnp:BreakRoleInheritance>
           </pnp:Security>
