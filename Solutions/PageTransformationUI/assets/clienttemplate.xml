@@ -16,7 +16,7 @@
       <pnp:CustomActions>
         <pnp:SiteCustomActions>
           <!-- Wiki Page library user custom actions -->
-          <pnp:CustomAction Name="CA_Modernize_SitePages_ECB"
+          <pnp:CustomAction Name="CA_PnP_Modernize_SitePages_ECB"
                             Description="Create a modern version of this page."
                             Location="EditControlBlock"
                             RegistrationType="List"
@@ -27,7 +27,7 @@
                             Url="{parameter:ModernizationCenterUrl}/SitePages/modernize.aspx?SiteUrl={SiteCollection}&amp;ListId={ListId}&amp;ItemId={ItemId}"
                             Enabled="true">
           </pnp:CustomAction>
-          <pnp:CustomAction Name="CA_Modernize_SitePages"
+          <pnp:CustomAction Name="CA_PnP_Modernize_SitePages_RIBBON"
                             Description="Create a modern version of this Wiki or Web Part page."
                             Location="CommandUI.Ribbon"
                             RegistrationType="List"
@@ -61,7 +61,7 @@
             </pnp:CommandUIExtension>
           </pnp:CustomAction>
           <!-- Wiki page ribbon user custom action -->
-          <pnp:CustomAction Name="CA_Modernize_WikiPage"
+          <pnp:CustomAction Name="CA_PnP_Modernize_WikiPage_RIBBON"
                             Description="Create a modern version of this page."
                             Location="CommandUI.Ribbon"
                             Title="Create modern version"
@@ -92,7 +92,7 @@
             </pnp:CommandUIExtension>
           </pnp:CustomAction>
           <!-- Web part page ribbon user custom action -->
-          <pnp:CustomAction Name="CA_Modernize_WebPartPage"
+          <pnp:CustomAction Name="CA_PnP_Modernize_WebPartPage_RIBBON"
                             Description="Create a modern version of this page."
                             Location="CommandUI.Ribbon"
                             Title="Create modern version"
