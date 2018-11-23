@@ -5,8 +5,13 @@
     [String] $AppTitle    
 )
 
-Install-Module AzureADPreview -Force
-Import-Module AzureADPreview
+# Install AzureADPreview if it is missing
+$aadPreviwModule = Import-Module AzureADPreview -ErrorAction SilentlyContinue -PassThru
+if(!$aadPreviwModule)
+{
+    Write-Output "Installing AzureADPreview module"
+    Install-Module AzureADPreview -Force
+}
 
 function GeneratePasswordCredential() {
     $keyId = (New-Guid).ToString();

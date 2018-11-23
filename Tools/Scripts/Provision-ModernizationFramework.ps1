@@ -31,6 +31,14 @@
 # Register the Azure AD Application and get back ClientId and ClientSecret
 $aadApp = .\Provision-AADApplication.ps1 -AppName $AppName -AppTitle $AppTitle
 
+# Install AzureRM command lets, if they are missing
+$azureRMModule = Import-Module AzureRM -ErrorAction SilentlyContinue -PassThru
+if(!$azureRMModule)
+{
+    Write-Output "Installing AzureADPreview module"
+    Install-Module AzureRM -Force
+}
+
 # Login to AzureRM
 Login-AzureRmAccount 
 
@@ -103,6 +111,15 @@ $appSettings = @{
     'WEBSITE_CONTENTSHARE' = $FunctionAppName + "0001";
     'WEBSITE_NODE_DEFAULT_VERSION' = "8.11.1";
     'WEBSITE_RUN_FROM_PACKAGE' = "1";
+}
+
+# Force NewtonSoft.Json installation
+$module = import-module newtonsoft.json -ErrorAction SilentlyContinue -PassThru
+if(!$module)
+{
+    Write-Output "installing newtonsoft.json"
+    Install-Module newtonsoft.json -Scope CurrentUser -Force
+    import-module newtonsoft.json
 }
 Set-AzureRmWebApp -Name $FunctionAppName -ResourceGroupName $ResourceGroupName -AppSettings $appSettings
 
