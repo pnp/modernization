@@ -183,10 +183,11 @@ export default class PageTransformatorAdmin extends React.Component<IPageTransfo
     return new Promise<void>((resolve) => {
       site.userCustomActions.filter(`Name eq '${customAction.Name}'`).get().then((customActions: any[]) => {
         if (customActions.length == 0) {
-          site.userCustomActions.add(customAction).then(_ => { });
+          site.userCustomActions.add(customAction).then(_ => { resolve(); });
+        } else {
+          resolve();
         }
       });
-      resolve();
     });
   }
 
@@ -194,7 +195,9 @@ export default class PageTransformatorAdmin extends React.Component<IPageTransfo
     return new Promise<void>((resolve) => {
       site.userCustomActions.filter(`Name eq '${name}'`).get().then((customActions: any[]) => {
         if (customActions.length == 1) {
-          site.userCustomActions.getById(customActions[0].Id).delete().then(_ => { });
+          site.userCustomActions.getById(customActions[0].Id).delete().then(_ => { resolve(); });
+        } else {
+          resolve();
         }
       });
       resolve();
