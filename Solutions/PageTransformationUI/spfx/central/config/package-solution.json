@@ -5,7 +5,7 @@
     "id": "eeca9e77-32ae-43fb-b279-2436ac62a842",
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
-    "isDomainIsolated": false,
+    "isDomainIsolated": true,
     "webApiPermissionRequests": [
       {
         "resource": "SharePointPnP.Modernization",

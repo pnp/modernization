@@ -1,0 +1,16 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.pageTransformatorAdmin {
+
+  .actions {
+    margin-top: 16px;
+
+    button:first-child {
+      margin-right: 16px;
+    }
+  }
+
+  .messages {
+    margin-top: 16px;
+  }
+}

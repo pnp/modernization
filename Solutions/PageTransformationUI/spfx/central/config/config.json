@@ -9,10 +9,19 @@
           "manifest": "./src/webparts/pageTransformator/PageTransformatorWebPart.manifest.json"
         }
       ]
+    },
+    "page-transformator-admin-web-part" : {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/pageTransformatorAdmin/PageTransformatorAdminWebPart.js",
+          "manifest": "./src/webparts/pageTransformatorAdmin/PageTransformatorAdminWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "PageTransformatorWebPartStrings": "lib/webparts/pageTransformator/loc/{locale}.js"
+    "PageTransformatorWebPartStrings": "lib/webparts/pageTransformator/loc/{locale}.js",
+    "PageTransformatorAdminWebPartStrings": "lib/webparts/pageTransformatorAdmin/loc/{locale}.js"
   }
 }
