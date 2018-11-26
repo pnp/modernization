@@ -75,4 +75,25 @@ Now that we created the Azure AD application we can finalize the configuration o
 
 ## Step 4: deploy the SharePoint Modernization service binaries to the Azure Function App
 
-todo
+If you do have Visual Studio 2017 installed then you can open the **ModernizationService** project from under the services folder, right-click on the **ModernizationFunction** project inside and choose **Publish**.
+
+>Note:
+>The first time you do this you need to connect to your earlier created Azure Function app.
+
+Using this approach allows you for example easily update the webpartmapping.xml file before deployment, which is needed in case you want to alter the out-of-the-box mapping definition.
+
+If you don't have Visual Studio 2017 available you can deploy the **sharepointpnpmodernizationeurope.zip** (available in the **provisioning**) folder to the Azure Function App as described in the [Zip Deployment](https://docs.microsoft.com/en-us/azure/azure-functions/deployment-zip-push) article. Below snippet shows the PowerShell way but there are other methods mentioned in the documentation.
+
+>Note:
+>Update the 4 variables before launched this code. $username and $password are the credentials that have permission to update the earlier created Azure Function App, $filepath points to the sharepointpnpmodernizationeurope.zip file and $apiUrl will need to contain your Azure Function app host name.
+
+```Powershell
+#PowerShell
+$username = "<deployment_user>"
+$password = "<deployment_password>"
+$filePath = "<zip_file_path>"
+$apiUrl = "https://<app_name>.scm.azurewebsites.net/api/zipdeploy"
+$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username, $password)))
+$userAgent = "powershell/1.0"
+Invoke-RestMethod -Uri $apiUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
+```
