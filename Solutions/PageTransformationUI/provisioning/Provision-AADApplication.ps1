@@ -52,7 +52,7 @@ function GenerateRequiredResourceAccess() {
     return $requiredResourcesAccess
 }
 
-Write-Information "Please provide the credential to access the AAD tenant under the cover of your Office 365 target tenant"
+Write-Host "Please provide the credential to access the AAD tenant under the cover of your Office 365 target tenant"
 
 # Connect to Azure AD
 $credential = Get-Credential

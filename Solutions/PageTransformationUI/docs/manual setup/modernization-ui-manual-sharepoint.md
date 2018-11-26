@@ -14,7 +14,7 @@ Page transformation depends on a SharePoint modernization center site being pres
 
 ```PowerShell
 # Update AzureAppID and AzureFunction before running this
-Apply-PnPTenantTemplate -Path .\modernization.xml -Parameters @{"AzureAppID"="79ad0500-1230-4f7a-a5bb-5e83ce9174f4", "AzureFunction"="https://contosomodernization.azurewebsites.net"}
+Apply-PnPTenantTemplate -Path .\modernization.xml -Parameters @{"AzureAppID"="79ad0500-1230-4f7a-a5bb-5e83ce9174f4";"AzureFunction"="https://contosomodernization.azurewebsites.net"}
 ```
 
 ## Step 2: Making page transformation available for a site collection
