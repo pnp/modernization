@@ -2,7 +2,7 @@
 
 ## Preparation
 
-- Ensure you are using the latest version of [PnP PowerShell](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
+- Ensure you are using the developer build or December 2018 version of [PnP PowerShell](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
 
 ## Step 1: Setup the Azure side
 
@@ -23,7 +23,7 @@ Apply-PnPTenantTemplate -Path .\modernization.xml -Parameters @{"AzureAppID"="79
 
 ## Step 3: Enable the page transformation UI for your site collections
 
-There's no ways to do this. The easiest is going the your modernization center home page, enter the URL of your site collection and click on **Enable**:
+There's two ways to do this. The easiest is going to your modernization center home page, enter the URL of your site collection and click on **Enable**:
 
 ![page transformator setup web part](/Solutions/PageTransformationUI/docs/images/enablepagetransformationwebpart.png)
 
