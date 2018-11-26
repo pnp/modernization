@@ -476,6 +476,8 @@ function ModernizeSite
 $tenantAdminUrl = "https://bertonline-admin.sharepoint.com"
 # If you use credential manager then specify the used credential manager entry, if left blank you'll be asked for a user/pwd
 $credentialManagerCredentialToUse = "bertonline"
+# Binary folder for page transformation
+$binaryFolder = "C:\modernization\modernization.framework"
 
 #region Setup Logging
 $date = Get-Date
@@ -512,23 +514,14 @@ else
 #endregion
 
 #region Load PnP Modernization framework
-$binaryFolder = "C:\ESPC2018\bert\modernization.framework"
 Use-PnPModernizationFramework -PathToModernizationBinaries $binaryFolder
 #endregion
 
-#region Gather modernization run input
-# Url of the site collection to modernize
-$siteCollectionUrlToRemediate = "https://bertonline.sharepoint.com/sites/contosodemo7"
-# !!! Don't forget to change this !!!
-$siteAlias = "contosodemo7"
-$siteIsPublic = $false
-$siteClassificationLabel = ""
-
 # Get the input information
-#$siteCollectionUrlToRemediate = Read-Host -Prompt 'Input the url for the site to be modernized ?'
-#$siteAlias = Read-Host -Prompt 'Input the Office 365 group alias for this site ?'
-#$siteIsPublicString = Read-Host -Prompt 'Will the created Office 365 group be a public group ? Enter True for public, False otherwise'
-#$siteClassificationLabel = Read-Host -Prompt 'Classification label to use? Enter label or leave empty if not configured'
+$siteCollectionUrlToRemediate = Read-Host -Prompt 'Input the url for the site to be modernized ?'
+$siteAlias = Read-Host -Prompt 'Input the Office 365 group alias for this site ?'
+$siteIsPublicString = Read-Host -Prompt 'Will the created Office 365 group be a public group ? Enter True for public, False otherwise'
+$siteClassificationLabel = Read-Host -Prompt 'Classification label to use? Enter label or leave empty if not configured'
 try 
 {
     $siteIsPublic = [System.Convert]::ToBoolean($siteIsPublicString) 
