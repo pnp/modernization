@@ -15,6 +15,8 @@ Start with creating a new Azure Function App: it's needed to create a new Azure 
   
 ![Azure function app 2](images/azure_function_2.png)
 
+- Set the function runtime to version 1 by clicking on **Function App Settings** and then choosing **~1** as runtime version
+
 ## Step 2: Create and configure an Azure AD application
 
 The Azure AD application will be used to secure the created Azure function.
