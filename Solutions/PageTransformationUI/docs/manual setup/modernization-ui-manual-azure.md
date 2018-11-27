@@ -76,16 +76,16 @@ Now that we created the Azure AD application we can finalize the configuration o
 
 ## Step 4: deploy the SharePoint Modernization service binaries to the Azure Function App
 
-### Option A: Using Kudo
+### Option A: Using Kudu
 
-The easiest way to deploy the Azure Function app binaries is by using Kudo:
+The easiest way to deploy the Azure Function app binaries is by using Kudu:
 
 - Click on **Platform features** and select **Advanced tools (Kudu)** from the **Development Tools** section
-- In Kudo use the **Tools** menu and select **Zip Push Deploy**
+- In Kudu use the **Tools** menu and select **Zip Push Deploy**
 - Drag the **sharepointpnpmodernizationeurope.zip** file inside the wwwroot folder pane
 - The zip file be uploaded and deployed. A successful deployment will result in this:
 
-![Azure function deployment using Kudo](images/azure_function_5.png)
+![Azure function deployment using Kudu](images/azure_function_5.png)
 
 ### Option B: Use Visual Studio 2017
 
