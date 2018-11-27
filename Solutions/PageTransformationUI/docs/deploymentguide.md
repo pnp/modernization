@@ -16,6 +16,8 @@ You need to create and configure the Modernization center site collection:
 - Run below PnP PowerShell. Update the parameter before running
   
 ```PowerShell
+# Connect to any given site in your tenant
+Connect-PnPOnline -Url https://contoso.sharepoint.com
 
 # Update AzureAppID and AzureFunction before running this
 Apply-PnPTenantTemplate -Path .\modernization.xml -Parameters @{"AzureAppID"="79ad0500-1230-4f7a-a5bb-5e83ce9174f4";"AzureFunction"="https://contosomodernization.azurewebsites.net"}

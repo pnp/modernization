@@ -21,8 +21,7 @@ Start with creating a new Azure Function App: it's needed to create a new Azure 
 
 The Azure AD application will be used to secure the created Azure function.
 
-- Navigation to https://admin.microsoft.com which will load up the Office 365 Admin Center
-- Expand the **Admin centers** dropdown in the left navigation and select **Azure Active Directory** which will load the Azure Active Directory admin center
+- Navigate to https://aad.portal.azure.com which will load the Azure Active Directory admin center
 - Click on **Azure Active Directory** in the left navigation
 - Click on **App registrations** in the Manage section
 - Click on **New application registration**
@@ -77,12 +76,27 @@ Now that we created the Azure AD application we can finalize the configuration o
 
 ## Step 4: deploy the SharePoint Modernization service binaries to the Azure Function App
 
+### Option A: Using Kudo
+
+The easiest way to deploy the Azure Function app binaries is by using Kudo:
+
+- Click on **Platform features** and select **Advanced tools (Kudu)** from the **Development Tools** section
+- In Kudo use the **Tools** menu and select **Zip Push Deploy**
+- Drag the **sharepointpnpmodernizationeurope.zip** file inside the wwwroot folder pane
+- The zip file be uploaded and deployed. A successful deployment will result in this:
+
+![Azure function deployment using Kudo](images/azure_function_5.png)
+
+### Option B: Use Visual Studio 2017
+
 If you do have Visual Studio 2017 installed then you can open the **ModernizationService** project from under the services folder, right-click on the **ModernizationFunction** project inside and choose **Publish**.
 
 >Note:
 >The first time you do this you need to connect to your earlier created Azure Function app.
 
 Using this approach allows you for example easily update the webpartmapping.xml file before deployment, which is needed in case you want to alter the out-of-the-box mapping definition.
+
+### Option C: Use PowerShell
 
 If you don't have Visual Studio 2017 available you can deploy the **sharepointpnpmodernizationeurope.zip** (available in the **provisioning**) folder to the Azure Function App as described in the [Zip Deployment](https://docs.microsoft.com/en-us/azure/azure-functions/deployment-zip-push) article. Below snippet shows the PowerShell way but there are other methods mentioned in the documentation.
 
