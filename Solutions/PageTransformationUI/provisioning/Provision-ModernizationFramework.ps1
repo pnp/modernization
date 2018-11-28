@@ -13,9 +13,6 @@
  $StorageAccountName,
  [Parameter(Mandatory=$True)]
  [string]
- $HostingPlanName,
- [Parameter(Mandatory=$True)]
- [string]
  $FunctionAppName,
  [Parameter(Mandatory=$True)]
  [string]
@@ -114,13 +111,13 @@ $appSettings = @{
 }
 
 # Force NewtonSoft.Json installation
-$module = import-module newtonsoft.json -ErrorAction SilentlyContinue -PassThru
-if(!$module)
-{
-    Write-Output "installing newtonsoft.json"
-    Install-Module newtonsoft.json -Scope CurrentUser -Force
-    import-module newtonsoft.json
-}
+# $module = import-module newtonsoft.json -ErrorAction SilentlyContinue -PassThru
+# if(!$module)
+# {
+#     Write-Output "installing newtonsoft.json"
+#     Install-Package Newtonsoft.Json -Force
+#     import-module newtonsoft.json
+# }
 Set-AzureRmWebApp -Name $FunctionAppName -ResourceGroupName $ResourceGroupName -AppSettings $appSettings
 
 # Upload the ZIP file of the function and trigger deployment
