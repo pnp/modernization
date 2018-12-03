@@ -97,7 +97,7 @@ $CAMLQueryByExtensionAndName = "<View Scope='Recursive'><Query><Where><And><Cont
 
 # !!!!!!!!!!!!
 # Update below variable to point to the location that holds SharePointPnP.Modernization.Framework.dll and all depending dll's plus the webpartmapping.xml file
-$binaryFolder = "C:\github\BertPnPTools\Solutions\SharePoint.Modernization\SharePointPnP.Modernization.Framework\bin\Debug"
+$binaryFolder = "C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework\bin\Debug"
 
 # Load the SharePoint Modernization framework
 Use-PnPModernizationFramework -PathToModernizationBinaries $binaryFolder
