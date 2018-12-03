@@ -70,7 +70,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Transform the page
         /// </summary>
         /// <param name="pageTransformationInformation">Information about the page to transform</param>
-        public void Transform(PageTransformationInformation pageTransformationInformation)
+        /// <returns>The path to created modern page</returns>
+        public string Transform(PageTransformationInformation pageTransformationInformation)
         {
             #region Input validation
             if (pageTransformationInformation.SourcePage == null)
@@ -396,6 +397,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 TimeSpan duration = DateTime.Now.Subtract(transformationStartDateTime);
                 this.pageTelemetry.LogTransformationDone(duration);
                 this.pageTelemetry.Flush();
+            }
+            #endregion
+
+            #region Return final page url
+            if(!pageTransformationInformation.TargetPageTakesSourcePageName)
+            {
+                string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+                var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
+                return targetPageUrl;
+            }
+            else
+            {
+                return pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
             }
             #endregion
 

@@ -12,7 +12,11 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [Unreleased - version 1.0.1812.0]
+## [December release (prod) - version 1.0.1812.0]
+
+### Added
+
+- Return site relative URL of the created modern page
 
 ### Changed
 
