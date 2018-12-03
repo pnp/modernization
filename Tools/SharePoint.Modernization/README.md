@@ -647,7 +647,7 @@ Copyright (C) 2018 SharePoint PnP
 ==========================================================
 
 See the sp-dev-modernization repo for more information at:
-https://github.com/SharePoint/sp-dev-modernization/blob/master/Tools/SharePoint.Modernization.Scanner
+https://github.com/SharePoint/sp-dev-modernization/tree/master/Tools/SharePoint.Modernization
 
 Let the tool figure out your urls (works only for SPO MT):
 ==========================================================
