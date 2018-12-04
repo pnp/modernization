@@ -128,6 +128,12 @@ export default class PostFeedbackDialog extends BaseDialog {
         };
       }
 
+      // Workaround for being able to open the dialog multiple times with SPFX 1.7 / React 16
+      protected onAfterClose(): void {
+        super.onAfterClose();
+        ReactDOM.unmountComponentAtNode(this.domElement);
+      }
+
       @autobind
       private async _submit(rejectionCategory: string, rejectionComments: string): Promise<void> {
         console.log(`rejectionCategory = ${rejectionCategory} rejectionComments = ${rejectionComments}`);
