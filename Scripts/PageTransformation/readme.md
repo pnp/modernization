@@ -17,6 +17,7 @@ The page transformation engine can also be used from PowerShell. This allows it 
 Solution|Author(s)
 --------|---------
 TransformPageSampleBasic.ps | Bert Jansen (**Microsoft**)
+TransformPages.ps1 | Bert Jansen (**Microsoft**)
 
 ## Version history
 
