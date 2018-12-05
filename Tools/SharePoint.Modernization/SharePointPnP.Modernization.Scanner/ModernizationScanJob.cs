@@ -98,7 +98,12 @@ namespace SharePoint.Modernization.Scanner
                 // bail out
                 return;
             }
-            
+
+            // Set timeouts 
+            e.SiteClientContext.RequestTimeout = Timeout.Infinite;
+            e.WebClientContext.RequestTimeout = Timeout.Infinite;
+            e.TenantClientContext.RequestTimeout = Timeout.Infinite;
+
             // thread safe increase of the sites counter
             IncreaseScannedSites();
 
@@ -461,6 +466,19 @@ namespace SharePoint.Modernization.Scanner
                                                     )));
                     }
                 }
+
+                // Analyze the lists that and export the site collections that use classic customizations
+                var sitesWithCodeCustomizations = ListAnalyzer.GenerateSitesWithCodeCustomizationsResults(this.ListScanResults);
+                outputfile = string.Format("{0}\\SitesWithCustomizations.csv", this.OutputFolder);
+                Console.WriteLine("Outputting scan results to {0}", outputfile);
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    foreach(var siteWithCustomizations in sitesWithCodeCustomizations)
+                    {
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(siteWithCustomizations))));
+                    }
+                }
+
             }
 
             if (Options.IncludePage(this.Mode))

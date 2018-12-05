@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
@@ -124,28 +125,52 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         {
                             scanResult.PageLayoutsConfiguration = "Defined list";
 
-                            // Fill the defined list
-                            var element = XElement.Parse(availablePageLayouts);
-                            var nodes = element.Descendants("layout");
-                            if (nodes != null && nodes.Count() > 0)
+                            try
                             {
-                                string allowedPageLayouts = "";
+                                availablePageLayouts = SanitizeXmlString(availablePageLayouts);
 
-                                foreach (var node in nodes)
+                                // Fill the defined list
+                                var element = XElement.Parse(availablePageLayouts);
+                                var nodes = element.Descendants("layout");
+                                if (nodes != null && nodes.Count() > 0)
                                 {
-                                    allowedPageLayouts = allowedPageLayouts + node.Attribute("url").Value.Replace("_catalogs/masterpage/", "") + ",";
+                                    string allowedPageLayouts = "";
+
+                                    foreach (var node in nodes)
+                                    {
+                                        allowedPageLayouts = allowedPageLayouts + node.Attribute("url").Value.Replace("_catalogs/masterpage/", "") + ",";
+                                    }
+
+                                    allowedPageLayouts = allowedPageLayouts.TrimEnd(new char[] { ',' });
+
+                                    scanResult.AllowedPageLayouts = allowedPageLayouts;
                                 }
-
-                                allowedPageLayouts = allowedPageLayouts.TrimEnd(new char[] { ',' });
-
-                                scanResult.AllowedPageLayouts = allowedPageLayouts;
+                            }
+                            catch(Exception ex)
+                            {
+                                scanResult.AllowedPageLayouts = "error_retrieving_pagelayouts";
                             }
                         }
 
                         if (!string.IsNullOrEmpty(defaultPageLayout))
                         {
-                            var element = XElement.Parse(defaultPageLayout);
-                            scanResult.DefaultPageLayout = element.Attribute("url").Value.Replace("_catalogs/masterpage/", "");
+                            if (defaultPageLayout.Equals("__inherit", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                scanResult.DefaultPageLayout = "Inherit from parent";
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    defaultPageLayout = SanitizeXmlString(defaultPageLayout);
+                                    var element = XElement.Parse(defaultPageLayout);
+                                    scanResult.DefaultPageLayout = element.Attribute("url").Value.Replace("_catalogs/masterpage/", "");
+                                }
+                                catch (Exception ex)
+                                {
+                                    scanResult.DefaultPageLayout = "error_retrieving_defaultpagelayout";
+                                }
+                            }
                         }
 
                         // Navigation
@@ -220,15 +245,20 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         }
 
                         // Pages library
-                        var pagesLibrary = web.GetListsToScan().Where(p => p.BaseTemplate == 850).FirstOrDefault();
-                        if (pagesLibrary != null)
+                        List pagesLibrary = null;
+                        var lists = web.GetListsToScan();
+                        if (lists != null)
                         {
-                            pagesLibrary.EnsureProperties(p => p.EnableModeration, p => p.EnableVersioning, p => p.EnableMinorVersions, p => p.EventReceivers, p => p.Fields, p => p.DefaultContentApprovalWorkflowId);
-                            scanResult.LibraryEnableModeration = pagesLibrary.EnableModeration;
-                            scanResult.LibraryEnableVersioning = pagesLibrary.EnableVersioning;
-                            scanResult.LibraryEnableMinorVersions = pagesLibrary.EnableMinorVersions;
-                            scanResult.LibraryItemScheduling = pagesLibrary.ItemSchedulingEnabled();
-                            scanResult.LibraryApprovalWorkflowDefined = pagesLibrary.DefaultContentApprovalWorkflowId != Guid.Empty;
+                            pagesLibrary = lists.Where(p => p.BaseTemplate == 850).FirstOrDefault();
+                            if (pagesLibrary != null)
+                            {
+                                pagesLibrary.EnsureProperties(p => p.EnableModeration, p => p.EnableVersioning, p => p.EnableMinorVersions, p => p.EventReceivers, p => p.Fields, p => p.DefaultContentApprovalWorkflowId);
+                                scanResult.LibraryEnableModeration = pagesLibrary.EnableModeration;
+                                scanResult.LibraryEnableVersioning = pagesLibrary.EnableVersioning;
+                                scanResult.LibraryEnableMinorVersions = pagesLibrary.EnableMinorVersions;
+                                scanResult.LibraryItemScheduling = pagesLibrary.ItemSchedulingEnabled();
+                                scanResult.LibraryApprovalWorkflowDefined = pagesLibrary.DefaultContentApprovalWorkflowId != Guid.Empty;
+                            }
                         }
 
                         // Variations
@@ -317,41 +347,45 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                         }
 
                                         // Load the file to check the customization status, only do this if the file was not loaded before for this site collection
-                                        Uri uri = new Uri(page.PageLayoutFile());
-                                        var url = page.PageLayoutFile().Replace($"{uri.Scheme}://{uri.DnsSafeHost}".ToLower(), "");
-                                        if (!this.MasterPageGalleryCustomization.ContainsKey(url))
+                                        string layoutFile = page.PageLayoutFile();
+                                        if (!string.IsNullOrEmpty(layoutFile))
                                         {
-                                            try
+                                            Uri uri = new Uri(layoutFile);
+                                            var url = page.PageLayoutFile().Replace($"{uri.Scheme}://{uri.DnsSafeHost}".ToLower(), "");
+                                            if (!this.MasterPageGalleryCustomization.ContainsKey(url))
                                             {
-                                                var publishingPageLayout = cc.Site.RootWeb.GetFileByServerRelativeUrl(url);
-                                                cc.Load(publishingPageLayout);
-                                                cc.ExecuteQueryRetry();
+                                                try
+                                                {
+                                                    var publishingPageLayout = cc.Site.RootWeb.GetFileByServerRelativeUrl(url);
+                                                    cc.Load(publishingPageLayout);
+                                                    cc.ExecuteQueryRetry();
 
-                                                this.MasterPageGalleryCustomization.Add(url, publishingPageLayout.CustomizedPageStatus);
+                                                    this.MasterPageGalleryCustomization.Add(url, publishingPageLayout.CustomizedPageStatus);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    // eat potential exceptions
+                                                }
                                             }
-                                            catch (Exception ex)
-                                            {
-                                                // eat potential exceptions
-                                            }
-                                        }
 
-                                        // store the page layout customization status 
-                                        if (this.MasterPageGalleryCustomization.TryGetValue(url, out CustomizedPageStatus pageStatus))
-                                        {
-                                            if (pageStatus == CustomizedPageStatus.Uncustomized)
+                                            // store the page layout customization status 
+                                            if (this.MasterPageGalleryCustomization.TryGetValue(url, out CustomizedPageStatus pageStatus))
                                             {
-                                                pageScanResult.PageLayoutWasCustomized = false;
+                                                if (pageStatus == CustomizedPageStatus.Uncustomized)
+                                                {
+                                                    pageScanResult.PageLayoutWasCustomized = false;
+                                                }
+                                                else
+                                                {
+                                                    pageScanResult.PageLayoutWasCustomized = true;
+                                                }
+
                                             }
                                             else
                                             {
+                                                // If the file was not loaded for some reason then assume it was customized
                                                 pageScanResult.PageLayoutWasCustomized = true;
                                             }
-
-                                        }
-                                        else
-                                        {
-                                            // If the file was not loaded for some reason then assume it was customized
-                                            pageScanResult.PageLayoutWasCustomized = true;
                                         }
 
                                         // Page audiences
@@ -456,6 +490,30 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
             // return the duration of this scan
             return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
+        }
+
+        private string SanitizeXmlString(string xml)
+        {
+            // Turn into a list of bytes
+            byte[] bytes = Encoding.UTF8.GetBytes(xml);
+            List<byte> byteArray = bytes.ToList();
+
+            // Check for preamble and delete it if needed
+            foreach (byte singleByte in Encoding.UTF8.GetPreamble())
+            {
+                int pos = byteArray.IndexOf(singleByte);
+                if (pos > -1)
+                {
+                    byteArray.RemoveAt(pos);
+                }
+            }
+
+            // remove carriage returns and tabs
+            xml = Encoding.UTF8.GetString(byteArray.ToArray());
+            xml = xml.Replace("\\r", "");
+            xml = xml.Replace("\\t", "");
+
+            return xml;
         }
 
         private int ContinueScanning(ClientContext cc)

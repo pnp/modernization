@@ -214,9 +214,14 @@ namespace SharePoint.Scanning.Framework
         /// <returns>HelpText instance holding the help information</returns>
         public HelpText GetUsage(string scanner)
         {
-            Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(UrlToFileName(assembly.EscapedCodeBase));
-            string version = fvi.FileVersion;
+            string version = "";
+            try
+            {
+                Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(UrlToFileName(assembly.EscapedCodeBase));
+                version = fvi.FileVersion;
+            }
+            catch { }
 
             var help = new HelpText
             {

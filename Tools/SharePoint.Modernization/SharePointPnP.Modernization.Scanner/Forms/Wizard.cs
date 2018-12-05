@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace SharePoint.Modernization.Scanner.Forms
@@ -14,6 +15,13 @@ namespace SharePoint.Modernization.Scanner.Forms
         {
             this.options = options;
             InitializeComponent();
+            try
+            {
+                var coreAssembly = Assembly.GetExecutingAssembly();
+                string version = ((AssemblyFileVersionAttribute)coreAssembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version.ToString();
+                this.Text = $"SharePoint Modernization Scanner (version {version})";
+            }
+            catch { }
         }
 
         private void wizardPageContainer1_Finished(object sender, EventArgs e)

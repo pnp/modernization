@@ -5499,7 +5499,7 @@
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>The URL of the modern site backing the Office 365 Group</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateUnifiedGroup(System.String,System.String,System.String,System.String,System.String[],System.String[],System.IO.Stream,System.Boolean,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateUnifiedGroup(System.String,System.String,System.String,System.String,System.String[],System.String[],System.IO.Stream,System.Boolean,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Creates a new Office 365 Group (i.e. Unified Group) with its backing Modern SharePoint Site
             </summary>
@@ -5511,11 +5511,12 @@
             <param name="members">A list of UPNs for group members, if any</param>
             <param name="groupLogo">The binary stream of the logo for the Office 365 Group</param>
             <param name="isPrivate">Defines whether the group will be private or public, optional with default false (i.e. public)</param>
+            <param name="createTeam">Defines whether to create MS Teams team associated with the group</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>The just created Office 365 Group</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.UpdateUnifiedGroup(System.String,System.String,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.IO.Stream,System.Nullable{System.Boolean})">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.UpdateUnifiedGroup(System.String,System.String,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.IO.Stream,System.Nullable{System.Boolean},System.Boolean)">
             <summary>
             Updates the logo, members or visibility state of an Office 365 Group
             </summary>
@@ -5525,13 +5526,14 @@
             <param name="owners">A list of UPNs for group owners, if any, to be added to the site</param>
             <param name="members">A list of UPNs for group members, if any, to be added to the site</param>
             <param name="isPrivate">Defines whether the group will be private or public, optional with default false (i.e. public)</param>
+            <param name="createTeam">Defines whether to create MS Teams team associated with the group</param>
             <param name="groupLogo">The binary stream of the logo for the Office 365 Group</param>
             <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>Declares whether the Office 365 Group has been updated or not</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateUnifiedGroup(System.String,System.String,System.String,System.String,System.String[],System.String[],System.String,System.Boolean,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateUnifiedGroup(System.String,System.String,System.String,System.String,System.String[],System.String[],System.String,System.Boolean,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Creates a new Office 365 Group (i.e. Unified Group) with its backing Modern SharePoint Site
             </summary>
@@ -5543,11 +5545,12 @@
             <param name="members">A list of UPNs for group members, if any</param>
             <param name="groupLogoPath">The path of the logo for the Office 365 Group</param>
             <param name="isPrivate">Defines whether the group will be private or public, optional with default false (i.e. public)</param>
+            <param name="createTeam">Defines whether to create MS Teams team associated with the group</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>The just created Office 365 Group</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateUnifiedGroup(System.String,System.String,System.String,System.String,System.String[],System.String[],System.Boolean,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateUnifiedGroup(System.String,System.String,System.String,System.String,System.String[],System.String[],System.Boolean,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Creates a new Office 365 Group (i.e. Unified Group) with its backing Modern SharePoint Site
             </summary>
@@ -5558,6 +5561,7 @@
             <param name="owners">A list of UPNs for group owners, if any</param>
             <param name="members">A list of UPNs for group members, if any</param>
             <param name="isPrivate">Defines whether the group will be private or public, optional with default false (i.e. public)</param>
+            <param name="createTeam">Defines whether to create MS Teams team associated with the group</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>The just created Office 365 Group</returns>
@@ -5625,6 +5629,14 @@
             <param name="unifiedGroupGraphUsers"></param>
             <returns>Returns a collection of Microsoft.Graph.User entity</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUsers(Microsoft.Graph.GraphServiceClient,System.String[])">
+            <summary>
+            Helper method. Generates a collection of Microsoft.Graph.User entity from string array
+            </summary>
+            <param name="graphClient">Graph service client</param>
+            <param name="groupUsers">String array of users</param>
+            <returns></returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetGroupClassification(System.String,System.String)">
             <summary>
             Returns the classification value of an Office 365 Group.
@@ -5632,6 +5644,14 @@
             <param name="groupId">ID of the unified Group</param>
             <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
             <returns>Classification value of a Unified group</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateTeam(System.String,System.String)">
+            <summary>
+            Creates a team associated with an Office 365 group
+            </summary>
+            <param name="groupId">The ID of the Office 365 Group</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <returns></returns>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility">
             <summary>
@@ -34827,6 +34847,22 @@
             <summary>
             This class can be used to create modern site collections
             </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation)">
+            <summary>
+            Creates a new Communication Site Collection and waits for it to be created
+            </summary>
+            <param name="clientContext">ClientContext object of a regular site</param>
+            <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <returns>ClientContext object for the created site collection</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation)">
+            <summary>
+            Creates a new Team Site Collection and waits for it to be created
+            </summary>
+            <param name="clientContext">ClientContext object of a regular site</param>
+            <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <returns>ClientContext object for the created site collection</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation)">
             <summary>

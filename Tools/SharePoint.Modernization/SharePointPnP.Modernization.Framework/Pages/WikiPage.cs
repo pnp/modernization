@@ -81,7 +81,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     colCount++;
                     var contentHost = column.Children.Where(p => p.LocalName == "div" && (p.ClassName != null && p.ClassName.Equals("ms-rte-layoutszone-outer", StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
-                    if (contentHost != null)
+                    if (contentHost != null && contentHost.FirstElementChild != null)
                     {
                         var content = contentHost.FirstElementChild;
 

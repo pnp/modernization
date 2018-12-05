@@ -127,7 +127,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                         fullPageUrl = this.SiteUrl;
                                     }
 
-                                    if (!this.ScanJob.SkipUsageInformation)
+                                    if (!this.ScanJob.SkipUsageInformation && this.pageSearchResults != null)
                                     {
                                         var searchPage = this.pageSearchResults.Where(x => x.Values.Contains(fullPageUrl)).FirstOrDefault();
                                         if (searchPage != null)

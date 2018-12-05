@@ -2,6 +2,7 @@
 using SharePoint.Modernization.Scanner.Results;
 using SharePoint.Scanning.Framework;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -85,7 +86,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ScanError error = new ScanError()
                         {
@@ -118,6 +119,28 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
         }
 
+        internal static List<string> GenerateSitesWithCodeCustomizationsResults(ConcurrentDictionary<string, ListScanResult> listScanResults)
+        {
+            List<string> sitesWithCodeCustomizationsResults = new List<string>(500);
 
+            foreach(var list in listScanResults)
+            {
+                if (list.Value.BlockedAtSiteLevel ||
+                    list.Value.BlockedAtWebLevel || 
+                    list.Value.XsltViewWebPartCompatibility.BlockedByJSLink ||
+                    list.Value.XsltViewWebPartCompatibility.BlockedByJSLinkField ||
+                    list.Value.XsltViewWebPartCompatibility.BlockedByListCustomAction ||
+                    list.Value.XsltViewWebPartCompatibility.BlockedByXsl ||
+                    list.Value.XsltViewWebPartCompatibility.BlockedByXslLink)
+                {
+                    if (!sitesWithCodeCustomizationsResults.Contains(list.Value.SiteColUrl))
+                    {
+                        sitesWithCodeCustomizationsResults.Add(list.Value.SiteColUrl);
+                    }
+                }
+            }
+
+            return sitesWithCodeCustomizationsResults;
+        }
     }
 }

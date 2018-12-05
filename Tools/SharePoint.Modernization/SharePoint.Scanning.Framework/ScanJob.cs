@@ -149,10 +149,14 @@ namespace SharePoint.Scanning.Framework
             using (StreamWriter outfile = new StreamWriter(outputfile))
             {
                 outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-
-                Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(BaseOptions.UrlToFileName(assembly.EscapedCodeBase));
-                string version = fvi.FileVersion;
+                string version = "";
+                try
+                {
+                    Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(BaseOptions.UrlToFileName(assembly.EscapedCodeBase));
+                    version = fvi.FileVersion;
+                }
+                catch { }
                 TimeSpan ts = DateTime.Now.Subtract(this.StartTime);
                 outfile.Write(string.Format("{0}\r\n", ToCsv(string.Join(this.Separator, this.ScannedSites, this.ScannedWebs, this.ScannedLists, $"{ts.Days} days - {ts.Hours} hours - {ts.Minutes} minutes and {ts.Seconds} seconds", version))));
             }
