@@ -45,7 +45,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             {
                 base.Analyze(cc);
                 Site site = cc.Site;
-                site.EnsureProperties(p => p.UserCustomActions, p => p.Features, p => p.Url, p => p.GroupId);
+                site.EnsureProperties(p => p.UserCustomActions, p => p.Features, p => p.Url, p => p.GroupId, p => p.Id);
                 Web web = cc.Web;
                 cc.Web.EnsureProperties(p => p.WebTemplate, p => p.Configuration);
 
@@ -53,6 +53,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 {
                     SiteColUrl = this.SiteCollectionUrl,
                     SiteURL = this.SiteUrl,
+                    SiteId = site.Id.ToString(),
                 };
 
                 // Perform specific analysis work

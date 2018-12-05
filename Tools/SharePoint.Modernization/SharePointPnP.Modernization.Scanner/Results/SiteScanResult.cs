@@ -145,6 +145,10 @@ namespace SharePoint.Modernization.Scanner.Results
         /// </summary>
         public int ViewsLifeTimeUniqueUsers { get; set; }
 
+        /// <summary>
+        /// Site collection ID
+        /// </summary>
+        public string SiteId { get; set; }
 
         #region Cloning
         /// <summary>
@@ -184,6 +188,7 @@ namespace SharePoint.Modernization.Scanner.Results
                 ViewsLifeTimeUniqueUsers = this.ViewsLifeTimeUniqueUsers,
                 ViewsRecent = this.ViewsRecent,
                 ViewsRecentUniqueUsers = this.ViewsRecentUniqueUsers,
+                SiteId = this.SiteId,
             };
         }
         #endregion
