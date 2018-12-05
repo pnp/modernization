@@ -73,7 +73,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                 using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
                 {
                     parser.FirstRowHasHeader = true;
-                    parser.MaxBufferSize = 200000;
+                    parser.MaxBufferSize = 2000000;
                     parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
 
                     // Read the file                    
@@ -237,7 +237,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                 using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
                 {
                     parser.FirstRowHasHeader = true;
-                    parser.MaxBufferSize = 200000;
+                    parser.MaxBufferSize = 2000000;
                     parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
 
                     // Read the file                    
@@ -277,7 +277,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
                     {
                         parser.FirstRowHasHeader = true;
-                        parser.MaxBufferSize = 200000;
+                        parser.MaxBufferSize = 2000000;
                         parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
 
                         var siteData = parser.GetDataTable();
@@ -295,7 +295,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
                     {
                         parser.FirstRowHasHeader = true;
-                        parser.MaxBufferSize = 200000;
+                        parser.MaxBufferSize = 2000000;
                         parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
 
                         // Read the file                    
@@ -425,7 +425,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                 using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
                 {
                     parser.FirstRowHasHeader = true;
-                    parser.MaxBufferSize = 200000;
+                    parser.MaxBufferSize = 2000000;
                     parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
 
                     // Read the file                    
@@ -608,7 +608,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                 using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
                 {
                     parser.FirstRowHasHeader = true;
-                    parser.MaxBufferSize = 200000;
+                    parser.MaxBufferSize = 2000000;
                     parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
 
                     // Read the file                    
