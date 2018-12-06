@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using SharePoint.Modernization.Scanner.Telemetry;
 using SharePoint.Scanning.Framework;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,17 @@ namespace SharePoint.Modernization.Scanner
     /// </summary>
     public class Options : BaseOptions
     {
+
+        #region Construction
+        public Options()
+        {
+            var versionInfo = VersionCheck.LatestVersion();
+            this.CurrentVersion = versionInfo.Item1;
+            this.NewVersion = versionInfo.Item2;            
+        }
+        #endregion
+
+
         // Important:
         // Following chars are already used as shorthand in the base options class: i, s, u, p, f, x, a, t, e, r, v, o, h, z
 
@@ -49,6 +61,16 @@ namespace SharePoint.Modernization.Scanner
 
         [Option('n', "disabletelemetry", HelpText = "We use telemetry to make this a better tool...but you're free to disable that", DefaultValue = false, Required = false)]
         public bool DisableTelemetry { get; set; }
+
+        /// <summary>
+        /// Property holding the possible newer version
+        /// </summary>
+        public string NewVersion { get; set; }
+
+        /// <summary>
+        /// Property holding the current version
+        /// </summary>
+        public string CurrentVersion { get; set; }
 
         /// <summary>
         /// Validate the provided commandline options, will exit the program when not valid

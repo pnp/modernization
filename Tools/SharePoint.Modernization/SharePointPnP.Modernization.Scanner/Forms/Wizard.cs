@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharePoint.Modernization.Scanner.Telemetry;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,13 +16,13 @@ namespace SharePoint.Modernization.Scanner.Forms
         {
             this.options = options;
             InitializeComponent();
-            try
+            this.Text = $"SharePoint Modernization Scanner (version {options.CurrentVersion})";
+
+            if (!string.IsNullOrEmpty(options.NewVersion))
             {
-                var coreAssembly = Assembly.GetExecutingAssembly();
-                string version = ((AssemblyFileVersionAttribute)coreAssembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version.ToString();
-                this.Text = $"SharePoint Modernization Scanner (version {version})";
+                MessageBox.Show($"Scanner version {options.NewVersion} is available. You're currently running {options.CurrentVersion}. Download the latest version of the scanner from {VersionCheck.newVersionDownloadUrl}.", 
+                                "Version check", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            catch { }
         }
 
         private void wizardPageContainer1_Finished(object sender, EventArgs e)

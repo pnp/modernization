@@ -19,6 +19,8 @@ namespace SharePoint.Modernization.Scanner
     {
         #region Variables
         private Int32 SitesToScan = 0;
+        private string CurrentVersion;
+        private string NewVersion;
 
         public Mode Mode;
         public bool ExportWebPartProperties;
@@ -52,6 +54,8 @@ namespace SharePoint.Modernization.Scanner
             SkipUsageInformation = options.SkipUsageInformation;
             SkipUserInformation = options.SkipUserInformation;
             ExcludeListsOnlyBlockedByOobReasons = options.ExcludeListsOnlyBlockedByOobReasons;
+            CurrentVersion = options.CurrentVersion;
+            NewVersion = options.NewVersion;
 
             // Site scan results
             this.SiteScanResults = new ConcurrentDictionary<string, SiteScanResult>(options.Threads, 10000);
@@ -75,6 +79,8 @@ namespace SharePoint.Modernization.Scanner
                     this.ScannerTelemetry.LogScanStart(options);
                 }
             }
+
+            VersionWarning();
 
             this.TimerJobRun += ModernizationScanJob_TimerJobRun;
         }
@@ -728,6 +734,8 @@ namespace SharePoint.Modernization.Scanner
 
             }
 
+            VersionWarning();
+
             Console.WriteLine("=====================================================");
             Console.WriteLine("All done. Took {0} for {1} sites", (DateTime.Now - start).ToString(), this.ScannedSites);
             Console.WriteLine("=====================================================");
@@ -735,6 +743,17 @@ namespace SharePoint.Modernization.Scanner
             return start;
         }
 
+        private void VersionWarning()
+        {
+            if (!string.IsNullOrEmpty(this.NewVersion))
+            {
+                var currentColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"Scanner version {this.NewVersion} is available. You're currently running {this.CurrentVersion}.");
+                Console.WriteLine($"Download the latest version of the scanner from {VersionCheck.newVersionDownloadUrl}");
+                Console.ForegroundColor = currentColor;
+            }
+        }
         #endregion
 
     }

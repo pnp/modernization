@@ -259,6 +259,7 @@
     <Compile Include="Results\XsltViewWebPartCompatability.cs" />
     <Compile Include="Telemetry\ScannerTelemetry.cs" />
     <Compile Include="Telemetry\TelemetryEvents.cs" />
+    <Compile Include="Telemetry\VersionCheck.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
