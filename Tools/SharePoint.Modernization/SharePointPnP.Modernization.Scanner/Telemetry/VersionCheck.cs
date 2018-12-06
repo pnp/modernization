@@ -24,11 +24,14 @@ namespace SharePoint.Modernization.Scanner.Telemetry
 
                 using (var wc = new System.Net.WebClient())
                 {
-                    latestVersion = wc.DownloadString(versionFileUrl);
+                    Random random = new Random();
+                    latestVersion = wc.DownloadString(versionFileUrl + "?random=" + random.Next().ToString());
                 }
 
                 if (!string.IsNullOrEmpty(latestVersion))
                 {
+                    latestVersion = latestVersion.Replace("\\r", "").Replace("\\t", "");
+
                     var versionOld = new Version(currentVersion);
                     if (Version.TryParse(latestVersion, out Version versionNew))
                     {
