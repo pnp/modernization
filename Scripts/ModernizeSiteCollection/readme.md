@@ -2,7 +2,7 @@
 
 ## Summary
 
-This script shows how to modernize a site by group connecting the site, modernizing the pages, configuring customizations and much more
+This script shows how to modernize a site by group connecting the site, modernizing the pages, configuring customizations and much more.
 
 ## Windows Credential Manager can be used for automation scenarios
 

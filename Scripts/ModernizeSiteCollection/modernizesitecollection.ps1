@@ -450,7 +450,7 @@ function ModernizeSite
         # Modernization run did not complete...remove the added tenant admin to restore site permissions as final step in the cleanup
         if ($adminWasAdded)
         {
-            # Below logic might fail if the error happened before the groupify API call, but errors are ignored
+            # Below logic might fail if the error happened before the group connect API call, but errors are ignored
             $site = Get-PnPSite -Includes GroupId -Connection $siteContext
             $azureAddedAdminId = Get-AzureADUser -ObjectId $adminUPN
             try 

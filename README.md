@@ -1,7 +1,7 @@
 
 # The sp-dev-modernization repository
 
-Welcome to the home of all SharePoint modernization tools and solutions. Modernization means transforming current "classic" SharePoint usage into "modern" usage, e.g. using modern site pages instead of classic wiki pages. In this repository you'll find all the SharePoint PnP open source scripts, tools and solutions that will help you modernize your SharePoint environment.
+Welcome to the home of all SharePoint modernization tools and solutions. Modernization means **transforming current "classic" SharePoint usage into "modern" usage**, e.g. using modern site pages instead of classic wiki pages or Office 365 Group connecting of classic sites. In this repository you'll find all the SharePoint PnP open source scripts, tools and solutions that will help you modernize your SharePoint environment.
 
 Please use [http://aka.ms/sppnp](http://aka.ms/sppnp) for getting latest information around the *SharePoint Patterns and Practices program*.
 
