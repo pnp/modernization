@@ -8430,6 +8430,15 @@
             Defines the Security rules for the Page
             </summary>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.Page.SetSecurity(OfficeDevPnP.Core.Framework.Provisioning.Model.ObjectSecurity)">
+            <summary>
+            This method is provided for tests to assign new Security object. 
+            It is unclear why the Security setter is private in the Page class
+            but not for instance in the ListInstance class.
+            A class redesign to make this implementation identical in the classes are recommended.
+            </summary>
+            <param name="security"></param>
+        </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Page.Fields">
             <summary>
             The Fields to setup for the Page
@@ -35300,6 +35309,92 @@
             <param name="handler"></param>
             <param name="context"></param>
         </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.Palettes.Shades.GetShade(OfficeDevPnP.Core.Utilities.Themes.Palettes.IColor,OfficeDevPnP.Core.Utilities.Themes.Palettes.Shade,System.Boolean)">
+            Given a color and a shade specification, generates the requested shade of the color.
+            Logic:
+            if white
+             darken via tables defined above
+            if black
+             lighten
+            if light
+             strongen
+            if dark
+             soften
+            else default
+             soften or strongen depending on shade#
+            @param {IColor} color The base color whose shade is to be computed
+            @param {Shade} shade The shade of the base color to compute
+            @param {Boolean} isInverted Default false. Whether the given theme is inverted (reverse strongen/soften logic)
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.Palettes.Shades.GetThing(System.Double)">
+            <summary>
+            Calculate the intermediate value needed to calculating relative luminance
+            </summary>
+            <param name="x"></param>
+            <returns></returns>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Utilities.Themes.Generator.ThemeGenerator">
+            <summary>
+            Sets an IThemeSlotRule to the given color and cascades it to the rest of the theme, updating other IThemeSlotRules in the theme that
+            inherit from that color.
+            isInverted: whether it's a dark theme or not, which affects the algorithm used to generate shades
+            isCustomization should be true only if it's a user action, and indicates overwriting the slot's inheritance(if any)
+            overwriteCustomColor: a slot could have a generated color based on its inheritance rules(isCustomized is false), or a custom color
+            based on user input(isCustomized is true), this bool tells us whether to override existing customized colors
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.Generator.ThemeGenerator.SetSlot(OfficeDevPnP.Core.Utilities.Themes.Generator.IThemeSlotRule,OfficeDevPnP.Core.Utilities.Themes.Palettes.IColor,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="rule"></param>
+            <param name="color"></param>
+            <param name="isInverted"></param>
+            <param name="isCustomization"></param>
+            <param name="overwriteCustomColor"></param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.Generator.ThemeGenerator.InsureSlots(OfficeDevPnP.Core.Utilities.Themes.Generator.IThemeRules,System.Boolean)">
+            <summary>
+            Sets the color of each slot based on its rule. Slots that don't inherit must have a color already.
+            If this completes without error, then the theme is ready to use. (All slots will have a color.)
+            setSlot() can be called before this, but this must be called before getThemeAs*().
+            Does not override colors of rules where isCustomized is true (i.e. doesn't override existing customizations).
+            </summary>
+            <param name="slotRules"></param>
+            <param name="isInverted"></param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.Generator.ThemeGenerator.GetThemeAsJson(OfficeDevPnP.Core.Utilities.Themes.Generator.IThemeRules)">
+            <summary>
+            Gets the JSON-formatted blob that describes the theme, usable with the REST request endpoints
+            { [theme slot name as string] : [color as string],
+             "tokenName": "#f00f00",
+             "tokenName2": "#ba2ba2",
+              ... }
+            </summary>
+            <param name="slotRules"></param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.Generator.ThemeGenerator.SetSlotInternal(OfficeDevPnP.Core.Utilities.Themes.Generator.IThemeSlotRule,OfficeDevPnP.Core.Utilities.Themes.Palettes.IColor,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Sets the given slot's color to the appropriate color, shading it if necessary.
+            Then, iterates through all other rules(that are this rule's dependents) to update them accordingly.
+            isCustomization= true means it's a user provided color, set it to that raw color
+            isCustomization= false means the rule it's inheriting from changed, so updated using asShade
+            </summary>
+            <param name="rule"></param>
+            <param name="color"></param>
+            <param name="isInverted"></param>
+            <param name="isCustomization"></param>
+            <param name="overwriteCustomColor"></param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.ThemeUtility.GetThemeAsJSON(System.String,System.String,System.String)">
+            <summary>
+            Apply three custom colors to the standard Office UI Fabric template and get back the JSON with the CSS rules
+            </summary>
+            <param name="primaryColor">Primary Color for the Theme</param>
+            <param name="bodyTextColor">Body Text Color for the Theme</param>
+            <param name="bodyBackgroundColor">Body Background Color for the Theme</param>
+            <returns>THe JSON representation of the Theme</returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Utilities.Webhooks.ResponseModel`1">
             <summary>
             
@@ -39247,6 +39342,38 @@
             <param name="parentContentType">Parent Content Type</param>
             <returns>The created content type</returns>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.UpdateContentTypeByName(Microsoft.SharePoint.Client.Web,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Boolean})">
+            <summary>
+            Update existing content type of a web
+            </summary>
+            <param name="web">Site to be processed - can be root web or sub site</param>
+            <param name="name">Name of the content type</param>
+            <param name="newContentTypeName">Updated name of the content type</param>
+            <param name="description">Description for the content type</param>
+            <param name="displayFormUrl">Display form url of the content type</param>
+            <param name="newFormUrl">New form url of the content type</param>
+            <param name="editFormUrl">Edit form url of the content type</param>     
+            <param name="documentTemplate">Document template of the content type</param>
+            <param name="hidden">Toggle value indicating whether content type should be hidden or not</param>
+            <param name="group">Group for the content type</param>
+            <returns>The updated content type</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.UpdateContentTypeById(Microsoft.SharePoint.Client.Web,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Boolean})">
+            <summary>
+            Update existing content type of a web
+            </summary>
+            <param name="web">Site to be processed - can be root web or sub site</param>
+            <param name="Id">Id of the content type</param>
+            <param name="newContentTypeName">Updated name of the content type</param>
+            <param name="description">Description for the content type</param>
+            <param name="group">Group for the content type</param>
+            <param name="displayFormUrl">Display form url of the content type</param>
+            <param name="newFormUrl">New form url of the content type</param>
+            <param name="editFormUrl">Edit form url of the content type</param>     
+            <param name="documentTemplate">Document template of the content type</param>
+            <param name="hidden">Toggle value indicating whether content type should be hidden or not</param>
+            <returns>The updated content type</returns>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.DeleteContentTypeByName(Microsoft.SharePoint.Client.Web,System.String)">
             <summary>
             Deletes a content type from the web by name
@@ -41368,7 +41495,7 @@
             <param name="navigationKind">The kind of navigation (Current or Global).</param>
             <returns>A boolean result of the test.</returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.AddNavigationNode(Microsoft.SharePoint.Client.Web,System.String,System.Uri,System.String,OfficeDevPnP.Core.Enums.NavigationType,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.AddNavigationNode(Microsoft.SharePoint.Client.Web,System.String,System.Uri,System.String,OfficeDevPnP.Core.Enums.NavigationType,System.Boolean,System.Boolean,System.String)">
             <summary>
             Add a node to quick launch, top navigation bar or search navigation. The node will be added as the last node in the
             collection.
@@ -41376,11 +41503,23 @@
             <param name="web">Site to be processed - can be root web or sub site</param>
             <param name="nodeTitle">the title of node to add</param>
             <param name="nodeUri">the URL of node to add</param>
-            <param name="parentNodeTitle">if string.Empty, then will add this node as top level node</param>
+            <param name="parentNodeTitle">if string.Empty, then will add this node as top level node. Contains the title of the immediate parent node, for third level nodes, providing <paramref name="l1ParentNodeTitle"/> is required.</param>
             <param name="navigationType">the type of navigation, quick launch, top navigation or search navigation</param>
             <param name="isExternal">true if the link is an external link</param>
             <param name="asLastNode">true if the link should be added as the last node of the collection</param>
+            <param name="l1ParentNodeTitle">title of the first level parent, if this node is a third level navigation node</param>
             <returns>Newly added NavigationNode</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.CreateNodeAsChild(Microsoft.SharePoint.Client.Web,Microsoft.SharePoint.Client.NavigationNodeCollection,Microsoft.SharePoint.Client.NavigationNodeCreationInformation,System.String,System.String)">
+            <summary>
+            Creates a navigation node as a child of another (first or second level) navigation node.
+            </summary>
+            <param name="web">Site to be processed - can be root web or sub site</param>
+            <param name="parentNodes">Level one nodes under which the node should be created</param>
+            <param name="nodeToCreate">Node information</param>
+            <param name="parentNodeTitle">The title of the immediate parent node (level two if child should be level three, level one otherwise)</param>
+            <param name="l1ParentNodeTitle">The level one parent title or null, if the node to be created should be a level two node</param>
+            <returns></returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.DeleteNavigationNode(Microsoft.SharePoint.Client.Web,System.String,System.String,OfficeDevPnP.Core.Enums.NavigationType)">
             <summary>
@@ -43077,7 +43216,7 @@
             <param name="compatibilityLevel">14 for SharePoint 2010, 15 for SharePoint 2013/SharePoint Online</param>
             <returns>Returns collection of SPTenantWebTemplate</returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SetSiteProperties(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{Microsoft.Online.SharePoint.TenantManagement.SharingCapabilities},System.Nullable{System.Int64},System.Nullable{System.Int64},System.Nullable{System.Double},System.Nullable{System.Double},System.Nullable{System.Boolean},System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SetSiteProperties(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{Microsoft.Online.SharePoint.TenantManagement.SharingCapabilities},System.Nullable{System.Int64},System.Nullable{System.Int64},System.Nullable{System.Double},System.Nullable{System.Double},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
             <summary>
             Sets tenant site Properties
             </summary>
@@ -43091,6 +43230,8 @@
             <param name="userCodeMaximumLevel">A value that represents the maximum allowed resource usage for the site/</param>
             <param name="userCodeWarningLevel">A value that determines the level of resource usage at which a warning e-mail message is sent</param>
             <param name="noScriptSite">Boolean value which allows to customize the site using scripts</param>
+            <param name="commentsOnSitePagesDisabled">Boolean value which Enables/Disables comments on the Site Pages</param>
+            <param name="socialBarOnSitePagesDisabled">Boolean value which Enables/Disables likes and view count on the Site Pages</param>
             <param name="wait">Id true this function only returns when the tenant properties are set, if false it will return immediately</param>
             <param name="timeoutFunction">An optional function that will be called while waiting for the tenant properties to be set. If set will override the wait variable. Return true to cancel the wait loop.</param>
         </member>
