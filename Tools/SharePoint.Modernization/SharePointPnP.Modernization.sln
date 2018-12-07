@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{9B8FFE29-4905-4F4D-B52D-ED1FB777341C}"
 	ProjectSection(SolutionItems) = preProject
 		Modernization Framework release notes.md = Modernization Framework release notes.md
+		Modernization Scanner release notes.md = Modernization Scanner release notes.md
 		README.md = README.md
 		TransformationModel.md = TransformationModel.md
 	EndProjectSection
