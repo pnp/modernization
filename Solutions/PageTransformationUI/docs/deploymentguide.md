@@ -6,7 +6,25 @@
 
 ## Step 1: Setup the Azure side
 
-You need one Azure AD application and one Azure AD function setup, which you can do by following the [Azure Setup Guide](/Solutions/PageTransformationUI/docs/manual%20setup/modernization-ui-manual-azure.md).
+You need one Azure AD application and one Azure AD function setup, which you can do by following the manual steps in the [Azure Setup Guide](/Solutions/PageTransformationUI/docs/manual%20setup/modernization-ui-manual-azure.md) or alternatively you can use a scripted approach to create the needed Azure AD application and Azure Function App as shown below:
+
+- Navigate to the `provisioning` folder
+- Open a PowerShell session and run below PowerShell
+
+>**Important:**
+> - Update the **SubscriptionName**, **ResourceGroupName**, **ResourceGroupLocation**, **StorageAccountName** and **FunctionAppName** parameters before running. 
+> - Note that the **FunctionAppName** must not have been used by others: check this by doing an `nslookup <functionappname>.azurewebsites.net`, if the DNS name is found then the function name is already in use.
+> - **AppName** and **AppTitle** must be equal to **SharePointPnP.Modernization**
+
+```PowerShell
+.\Provision-ModernizationFramework.ps1 -SubscriptionName "MySubscription" `
+                                       -ResourceGroupName "pnpmodernizationtest1" `
+                                       -ResourceGroupLocation "West Europe" `
+                                       -StorageAccountName "pnpmodernizationtest1" `
+                                       -FunctionAppName "pnpmodernizationtest1" `
+                                       -AppName "SharePointPnP.Modernization" `
+                                       -AppTitle "SharePointPnP.Modernization"
+```
 
 ## Step 2: Deploy the SharePoint side
 

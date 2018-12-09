@@ -20,7 +20,7 @@
  [Parameter(Mandatory=$True)]
  [string]
  $AppTitle,
- [Parameter(Mandatory=$True)]
+ [Parameter(Mandatory=$false)]
  [string]
  $AllowedTenants
 )
@@ -33,12 +33,13 @@ Write-Host "Creating the AAD application in the target Office 365 Tenant" -Foreg
 # Register the Azure AD Application and get back ClientId and ClientSecret
 $aadApp = .\Provision-AADApplication.ps1 -AppName $AppName -HomePageUrl $aadAppHomePageUrl -ReplyUrl $aadAppReplyUrl -AppTitle $AppTitle
 
-if ($aadApp -eq $null) 
+if (($aadApp.ClientId -eq $null)  -or ($aadApp.ClientId -eq ""))
 {
     Write-Host "Failed to create the AAD application!" -ForegroundColor Red
 }
 else
 {
+    $appIDToConsent = $aadApp.ClientId
     Write-Host "Created the AAD application in the target Office 365 Tenant" -ForegroundColor Green
     Write-Host ("Client ID: " + $aadApp.ClientId) -ForegroundColor White
     Write-Host ("Client Secret: " + $aadApp.ClientSecret) -ForegroundColor White
@@ -47,11 +48,12 @@ else
     $azureRMModule = Import-Module AzureRM -ErrorAction SilentlyContinue -PassThru
     if(!$azureRMModule)
     {
-        Write-Output "Installing AzureADPreview module"
+        Write-Output "Installing AzureRM module"
         Install-Module AzureRM -Force
     }
 
     # Login to AzureRM
+    Write-Host "Please provide the credential to access the Azure tenant where the Azure Function app needs to be created" -ForegroundColor Yellow
     Login-AzureRmAccount 
 
     # Select the target Subscription
@@ -161,7 +163,7 @@ else
     $auth.properties.isAadAutoProvisioned = "False"
     $auth.properties.clientId = $aadApp.ClientId
     $auth.properties.clientSecret = $aadApp.ClientSecret
-    $auth.properties.issuer = "https://login.microsoftonline.com/common/"
+    #$auth.properties.issuer = "https://login.microsoftonline.com/common/"
 
     New-AzureRmResource -PropertyObject $auth.properties -ResourceGroupName $ResourceGroupName `
         -ResourceType 'Microsoft.Web/sites/config' -ResourceName $authResourceName `
@@ -179,5 +181,10 @@ else
         -ApiVersion 2015-08-01 -Force
     Write-Host "Configured CORS for the function app" -ForegroundColor Green
 
+    Write-Host "Final manual step is admin consenting the created Azure AD application" -ForegroundColor Yellow
+    Write-Host "Open a browser session to https://login.microsoftonline.com/common/oauth2/authorize?client_id=$($appIDToConsent)&response_type=code&prompt=admin_consent" -ForegroundColor Yellow
     Write-Host "Process completed!" -ForegroundColor Green
+    Write-Host "The parameters to continue with the SharePoint installation part are the following" -ForegroundColor White
+    Write-Host "AzureAppID=$($appIDToConsent)" -ForegroundColor White
+    Write-Host "AzureFunction=https://$($FunctionAppName).azurewebsites.net" -ForegroundColor White
 }
