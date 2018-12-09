@@ -26,6 +26,21 @@ You need one Azure AD application and one Azure AD function setup, which you can
                                        -AppTitle "SharePointPnP.Modernization"
 ```
 
+Once the script finishes you see the following type of output:
+
+```Text
+Final manual step is admin consenting the created Azure AD application
+Open a browser session to https://login.microsoftonline.com/common/oauth2/authorize?client_id=f0e040f0-21e3-4640-ba50-7b56be765b26&response_type=code&prompt=admin_consent
+Process completed!
+The parameters to continue with the SharePoint installation part are the following
+"AzureAppID"="f0e040f0-21e3-4640-ba50-7b56be765b26";"AzureFunction"="https://pnpmodernizationtest1.azurewebsites.net"
+```
+
+>**Important:**
+>You'll need to perform the admin consenting of the created Azure AD app via the provided URL. Doing so will prompt you to accept the apps permissions for all it's users. When the consent is done you're redirected to the app's redirect url which will show a `Bad Request` message. This message can be safely ignored.
+
+Also note that the last line in the output contains the needed parameter definition to launch step 2, which is described in the next section.
+
 ## Step 2: Deploy the SharePoint side
 
 You need to create and configure the Modernization center site collection:

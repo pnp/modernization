@@ -184,6 +184,5 @@ else
     Write-Host "Open a browser session to https://login.microsoftonline.com/common/oauth2/authorize?client_id=$($appIDToConsent)&response_type=code&prompt=admin_consent" -ForegroundColor Yellow
     Write-Host "Process completed!" -ForegroundColor Green
     Write-Host "The parameters to continue with the SharePoint installation part are the following" -ForegroundColor White
-    Write-Host "AzureAppID=""$($appIDToConsent)""" -ForegroundColor White
-    Write-Host "AzureFunction=""https://$($FunctionAppName).azurewebsites.net""" -ForegroundColor White
+    Write-Host """AzureAppID""=""$($appIDToConsent)"";""AzureFunction""=""https://$($FunctionAppName).azurewebsites.net""" -ForegroundColor White
 }
