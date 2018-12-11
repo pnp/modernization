@@ -1,5 +1,5 @@
 
-#IMPORTANT: this requires the PnP PowerShell version 3.5.1812 (December 2018) or higher to work!
+#IMPORTANT: this requires the PnP PowerShell version 3.4.1812 (December 2018) or higher to work!
 
 # Connect to the web holding the pages to modernize
 Connect-PnPOnline -Url https://bertonline.sharepoint.com/sites/modernizationtestpages -Credentials bertonline -Verbose
