@@ -2,7 +2,7 @@
 #IMPORTANT: this requires the PnP PowerShell version 3.4.1812 (December 2018) or higher to work!
 
 # Connect to the web holding the pages to modernize
-Connect-PnPOnline -Url https://bertonline.sharepoint.com/sites/modernizationtestpages -Credentials bertonline -Verbose
+Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/modernizationme
 
 # Get all the pages in the site pages library
 $pages = Get-PnPListItem -List sitepages
