@@ -10,13 +10,12 @@ The page transformation engine can also be used from PowerShell. This allows it 
 
 ## Prerequisites
 
-- SharePoint PnP PowerShell
+- SharePoint PnP PowerShell version 3.4.1812.0 or higher (December 2018)
 
 ## Solution
 
 Solution|Author(s)
 --------|---------
-TransformPageSampleBasic.ps | Bert Jansen (**Microsoft**)
 TransformPages.ps1 | Bert Jansen (**Microsoft**)
 
 ## Version history
