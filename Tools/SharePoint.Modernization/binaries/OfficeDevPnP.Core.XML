@@ -33128,9 +33128,9 @@
             Alignment of the title in the header
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.ShowKicker">
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.ShowTopicHeader">
             <summary>
-            Show the kicker in the title region
+            Show the topic header in the title region
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.ShowPublishDate">
@@ -33138,9 +33138,9 @@
             Show the page publication date in the title region
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.Kicker">
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.TopicHeader">
             <summary>
-            The kicker text to show if ShowKicker is set to true
+            The topic header text to show if ShowTopicHeader is set to true
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.AlternativeText">
@@ -33151,6 +33151,16 @@
         <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.Authors">
             <summary>
             Page author(s) to be displayed
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.AuthorByLine">
+            <summary>
+            Page author byline
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePageHeader.AuthorByLineId">
+            <summary>
+            Id of the page author
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSidePageHeader.#ctor(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Pages.ClientSidePageHeaderType,System.String)">
