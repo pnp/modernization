@@ -21,6 +21,7 @@ SharePoint.Modernization.Scanner | Bert Jansen (**Microsoft**)
 
 Version  | Date | Comments
 ---------| -----| --------
+2.3 | December 12th 2018 | Using latest PnP Sites Core library with updated throttling implementation, several small reliability improvements, export SiteId in ModernizationSiteScanResults.csv, built-in check to see if there's a newer version available, generation of SitesWithCustomizations.csv
 2.2 | November 9th 2018 | Updated complexity calculation for publishing portals, updated list of modern capable lists (850), improved telemetry and error handling, bug fixing
 2.1 | October 24th 2018 | Publishing portal analysis improvements: detect custom page layouts, classify publishing portals in simple/medium/complex
 2.0 | October 15th 2018 | Built-in wizard will help you configure the scan parameters...you can forget about these long complex command lines!
@@ -60,7 +61,7 @@ The main purpose of this tool is to give you a set of reports that you can use t
 
 You can download the tool from here:
 
-- [Modernization scanner for SharePoint Online](https://github.com/SharePoint/sp-dev-modernization/blob/master/Tools/SharePoint.Modernization/Releases/SharePoint.Modernization.Scanner%20v2.2.zip?raw=true)
+- [Modernization scanner for SharePoint Online](https://github.com/SharePoint/sp-dev-modernization/blob/master/Tools/SharePoint.Modernization/Releases/SharePoint.Modernization.Scanner%20v2.3.zip?raw=true)
 
 Once you've downloaded the tool, unzip it to a local folder which will contain the **SharePoint.Modernization.Scanner.exe** and **webpartmapping.xml** files. Start a (PowerShell) command prompt and navigate to that folder so that you can use the tool.
 
