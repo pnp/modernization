@@ -1,3 +1,11 @@
+<#
+.SYNOPSIS
+Disable page transformation UI integration for the currently connected site collection
+
+.EXAMPLE
+PS C:\> .\Disable-PageTransformation.ps1
+#>
+
 $site = Get-PnPSite -Includes ServerRelativeUrl
 Write-Host "Disabling page transformation for $($site.ServerRelativeUrl)" -ForegroundColor White
 

@@ -1,3 +1,10 @@
+<#
+.SYNOPSIS
+Enables page transformation UI integration for the currently connected site collection
+
+.EXAMPLE
+PS C:\> .\Enable-PageTransformation.ps1
+#>
 
 # Load the ServerRelativeUrl as we need to use that to embed the site collection url in the custom action
 $site = Get-PnPSite -Includes ServerRelativeUrl
