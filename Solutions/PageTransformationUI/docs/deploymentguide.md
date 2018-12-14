@@ -58,12 +58,31 @@ Apply-PnPTenantTemplate -Path .\modernization.pnp -Parameters @{"AzureAppID"="79
 
 ## Step 3: Enable the page transformation UI for your site collections
 
-There's two ways to do this. The easiest is going to your modernization center home page, enter the URL of your site collection and click on **Enable**:
+There are two ways to do this.
+
+### Option A: Use the admin web part from the Modernization center site:
+
+The easiest is going to your modernization center home page, enter the URL of your site collection and click on **Enable**:
 
 ![page transformator setup web part](/Solutions/PageTransformationUI/docs/images/enablepagetransformationwebpart.png)
 
-Alternative approach is applying a PnP provisioning template to the site that you want to enable. This can be done like shown below:
+### Option B: Use a PowerShell script to configure multiple sites
 
-- Load up [PnP PowerShell](http://aka.ms/sppnp-powershell) and navigate to the `/Solutions/PageTransformationUI/assets` folder
-- Connect to the site collection that wants to use page transformation via `Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/sitethatwantspagetransformation`
-- Apply a template to this site: `Apply-PnPProvisioningTemplate -Path .\clienttemplate.xml`
+The script approach enables you to configure either a single site collection or a list of site collections. Load up [PnP PowerShell](http://aka.ms/sppnp-powershell) and navigate to the `/Solutions/PageTransformationUI/provisioning` folder. To configure a single site collection simply connect to the site and call the needed script:
+
+```PowerShell
+# Enable page transformation
+Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/sitetoconfigure
+.\Enable-PageTransformation.ps1
+```
+
+```PowerShell
+# Disable page transformation
+Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/sitetoconfigure
+.\Enable-PageTransformation.ps1
+```
+
+If you want to configure multiple site collections at once you can specify a CSV file when running `ConfigurePageTransformation.ps1`. To build that CSV file you can use `BuildSiteCSV.ps1`.
+
+>**Note:**
+>Both approaches are interchangeable, meaning you can for example use the script approach to enable the page transformation UI integration and then use the admin web part to disable it for a site.
