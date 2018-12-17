@@ -98,18 +98,9 @@ Using this approach allows you for example easily update the webpartmapping.xml 
 
 ### Option C: Use PowerShell
 
-If you don't have Visual Studio 2017 available you can deploy the **sharepointpnpmodernizationeurope.zip** (available in the **provisioning**) folder to the Azure Function App as described in the [Zip Deployment](https://docs.microsoft.com/en-us/azure/azure-functions/deployment-zip-push) article. Below snippet shows the PowerShell way but there are other methods mentioned in the documentation.
-
->Note:
->Update the 4 variables before launched this code. $username and $password are the credentials that have permission to update the earlier created Azure Function App, $filepath points to the sharepointpnpmodernizationeurope.zip file and $apiUrl will need to contain your Azure Function app host name.
+If you don't have Visual Studio 2017 available you can deploy the **sharepointpnpmodernizationeurope.zip** (available in the **provisioning**) folder to the Azure Function App as described in the [Zip Deployment](https://docs.microsoft.com/en-us/azure/azure-functions/deployment-zip-push) article. Below snippet shows the PowerShell script that automates the model described in the mentioned article.
 
 ```Powershell
-#PowerShell
-$username = "<deployment_user>"
-$password = "<deployment_password>"
-$filePath = "<zip_file_path>"
-$apiUrl = "https://<app_name>.scm.azurewebsites.net/api/zipdeploy"
-$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username, $password)))
-$userAgent = "powershell/1.0"
-Invoke-RestMethod -Uri $apiUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
+# First navigate to the provisioning folder and then call below script
+.\Update-ModernizationFramework.ps1 -SubscriptionName "subscription" -ResourceGroupName "group" -FunctionAppName "functionname"
 ```

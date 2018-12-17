@@ -1,4 +1,12 @@
-﻿param(
+﻿<#
+.SYNOPSIS
+Creates the Azure AD application and Azure Function app which are needed for the Page Transformation UI solution.
+
+.EXAMPLE
+PS C:\> .\Provision-ModernizationFramework.ps1 -SubscriptionName "MySubscription" -ResourceGroupName "pnpmodernizationtest1" -ResourceGroupLocation "West Europe" -StorageAccountName "pnpmodernizationtest1" -FunctionAppName "pnpmodernizationtest1" -AppName "SharePointPnP.Modernization" -AppTitle "SharePointPnP.Modernization"
+#>
+
+param(
  [Parameter(Mandatory=$True)]
  [string]
  $SubscriptionName,

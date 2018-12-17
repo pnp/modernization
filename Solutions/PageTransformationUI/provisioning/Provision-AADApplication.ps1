@@ -1,4 +1,9 @@
-﻿Param (
+﻿<#
+.SYNOPSIS
+Creates the Azure AD application needed for the Page Transformation UI solution. This script will be called from Provision-AADApplication.ps1, no need to run it manually
+#>
+
+Param (
     [Parameter(Mandatory=$true, Position=0)]
     [String] $AppName,
     [Parameter(Mandatory=$true, Position=1)]
