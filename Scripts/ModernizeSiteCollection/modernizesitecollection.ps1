@@ -1,3 +1,12 @@
+<#
+.SYNOPSIS
+Modernizes a SharePoint Site collection. 
+
+Version: 1.1
+
+.EXAMPLE
+PS C:\> .\modernizesitecollection.ps1
+#>
 
 #region Logging and generic functions
 function LogWrite
@@ -75,95 +84,6 @@ function AddToOffice365GroupOwnersMembers
             }
         }
     }
-}
-
-function Use-PnPModernizationFramework
-{
-    param(
-        [string] $PathToModernizationBinaries
-    )
-
-    begin
-    {
-    }
-
-    process
-    {
-        Add-Type -Path "$PathToModernizationBinaries\SharePointPnP.Modernization.Framework.dll"
-    }
-
-    end
-    {
-        return $PathToModernizationBinaries
-    }
-}
-
-function Invoke-PnPModernizationPageTransformation
-{
-    param(
-        [string] $PathToModernizationBinaries,
-        [string] $WebPartMappingFile = $null,
-        $Page,
-        [bool] $Overwrite = $false,
-        [bool] $UsePageAcceptBanner = $false,
-        [bool] $HandleWikiImagesAndVideos = $true,
-        [bool] $ReplaceHomePageWithDefaultHomePage = $false,
-        [bool] $TargetPageTakesSourcePageName = $false
-    )
-
-    begin
-    {
-
-    }
-
-    process
-    {
-        [bool] $transformOK = $true
-        try 
-        {            
-            # Create the PageTransformationInformation object and populate it
-            $pageTransformationInformation = New-Object -TypeName SharePointPnP.Modernization.Framework.Transform.PageTransformationInformation -ArgumentList $Page
-            $pageTransformationInformation.Overwrite = $Overwrite
-            $pageTransformationInformation.HandleWikiImagesAndVideos = $HandleWikiImagesAndVideos
-            $pageTransformationInformation.ReplaceHomePageWithDefaultHomePage = $ReplaceHomePageWithDefaultHomePage
-            $pageTransformationInformation.TargetPageTakesSourcePageName = $TargetPageTakesSourcePageName
-
-            # setup pageacceptbanner
-
-            if ($UsePageAcceptBanner)
-            {
-                $modernizationCenterInformation = New-Object -TypeName SharePointPnP.Modernization.Framework.Transform.ModernizationCenterInformation
-                $modernizationCenterInformation.AddPageAcceptBanner = $true;
-                $pageTransformationInformation.ModernizationCenterInformation = $modernizationCenterInformation;
-            }
-
-            # Instantiate the page transformator
-            $pageTransformator = $null
-            if ($WebPartMappingFile -ne "")
-            {
-                $pageTransformator = New-Object -TypeName SharePointPnP.Modernization.Framework.Transform.PageTransformator -ArgumentList $Page.Context, "$WebPartMappingFile"
-            }
-            else 
-            {
-                $pageTransformator = New-Object -TypeName SharePointPnP.Modernization.Framework.Transform.PageTransformator -ArgumentList $Page.Context, "$PathToModernizationBinaries\webpartmapping.xml"
-            }
-
-            # Transform
-            $pageTransformator.Transform($pageTransformationInformation)  
-        }
-        catch [Exception]
-        {
-            Write-Host $_.Exception.Message -ForegroundColor Red
-            $transformOK = $false
-        }
-
-    }
-
-    end
-    {
-        return $transformOK
-    }
-    
 }
 #endregion
 
@@ -308,10 +228,8 @@ function ModernizeSite
         foreach($page in $pages)
         {
             Write-Host "Modernizing " $page.FieldValues["FileLeafRef"] "..."    
-            if (Invoke-PnPModernizationPageTransformation -Page $page -PathToModernizationBinaries $binaryFolder -WebPartMappingFile "$binaryFolder\webpartmapping.xml" -Overwrite $true -TargetPageTakesSourcePageName $true)
-            {
-                Write-Host "Done!" -ForegroundColor Green
-            }
+            $modernPage = ConvertTo-PnPClientSidePage -Identity $page.FieldValues["FileLeafRef"] -Overwrite -AddPageAcceptBanner
+            Write-Host "Done" -ForegroundColor Green
         }
         #endregion
 
@@ -476,8 +394,6 @@ function ModernizeSite
 $tenantAdminUrl = "https://bertonline-admin.sharepoint.com"
 # If you use credential manager then specify the used credential manager entry, if left blank you'll be asked for a user/pwd
 $credentialManagerCredentialToUse = "bertonline"
-# Binary folder for page transformation
-$binaryFolder = "C:\modernization\modernization.framework"
 
 #region Setup Logging
 $date = Get-Date
@@ -488,6 +404,15 @@ $global:strmWrtError=[System.IO.StreamWriter]$Errorfile
 #endregion
 
 #region Load needed PowerShell modules
+
+# Ensure PnP PowerShell is loaded
+$minimumVersion = New-Object System.Version("3.4.1812.1")
+if (-not (Get-InstalledModule -Name SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -ErrorAction Ignore)) 
+{
+    Install-Module SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -Scope CurrentUser
+}
+Import-Module SharePointPnPPowerShellOnline -DisableNameChecking -MinimumVersion $minimumVersion
+
 # Ensure Azure PowerShell is loaded
 $loadAzurePreview = $false
 if (-not (Get-Module -ListAvailable -Name AzureAD))
@@ -511,10 +436,6 @@ else
 {
     Import-Module AzureAD   
 }
-#endregion
-
-#region Load PnP Modernization framework
-Use-PnPModernizationFramework -PathToModernizationBinaries $binaryFolder
 #endregion
 
 # Get the input information
@@ -555,7 +476,6 @@ if($credentials -eq $null)
     Write-Host "Error: No credentials supplied." -ForegroundColor Red
     exit 1
 }
-#endregion
 
 #region Connect to SharePoint and Azure
 # Get a tenant admin connection, will be reused in the remainder of the script

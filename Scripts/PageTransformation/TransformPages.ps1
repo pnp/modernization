@@ -1,5 +1,13 @@
+<#
+.SYNOPSIS
+Modernizes the pages of a site. 
 
-#IMPORTANT: this requires the PnP PowerShell version 3.4.1812 (December 2018) or higher to work!
+IMPORTANT: this requires the PnP PowerShell version 3.4.1812.1 (December 2018) or higher to work!
+Version: 1.0
+
+.EXAMPLE
+PS C:\> .\modernizesitecollection.ps1
+#>
 
 # Connect to the web holding the pages to modernize
 Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/modernizationme

@@ -1,3 +1,10 @@
+<#
+.SYNOPSIS
+Validates the CSV input file for the bulk "Office 365 Group Connects". 
+
+.EXAMPLE
+PS C:\> .\ValidateInput.ps1
+#>
 
 #region Logging and generic functions
 function LogWrite

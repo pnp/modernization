@@ -27,6 +27,7 @@ modernizesitecollection.ps1 | Bert Jansen (**Microsoft**)
 
 Version|Date|Comments
 -------|----|--------
+1.1 | December 18th 2018 | Updated to use the PnP PowerShell option for transforming pages
 1.0 | November 26th 2018 | Initial commit
 
 ## Disclaimer
@@ -39,6 +40,5 @@ THIS CODE IS PROVIDED AS IS WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPL
 
 - Update $tenantAdminUrl with your tenant admin URL
 - Update $credentialManagerCredentialToUse with your credential manager entry...if not specified tenant admin credentials are asked by the script
-- Update $binaryFolder to point to the page transformation binaries. Checkout the [Transforming to modern site pages using PowerShell](https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell) page to learn more
 
 <img src="https://telemetry.sharepointpnp.com/sp-dev-modernization/scripts/modernizesitecollection" />
