@@ -11,6 +11,7 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "@microsoft/gulp-core-build-karma": "^4.6.54",
     "@microsoft/sp-core-library": "1.7.0",
     "@microsoft/sp-lodash-subset": "1.7.0",
     "@microsoft/sp-office-ui-fabric-core": "1.7.0",
