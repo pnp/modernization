@@ -37,7 +37,7 @@ The parameters to continue with the SharePoint installation part are the followi
 ```
 
 >**Important:**
->You'll need to perform the admin consenting of the created Azure AD app via the provided URL. Doing so will prompt you to accept the apps permissions for all it's users. When the consent is done you're redirected to the app's redirect url which will show a `Bad Request` message. This message can be safely ignored.
+>You'll need to perform the admin consenting of the created Azure AD app via the provided URL. Doing so will prompt you to accept the apps permissions for all it's users. When the consent is done you're redirected to the app's redirect url which might show a `Bad Request` message. This message can be safely ignored.
 
 Also note that the last line in the output contains the needed parameter definition to launch step 2, which is described in the next section.
 
@@ -60,7 +60,7 @@ Apply-PnPTenantTemplate -Path .\modernization.pnp -Parameters @{"AzureAppID"="79
 >If you want to host the modernization center site collection under a different URL then `/sites/modernizationcenter` then you can do this by specifying an extra parameter as show below.
 
 ```PowerShell
-# Update AzureAppID and AzureFunction before running this
+# Update CenterUrl, AzureAppID and AzureFunction before running this
 Apply-PnPTenantTemplate -Path .\modernization.pnp -Parameters @{"CenterUrl"="/teams/modernizationcenter";"AzureAppID"="79ad0500-1230-4f7a-a5bb-5e83ce9174f4";"AzureFunction"="https://contosomodernization.azurewebsites.net"}
 ```
 
