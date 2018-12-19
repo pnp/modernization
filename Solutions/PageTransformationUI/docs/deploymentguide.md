@@ -56,6 +56,14 @@ Connect-PnPOnline -Url https://contoso.sharepoint.com
 Apply-PnPTenantTemplate -Path .\modernization.pnp -Parameters @{"AzureAppID"="79ad0500-1230-4f7a-a5bb-5e83ce9174f4";"AzureFunction"="https://contosomodernization.azurewebsites.net"}
 ```
 
+>**Note:**
+>If you want to host the modernization center site collection under a different URL then `/sites/modernizationcenter` then you can do this by specifying an extra parameter as show below.
+
+```PowerShell
+# Update AzureAppID and AzureFunction before running this
+Apply-PnPTenantTemplate -Path .\modernization.pnp -Parameters @{"CenterUrl"="/teams/modernizationcenter";"AzureAppID"="79ad0500-1230-4f7a-a5bb-5e83ce9174f4";"AzureFunction"="https://contosomodernization.azurewebsites.net"}
+```
+
 ## Step 3: Enable the page transformation UI for your site collections
 
 There are two ways to do this.
@@ -74,6 +82,15 @@ The script approach enables you to configure either a single site collection or 
 # Enable page transformation
 Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/sitetoconfigure
 .\Enable-PageTransformation.ps1
+```
+
+>**Note:**
+>If you want to host the modernization center site collection under a different URL then `/sites/modernizationcenter` then you can do this by specifying an extra parameter as show below.
+
+```PowerShell
+# Enable page transformation
+Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/sitetoconfigure
+.\Enable-PageTransformation.ps1 -ModernizationCenterUrl "/teams/modernization"
 ```
 
 ```PowerShell
