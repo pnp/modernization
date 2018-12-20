@@ -12,7 +12,7 @@ PS C:\> .\modernizesitecollection.ps1
 # Connect to the web holding the pages to modernize
 Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/modernizationme
 
-# Get all the pages in the site pages library
+# Get all the pages in the site pages library. SitePages is the only supported library for using modern pages
 $pages = Get-PnPListItem -List sitepages
 
 # Iterate over the pages
