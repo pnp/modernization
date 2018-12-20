@@ -406,7 +406,7 @@ $global:strmWrtError=[System.IO.StreamWriter]$Errorfile
 #region Load needed PowerShell modules
 
 # Ensure PnP PowerShell is loaded
-$minimumVersion = New-Object System.Version("3.4.1812.1")
+$minimumVersion = New-Object System.Version("3.4.1812.2")
 if (-not (Get-InstalledModule -Name SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -ErrorAction Ignore)) 
 {
     Install-Module SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -Scope CurrentUser
