@@ -5,6 +5,7 @@ using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private PageTransformation pageTransformation;
         private string version = "undefined";
         private PageTelemetry pageTelemetry;
+        private Stopwatch watch;
+        private const string ExecutionLog = "execution.csv";
 
         #region Construction
         /// <summary>
@@ -39,6 +42,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="pageTransformationFile">Used page mapping file</param>
         public PageTransformator(ClientContext clientContext, string pageTransformationFile)
         {
+
+#if DEBUG && MEASURE && MEASURE
+            InitMeasurement();
+#endif
+
             this.clientContext = clientContext;
             this.version = PageTransformator.GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
@@ -58,6 +66,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="pageTransformationModel">Page transformation model</param>
         public PageTransformator(ClientContext clientContext, PageTransformation pageTransformationModel)
         {
+
+#if DEBUG && MEASURE
+            InitMeasurement();
+#endif
+
             this.clientContext = clientContext;
             this.version = PageTransformator.GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
@@ -106,7 +119,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #region Telemetry
             DateTime transformationStartDateTime = DateTime.Now;
             clientContext.ClientTag = $"SPDev:PageTransformator";
-            clientContext.Load(clientContext.Web, p => p.Description, p => p.Id);
+            clientContext.Load(clientContext.Web, p => p.Id);
             clientContext.ExecuteQuery();
             #endregion
 
@@ -123,14 +136,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             // Check if page name is free to use
+#if DEBUG && MEASURE
+            Start();
+#endif            
             bool pageExists = false;
             ClientSidePage targetPage = null;
             try
             {
-                targetPage = clientContext.Web.LoadClientSidePage(pageTransformationInformation.TargetPageName);
+                // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
+                Load(clientContext, pageTransformationInformation.TargetPageName);
                 pageExists = true;
             }
             catch (ArgumentException) { }
+#if DEBUG && MEASURE
+            Stop("Load Page");
+#endif            
 
             if (pageExists)
             {
@@ -138,19 +158,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     throw new ArgumentException($"There already exists a page with name {pageTransformationInformation.TargetPageName}.");
                 }
-                else
-                {
-                    targetPage.ClearPage();
-                }
             }
-            else
-            {
-                // Create a new client side page
-                targetPage = clientContext.Web.AddClientSidePage(pageTransformationInformation.TargetPageName);
-            }
+
+            // Create the client side page
+            targetPage = clientContext.Web.AddClientSidePage(pageTransformationInformation.TargetPageName);
             #endregion
 
             #region Home page handling
+#if DEBUG && MEASURE
+            Start();
+#endif            
             bool replacedByOOBHomePage = false;
             // Check if the transformed page is the web's home page
             clientContext.Web.EnsureProperties(w => w.RootFolder.WelcomePage);
@@ -165,12 +182,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     replacedByOOBHomePage = true;
                 }
             }
+#if DEBUG && MEASURE
+            Stop("Home page handling");
+#endif            
             #endregion
 
             #region Article page handling
             if (!replacedByOOBHomePage)
             {
                 #region Configure header from target page
+#if DEBUG && MEASURE
+                Start();
+#endif            
                 if (pageTransformationInformation.PageHeader == null || pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.None)
                 {
                     targetPage.RemovePageHeader();
@@ -183,9 +206,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     targetPage.SetCustomPageHeader(pageTransformationInformation.PageHeader.ImageServerRelativeUrl, pageTransformationInformation.PageHeader.TranslateX, pageTransformationInformation.PageHeader.TranslateY);
                 }
+#if DEBUG && MEASURE
+                Stop("Target page header");
+#endif            
                 #endregion
 
                 #region Analysis of the source page
+#if DEBUG && MEASURE
+                Start();
+#endif            
                 // Analyze the source page
                 Tuple<PageLayout, List<WebPartEntity>> pageData = null;
 
@@ -200,9 +229,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(true);
                 }
+#if DEBUG && MEASURE
+                Stop("Analyze page");
+#endif
                 #endregion
 
                 #region Page title configuration
+#if DEBUG && MEASURE
+                Start();
+#endif            
                 // Set page title
                 if (pageType.Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -231,9 +266,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     targetPage.PageTitle = pageTransformationInformation.PageTitleOverride(targetPage.PageTitle);
                 }
+#if DEBUG && MEASURE
+                Stop("Set page title");
+#endif
                 #endregion
 
                 #region Page layout configuration
+#if DEBUG && MEASURE
+                Start();
+#endif            
                 // Use the default layout transformator
                 ILayoutTransformator layoutTransformator = new LayoutTransformator(targetPage);
 
@@ -245,6 +286,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 // Apply the layout to the page
                 layoutTransformator.Transform(pageData.Item1);
+#if DEBUG && MEASURE
+                Stop("Page layout");
+#endif
                 #endregion
 
                 #region Page Banner creation
@@ -252,6 +296,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     if (pageTransformationInformation.ModernizationCenterInformation != null && pageTransformationInformation.ModernizationCenterInformation.AddPageAcceptBanner)
                     {
+#if DEBUG && MEASURE
+                        Start();
+#endif            
                         // Bump the row values for the existing web parts as we've inserted a new section
                         foreach (var section in targetPage.Sections)
                         {
@@ -292,11 +339,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             Properties = props,
                         };
                         pageData.Item2.Insert(0, bannerWebPart);
+#if DEBUG && MEASURE
+                        Stop("Page Banner");
+#endif
                     }
                 }
                 #endregion  
 
                 #region Content transformation
+#if DEBUG && MEASURE
+                Start();
+#endif            
                 // Use the default content transformator
                 IContentTransformator contentTransformator = new ContentTransformator(targetPage, pageTransformation);
 
@@ -308,12 +361,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 // Run the content transformator
                 contentTransformator.Transform(pageData.Item2);
+#if DEBUG && MEASURE
+                Stop("Content transformation");
+#endif
                 #endregion
             }
             #endregion
 
             #region Page persisting + permissions
             #region Save the page
+#if DEBUG && MEASURE
+            Start();
+#endif            
             // Persist the client side page
             targetPage.Save(pageTransformationInformation.TargetPageName);
 
@@ -336,11 +395,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
             
             // finally publish the created/updated page
             targetPage.Publish();
+#if DEBUG && MEASURE
+            Stop("Persist page");
+#endif
             #endregion
 
             #region Permission handling
             if (pageTransformationInformation.KeepPageSpecificPermissions)
             {
+#if DEBUG && MEASURE
+                Start();
+#endif            
                 pageTransformationInformation.SourcePage.EnsureProperty(p => p.HasUniqueRoleAssignments);
                 if (pageTransformationInformation.SourcePage.HasUniqueRoleAssignments)
                 {
@@ -378,6 +443,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         }
                     }
                     this.clientContext.ExecuteQueryRetry();
+#if DEBUG && MEASURE
+                    Stop("Permission handling");
+#endif
                 }
             }
             #endregion
@@ -386,8 +454,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // All went well so far...swap pages if that's needed
             if (pageTransformationInformation.TargetPageTakesSourcePageName)
             {
+#if DEBUG && MEASURE
+                Start();
+#endif            
                 //Load the source page
                 SwapPages(pageTransformationInformation);
+#if DEBUG && MEASURE
+                Stop("Pagename swap");
+#endif
             }
             #endregion
 
@@ -561,6 +635,51 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             return "undefined";
+        }
+
+        private void Load(ClientContext cc, string pageName)
+        {
+            var pagesLibrary = cc.Web.GetListByUrl("SitePages", p => p.RootFolder);
+
+            // Not all sites do have a pages library, throw a nice exception in that case
+            if (pagesLibrary == null)
+            {
+                throw new ArgumentException($"Site does not have a sitepages library and therefore this page can't be a client side page.");
+            }
+
+            var file = cc.Web.GetFileByServerRelativePath(ResourcePath.FromDecodedUrl($"{pagesLibrary.RootFolder.ServerRelativeUrl}/{pageName}"));
+            cc.Web.Context.Load(file, f => f.Exists);
+            cc.Web.Context.ExecuteQueryRetry();
+
+            if (!file.Exists)
+            {
+                throw new ArgumentException($"Page {pageName} does not exist in current web");
+            }
+        }
+
+
+        private void InitMeasurement()
+        {
+            try
+            {
+                if (System.IO.File.Exists(ExecutionLog))
+                {
+                    System.IO.File.Delete(ExecutionLog);
+                }
+            }
+            catch { }
+        }
+
+        private void Start()
+        {
+            watch = Stopwatch.StartNew();
+        }
+
+        private void Stop(string method)
+        {
+            watch.Stop();
+            var elapsedTime = watch.ElapsedMilliseconds;
+            System.IO.File.AppendAllText(ExecutionLog, $"{method};{elapsedTime}{Environment.NewLine}");
         }
         #endregion
 
