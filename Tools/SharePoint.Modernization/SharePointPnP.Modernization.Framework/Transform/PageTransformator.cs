@@ -117,10 +117,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Telemetry
+#if DEBUG && MEASURE
+            Start();
+#endif            
             DateTime transformationStartDateTime = DateTime.Now;
             clientContext.ClientTag = $"SPDev:PageTransformator";
-            clientContext.Load(clientContext.Web, p => p.Id);
+            // Load all web properties needed further one
+            clientContext.Load(clientContext.Web, p => p.Id, p => p.RootFolder.WelcomePage, p => p.Url);
+            // Use regular ExecuteQuery as we want to send this custom clienttag
             clientContext.ExecuteQuery();
+#if DEBUG && MEASURE
+            Stop("Telemetry");
+#endif            
             #endregion
 
             #region Page creation
@@ -144,7 +152,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             try
             {
                 // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
-                Load(clientContext, pageTransformationInformation.TargetPageName);
+                Load(clientContext, pageTransformationInformation);
                 pageExists = true;
             }
             catch (ArgumentException) { }
@@ -170,7 +178,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif            
             bool replacedByOOBHomePage = false;
             // Check if the transformed page is the web's home page
-            clientContext.Web.EnsureProperties(w => w.RootFolder.WelcomePage);
             var homePageUrl = clientContext.Web.RootFolder.WelcomePage;
             var homepageName = Path.GetFileName(clientContext.Web.RootFolder.WelcomePage);
             if (homepageName.Equals(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), StringComparison.InvariantCultureIgnoreCase))
@@ -317,7 +324,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
                         var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
-                        clientContext.Web.EnsureProperty(p => p.Url);
                         Uri host = new Uri(clientContext.Web.Url);
 
                         string path = $"{host.Scheme}://{host.DnsSafeHost}{sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "")}";
@@ -386,6 +392,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this.clientContext.ExecuteQueryRetry();
                 targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                 targetPageFile.Update();
+
+                // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
+                targetPageFile.Publish("Page modernization initial publish");
+
                 this.clientContext.ExecuteQueryRetry();
             }
             catch (Exception ex)
@@ -393,8 +403,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // Eat exceptions as this is not critical for the generated page
             }
             
-            // finally publish the created/updated page
-            targetPage.Publish();
 #if DEBUG && MEASURE
             Stop("Persist page");
 #endif
@@ -406,7 +414,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #if DEBUG && MEASURE
                 Start();
 #endif            
-                pageTransformationInformation.SourcePage.EnsureProperty(p => p.HasUniqueRoleAssignments);
                 if (pageTransformationInformation.SourcePage.HasUniqueRoleAssignments)
                 {
                     // Copy the unique permissions from source to target
@@ -443,10 +450,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         }
                     }
                     this.clientContext.ExecuteQueryRetry();
-#if DEBUG && MEASURE
-                    Stop("Permission handling");
-#endif
                 }
+#if DEBUG && MEASURE
+                Stop("Permission handling");
+#endif
             }
             #endregion
 
@@ -637,9 +644,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return "undefined";
         }
 
-        private void Load(ClientContext cc, string pageName)
+        private void Load(ClientContext cc, PageTransformationInformation pageTransformationInformation)
         {
-            var pagesLibrary = cc.Web.GetListByUrl("SitePages", p => p.RootFolder);
+            var pagesLibrary = cc.Web.GetListByUrl("SitePages", p => p.RootFolder.ServerRelativeUrl);
 
             // Not all sites do have a pages library, throw a nice exception in that case
             if (pagesLibrary == null)
@@ -647,13 +654,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 throw new ArgumentException($"Site does not have a sitepages library and therefore this page can't be a client side page.");
             }
 
-            var file = cc.Web.GetFileByServerRelativePath(ResourcePath.FromDecodedUrl($"{pagesLibrary.RootFolder.ServerRelativeUrl}/{pageName}"));
+            var file = cc.Web.GetFileByServerRelativePath(ResourcePath.FromDecodedUrl($"{pagesLibrary.RootFolder.ServerRelativeUrl}/{pageTransformationInformation.TargetPageName}"));
             cc.Web.Context.Load(file, f => f.Exists);
+            
+            // Already load this when needed later on
+            if (pageTransformationInformation.KeepPageSpecificPermissions)
+            {
+                cc.Load(pageTransformationInformation.SourcePage, p => p.HasUniqueRoleAssignments);
+            }
+
             cc.Web.Context.ExecuteQueryRetry();
 
             if (!file.Exists)
             {
-                throw new ArgumentException($"Page {pageName} does not exist in current web");
+                throw new ArgumentException($"Page {pageTransformationInformation.TargetPageName} does not exist in current web");
             }
         }
 
