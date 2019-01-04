@@ -58,6 +58,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
             cc.ExecuteQueryRetry();
 
             // Load wiki content in HTML parser
+            if (page.FieldValues[Constants.WikiField] == null)
+            {
+                throw new Exception("WikiField contents was set to null, this is an invalid and empty wiki page.");
+            }
+
             var pageContents = page.FieldValues[Constants.WikiField].ToString();
             var htmlDoc = parser.Parse(pageContents);
             var layout = GetLayout(htmlDoc);

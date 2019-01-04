@@ -54,6 +54,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Tables
                         // If target page exists, then overwrite it
                         Overwrite = true,
 
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
                         // ModernizationCenter options
                         //ModernizationCenterInformation = new ModernizationCenterInformation()
                         //{

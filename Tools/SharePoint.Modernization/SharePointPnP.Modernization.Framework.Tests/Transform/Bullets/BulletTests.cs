@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Bullets
 {
     [TestClass]
-    public class BulletTests
+    public class DetectionTests
     {
         #region Test initialization
         [ClassInitialize()]
@@ -53,6 +53,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Bullets
                     {
                         // If target page exists, then overwrite it
                         Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
 
                         // ModernizationCenter options
                         //ModernizationCenterInformation = new ModernizationCenterInformation()
