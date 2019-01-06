@@ -9,12 +9,18 @@ using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Cache
 {
+    /// <summary>
+    /// Caching manager, singleton
+    /// </summary>
     public sealed class CacheManager
     {
         private static readonly Lazy<CacheManager> _lazyInstance = new Lazy<CacheManager>(() => new CacheManager());
         private ConcurrentDictionary<string, List<ClientSideComponent>> clientSideComponents;
         private ConcurrentDictionary<Guid, string> siteToComponentMapping;
 
+        /// <summary>
+        /// Get's the single cachemanager instance, singleton pattern
+        /// </summary>
         public static CacheManager Instance
         {
             get
@@ -30,14 +36,19 @@ namespace SharePointPnP.Modernization.Framework.Cache
             siteToComponentMapping = new ConcurrentDictionary<Guid, string>(10, 100);
         }
 
+        /// <summary>
+        /// Get's the clientside components from cache or if needed retrieves and caches them
+        /// </summary>
+        /// <param name="page">Page to grab the components for</param>
+        /// <returns></returns>
         public List<ClientSideComponent> GetClientSideComponents(ClientSidePage page)
         {
-            Guid siteId = page.Context.Site.Id;
+            Guid webId = page.Context.Web.Id;
 
-            if (siteToComponentMapping.ContainsKey(siteId))
+            if (siteToComponentMapping.ContainsKey(webId))
             {
                 // Components are cached for this site, get the component key
-                if (siteToComponentMapping.TryGetValue(siteId, out string componentKey))
+                if (siteToComponentMapping.TryGetValue(webId, out string componentKey))
                 {
                     if (clientSideComponents.TryGetValue(componentKey, out List<ClientSideComponent> componentList))
                     {
@@ -49,27 +60,29 @@ namespace SharePointPnP.Modernization.Framework.Cache
             // Ok, so nothing in cache so it seems, so let's get the components
             var componentsToAdd = page.AvailableClientSideComponents().ToList();
 
-
             // calculate the componentkey
             string componentKeyToCache = Sha256(JsonConvert.SerializeObject(componentsToAdd));
 
             // store the retrieved data in cache
-            if (siteToComponentMapping.TryAdd(siteId, componentKeyToCache))
+            if (siteToComponentMapping.TryAdd(webId, componentKeyToCache))
             {
-                if (clientSideComponents.ContainsKey(componentKeyToCache))
+                // Since the components list is big and often the same across webs we only store it in cache if it's different
+                if (!clientSideComponents.ContainsKey(componentKeyToCache))
                 {
-                    return componentsToAdd;
-                }
-                else if (clientSideComponents.TryAdd(componentKeyToCache, componentsToAdd))
-                {
-                    return componentsToAdd;
+                    clientSideComponents.TryAdd(componentKeyToCache, componentsToAdd);
                 }
             }
 
-            throw new Exception("Failed to load client side compenents from the page or from cache");
+            return componentsToAdd;
         }
 
-        static string Sha256(string randomString)
+        public void ClearClientSideComponents()
+        {
+            clientSideComponents.Clear();
+            siteToComponentMapping.Clear();
+        }
+
+        private static string Sha256(string randomString)
         {
             var crypt = new System.Security.Cryptography.SHA256Managed();
             var hash = new StringBuilder();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.RichText
 
                 foreach (var page in pages)
                 {
+                    //CacheManager.Instance.ClearClientSideComponents();
+
                     PageTransformationInformation pti = new PageTransformationInformation(page)
                     {
                         // If target page exists, then overwrite it
