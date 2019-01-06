@@ -21,7 +21,7 @@ namespace SharePointPnP.Modernization.Framework.SampleAddOn
             else
             {
                 var list = this.clientContext.Web.GetListById(listId);
-                list.EnsureProperties(p => p.RootFolder.ServerRelativeUrl);
+                list.EnsureProperty(p => p.RootFolder).EnsureProperty(p => p.ServerRelativeUrl);
                 return list.RootFolder.ServerRelativeUrl;
             }
         }

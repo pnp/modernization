@@ -233,7 +233,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         if (foundWebPart != null)
                         {
                             // Retry to load the properties, sometimes they're not retrieved
-                            foundWebPart.EnsureProperties(wp => wp.Id, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties);
+                            foundWebPart.EnsureProperty(wp => wp.Id);
+                            foundWebPart.WebPart.EnsureProperties(wp => wp.ExportMode, wp => wp.Title, wp => wp.ZoneIndex, wp => wp.IsClosed, wp => wp.Hidden, wp => wp.Properties);
 
                             //var changed = false;
                             string webPartXml = "";

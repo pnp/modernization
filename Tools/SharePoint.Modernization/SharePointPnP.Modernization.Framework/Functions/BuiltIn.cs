@@ -312,7 +312,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             else
             {
                 var list = this.clientContext.Web.GetListById(listId);
-                list.EnsureProperties(p => p.RootFolder.ServerRelativeUrl);
+                list.EnsureProperty(p => p.RootFolder).EnsureProperty(p => p.ServerRelativeUrl);
                 return list.RootFolder.ServerRelativeUrl;
             }
         }
@@ -335,7 +335,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             else
             {
                 var list = this.clientContext.Web.GetListById(listId);
-                list.EnsureProperties(p => p.RootFolder.ServerRelativeUrl);
+                list.EnsureProperty(p => p.RootFolder).EnsureProperty(p => p.ServerRelativeUrl);
                 this.clientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
                 return list.RootFolder.ServerRelativeUrl.Replace(this.clientContext.Web.ServerRelativeUrl.TrimEnd('/'), "");
             }
