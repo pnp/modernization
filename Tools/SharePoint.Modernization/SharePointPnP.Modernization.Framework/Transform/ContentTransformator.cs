@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Newtonsoft.Json.Linq;
 using OfficeDevPnP.Core.Pages;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Functions;
 using System;
@@ -63,7 +64,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             // Load existing available controls
-            var componentsToAdd = page.AvailableClientSideComponents().ToList();
+            var componentsToAdd = CacheManager.Instance.GetClientSideComponents(page);
 
             // Normalize row numbers as there can be gaps if the analyzed page contained wiki tables
             int newRowOrder = 0;
@@ -432,9 +433,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private Dictionary<string, string> CreateSiteTokenList(ClientContext cc)
         {
             Dictionary<string, string> siteTokens = new Dictionary<string, string>(5);
-
-            cc.Web.EnsureProperties(p => p.Url, p => p.ServerRelativeUrl, p => p.Id);
-            cc.Site.EnsureProperties(p => p.RootWeb.ServerRelativeUrl, p => p.Id);
 
             Uri hostUri = new Uri(cc.Web.Url);
             siteTokens.Add("Host", $"{hostUri.Scheme}://{hostUri.DnsSafeHost}");

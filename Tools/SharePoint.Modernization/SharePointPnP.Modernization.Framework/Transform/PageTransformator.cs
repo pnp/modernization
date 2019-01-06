@@ -123,7 +123,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             DateTime transformationStartDateTime = DateTime.Now;
             clientContext.ClientTag = $"SPDev:PageTransformator";
             // Load all web properties needed further one
-            clientContext.Load(clientContext.Web, p => p.Id, p => p.RootFolder.WelcomePage, p => p.Url);
+            clientContext.Load(clientContext.Web, p => p.Id, p => p.ServerRelativeUrl, p => p.RootFolder.WelcomePage, p => p.Url);
+            clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id);
             // Use regular ExecuteQuery as we want to send this custom clienttag
             clientContext.ExecuteQuery();
 #if DEBUG && MEASURE
@@ -149,10 +150,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif            
             bool pageExists = false;
             ClientSidePage targetPage = null;
+            Microsoft.SharePoint.Client.File existingFile = null;
             try
             {
                 // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
-                Load(clientContext, pageTransformationInformation);
+                existingFile = Load(clientContext, pageTransformationInformation);
                 pageExists = true;
             }
             catch (ArgumentException) { }
@@ -644,7 +646,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return "undefined";
         }
 
-        private void Load(ClientContext cc, PageTransformationInformation pageTransformationInformation)
+        private Microsoft.SharePoint.Client.File Load(ClientContext cc, PageTransformationInformation pageTransformationInformation)
         {
             var pagesLibrary = cc.Web.GetListByUrl("SitePages", p => p.RootFolder.ServerRelativeUrl);
 
@@ -669,6 +671,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 throw new ArgumentException($"Page {pageTransformationInformation.TargetPageName} does not exist in current web");
             }
+
+            return file;
         }
 
 

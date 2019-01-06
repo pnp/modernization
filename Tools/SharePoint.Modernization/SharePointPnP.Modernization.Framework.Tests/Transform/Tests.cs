@@ -33,7 +33,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         #region Test initialization
         [ClassInitialize()]
         public static void ClassInit(TestContext context)
-        {           
+        {
             //using (var cc = TestCommon.CreateClientContext())
             //{
             //    // Clean all migrated pages before next run
@@ -54,6 +54,56 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
         }
         #endregion
+
+
+        [TestMethod]
+        public void CacheTest()
+        {
+            using (var cc = TestCommon.CreateClientContext())
+            {
+                var pageTransformator = new PageTransformator(cc);
+
+                var pages = cc.Web.GetPages("table_1");
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                    };
+
+                    pageTransformator.Transform(pti);
+                }
+            }
+
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/temp2"))
+            {
+                var pageTransformator = new PageTransformator(cc);
+
+                var pages = cc.Web.GetPages("demo5");
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                    };
+
+                    pageTransformator.Transform(pti);
+                }
+            }
+
+        }
 
         [TestMethod]
         public void TransformPagesTest()

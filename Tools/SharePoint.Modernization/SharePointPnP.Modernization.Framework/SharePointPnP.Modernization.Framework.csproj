@@ -187,6 +187,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\CacheManager.cs" />
     <Compile Include="Caml\FieldReference.cs" />
     <Compile Include="Caml\FieldReferenceFunctionType.cs" />
     <Compile Include="Caml\Internal\Operators\ComplexOperator.cs" />
