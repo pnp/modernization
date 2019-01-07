@@ -12,6 +12,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
     /// </summary>
     public class PublishingPage : BasePage
     {
+        private class WebPartPlaceHolder
+        {
+            public WebPartDefinition WebPartDefinition { get; set; }
+            public ClientResult<string> WebPartXml { get; set; }
+            public string WebPartType { get; set; }
+        }
 
         #region Construction
         /// <summary>
@@ -52,6 +58,63 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             if (webParts.Count() > 0)
             {
+                List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
+
+                foreach (var foundWebPart in webParts)
+                {
+                    webPartsToRetrieve.Add(new WebPartPlaceHolder()
+                    {
+                        WebPartDefinition = foundWebPart,
+                        WebPartXml = null,
+                        WebPartType = "",
+                    });
+                }
+
+                bool isDirty = false;
+                foreach (var foundWebPart in webPartsToRetrieve)
+                {
+                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
+                    {
+                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
+                        isDirty = true;
+                    }
+                }
+                if (isDirty)
+                {
+                    cc.ExecuteQueryRetry();
+                }
+
+                foreach (var foundWebPart in webPartsToRetrieve)
+                {
+                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
+                    {
+                        // Use different approach to determine type as we can't export the web part XML without indroducing a change
+                        foundWebPart.WebPartType = GetTypeFromProperties(foundWebPart.WebPartDefinition.WebPart.Properties);
+                    }
+                    else
+                    {
+                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
+                    }
+
+                    webparts.Add(new WebPartEntity()
+                    {
+                        Title = foundWebPart.WebPartDefinition.WebPart.Title,
+                        Type = foundWebPart.WebPartType,
+                        Id = foundWebPart.WebPartDefinition.Id,
+                        ServerControlId = foundWebPart.WebPartDefinition.Id.ToString(),
+                        Row = 1,
+                        Column = 1,
+                        Order = foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
+                        ZoneId = foundWebPart.WebPartDefinition.ZoneId,
+                        ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
+                        IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
+                        Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
+                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value),
+                    });
+                }
+
+                #region Old Approach
+                /*
                 foreach (var foundWebPart in webParts)
                 {
                     string webPartXml = "";
@@ -86,6 +149,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Properties = Properties(foundWebPart.WebPart.Properties, webPartType, webPartXml),
                     });
                 }
+                */
+                #endregion
             }
 
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
