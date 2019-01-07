@@ -448,7 +448,7 @@
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.ClientContextExtensions_ExecuteQueryRetry">
             <summary>
-              Looks up a localized string similar to CSOM request frequency exceeded usage limits. Sleeping for {0} milliseconds before retrying..
+              Looks up a localized string similar to CSOM request frequency exceeded usage limits. Sleeping for {0} seconds before retrying..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.ClientContextExtensions_ExecuteQueryRetryException">
@@ -32941,6 +32941,14 @@
             </summary>
             <param name="pageName">Name of the page (e.g. mypage.aspx) to save</param>
         </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.Save(System.String,Microsoft.SharePoint.Client.File,Microsoft.SharePoint.Client.List)">
+            <summary>
+            Persists the current <see cref="T:OfficeDevPnP.Core.Pages.ClientSidePage"/> instance as a client side page in SharePoint
+            </summary>
+            <param name="pageName">Name of the page (e.g. mypage.aspx) to save</param>
+            <param name="pageFile">File of already existing page (in case of overwrite)</param>
+            <param name="pagesLibrary">Pages library instance</param>
+        </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.FromHtml(System.String)">
             <summary>
             Instantiate a <see cref="T:OfficeDevPnP.Core.Pages.ClientSidePage"/> from a html fragment
@@ -33712,12 +33720,13 @@
             <param name="expiresOn">The ExpiresOn time of the current access token</param>
             <returns>Returns a TimeSpan represents the time interval within which the current access token is valid thru.</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetWebLoginClientContext(System.String,System.Drawing.Icon)">
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetWebLoginClientContext(System.String,System.Drawing.Icon,System.Boolean)">
             <summary>
             Returns a SharePoint on-premises / SharePoint Online ClientContext object. Requires claims based authentication with FedAuth cookie.
             </summary>
             <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
             <param name="icon">Optional icon to use for the popup form</param>
+            <param name="scriptErrorsSuppressed">Optional parameter to set WebBrowser.ScriptErrorsSuppressed value in the popup form</param>
             <returns>ClientContext to be used by CSOM code</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetNetworkCredentialAuthenticatedContext(System.String,System.String,System.String,System.String)">
@@ -34661,6 +34670,11 @@
         <member name="T:OfficeDevPnP.Core.PnPClientContext">
             <summary>
             Class that deals with PnPClientContext methods
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.PnPClientContext.PropertyBag">
+            <summary>
+            Generic property bag for the PnPClientContext
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.PnPClientContext.ConvertFrom(Microsoft.SharePoint.Client.ClientContext,System.Int32,System.Int32)">
@@ -40472,6 +40486,33 @@
             <param name="file">Target file to publish.</param>
             <param name="level">Target publish direction (Draft and Published only apply, Checkout is ignored).</param>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.FileFolderExtensions.ResetFileToPreviousVersionAsync(Microsoft.SharePoint.Client.Web,System.String,Microsoft.SharePoint.Client.CheckinType,System.String)">
+            <summary>
+            Resets a file to its previous version.
+            </summary>
+            <param name="web">The web to process</param>
+            <param name="serverRelativeUrl">The server relative URL of the file to process</param>
+            <param name="checkinType">The type of the checkin</param>
+            <param name="comment">Message to be recorded with the approval</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.FileFolderExtensions.ResetFileToPreviousVersion(Microsoft.SharePoint.Client.Web,System.String,Microsoft.SharePoint.Client.CheckinType,System.String)">
+            <summary>
+            Resets a file to its previous version.
+            </summary>
+            <param name="web">The web to process</param>
+            <param name="serverRelativeUrl">The server relative URL of the file to process</param>
+            <param name="checkinType">The type of the checkin</param>
+            <param name="comment">Message to be recorded with the approval</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.FileFolderExtensions.ResetFileToPreviousVersionImplementation(Microsoft.SharePoint.Client.Web,System.String,Microsoft.SharePoint.Client.CheckinType,System.String)">
+            <summary>
+            Checks in a file
+            </summary>
+            <param name="web">The web to process</param>
+            <param name="serverRelativeUrl">The server relative URL of the file to checkin</param>
+            <param name="checkinType">The type of the checkin</param>
+            <param name="comment">Message to be recorded with the approval</param>
+        </member>
         <member name="T:Microsoft.SharePoint.Client.InformationManagementExtensions">
             <summary>
             Class that deals with information management features
@@ -42270,6 +42311,13 @@
             </summary>
             <param name="web">Site to be processed - can be root web or sub site</param>
             <param name="user">Built in user to add to the visitors group</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SecurityExtensions.GetEveryoneExceptExternalUsersClaimName(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Returns the correct value of the "Everyone except external users" string value
+            </summary>
+            <param name="web">Web to get the language from</param>
+            <returns>String in correct translation</returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.SecurityExtensions.GetSharingCapabilitiesTenant(Microsoft.SharePoint.Client.Web,System.Uri)">
             <summary>

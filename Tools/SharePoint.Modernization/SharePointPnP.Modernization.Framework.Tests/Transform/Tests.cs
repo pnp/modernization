@@ -55,6 +55,31 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         }
         #endregion
 
+        [TestMethod]
+        public void WPPerformanceTest()
+        {
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/espctest2"))
+            {
+                var pageTransformator = new PageTransformator(cc);
+
+                var pages = cc.Web.GetPages("contentbyquery");
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                    };
+
+                    pageTransformator.Transform(pti);
+                }
+            }
+        }
 
         [TestMethod]
         public void CacheTest()

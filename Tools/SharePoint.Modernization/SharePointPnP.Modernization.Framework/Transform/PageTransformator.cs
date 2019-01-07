@@ -1,5 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
+using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
@@ -150,11 +151,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif            
             bool pageExists = false;
             ClientSidePage targetPage = null;
+            List pagesLibrary = null;
             Microsoft.SharePoint.Client.File existingFile = null;
             try
             {
                 // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
-                existingFile = Load(clientContext, pageTransformationInformation);
+                existingFile = Load(clientContext, pageTransformationInformation, out pagesLibrary);
                 pageExists = true;
             }
             catch (ArgumentException) { }
@@ -382,7 +384,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             Start();
 #endif            
             // Persist the client side page
-            targetPage.Save(pageTransformationInformation.TargetPageName);
+            targetPage.Save(pageTransformationInformation.TargetPageName, existingFile, pagesLibrary);
 
             // Tag the file with a page modernization version stamp
             try
@@ -646,26 +648,43 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return "undefined";
         }
 
-        private Microsoft.SharePoint.Client.File Load(ClientContext cc, PageTransformationInformation pageTransformationInformation)
+        private Microsoft.SharePoint.Client.File Load(ClientContext cc, PageTransformationInformation pageTransformationInformation, out List pagesLibrary)
         {
-            var pagesLibrary = cc.Web.GetListByUrl("SitePages", p => p.RootFolder.ServerRelativeUrl);
+            cc.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
-            // Not all sites do have a pages library, throw a nice exception in that case
-            if (pagesLibrary == null)
-            {
-                throw new ArgumentException($"Site does not have a sitepages library and therefore this page can't be a client side page.");
-            }
+            // Load the pages library and page file (if exists) in one go 
+            var listServerRelativeUrl = UrlUtility.Combine(cc.Web.ServerRelativeUrl, "SitePages");
+            pagesLibrary = cc.Web.GetList(listServerRelativeUrl);
+            cc.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, l => l.Hidden, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
 
-            var file = cc.Web.GetFileByServerRelativePath(ResourcePath.FromDecodedUrl($"{pagesLibrary.RootFolder.ServerRelativeUrl}/{pageTransformationInformation.TargetPageName}"));
-            cc.Web.Context.Load(file, f => f.Exists);
-            
-            // Already load this when needed later on
+            var file = cc.Web.GetFileByServerRelativeUrl($"{listServerRelativeUrl}/{pageTransformationInformation.TargetPageName}");
+            cc.Web.Context.Load(file, f => f.Exists, f => f.ListItemAllFields);
+
             if (pageTransformationInformation.KeepPageSpecificPermissions)
             {
                 cc.Load(pageTransformationInformation.SourcePage, p => p.HasUniqueRoleAssignments);
             }
 
-            cc.Web.Context.ExecuteQueryRetry();
+            try
+            {
+                cc.ExecuteQueryRetry();
+            }
+            catch (ServerException se)
+            {
+                if (se.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                {
+                    pagesLibrary = null;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (pagesLibrary == null)
+            {
+                throw new ArgumentException($"Site does not have a sitepages library and therefore this page can't be a client side page.");
+            }
 
             if (!file.Exists)
             {
@@ -674,7 +693,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             return file;
         }
-
 
         private void InitMeasurement()
         {
