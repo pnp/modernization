@@ -206,7 +206,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             if (webPartsToRetrieve.Count > 0)
             {
                 // Load web part manager and use it to load each web part
-                var limitedWPManager = wikiPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
+                LimitedWebPartManager limitedWPManager = wikiPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
                 cc.Load(limitedWPManager);
 
                 foreach (var webPartToRetrieve in webPartsToRetrieve)
@@ -218,16 +218,31 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         continue;
                     }
 
-                    webPartToRetrieve.WebPartDefinition = limitedWPManager.WebParts.GetByControlId(webPartToRetrieve.ControlId);
-                    cc.Load(webPartToRetrieve.WebPartDefinition, wp => wp.Id, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties);
+                    // Sometimes the returned wiki html contains web parts which are not anymore on the page...using the ExceptionHandlingScope 
+                    // we can handle these errors server side while just doing a single roundtrip
+                    var scope = new ExceptionHandlingScope(cc);
+                    using (scope.StartScope())
+                    {
+                        using (scope.StartTry())
+                        {
+                            webPartToRetrieve.WebPartDefinition = limitedWPManager.WebParts.GetByControlId(webPartToRetrieve.ControlId);
+                            cc.Load(webPartToRetrieve.WebPartDefinition, wp => wp.Id, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties);
+                        }
+                        using (scope.StartCatch())
+                        {
+
+                        }
+                    }
                 }
                 cc.ExecuteQueryRetry();
+
 
                 // Load the web part XML for the web parts that do allow it
                 bool isDirty = false;
                 foreach (var webPartToRetrieve in webPartsToRetrieve)
                 {
-                    if (webPartToRetrieve.WebPartDefinition != null)
+                    // Important to only process the web parts that did not return an error in the previous server call
+                    if (webPartToRetrieve.WebPartDefinition != null && (webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.HasValue && webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.Value == false))
                     {
                         // Retry to load the properties, sometimes they're not retrieved
                         webPartToRetrieve.WebPartDefinition.EnsureProperty(wp => wp.Id);
@@ -248,8 +263,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 // Determine the web part type and store it in the web parts array
                 foreach (var webPartToRetrieve in webPartsToRetrieve)
                 {
-                    if (webPartToRetrieve.WebPartDefinition != null)
+                    if (webPartToRetrieve.WebPartDefinition != null && (webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.HasValue && webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.Value == false))
                     {
+                        // Important to only process the web parts that did not return an error in the previous server call
                         if (webPartToRetrieve.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
                         {
                             // Use different approach to determine type as we can't export the web part XML without indroducing a change
