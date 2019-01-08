@@ -393,7 +393,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
                 var targetPageFile = this.clientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
                 this.clientContext.Load(targetPageFile, p => p.Properties);
-                this.clientContext.ExecuteQueryRetry();
                 targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                 targetPageFile.Update();
 
