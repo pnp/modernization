@@ -62,7 +62,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
             {
                 var pageTransformator = new PageTransformator(cc);
 
-                var pages = cc.Web.GetPages("contentbyquery");
+                var pages = cc.Web.GetPages("webparts");
 
                 foreach (var page in pages)
                 {
