@@ -76,6 +76,17 @@
           <xs:enumeration value="MicrosoftForms" />
           <xs:enumeration value="Spacer" />
           <xs:enumeration value="ClientWebPart" />
+          <xs:enumeration value="PowerApps" />
+          <xs:enumeration value="CodeSnippet" />
+          <xs:enumeration value="PageFields" />
+          <xs:enumeration value="Weather" />
+          <xs:enumeration value="YouTube" />
+          <xs:enumeration value="MyDocuments" />
+          <xs:enumeration value="YammerFullFeed" />
+          <xs:enumeration value="CountDown" />
+          <xs:enumeration value="ListProperties" />
+          <xs:enumeration value="MarkDown" />
+          <xs:enumeration value="Planner" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

@@ -12,6 +12,16 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
+## [January release (unreleased)]
+
+### Added
+
+- Support for new 1st party web parts: these can now be included in your webpartmapping.xml files
+
+### Changed
+
+- Massive performance improvements (double as fast) for page transformation. Also improves performance of the (publishing) page scanner components
+
 ## [December release (prod) - version 1.0.1812.1]
 
 ### Changed

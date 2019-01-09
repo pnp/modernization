@@ -314,6 +314,61 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.ClientWebPart);
                                         break;
                                     }
+                                case ClientSideWebPartType.PowerApps:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.PowerApps);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.CodeSnippet:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.CodeSnippet);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.PageFields:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.PageFields);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.Weather:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.Weather);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.YouTube:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.YouTube);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.MyDocuments:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.MyDocuments);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.YammerFullFeed:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.YammerFullFeed);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.CountDown:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.CountDown);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.ListProperties:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.ListProperties);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.MarkDown:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.MarkDown);
+                                        break;
+                                    }
+                                case ClientSideWebPartType.Planner:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.Planner);
+                                        break;
+                                    }
                                 default:
                                     {
                                         break;

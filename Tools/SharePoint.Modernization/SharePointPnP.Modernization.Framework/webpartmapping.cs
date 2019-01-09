@@ -492,6 +492,39 @@ namespace SharePointPnP.Modernization.Framework {
         
         /// <remarks/>
         ClientWebPart,
+        
+        /// <remarks/>
+        PowerApps,
+        
+        /// <remarks/>
+        CodeSnippet,
+        
+        /// <remarks/>
+        PageFields,
+        
+        /// <remarks/>
+        Weather,
+        
+        /// <remarks/>
+        YouTube,
+        
+        /// <remarks/>
+        MyDocuments,
+        
+        /// <remarks/>
+        YammerFullFeed,
+        
+        /// <remarks/>
+        CountDown,
+        
+        /// <remarks/>
+        ListProperties,
+        
+        /// <remarks/>
+        MarkDown,
+        
+        /// <remarks/>
+        Planner,
     }
     
     /// <remarks/>
