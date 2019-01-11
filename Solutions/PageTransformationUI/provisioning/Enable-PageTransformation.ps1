@@ -12,7 +12,7 @@ Param (
 )
 
 # check modernization center url
-if ($ModernizationCenterUrl == $null -or $ModernizationCenterUrl == "")
+if ($ModernizationCenterUrl -eq $null -or $ModernizationCenterUrl -eq "")
 {
   $ModernizationCenterUrl = "/sites/modernizationcenter"
 }
