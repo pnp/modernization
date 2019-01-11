@@ -31,5 +31,6 @@ No, in the current preview version this is not possible.
 
 Creating a modern version of a page is complex process that involves doing a detailed analyzes of the classic + crafting of a new page, meaning it will need some time. Following factors however do speed up things:
 
+- Ensure you're using the latest version of the transformation service. Check the [upgrade guide](upgradeguide.md) to learn how to do this.
 - Setup your Azure Function to use a regular App Service plan instead of a consumption based plan: the regular plan keeps your service "alive" and does not incur the cost of activating the service when there's a demand
 - Setup the service in the same Azure location as where your tenant is
