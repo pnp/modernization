@@ -15,6 +15,7 @@ export default class PageTransformatorAdmin extends React.Component<IPageTransfo
   private CAPNPMODERNIZESITEPAGES: string = "CA_PnP_Modernize_SitePages_RIBBON";
   private CAPNPMODERNIZEWIKIPAGE: string = "CA_PnP_Modernize_WikiPage_RIBBON";
   private CAPPNPMODERNIZEWEBPARTPAGE: string = "CA_PnP_Modernize_WebPartPage_RIBBON";
+  private CAPNPCLASSICPAGEBANNER: string = "CA_PnP_Modernize_ClassicBanner";
 
   constructor(props: IPageTransformatorAdminProps, state: IPageTransformatorAdminState) {
     super(props);
@@ -142,12 +143,23 @@ export default class PageTransformatorAdmin extends React.Component<IPageTransfo
     </CommandUIExtension>`
     };
 
+    // Classic page banner user custom action
+    const classicPageBannerCA: any = {
+      Description: "Shows a banner on the classic pages.",
+      Name: this.CAPNPCLASSICPAGEBANNER,
+      Location: "ScriptLink",
+      //RegistrationType: 1,
+      Title: "Shows a banner on the classic pages",
+      ScriptSrc: `${this.getTenantUrl()}${centerUrl}/SiteAssets/pnppagetransformationclassicbanner.js?rev=beta.1`
+    };
+
     Promise.all([
       this.activateSitePagesFeatureIfNeeded(site),
       this.addCustomActionIfNeeded(site, sitePageLibraryCA),
       this.addCustomActionIfNeeded(site, wikiPageLibraryCA),
       this.addCustomActionIfNeeded(site, wikiPageRibbonCA),
-      this.addCustomActionIfNeeded(site, webpartPageRibbonCA)
+      this.addCustomActionIfNeeded(site, webpartPageRibbonCA),
+      this.addCustomActionIfNeeded(site, classicPageBannerCA)
     ]).then(() => {
       this.setState((current) => ({ ...current, resultMessage: "Modernization functionality added to site", resultMessageType: MessageBarType.success }));
     }).catch(() => {
@@ -164,7 +176,8 @@ export default class PageTransformatorAdmin extends React.Component<IPageTransfo
       this.removeCustomActionIfNeeded(site, this.CAPNPMODERNIZESITEPAGESECB),
       this.removeCustomActionIfNeeded(site, this.CAPNPMODERNIZESITEPAGES),
       this.removeCustomActionIfNeeded(site, this.CAPNPMODERNIZEWIKIPAGE),
-      this.removeCustomActionIfNeeded(site, this.CAPPNPMODERNIZEWEBPARTPAGE)
+      this.removeCustomActionIfNeeded(site, this.CAPPNPMODERNIZEWEBPARTPAGE),
+      this.removeCustomActionIfNeeded(site, this.CAPNPCLASSICPAGEBANNER)
     ]).then(() => {
       this.setState((current) => ({ ...current, resultMessage: "Modernization functionality removed from site", resultMessageType: MessageBarType.success }));
     }).catch(() => {
