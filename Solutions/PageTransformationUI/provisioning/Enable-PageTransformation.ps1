@@ -124,5 +124,12 @@ Add-PnPCustomAction -Scope Site -Name "CA_PnP_Modernize_WebPartPage_RIBBON" -Tit
                     -Location "CommandUI.Ribbon" -Rights EditListItems ` -Group " " `
                     -CommandUIExtension $command
 
+# Add the script that will show a banner on the classic pages to indicate presence of a modern version
+$command = '{modernizationcenter}/SiteAssets/pnppagetransformationclassicbanner.js?rev=beta.1'
+$command = $command.Replace("{modernizationcenter}", $ModernizationCenterUrl);
+
+Add-PnPJavaScriptLink -Scope Site -Key "CA_PnP_Modernize_ClassicBanner" `
+                      -Sequence 1000 -Url $command
+
 Write-Host "Done" -ForegroundColor Green
 
