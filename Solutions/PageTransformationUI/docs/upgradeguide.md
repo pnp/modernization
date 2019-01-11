@@ -34,4 +34,7 @@ Add-PnPApp -Path ..\assets\sharepointpnp-pagetransformation-client.sppkg -Scope 
 
 # Upgrade the SPFX package used in the modernization center site:
 Update-PnPApp -Identity 45cba470-b308-48a9-9e1d-9afde19a3f13
+
+# Copy in the latest version of the classic banner script
+Add-PnPFile -Path ..\assets\pnppagetransformationclassicbanner.js -Folder SiteAssets
 ```
