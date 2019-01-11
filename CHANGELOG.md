@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [January 2018]
+
+### Added
+
+- SharePoint Modernization Framework production release (1.0.1901.0):
+	- Major performance improvements
+
+### Changed
+
+- SharePoint Modernization Framework production release (1.0.1901.0):
+	- Using January 2019 PnP Sites core package
+
 ## [December 2018]
 
 ### Added
