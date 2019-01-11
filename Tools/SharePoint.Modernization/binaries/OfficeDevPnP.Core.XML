@@ -12725,6 +12725,14 @@
             <param name="tokensToSkip">array of tokens to skip</param>
             <returns>Returns parsed string</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser.GetListTitleForMainLanguage(Microsoft.SharePoint.Client.Web,System.String)">
+            <summary>
+            This method retrieves the title of a list in the main language of the site
+            </summary>
+            <param name="web">The current Web</param>
+            <param name="name">The title of the list in the current user's language</param>
+            <returns>The title of the list in the main language of the site</returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.Providers.IProvisioningHierarchyFormatter">
             <summary>
             Interface for basic capabilites that any ProvisioningHierarchy Formatter should provide/support
@@ -32674,6 +32682,11 @@
             The default <see cref="T:OfficeDevPnP.Core.Pages.CanvasColumn"/> of this section
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Pages.CanvasSection.ZoneEmphasis">
+            <summary>
+            Color emphasis of the section 
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Pages.CanvasSection.ToHtml">
             <summary>
             Renders this section as a HTML fragment
@@ -32934,6 +32947,11 @@
             <param name="cc">ClientContext object used to load the page</param>
             <param name="pageName">Name of the page (e.g. mypage.aspx) to load</param>
             <returns>A <see cref="T:OfficeDevPnP.Core.Pages.ClientSidePage"/> instance for the given page</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.Save">
+            <summary>
+            Persists the current <see cref="T:OfficeDevPnP.Core.Pages.ClientSidePage"/> instance as a client side page in SharePoint
+            </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.Save(System.String)">
             <summary>
@@ -33398,6 +33416,11 @@
             Value of the "data-sp-controldata" attribute
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSideWebPart.UsingSpControlDataOnly">
+            <summary>
+            Indicates that this control is persisted/read using the data-sp-controldata attribute only
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSideWebPart.Import(OfficeDevPnP.Core.Pages.ClientSideComponent,System.Func{System.String,System.String})">
             <summary>
             Imports a <see cref="T:OfficeDevPnP.Core.Pages.ClientSideComponent"/> to use it as base for configuring the client side web part instance
@@ -33426,6 +33449,11 @@
         <member name="P:OfficeDevPnP.Core.Pages.ClientSideWebPartControlData.WebPartId">
             <summary>
             Gets or sets JsonProperty "webPartId"
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Pages.ClientSideWebPartControlDataOnly">
+            <summary>
+            Control data for controls of type 3 (= client side web parts) which persist using the data-sp-controldata property only
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Pages.ClientSideWebPartData">
@@ -33606,6 +33634,56 @@
         <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.PowerApps">
             <summary>
             Web part to host PowerApps
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.CodeSnippet">
+            <summary>
+            Web part to show code
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.PageFields">
+            <summary>
+            Web part to show one or more properties of the page as page content
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.Weather">
+            <summary>
+            Weather web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.YouTube">
+            <summary>
+            YouTube embed web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.MyDocuments">
+            <summary>
+            My documents web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.YammerFullFeed">
+            <summary>
+            Yammer feed web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.CountDown">
+            <summary>
+            CountDown web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.ListProperties">
+            <summary>
+            List properties web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.MarkDown">
+            <summary>
+            MarkDown web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.Planner">
+            <summary>
+            Planner web part
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Pages.PromotedState">
