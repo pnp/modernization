@@ -36,14 +36,35 @@ param(
 $aadAppHomePageUrl = "https://$FunctionAppName.azurewebsites.net"
 $aadAppReplyUrl = "$aadAppHomePageUrl/.auth/login/aad/callback"
 
+Write-Host "Validating the Azure storage account availability" -ForegroundColor White
+
+# Install AzureRM command lets, if they are missing
+$azureRMModule = Import-Module AzureRM -ErrorAction SilentlyContinue -PassThru
+if(!$azureRMModule)
+{
+    Write-Output "Installing AzureRM module"
+    Install-Module AzureRM -Force
+}
+
+# Check if the storage account name was taken or not
+if ((Get-AzureRmStorageAccountNameAvailability -Name $StorageAccountName).NameAvailable -eq $false)
+{
+    Write-Host ("Storage account " + $StorageAccountName + " is already used across Azure. Please pick a unique name for storage account and function app name") -ForegroundColor Red
+    return 1
+}
+
+# Login to AzureRM
+Write-Host "Please provide the credential to access the Azure tenant where the Azure Function app needs to be created" -ForegroundColor Yellow
+Login-AzureRmAccount 
+
 Write-Host "Creating the AAD application in the target Office 365 Tenant" -ForegroundColor White
 
 # Register the Azure AD Application and get back ClientId and ClientSecret
 $aadApp = .\Provision-AADApplication.ps1 -AppName $AppName -HomePageUrl $aadAppHomePageUrl -ReplyUrl $aadAppReplyUrl -AppTitle $AppTitle
 
-if (($aadApp.ClientId -eq $null)  -or ($aadApp.ClientId -eq ""))
+if (($aadApp.ClientId -eq $null) -or ($aadApp.ClientId -eq ""))
 {
-    Write-Host "Failed to create the AAD application!" -ForegroundColor Red
+    Write-Host "Failed to create the AAD application! Stopping the further execution of this script." -ForegroundColor Red
 }
 else
 {
@@ -51,19 +72,7 @@ else
     Write-Host "Created the AAD application in the target Office 365 Tenant" -ForegroundColor Green
     Write-Host ("Client ID: " + $aadApp.ClientId) -ForegroundColor White
     Write-Host ("Client Secret: " + $aadApp.ClientSecret) -ForegroundColor White
-
-    # Install AzureRM command lets, if they are missing
-    $azureRMModule = Import-Module AzureRM -ErrorAction SilentlyContinue -PassThru
-    if(!$azureRMModule)
-    {
-        Write-Output "Installing AzureRM module"
-        Install-Module AzureRM -Force
-    }
-
-    # Login to AzureRM
-    Write-Host "Please provide the credential to access the Azure tenant where the Azure Function app needs to be created" -ForegroundColor Yellow
-    Login-AzureRmAccount 
-
+    
     # Select the target Subscription
     $subs = Get-AzureRmSubscription
     $sub = $subs | where { $_.Name -eq $SubscriptionName }
@@ -188,8 +197,11 @@ else
         -ApiVersion 2015-08-01 -Force
     Write-Host "Configured CORS for the function app" -ForegroundColor Green
 
-    Write-Host "Final manual step is admin consenting the created Azure AD application" -ForegroundColor Yellow
-    Write-Host "Open a browser session to https://login.microsoftonline.com/common/oauth2/authorize?client_id=$($appIDToConsent)&response_type=code&prompt=admin_consent" -ForegroundColor Yellow
+    Write-Host "!***********************************************************************" -ForegroundColor White
+    Write-Host "! Final manual step is admin consenting the created Azure AD application" -ForegroundColor Yellow
+    Write-Host "! Open a browser session to https://login.microsoftonline.com/common/oauth2/authorize?client_id=$($appIDToConsent)&response_type=code&prompt=admin_consent" -ForegroundColor Yellow
+    Write-Host "!***********************************************************************" -ForegroundColor White
+    Write-Host ""
     Write-Host "Process completed!" -ForegroundColor Green
     Write-Host "The parameters to continue with the SharePoint installation part are the following" -ForegroundColor White
     Write-Host """AzureAppID""=""$($appIDToConsent)"";""AzureFunction""=""https://$($FunctionAppName).azurewebsites.net""" -ForegroundColor White
