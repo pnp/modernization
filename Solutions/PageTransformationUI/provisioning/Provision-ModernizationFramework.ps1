@@ -36,7 +36,7 @@ param(
 $aadAppHomePageUrl = "https://$FunctionAppName.azurewebsites.net"
 $aadAppReplyUrl = "$aadAppHomePageUrl/.auth/login/aad/callback"
 
-Write-Host "Validating the Azure storage account availability" -ForegroundColor White
+Write-Host "Validating the Azure storage account and Function App availability" -ForegroundColor White
 
 # Install AzureRM command lets, if they are missing
 $azureRMModule = Import-Module AzureRM -ErrorAction SilentlyContinue -PassThru
@@ -49,7 +49,17 @@ if(!$azureRMModule)
 # Check if the storage account name was taken or not
 if ((Get-AzureRmStorageAccountNameAvailability -Name $StorageAccountName).NameAvailable -eq $false)
 {
-    Write-Host ("Storage account " + $StorageAccountName + " is already used across Azure. Please pick a unique name for storage account and function app name") -ForegroundColor Red
+    Write-Host ("Storage account " + $StorageAccountName + " is already used across Azure. Please pick a unique name for storage account") -ForegroundColor Red
+    return 1
+}
+
+# Check if the function app name was taken or not via a public DNS lookup
+$dnsName = $FunctionAppName + ".azurewebsites.net"
+$resolve = Resolve-DnsName $dnsName -ErrorAction Ignore
+
+if ($null -ne $resolve)
+{
+    Write-Host ("Function app name " + $FunctionAppName + " is already used across Azure. Please pick a unique name for the function app name") -ForegroundColor Red
     return 1
 }
 
@@ -62,7 +72,7 @@ Write-Host "Creating the AAD application in the target Office 365 Tenant" -Foreg
 # Register the Azure AD Application and get back ClientId and ClientSecret
 $aadApp = .\Provision-AADApplication.ps1 -AppName $AppName -HomePageUrl $aadAppHomePageUrl -ReplyUrl $aadAppReplyUrl -AppTitle $AppTitle
 
-if (($aadApp.ClientId -eq $null) -or ($aadApp.ClientId -eq ""))
+if (($null -eq $aadApp.ClientId) -or ($aadApp.ClientId -eq ""))
 {
     Write-Host "Failed to create the AAD application! Stopping the further execution of this script." -ForegroundColor Red
 }
@@ -72,7 +82,7 @@ else
     Write-Host "Created the AAD application in the target Office 365 Tenant" -ForegroundColor Green
     Write-Host ("Client ID: " + $aadApp.ClientId) -ForegroundColor White
     Write-Host ("Client Secret: " + $aadApp.ClientSecret) -ForegroundColor White
-    
+
     # Select the target Subscription
     $subs = Get-AzureRmSubscription
     $sub = $subs | where { $_.Name -eq $SubscriptionName }
