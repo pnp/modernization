@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.14" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="SharePointPnPModernizationOnline" Version="1.0.1901" />
+    <PackageReference Include="SharePointPnPModernizationOnline" Version="1.0.1901.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
