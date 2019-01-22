@@ -337,7 +337,16 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 var list = this.clientContext.Web.GetListById(listId);
                 list.EnsureProperty(p => p.RootFolder).EnsureProperty(p => p.ServerRelativeUrl);
                 this.clientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
-                return list.RootFolder.ServerRelativeUrl.Replace(this.clientContext.Web.ServerRelativeUrl.TrimEnd('/'), "");
+
+                // For lists in the rootweb of the root site collection of the tenant the replacement is not needed
+                if (!String.IsNullOrEmpty(this.clientContext.Web.ServerRelativeUrl.TrimEnd('/')))
+                {
+                    return list.RootFolder.ServerRelativeUrl.Replace(this.clientContext.Web.ServerRelativeUrl.TrimEnd('/'), "");
+                }
+                else
+                {
+                    return list.RootFolder.ServerRelativeUrl;
+                }
             }
         }
 

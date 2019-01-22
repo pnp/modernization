@@ -176,6 +176,7 @@
       <pnp:Files>
         <pnp:File Src="..\assets\modernize32x32.png" Overwrite="true" Folder="SiteAssets"></pnp:File>
         <pnp:File Src="..\assets\modernize16x16.png" Overwrite="true" Folder="SiteAssets"></pnp:File>
+        <pnp:File Src="..\assets\pnppagetransformationclassicbanner.js" Overwrite="true" Folder="SiteAssets"></pnp:File>
       </pnp:Files>
     </pnp:ProvisioningTemplate>
   </pnp:Templates>
