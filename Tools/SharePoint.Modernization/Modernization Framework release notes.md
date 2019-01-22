@@ -12,7 +12,14 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [January release (unreleased)]
+## [January release (prod) - version 1.0.1901.1]
+
+### Changed
+
+- Fix for issue #30 to enable page transformation for pages in tenant root web in combination with XSLTListView web part transformation
+
+
+## [January release (prod) - version 1.0.1901.0]
 
 ### Added
 
