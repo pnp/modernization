@@ -3,6 +3,7 @@
 ## Preparation
 
 - Ensure you are using the developer build or December 2018 or later version of [PnP PowerShell](https://docs.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets?view=sharepoint-ps)
+- Ensure you're using an Office 365 global admin account
 
 ## Step 1: Setup the Azure side
 
@@ -64,6 +65,9 @@ Apply-PnPTenantTemplate -Path .\modernization.pnp -Parameters @{"AzureAppID"="79
 # Update CenterUrl, AzureAppID and AzureFunction before running this
 Apply-PnPTenantTemplate -Path .\modernization.pnp -Parameters @{"CenterUrl"="/teams/modernizationcenter";"AzureAppID"="79ad0500-1230-4f7a-a5bb-5e83ce9174f4";"AzureFunction"="https://contosomodernization.azurewebsites.net"}
 ```
+
+>**Note:**
+>The above setup steps are also explained in [a video on the PnP YouTube channel](https://www.youtube.com/watch?v=DK8YMRRyPgw).
 
 ## Step 3: Enable the page transformation UI for your site collections
 
