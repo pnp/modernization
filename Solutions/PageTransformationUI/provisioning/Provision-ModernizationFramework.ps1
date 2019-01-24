@@ -47,14 +47,14 @@ if(!$azureRMModule)
 }
 
 # Fixing invalid characters in provided names
-$StorageAccountName = $StorageAccountName.ToLower().Replace(" ", "").Replace("_", "").Replace("-","").Replace("'","")
+$StorageAccountName = $StorageAccountName.ToLower().Replace(" ", "").Replace("_", "").Replace("'","").Replace("-","").Replace("'","")
 if ($StorageAccountName.Length -gt 24)
 {
     $StorageAccountName = $storageAccountName.Substring(0,24)
 }
 Write-Host ("Storage account that will be used: " + $StorageAccountName) -ForegroundColor White
 
-$FunctionAppName = $FunctionAppName.ToLower().Replace(" ", "").Replace("_", "").Replace("'","")
+$FunctionAppName = $FunctionAppName.ToLower().Replace(" ", "").Replace("_", "").Replace("'","").Replace("-","").Replace("'","")
 if ($FunctionAppName.Length -gt 60)
 {
     $FunctionAppName = $FunctionAppName.Substring(0,60)
