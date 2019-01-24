@@ -1,6 +1,6 @@
 # Upgrade guide
 
-This guide shows how you can upgrade your Page Transformation UI deployment to the latest bits.
+This guide shows how you can upgrade your Page Transformation UI deployment to the latest bits (= Beta drop).
 
 ## Preparation
 
@@ -19,22 +19,24 @@ Deploy the latest version of **sharepointpnpmodernizationeurope.zip** (available
 
 ## Step 2: Upgrade the SharePoint side
 
-Upgrade the SharePoint Framework solutions to the latest version by using below script:
+Upgrade the SharePoint Framework solutions and assets to the latest version by using below script:
 
 ```Powershell
 # First navigate to the provisioning folder and then call below script
+.\Upgrade-ToBeta.ps1 -ModernizationCenterUrl https://contoso.sharepoint.com/sites/modernizationcenter -AssetsFolder "..\assets"
+```
 
-# Connect to the deployed modernization center site
-# Update your tenant name
-connect-pnponline -Url https://yourtenant.sharepoint.com/sites/ModernizationCenter
+## Step 3: Update the site collections making use of the Page Transformation UI solution
 
-# Upload and publish the latest versions of the SPFX packages
-Add-PnPApp -Path ..\assets\sharepointpnp-pagetransformation-central.sppkg -Scope Tenant -Publish -Overwrite
-Add-PnPApp -Path ..\assets\sharepointpnp-pagetransformation-client.sppkg -Scope Tenant -Publish -Overwrite
+One of the new features in the beta version is showing a banner on the classic page, letting users know there's a modern version of this page available. This is done via a user custom action which needs to be added to those site collections.
 
-# Upgrade the SPFX package used in the modernization center site:
-Update-PnPApp -Identity 45cba470-b308-48a9-9e1d-9afde19a3f13
+### Option A: Use the existing tools to disable and re-enable page transformation for a site collection
 
-# Copy in the latest version of the classic banner script
-Add-PnPFile -Path ..\assets\pnppagetransformationclassicbanner.js -Folder SiteAssets
+Use the existing tools and again enable page transformation for the site collections that need it as explained in the [Deployment Guide](deploymentguide.md#step-3-enable-the-page-transformation-ui-for-your-site-collections).
+
+### Option B: Add the new user custom action to the site collections
+
+```Powershell
+Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/modernizeme
+Add-PnPJavaScriptLink -Scope Site -Key "CA_PnP_Modernize_ClassicBanner" -Sequence 1000 -Url "/sites/modernizationcenter/SiteAssets/pnppagetransformationclassicbanner.js?rev=beta.1"
 ```

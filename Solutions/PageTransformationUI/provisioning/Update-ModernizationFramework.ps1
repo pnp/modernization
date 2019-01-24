@@ -15,6 +15,13 @@ param(
     [string] $FunctionAppName
  )
 
+ $FunctionAppName = $FunctionAppName.ToLower().Replace(" ", "").Replace("_", "").Replace("'","").Replace("-","").Replace("'","")
+ if ($FunctionAppName.Length -gt 60)
+ {
+     $FunctionAppName = $FunctionAppName.Substring(0,60)
+ }
+ Write-Host ("Function app name that will be used: " + $FunctionAppName) -ForegroundColor White
+
 $azureRMModule = Import-Module AzureRM -ErrorAction SilentlyContinue -PassThru
 if(!$azureRMModule)
 {
@@ -24,6 +31,7 @@ if(!$azureRMModule)
 
 # Login to AzureRM
 Write-Host "Please provide the credential to access the Azure tenant where the Azure Function app was created" -ForegroundColor Yellow
+Login-AzureRmAccount
 
 # Select the target Subscription
 $subs = Get-AzureRmSubscription
