@@ -55,3 +55,7 @@ The easiest way to deploy the Azure Function app binaries is by using Kudu:
 - Go Azure provisioning Function App
 - Click on Platform features and select Advanced tools (Kudu) from the Development Tools section
 - Drag the updated webpartmapping.xml file inside the `wwwroot` folder pane
+
+## After enabling Page Transformation for a site collection the ribbon buttons are grayed out
+
+The SharePoint ribbon uses a caching in SharePoint Online which causes this problem. You can either wait for the cache to expire or clean the browser cache and re-login again.
