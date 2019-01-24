@@ -46,6 +46,26 @@ if(!$azureRMModule)
     Install-Module AzureRM -Force
 }
 
+# Fixing invalid characters in provided names
+$StorageAccountName = $StorageAccountName.ToLower().Replace(" ", "").Replace("_", "").Replace("-","").Replace("'","")
+if ($StorageAccountName.Length -gt 24)
+{
+    $StorageAccountName = $storageAccountName.Substring(0,24)
+}
+Write-Host ("Storage account that will be used: " + $StorageAccountName) -ForegroundColor White
+
+$FunctionAppName = $FunctionAppName.ToLower().Replace(" ", "").Replace("_", "").Replace("'","")
+if ($FunctionAppName.Length -gt 60)
+{
+    $FunctionAppName = $FunctionAppName.Substring(0,60)
+}
+Write-Host ("Function app name that will be used: " + $FunctionAppName) -ForegroundColor White
+
+
+# Login to AzureRM
+Write-Host "Please provide the credential to access the Azure tenant where the Azure Function app needs to be created" -ForegroundColor Yellow
+Login-AzureRmAccount 
+
 # Check if the storage account name was taken or not
 if ((Get-AzureRmStorageAccountNameAvailability -Name $StorageAccountName).NameAvailable -eq $false)
 {
@@ -62,10 +82,6 @@ if ($null -ne $resolve)
     Write-Host ("Function app name " + $FunctionAppName + " is already used across Azure. Please pick a unique name for the function app name") -ForegroundColor Red
     return 1
 }
-
-# Login to AzureRM
-Write-Host "Please provide the credential to access the Azure tenant where the Azure Function app needs to be created" -ForegroundColor Yellow
-Login-AzureRmAccount 
 
 Write-Host "Creating the AAD application in the target Office 365 Tenant" -ForegroundColor White
 
@@ -144,7 +160,7 @@ else
 
     # Wait 10s for the app to be ready
     Write-Host "Waiting for the function app '$FunctionAppName' to be ready ..." -ForegroundColor White
-    Start-Sleep -Seconds 10
+    Start-Sleep -Seconds 15
 
     # Configure the Function App Settings
     $appSettings = @{
@@ -165,6 +181,9 @@ else
     Write-Host "Configuring appSettings for the function app" -ForegroundColor White
     Set-AzureRmWebApp -Name $FunctionAppName -ResourceGroupName $ResourceGroupName -AppSettings $appSettings
     Write-Host "Configured appSettings for the function app" -ForegroundColor Green
+
+    Write-Host "Waiting for the function app '$FunctionAppName' to be ready ..." -ForegroundColor White
+    Start-Sleep -Seconds 10
 
     # Upload the ZIP file of the function and trigger deployment
     Write-Host "Uploading the source package to the function app" -ForegroundColor White

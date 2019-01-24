@@ -14,7 +14,7 @@ You need one Azure AD application and one Azure AD function setup, which you can
 
 >**Important:**
 > - Update the **SubscriptionName**, **ResourceGroupName**, **ResourceGroupLocation**, **StorageAccountName** and **FunctionAppName** parameters before running.
-> - Note that the **FunctionAppName** must not have been used by others: check this by doing an `nslookup <functionappname>.azurewebsites.net`, if the DNS name is found then the function name is already in use.
+> - Note that the **FunctionAppName** must not have been used by others: check this by doing an `nslookup <functionappname>.azurewebsites.net`, if the DNS name is found then the function name is already in use. Also the function app name must be lowercase and cannot contain spaces or underscores. See https://docs.microsoft.com/en-us/azure/architecture/best-practices/naming-conventions for details on the naming
 > - Note that the storage account name must be between 3 and 24 characters in length, and can include numbers and lowercase letters only. Also the storage account name cannot be taken already: use `Get-AzureRmStorageAccountNameAvailability -Name "mystorageaccount"` to verify if the account name is free
 > - **AppName** and **AppTitle** must be equal to **SharePointPnP.Modernization**
 
