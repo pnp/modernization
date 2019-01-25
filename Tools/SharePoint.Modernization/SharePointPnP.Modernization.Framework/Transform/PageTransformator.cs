@@ -134,6 +134,33 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Page creation
+            // Detect if the page is living inside a folder
+            string pageFolder = "";
+            if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
+            {
+                var fileRefFieldValue = pageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
+                pageFolder = fileRefFieldValue.Replace($"{clientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+
+                if (pageFolder.Length > 0)
+                {
+                    if (pageFolder.Contains("/"))
+                    {
+                        if (pageFolder == "/")
+                        {
+                            pageFolder = "";
+                        }
+                        else
+                        {
+                            pageFolder = pageFolder.Substring(1);
+                        }
+                    }
+
+                    // Add a trailing slash
+                    pageFolder = pageFolder + "/";
+                }
+            }
+            pageTransformationInformation.Folder = pageFolder;
+
             // If no targetname specified then we'll come up with one
             if (string.IsNullOrEmpty(pageTransformationInformation.TargetPageName))
             {
@@ -173,13 +200,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             // Create the client side page
-            targetPage = clientContext.Web.AddClientSidePage(pageTransformationInformation.TargetPageName);
+
+            targetPage = clientContext.Web.AddClientSidePage($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
             #endregion
 
             #region Home page handling
 #if DEBUG && MEASURE
             Start();
-#endif            
+#endif
             bool replacedByOOBHomePage = false;
             // Check if the transformed page is the web's home page
             var homePageUrl = clientContext.Web.RootFolder.WelcomePage;
@@ -384,7 +412,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             Start();
 #endif            
             // Persist the client side page
-            targetPage.Save(pageTransformationInformation.TargetPageName, existingFile, pagesLibrary);
+            targetPage.Save($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}", existingFile, pagesLibrary);
 
             // Tag the file with a page modernization version stamp
             try

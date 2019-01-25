@@ -86,6 +86,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Configuration driven by the presence of a modernization center
         /// </summary>
         public ModernizationCenterInformation ModernizationCenterInformation { get; set; }
+
+        /// <summary>
+        /// Folder where the page to transform lives in
+        /// </summary>
+        public string Folder { get; set; }
         #endregion
 
         #region Webpart replacement configuration

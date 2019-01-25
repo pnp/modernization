@@ -9,6 +9,7 @@ namespace SharePointPnP.Modernization.Framework
     {
         // Fields
         public const string FileRefField = "FileRef";
+        public const string FileDirRefField = "FileDirRef";
         public const string FileLeafRefField = "FileLeafRef";
         public const string FileTitleField = "Title";
         public const string ClientSideApplicationIdField = "ClientSideApplicationId";

@@ -12280,6 +12280,15 @@
             <param name="pageName">Name of the page to extract</param>
             <param name="isHomePage">Is this a home page?</param>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ListItemUtilities.TryDeserializeAsJson``1(System.String,``0@)">
+            <summary>
+            This method is present to preserve backward compatibility with old file property format
+            </summary>
+            <typeparam name="T">Expected type</typeparam>
+            <param name="jsonValue">json value</param>
+            <param name="result">The result object, if success</param>
+            <returns>Returns <c>true</c> if the value was sucessfully deserialized from the json string. Otherwise <c>false</c></returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.TenantHelper.ProcessCdns(Microsoft.Online.SharePoint.TenantAdministration.Tenant,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTenant,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningMessagesDelegate)">
             <summary>
             Retrieves a file as a byte array from the connector. If the file name contains special characters (e.g. "%20") and cannot be retrieved, a workaround will be performed
@@ -33273,6 +33282,11 @@
         <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.SingleWebPartAppPage">
             <summary>
             Page is an app page, hosting a single SPFX web part full screen
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.RepostPage">
+            <summary>
+            Page is a repost / link page
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Pages.ClientSideText">

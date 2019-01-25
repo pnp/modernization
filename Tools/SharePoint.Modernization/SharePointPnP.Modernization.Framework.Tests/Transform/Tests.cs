@@ -56,6 +56,65 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         #endregion
 
         [TestMethod]
+        public void PageBannerTest()
+        {
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/contosoelectronicsdrones"))
+            {
+                var pageTransformator = new PageTransformator(cc);
+
+                var pages = cc.Web.GetPages("d95");
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        // Modernization center setup
+                        ModernizationCenterInformation = new ModernizationCenterInformation()
+                        {
+                            AddPageAcceptBanner = true,
+                        },
+                    };
+
+                    pageTransformator.Transform(pti);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void FolderTest()
+        {
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestpages"))
+            {
+                var pageTransformator = new PageTransformator(cc);
+
+                var pages = cc.Web.GetPages("pageinfoldersub1");
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        TargetPageTakesSourcePageName = true,
+
+                    };
+
+                    pageTransformator.Transform(pti);
+                }
+            }
+        }
+
+        [TestMethod]
         public void WPPerformanceTest()
         {
             using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/espctest2"))
@@ -74,6 +133,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                         // Don't log test runs
                         SkipTelemetry = true,
 
+                        // Modernization center setup
+                        ModernizationCenterInformation = new ModernizationCenterInformation()
+                        {
+                            AddPageAcceptBanner = true,
+                        },
                     };
 
                     pageTransformator.Transform(pti);
