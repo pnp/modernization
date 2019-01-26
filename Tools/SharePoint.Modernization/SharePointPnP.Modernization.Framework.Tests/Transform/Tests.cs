@@ -93,7 +93,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
             {
                 var pageTransformator = new PageTransformator(cc);
 
-                var pages = cc.Web.GetPages("pageinfoldersub1");
+                var pages = cc.Web.GetPages("pagein", "Folder1/Sub1");
 
                 foreach (var page in pages)
                 {

@@ -16,8 +16,9 @@ namespace Microsoft.SharePoint.Client
         /// </summary>
         /// <param name="web">Web to get the pages from</param>
         /// <param name="pageNameStartsWith">Filter to get all pages starting with</param>
+        /// <param name="folder"></param>
         /// <returns>A list of pages (ListItem intances)</returns>
-        public static ListItemCollection GetPages(this Web web, string pageNameStartsWith = null)
+        public static ListItemCollection GetPages(this Web web, string pageNameStartsWith = null, string folder = null)
         {
             // Get pages library
             ListCollection listCollection = web.Lists;
@@ -39,6 +40,12 @@ namespace Microsoft.SharePoint.Client
                     {
                         ViewXml = Constants.CAMLQueryByExtension
                     };
+                }
+
+                if (!string.IsNullOrEmpty(folder))
+                {
+                    web.EnsureProperty(p => p.ServerRelativeUrl);
+                    query.FolderServerRelativeUrl = $"{web.ServerRelativeUrl}/SitePages/{folder}";
                 }
 
                 var pages = sitePagesLibrary.GetItems(query);
