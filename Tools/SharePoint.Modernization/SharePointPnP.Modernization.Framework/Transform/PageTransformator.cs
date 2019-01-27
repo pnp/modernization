@@ -684,7 +684,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             pagesLibrary = cc.Web.GetList(listServerRelativeUrl);
             cc.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, l => l.Hidden, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
 
-            var file = cc.Web.GetFileByServerRelativeUrl($"{listServerRelativeUrl}/{pageTransformationInformation.TargetPageName}");
+            var file = cc.Web.GetFileByServerRelativeUrl($"{listServerRelativeUrl}/{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
             cc.Web.Context.Load(file, f => f.Exists, f => f.ListItemAllFields);
 
             if (pageTransformationInformation.KeepPageSpecificPermissions)
