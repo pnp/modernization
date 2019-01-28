@@ -56,6 +56,39 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         #endregion
 
         [TestMethod]
+        public void MetaDataCopyTest()
+        {
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestpages/metadata2"))
+            {
+                var pageTransformator = new PageTransformator(cc);
+
+                var pages = cc.Web.GetPages("meta3");
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        CopyPageMetadata = true,
+
+                        //// Modernization center setup
+                        //ModernizationCenterInformation = new ModernizationCenterInformation()
+                        //{
+                        //    AddPageAcceptBanner = true,
+                        //},
+                    };
+
+                    pageTransformator.Transform(pti);
+                }
+            }
+        }
+
+        [TestMethod]
         public void PageBannerTest()
         {
             using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/contosoelectronicsdrones"))

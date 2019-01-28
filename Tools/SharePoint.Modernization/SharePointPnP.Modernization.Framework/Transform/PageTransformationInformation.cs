@@ -41,6 +41,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             HandleWikiImagesAndVideos = true;
             TargetPageTakesSourcePageName = false;
             KeepPageSpecificPermissions = true;
+            CopyPageMetadata = false;
             SkipTelemetry = false;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
@@ -52,6 +53,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Source wiki/webpart page we want to transform
         /// </summary>
         public ListItem SourcePage { get; set; }
+
+        /// <summary>
+        /// Folder where the page to transform lives in
+        /// </summary>
+        public string Folder { get; set; }
+        
         /// <summary>
         /// Name for the transformed page
         /// </summary>
@@ -83,14 +90,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public bool KeepPageSpecificPermissions { get; set; }
 
         /// <summary>
+        /// Copy the page metadata (if any) to the created modern client side page. Defaults to false
+        /// </summary>
+        public bool CopyPageMetadata { get; set; }
+
+        /// <summary>
         /// Configuration driven by the presence of a modernization center
         /// </summary>
         public ModernizationCenterInformation ModernizationCenterInformation { get; set; }
-
-        /// <summary>
-        /// Folder where the page to transform lives in
-        /// </summary>
-        public string Folder { get; set; }
         #endregion
 
         #region Webpart replacement configuration
