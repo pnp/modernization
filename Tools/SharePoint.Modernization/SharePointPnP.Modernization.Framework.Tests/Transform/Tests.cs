@@ -89,11 +89,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         [TestMethod]
         public void FolderTest()
         {
-            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestpages"))
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestpages/subsite"))
             {
                 var pageTransformator = new PageTransformator(cc);
 
-                var pages = cc.Web.GetPages("pagein", "Folder1/Sub1");
+                var pages = cc.Web.GetPages("page", "Folder1/Sub1");
 
                 foreach (var page in pages)
                 {
@@ -121,6 +121,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
             {
                 var pageTransformator = new PageTransformator(cc);
 
+                //webparts
                 var pages = cc.Web.GetPages("webparts");
 
                 foreach (var page in pages)
@@ -134,10 +135,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                         SkipTelemetry = true,
 
                         // Modernization center setup
-                        ModernizationCenterInformation = new ModernizationCenterInformation()
-                        {
-                            AddPageAcceptBanner = true,
-                        },
+                        //ModernizationCenterInformation = new ModernizationCenterInformation()
+                        //{
+                        //    AddPageAcceptBanner = true,
+                        //},
                     };
 
                     pageTransformator.Transform(pti);
