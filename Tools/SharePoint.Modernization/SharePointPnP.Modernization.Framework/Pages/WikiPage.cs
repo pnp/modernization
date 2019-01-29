@@ -89,7 +89,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     colCount++;
                     var contentHost = column.Children.Where(p => p.LocalName == "div" && (p.ClassName != null && p.ClassName.Equals("ms-rte-layoutszone-outer", StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
-                    if (contentHost != null && contentHost.FirstElementChild != null)
+
+                    // Check if this element is nested in another already processed element...this needs to be skipped to avoid content duplication and possible processing errors
+                    if (contentHost != null && contentHost.FirstElementChild != null && !IsNestedLayoutsZoneOuter(contentHost))
                     {
                         var content = contentHost.FirstElementChild;
 
@@ -383,6 +385,38 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
         }
 
+        /// <summary>
+        /// Check if this element is nested in another already processed element...this needs to be skipped to avoid content duplication and possible processing errors
+        /// </summary>
+        /// <param name="contentHost">element to check</param>
+        /// <returns>true if embedded in a already processed element</returns>
+        private bool IsNestedLayoutsZoneOuter(IElement contentHost)
+        {
+            if (contentHost == null)
+            {
+                return false;
+            }
+
+            var elementToInspect = contentHost.ParentElement;
+            if (elementToInspect == null)
+            {
+                return false;
+            }
+            
+            while (elementToInspect != null)
+            {
+                if (elementToInspect.LocalName == "div" && (elementToInspect.ClassName != null && elementToInspect.ClassName.Equals("ms-rte-layoutszone-outer", StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return true;
+                }
+                else
+                {
+                    elementToInspect = elementToInspect.ParentElement;
+                }
+            }
+
+            return false;
+        }
 
         private void CleanHtml(IElement element, IHtmlDocument document)
         {

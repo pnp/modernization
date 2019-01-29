@@ -19,6 +19,9 @@
 - Support for pages living inside a folder (issue #34)
 - Support for copying of metadata (issue #35)
 
+### Changed
+
+- Wiki page parser: check if this element is nested in another already processed element...this needs to be skipped to avoid content duplication and possible processing errors (issue #37)
 
 ## [January release (prod) - version 1.0.1901.1]
 
