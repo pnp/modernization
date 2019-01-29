@@ -138,7 +138,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                         // Don't log test runs
                         SkipTelemetry = true,
 
-                        TargetPageTakesSourcePageName = true,
+                        //TargetPageTakesSourcePageName = true,
 
                     };
 

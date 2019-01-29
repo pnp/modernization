@@ -212,15 +212,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif
             bool replacedByOOBHomePage = false;
             // Check if the transformed page is the web's home page
-            var homePageUrl = clientContext.Web.RootFolder.WelcomePage;
-            var homepageName = Path.GetFileName(clientContext.Web.RootFolder.WelcomePage);
-            if (homepageName.Equals(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), StringComparison.InvariantCultureIgnoreCase))
+            if (clientContext.Web.RootFolder.IsPropertyAvailable("WelcomePage") && !string.IsNullOrEmpty(clientContext.Web.RootFolder.WelcomePage))
             {
-                targetPage.LayoutType = ClientSidePageLayoutType.Home;
-                if (pageTransformationInformation.ReplaceHomePageWithDefaultHomePage)
+                var homePageUrl = clientContext.Web.RootFolder.WelcomePage;
+                var homepageName = Path.GetFileName(clientContext.Web.RootFolder.WelcomePage);
+                if (homepageName.Equals(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), StringComparison.InvariantCultureIgnoreCase))
                 {
-                    targetPage.KeepDefaultWebParts = true;
-                    replacedByOOBHomePage = true;
+                    targetPage.LayoutType = ClientSidePageLayoutType.Home;
+                    if (pageTransformationInformation.ReplaceHomePageWithDefaultHomePage)
+                    {
+                        targetPage.KeepDefaultWebParts = true;
+                        replacedByOOBHomePage = true;
+                    }
                 }
             }
 #if DEBUG && MEASURE
