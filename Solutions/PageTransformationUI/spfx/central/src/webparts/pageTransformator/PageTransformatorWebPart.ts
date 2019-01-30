@@ -33,10 +33,10 @@ export default class PageTransformatorWebPart extends BaseClientSideWebPart<IPag
 
     // Grab parameters from url
     var queryParms = new UrlQueryParameterCollection(window.location.href);
-    var siteUrlQueryParam = queryParms.getValue("SiteUrl");
+    var siteUrlQueryParam = queryParms.getValue("SiteUrl").toLowerCase();
 
     // extend siteUrl value with sub site string if needed
-    var subSitePart = document.referrer.replace(`${PageTransformatorWebPart.getAbsoluteDomainUrl()}${siteUrlQueryParam}`, "");
+    var subSitePart = document.referrer.toLowerCase().replace(`${PageTransformatorWebPart.getAbsoluteDomainUrl().toLowerCase()}${siteUrlQueryParam}`, "");
     subSitePart = subSitePart.substring(0, subSitePart.toLowerCase().indexOf("/sitepages"));
 
     if (subSitePart)
