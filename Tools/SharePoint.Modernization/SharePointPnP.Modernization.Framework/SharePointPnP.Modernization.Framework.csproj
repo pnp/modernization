@@ -213,6 +213,7 @@
     <Compile Include="Caml\ValueType.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Entities\AudienceEntity.cs" />
+    <Compile Include="Entities\ListItemPermission.cs" />
     <Compile Include="Entities\WebPartEntity.cs" />
     <Compile Include="Extensions\ListItemExtensions.cs" />
     <Compile Include="Extensions\SiteExtensions.cs" />

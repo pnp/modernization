@@ -459,57 +459,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Permission handling
+            ListItemPermission listItemPermissionsToKeep = null;
             if (pageTransformationInformation.KeepPageSpecificPermissions)
             {
 #if DEBUG && MEASURE
                 Start();
 #endif            
-                if (pageTransformationInformation.SourcePage.HasUniqueRoleAssignments)
+                // Check if we do have item level permissions we want to take over
+                listItemPermissionsToKeep = GetItemLevelPermissions(pagesLibrary, pageTransformationInformation.SourcePage, targetPage.PageListItem);
+
+                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
                 {
-                    // You need to have the ManagePermissions permission before item level permissions can be copied
-                    if (pagesLibrary.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
-                    {
-                        // Copy the unique permissions from source to target
-                        // Get the unique permissions
-                        this.clientContext.Load(pageTransformationInformation.SourcePage, a => a.EffectiveBasePermissions, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
-                            roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
-                        this.clientContext.ExecuteQueryRetry();
-
-                        if (pageTransformationInformation.SourcePage.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
-                        {
-                            // Load the site groups
-                            this.clientContext.Load(this.clientContext.Web.SiteGroups, p => p.Include(g => g.LoginName));
-
-                            // Get target page information
-                            this.clientContext.Load(targetPage.PageListItem, p => p.HasUniqueRoleAssignments, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
-                                roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
-                            this.clientContext.ExecuteQueryRetry();
-
-                            // Break permission inheritance on the target page if not done yet
-                            if (!targetPage.PageListItem.HasUniqueRoleAssignments)
-                            {
-                                targetPage.PageListItem.BreakRoleInheritance(false, false);
-                                this.clientContext.ExecuteQueryRetry();
-                            }
-
-                            // Apply new permissions
-                            foreach (var roleAssignment in pageTransformationInformation.SourcePage.RoleAssignments)
-                            {
-                                var principal = GetPrincipal(this.clientContext.Web, roleAssignment.Member.LoginName);
-                                if (principal != null)
-                                {
-                                    var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.clientContext);
-                                    foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
-                                    {
-                                        roleDefinitionBindingCollection.Add(roleDef);
-                                    }
-
-                                    targetPage.PageListItem.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
-                                }
-                            }
-                            this.clientContext.ExecuteQueryRetry();
-                        }
-                    }
+                    // If we're not doing a page name swap now we need to update the target item with the needed item level permissions
+                    ApplyItemLevelPermissions(targetPage.PageListItem, listItemPermissionsToKeep);
                 }
 #if DEBUG && MEASURE
                 Stop("Permission handling");
@@ -525,7 +487,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif            
                 //Load the source page
-                SwapPages(pageTransformationInformation);
+                SwapPages(pageTransformationInformation, listItemPermissionsToKeep);
 #if DEBUG && MEASURE
                 Stop("Pagename swap");
 #endif
@@ -561,7 +523,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Performs the logic needed to swap a genered Migrated_Page.aspx to Page.aspx and then Page.aspx to Old_Page.aspx
         /// </summary>
         /// <param name="pageTransformationInformation">Information about the page to transform</param>
-        public void SwapPages(PageTransformationInformation pageTransformationInformation)
+        public void SwapPages(PageTransformationInformation pageTransformationInformation, ListItemPermission listItemPermissionsToKeep)
         {
             var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
             var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
@@ -583,6 +545,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //        patched up during a MoveTo operation as that would also patch the url's in our new modern page
             sourcePage.CopyTo($"{path}{newSourcePageUrl}", true);
             this.clientContext.ExecuteQueryRetry();
+
+            // Restore the item level permissions on the copied page (if any)
+            if (pageTransformationInformation.KeepPageSpecificPermissions && listItemPermissionsToKeep != null)
+            {
+                // load the copied target file
+                var newSource = this.clientContext.Web.GetFileByServerRelativeUrl($"{path}{newSourcePageUrl}");
+                this.clientContext.Load(newSource);
+                this.clientContext.Load(newSource.ListItemAllFields, p => p.RoleAssignments);
+                this.clientContext.ExecuteQueryRetry();
+
+                // Reload source page
+                ApplyItemLevelPermissions(newSource.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
+            }
 
             //Load the created target page
             var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
@@ -626,6 +601,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // STEP3: Now copy the created modern page over the original source page, at this point the new page has the same name as the original page had before transformation
             targetPageFile.CopyTo($"{path}{orginalSourcePageName}", true);
             this.clientContext.ExecuteQueryRetry();
+
+            // Apply the item level permissions on the final page (if any)
+            if (pageTransformationInformation.KeepPageSpecificPermissions && listItemPermissionsToKeep != null)
+            {
+                // load the copied target file
+                var newTarget = this.clientContext.Web.GetFileByServerRelativeUrl($"{path}{orginalSourcePageName}");
+                this.clientContext.Load(newTarget);
+                this.clientContext.Load(newTarget.ListItemAllFields, p => p.RoleAssignments);
+                this.clientContext.ExecuteQueryRetry();
+
+                ApplyItemLevelPermissions(newTarget.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
+            }
 
             // STEP4: Finish with restoring the page navigation: update the navlinks to point back the original page name
             if (navWasFixed)
@@ -676,6 +663,109 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private void ApplyItemLevelPermissions(ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
+        {
+            if (lip == null || item == null)
+            {
+                return;
+            }
+
+            //item.EnsureProperties(p => p.RoleAssignments, p => p.HasUniqueRoleAssignments);
+
+            // Break permission inheritance on the item if not done yet
+            if (alwaysBreakItemLevelPermissions || !item.HasUniqueRoleAssignments)
+            {
+                item.BreakRoleInheritance(false, false);
+                this.clientContext.ExecuteQueryRetry();
+            }
+
+            // Assign item level permissions
+            foreach(var roleAssignment in lip.RoleAssignments)
+            {
+                if (lip.Principals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
+                {
+                    var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.clientContext);
+                    foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                    {
+                        roleDefinitionBindingCollection.Add(roleDef);
+                    }
+
+                    item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
+                }
+            }
+
+            this.clientContext.ExecuteQueryRetry();
+        }
+
+
+        private ListItemPermission GetItemLevelPermissions(List pagesLibrary, ListItem source, ListItem target)
+        {
+            ListItemPermission lip = null;
+
+            if (source.HasUniqueRoleAssignments)
+            {
+                // You need to have the ManagePermissions permission before item level permissions can be copied
+                if (pagesLibrary.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
+                {
+                    // Copy the unique permissions from source to target
+                    // Get the unique permissions
+                    this.clientContext.Load(source, a => a.EffectiveBasePermissions, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
+                        roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
+                    this.clientContext.ExecuteQueryRetry();
+
+                    if (source.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
+                    {
+                        // Load the site groups
+                        this.clientContext.Load(this.clientContext.Web.SiteGroups, p => p.Include(g => g.LoginName));
+
+                        // Get target page information
+                        //this.clientContext.Load(target, p => p.HasUniqueRoleAssignments, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
+                        //    roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
+                        this.clientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
+                        this.clientContext.ExecuteQueryRetry();
+
+                        Dictionary<string, Principal> principals = new Dictionary<string, Principal>(10);
+                        lip = new ListItemPermission()
+                        {
+                            RoleAssignments = source.RoleAssignments,
+                            Principals = principals
+                        };
+
+                        // Break permission inheritance on the target page if not done yet
+                        //if (!target.HasUniqueRoleAssignments)
+                        //{
+                        //    target.BreakRoleInheritance(false, false);
+                        //    this.clientContext.ExecuteQueryRetry();
+                        //}
+
+                        // Apply new permissions
+                        foreach (var roleAssignment in source.RoleAssignments)
+                        {
+                            var principal = GetPrincipal(this.clientContext.Web, roleAssignment.Member.LoginName);
+                            if (principal != null)
+                            {
+                                if (!lip.Principals.ContainsKey(roleAssignment.Member.LoginName))
+                                {
+                                    lip.Principals.Add(roleAssignment.Member.LoginName, principal);
+                                }
+
+                                //var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.clientContext);
+                                //foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                                //{
+                                //    roleDefinitionBindingCollection.Add(roleDef);
+                                //}
+
+                                //target.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
+                            }
+                        }
+                        //this.clientContext.ExecuteQueryRetry();
+                    }
+                }
+            }
+
+            return lip;
+        }
+
         private Principal GetPrincipal(Web web, string principalInput)
         {
             Principal principal = this.clientContext.Web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
