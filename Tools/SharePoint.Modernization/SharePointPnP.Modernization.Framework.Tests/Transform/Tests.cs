@@ -58,11 +58,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         [TestMethod]
         public void MetaDataCopyTest()
         {
-            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestpages/metadata2"))
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestpages/metadata"))
             {
                 var pageTransformator = new PageTransformator(cc);
 
-                var pages = cc.Web.GetPages("meta3");
+                var pages = cc.Web.GetPages("meta2");
 
                 foreach (var page in pages)
                 {
@@ -75,6 +75,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                         SkipTelemetry = true,
 
                         CopyPageMetadata = true,
+
+                        //KeepPageSpecificPermissions = false,
 
                         //// Modernization center setup
                         //ModernizationCenterInformation = new ModernizationCenterInformation()
