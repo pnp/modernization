@@ -1,5 +1,4 @@
-﻿using Microsoft.SharePoint.Client;
-using System;
+﻿using System;
 
 namespace SharePointPnP.Modernization.Framework.Cache
 {
@@ -22,10 +21,5 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// Type of the field
         /// </summary>
         public string FieldType { get; set; }
-
-        /// <summary>
-        /// SharePoint field
-        /// </summary>
-        public Field Field { get; set; }
     }
 }

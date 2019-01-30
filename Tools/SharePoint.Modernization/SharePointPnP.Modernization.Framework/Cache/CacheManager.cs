@@ -11,6 +11,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
 {
     /// <summary>
     /// Caching manager, singleton
+    /// Important: don't cache SharePoint Client objects as these are tied to a specific client context and hence will fail when there's context switching!
     /// </summary>
     public sealed class CacheManager
     {
@@ -174,7 +175,6 @@ namespace SharePointPnP.Modernization.Framework.Cache
                                         FieldName = sitePagesField.StaticName,
                                         FieldId = sitePagesField.Id,
                                         FieldType = sitePagesField.TypeAsString,
-                                        Field = sitePagesField
                                     };
 
                                     fieldsToCopyRetrieved.Add(fieldToAdd);

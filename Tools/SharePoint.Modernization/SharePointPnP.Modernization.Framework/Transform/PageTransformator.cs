@@ -702,58 +702,66 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         case "TaxonomyFieldTypeMulti":
                             {
-                                var taxField = this.clientContext.CastTo<TaxonomyField>(fieldToCopy.Field);
-                                if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
+                                var taxFieldBeforeCast = pagesLibrary.Fields.Where(p => p.Id.Equals(fieldToCopy.FieldId)).FirstOrDefault();
+                                if (taxFieldBeforeCast != null)
                                 {
-                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValueCollection)
-                                    {
-                                        var valueCollectionToCopy = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValueCollection);
-                                        var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
-                                        var valueCollection = new TaxonomyFieldValueCollection(this.clientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                        taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
-                                    }
-                                    else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
-                                    {
-                                        var taxDictionaryList = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
-                                        var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
+                                    var taxField = this.clientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
 
-                                        List<string> taxonomyFieldValueArray = new List<string>();
-                                        for (int i = 0; i < valueCollectionToCopy.Length; i++)
+                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
+                                    {
+                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValueCollection)
                                         {
-                                            var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
-                                            taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
+                                            var valueCollectionToCopy = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValueCollection);
+                                            var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
+                                            var valueCollection = new TaxonomyFieldValueCollection(this.clientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                            taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
                                         }
-                                        var valueCollection = new TaxonomyFieldValueCollection(this.clientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                        taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
+                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
+                                        {
+                                            var taxDictionaryList = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
+                                            var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
+
+                                            List<string> taxonomyFieldValueArray = new List<string>();
+                                            for (int i = 0; i < valueCollectionToCopy.Length; i++)
+                                            {
+                                                var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
+                                                taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
+                                            }
+                                            var valueCollection = new TaxonomyFieldValueCollection(this.clientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                            taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
+                                        }
+
+                                        isDirty = true;
                                     }
-                                    
-                                    isDirty = true;
                                 }
                                 break;
                             }
                         case "TaxonomyFieldType":
                             {
-                                var taxField = this.clientContext.CastTo<TaxonomyField>(fieldToCopy.Field);
-                                taxField.EnsureProperty(f => f.TextField);
-                                var taxValue = new TaxonomyFieldValue();
-                                if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
+                                var taxFieldBeforeCast = pagesLibrary.Fields.Where(p => p.Id.Equals(fieldToCopy.FieldId)).FirstOrDefault();
+                                if (taxFieldBeforeCast != null)
                                 {
-                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValue)
+                                    var taxField = this.clientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                                    var taxValue = new TaxonomyFieldValue();
+                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
                                     {
+                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValue)
+                                        {
 
-                                        taxValue.Label = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).Label;
-                                        taxValue.TermGuid = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).TermGuid;
-                                        taxValue.WssId = -1;
+                                            taxValue.Label = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).Label;
+                                            taxValue.TermGuid = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).TermGuid;
+                                            taxValue.WssId = -1;
+                                        }
+                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
+                                        {
+                                            var taxDictionary = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
+                                            taxValue.Label = taxDictionary["Label"].ToString();
+                                            taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
+                                            taxValue.WssId = -1;
+                                        }
+                                        taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
+                                        isDirty = true;
                                     }
-                                    else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
-                                    {
-                                        var taxDictionary = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
-                                        taxValue.Label = taxDictionary["Label"].ToString();
-                                        taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
-                                        taxValue.WssId = -1;
-                                    }
-                                    taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
-                                    isDirty = true;
                                 }
                                 break;
                             }
