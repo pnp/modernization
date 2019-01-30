@@ -133,7 +133,7 @@ namespace SharePointPnP.ModernizationFunction.Telemetry
                 this.telemetryClient.Flush();
 
                 // flush is not blocking so wait a bit
-                Task.Delay(500).Wait();
+                Task.Delay(50).Wait();
             }
             catch
             {
