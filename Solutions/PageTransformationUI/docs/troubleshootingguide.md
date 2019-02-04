@@ -83,7 +83,7 @@ This error will be seen if _CHECK B2_ or _CHECK C1_ (see above) is an issue. Rem
 
 ### Error AADSTS50001: The application named 'guid' was not found in the tenant named 'guid'
 
-![error AADSTS50001](./images/troubleshoot_AADST50001.png)
+![error AADSTS50001](./images/troubleshoot_AADSTS50001.png)
 
 This error will be seen if _CHECK B1_ (see above) is an issue. Remediation steps are listed **Remediation steps** chapter below.
 
@@ -104,13 +104,13 @@ When you're using Chrome as your browser then before testing again you need to c
 
 ### Check A2 (wrong app settings)
 
-If the app settings are all missing then something went really wrong during the automated setup. The best solution is to re-install the page transformation UI solution. To so first follow the steps in the **Fully remove the Page Transformation UI solution** chapter to remove the currently installed bits and then follow the [deployment guide](deploymentguide.md) to install again.
+If the app settings are all missing then something went really wrong during the automated setup. The best solution is to re-install the page transformation UI solution. To do so first follow the steps in the **Fully remove the Page Transformation UI solution** chapter to remove the currently installed bits and then follow the [deployment guide](deploymentguide.md) to install again.
 
 ### Check B1 (Azure AD app id mismatch)
 
 Find the **SharePointPnP.Modernization** Azure AD application, copy the **application ID** and then configure the **Modernization_AzureADApp** storage entity to use it.
 
-Use `Set-PnPStorageEntity -Key Modernization_AzureADApp -Value <guid>` to configure the correct Azure AD App application ID.
+Use `Set-PnPStorageEntity -Key Modernization_AzureADApp -Value <Azure application ID guid>` to configure the correct Azure AD App application ID.
 
 When you're using Chrome as your browser then before testing again you need to clear the modern page cache by pressing F12 to open the **Developer tools**:
 
@@ -175,6 +175,7 @@ To cleanup the SharePoint side run below PnP PowerShell script:
 $appToRemove = Get-PnPApp | Where-Object {$_.Title -eq "sharepointpnp-pagetransformation-central-solution"}
 Remove-PnPApp -Identity $appToRemove.Id
 $appToRemove = Get-PnPApp | Where-Object {$_.Title -eq "sharepointpnp-pagetransformation-client-solution"}
+Remove-PnPApp -Identity $appToRemove.Id
 
 # Revoke the grants
 $grantstorevoke = Get-PnPTenantServicePrincipalPermissionGrants | Where-Object {$_.Resource -eq "SharePointPnP.Modernization"}
@@ -182,7 +183,7 @@ Revoke-PnPTenantServicePrincipalPermission -ObjectId $grantstorevoke.ObjectId -F
 
 # Clean up the pending requests (if any)
 $requestsrevoke = Get-PnPTenantServicePrincipalPermissionRequests | Where-Object {$_.Resource -eq "SharePointPnP.Modernization"}
-foreach ($request in $requestsrevoke) { Deny-PnPTenantServicePrincipalPermissionRequest -RequestId $request.Id -Force}
+foreach ($request in $requestsrevoke) { Deny-PnPTenantServicePrincipalPermissionRequest -RequestId $request.Id -Force }
 
 # Delete the created site collection
 Remove-PnPTenantSite -Url https://mytenant.sharepoint.com/sites/modernizationcenter -SkipRecycleBin -Force
