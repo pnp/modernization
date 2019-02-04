@@ -1,6 +1,10 @@
 
 # Frequently Asked Questions
 
+## Help, the Page Transformation UI solution is not working in my tenant
+
+Please consult the [trouble shooting guide](troubleshootingguide.md) to get unblocked.
+
 ## Can I change the URL in the page banner web part that points to more information?
 
 Yes, this is possible. The used URL can be configured via a tenant storage entity. Start a PnP PowerShell session and use below code to check the current value and set to something else:

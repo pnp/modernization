@@ -108,3 +108,7 @@ If you want to configure multiple site collections at once you can specify a CSV
 
 >**Note:**
 >Both approaches are interchangeable, meaning you can for example use the script approach to enable the page transformation UI integration and then use the admin web part to disable it for a site.
+
+## Help, it's not working
+
+Please consult the [trouble shooting guide](troubleshootingguide.md) to get unblocked.
