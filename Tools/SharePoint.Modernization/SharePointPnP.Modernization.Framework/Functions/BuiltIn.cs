@@ -615,13 +615,21 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [SelectorDocumentation(Description = "If ContentLink is set (content editor) then return Link, otherwise return Content.",
                                Example = "ContentEmbedSelectorContentLink({ContentLink})")]
         [InputDocumentation(Name = "{ContentLink}", Description = "Link value if set")]
-        [OutputDocumentation(Name = "Link", Description = "If the link was not empty")]
+        [OutputDocumentation(Name = "Link", Description = "If the link was not empty and it was an aspx file")]
+        [OutputDocumentation(Name = "NonASPXLink", Description = "If the link was not empty and it was not an aspx file")]
         [OutputDocumentation(Name = "Content", Description = "If no link was specified")]
         public string ContentEmbedSelectorContentLink(string contentLink)
         {
             if (!string.IsNullOrEmpty(contentLink))
             {
-                return "Link";
+                if (contentLink.ToLower().EndsWith(".aspx"))
+                {
+                    return "Link";
+                }
+                else
+                {
+                    return "NonASPXLink";
+                }
             }
             else
             {
