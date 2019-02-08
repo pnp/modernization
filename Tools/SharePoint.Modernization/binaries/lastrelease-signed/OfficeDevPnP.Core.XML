@@ -12280,6 +12280,15 @@
             <param name="pageName">Name of the page to extract</param>
             <param name="isHomePage">Is this a home page?</param>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ListItemUtilities.TryDeserializeAsJson``1(System.String,``0@)">
+            <summary>
+            This method is present to preserve backward compatibility with old file property format
+            </summary>
+            <typeparam name="T">Expected type</typeparam>
+            <param name="jsonValue">json value</param>
+            <param name="result">The result object, if success</param>
+            <returns>Returns <c>true</c> if the value was sucessfully deserialized from the json string. Otherwise <c>false</c></returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.TenantHelper.ProcessCdns(Microsoft.Online.SharePoint.TenantAdministration.Tenant,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTenant,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningMessagesDelegate)">
             <summary>
             Retrieves a file as a byte array from the connector. If the file name contains special characters (e.g. "%20") and cannot be retrieved, a workaround will be performed
@@ -12523,6 +12532,13 @@
             </summary>
             <param name="message">Provisioning message</param>
             <param name="messageType">Provisioning message type</param>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningSiteProvisionedDelegate">
+            <summary>
+            Message to notify the completed provisioning of a site
+            </summary>
+            <param name="title">The Title of the provisioned site</param>
+            <param name="url">The URL of the provisioned site</param>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation">
             <summary>
@@ -33275,6 +33291,11 @@
             Page is an app page, hosting a single SPFX web part full screen
             </summary>
         </member>
+        <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.RepostPage">
+            <summary>
+            Page is a repost / link page
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Pages.ClientSideText">
             <summary>
             Controls of type 4 ( = text control)
@@ -34006,6 +34027,26 @@
             </summary>
             <param name="siteUrl">Url of the SharePoint site that's secured via ADFS</param>
             <param name="serialNumber">Represents the serial number of the certificate as displayed by the certificate dialog box, but without the spaces, or as returned by the System.Security.Cryptography.X509Certificates.X509Certificate.GetSerialNumberString method</param>
+            <param name="sts">Hostname of the ADFS server (e.g. sts.company.com)</param>
+            <param name="idpId">Identifier of the ADFS relying party that we're hitting</param>
+            <param name="logonTokenCacheExpirationWindow">Optioanlly provide the value of the SharePoint STS logonTokenCacheExpirationWindow. Defaults to 10 minutes.</param>
+            <returns>ClientContext to be used by CSOM code</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetADFSKerberosMixedAuthenticationContext(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Returns a SharePoint on-premises ClientContext for sites secured via ADFS
+            </summary>
+            <param name="siteUrl">Url of the SharePoint site that's secured via ADFS</param>
+            <param name="sts">Hostname of the ADFS server (e.g. sts.company.com)</param>
+            <param name="idpId">Identifier of the ADFS relying party that we're hitting</param>
+            <param name="logonTokenCacheExpirationWindow">Optioanlly provide the value of the SharePoint STS logonTokenCacheExpirationWindow. Defaults to 10 minutes.</param>
+            <returns>ClientContext to be used by CSOM code</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.RefreshADFSKerberosMixedAuthenticationContext(System.String,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Refreshes the SharePoint FedAuth cookie
+            </summary>
+            <param name="siteUrl">Url of the SharePoint site that's secured via ADFS</param>
             <param name="sts">Hostname of the ADFS server (e.g. sts.company.com)</param>
             <param name="idpId">Identifier of the ADFS relying party that we're hitting</param>
             <param name="logonTokenCacheExpirationWindow">Optioanlly provide the value of the SharePoint STS logonTokenCacheExpirationWindow. Defaults to 10 minutes.</param>
@@ -34819,6 +34860,29 @@
             <param name="relyingPartyIdentifier">Identifier of the ADFS relying party that we're hitting</param>
             <returns></returns>
         </member>
+        <member name="T:OfficeDevPnP.Core.IdentityModel.TokenProviders.ADFS.KerberosMixed">
+            <summary>
+            ADFS Active authentication based on username + password. Uses the trust/13/usernamemixed ADFS endpoint.
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.IdentityModel.TokenProviders.ADFS.KerberosMixed.GetFedAuthCookie(System.String,System.Uri,System.String,System.Int32)">
+            <summary>
+            Performs active authentication against ADFS using the trust/13/usernamemixed ADFS endpoint.
+            </summary>
+            <param name="siteUrl">Url of the SharePoint site that's secured via ADFS</param>
+            <param name="kerberosMixed">Uri to the ADFS kerberosMixed endpoint</param>
+            <param name="relyingPartyIdentifier">Identifier of the ADFS relying party that we're hitting</param>
+            <param name="logonTokenCacheExpirationWindow">Logon TokenCache expiration window integer value</param>
+            <returns>A cookiecontainer holding the FedAuth cookie</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.IdentityModel.TokenProviders.ADFS.KerberosMixed.RequestToken(System.Uri,System.String)">
+            <summary>
+            Returns Generic XML Security Token from ADFS to generated FedAuth
+            </summary>
+            <param name="kerberosMixed">ADFS Endpoint for Kerberos Mixed Authentication</param>
+            <param name="relyingPartyIdentifier">Identifier of the ADFS relying party that we're hitting</param>
+            <returns></returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.IdentityModel.TokenProviders.ADFS.BaseProvider">
             <summary>
             Base class for active SAML based authentication
@@ -35070,6 +35134,11 @@
             The language to use for the site. If not specified will default to the language setting of the clientcontext.
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.HubSiteId">
+            <summary>
+            The Guid of the hub site to be used. If specified will associate the communication site to the hub site
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.#ctor">
             <summary>
             Default constructor
@@ -35093,6 +35162,11 @@
             If the site already has a modern home page, do we want to keep it?
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Sites.TeamSiteCollectionGroupifyInformation.Owners">
+            <summary>
+            Set the owners of the modern team site. Specify the UPN values in a string array.
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Sites.TeamSiteCollectionGroupifyInformation.#ctor">
             <summary>
             Default constructor
@@ -35109,6 +35183,11 @@
         <member name="T:OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation">
             <summary>
             Class for site creation information
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation.Owners">
+            <summary>
+            Set the owners of the modern team site. Specify the UPN values in a string array.
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation.#ctor">
@@ -35152,6 +35231,11 @@
         <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Classification">
             <summary>
             The Site classification to use. For instance 'Contoso Classified'. See https://www.youtube.com/watch?v=E-8Z2ggHcS0 for more information
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.HubSiteId">
+            <summary>
+            The Guid of the hub site to be used. If specified will associate the modern team site to the hub site.
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Utilities.Async.SynchronizationContextRemover">
@@ -35487,6 +35571,60 @@
             <param name="isInverted"></param>
             <param name="isCustomization"></param>
             <param name="overwriteCustomColor"></param>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Utilities.Themes.ThemeManager">
+            <summary>
+            Extension class for the Web object useful to apply custom Themes
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.ThemeManager.ApplyTheme(Microsoft.SharePoint.Client.Web,System.String,System.String)">
+            <summary>
+            Extension method to apply a Theme to a target web
+            </summary>
+            <param name="web"></param>
+            <param name="jsonTheme"></param>
+            <param name="themeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.Themes.ThemeManager.BaseRequest(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Utilities.Themes.ThemeAction,System.Object,System.String)">
+            <summary>
+            Internal private method to process an HTTP request toward the ThemeManager REST APIs
+            </summary>
+            <param name="context">The current ClientContext of CSOM</param>
+            <param name="action">The action to perform</param>
+            <param name="postObject">The body of the request</param>
+            <param name="accessToken">An optional Access Token for OAuth authorization</param>
+            <returns>A boolean declaring whether the operation was successful</returns>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Utilities.Themes.ThemeAction">
+            <summary>
+            Available actions for ThemeManager REST APIs
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Utilities.Themes.ThemeAction.AddTenantTheme">
+            <summary>
+            Add a new Tenant Theme
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Utilities.Themes.ThemeAction.DeleteTenantTheme">
+            <summary>
+            Delete an existing Tenant Theme
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Utilities.Themes.ThemeAction.GetTenantThemingOptions">
+            <summary>
+            Get the whole list of Tenant Themes
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Utilities.Themes.ThemeAction.ApplyTheme">
+            <summary>
+            Apply a Theme to the target web
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Utilities.Themes.ThemeAction.UpdateTenantTheme">
+            <summary>
+            Update a Tenant Theme
+            </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Utilities.Themes.ThemeUtility.GetThemeAsJSON(System.String,System.String,System.String)">
             <summary>
@@ -42297,6 +42435,26 @@
             Reference: http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.client.search.administration.searchobjectlevel(v=office.15).aspx
             </param>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.SearchExtensions.ImportSearchSettingsConfiguration(Microsoft.SharePoint.Client.ClientContext,System.String,Microsoft.SharePoint.Client.Search.Administration.SearchObjectLevel)">
+            <summary>
+            Imports search settings from configuration xml.
+            </summary>
+            <param name="context">Context for SharePoint objects and operations</param>
+            <param name="searchConfiguration">Search schema xml file path</param>
+            <param name="searchSettingsImportLevel">Search settings import level
+            Reference: http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.client.search.administration.searchobjectlevel(v=office.15).aspx
+            </param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SearchExtensions.DeleteSearchSettings(Microsoft.SharePoint.Client.ClientContext,System.String,Microsoft.SharePoint.Client.Search.Administration.SearchObjectLevel)">
+            <summary>
+            Delete search settings from configuration xml.
+            </summary>
+            <param name="context">Context for SharePoint objects and operations</param>
+            <param name="searchConfiguration">Search schema xml file path</param>
+            <param name="searchSettingsImportLevel">Search settings import level
+            Reference: http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.client.search.administration.searchobjectlevel(v=office.15).aspx
+            </param>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.SearchExtensions.SetSearchConfiguration(Microsoft.SharePoint.Client.Web,System.String)">
             <summary>
             Sets the search configuration
@@ -42314,6 +42472,28 @@
         <member name="M:Microsoft.SharePoint.Client.SearchExtensions.SetSearchConfigurationImplementation(Microsoft.SharePoint.Client.ClientRuntimeContext,Microsoft.SharePoint.Client.Search.Administration.SearchObjectLevel,System.String)">
             <summary>
             Sets the search configuration at the specified object level
+            </summary>
+            <param name="context"></param>
+            <param name="searchObjectLevel"></param>
+            <param name="searchConfiguration"></param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SearchExtensions.DeleteSearchConfiguration(Microsoft.SharePoint.Client.Web,System.String)">
+            <summary>
+            Delete the search configuration - does not apply to managed properties.
+            </summary>
+            <param name="web">A SharePoint site/subsite</param>
+            <param name="searchConfiguration">search configuration</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SearchExtensions.DeleteSearchConfiguration(Microsoft.SharePoint.Client.Site,System.String)">
+            <summary>
+            Delete the search configuration - does not apply to managed properties.
+            </summary>
+            <param name="site">A SharePoint site</param>
+            <param name="searchConfiguration">search configuration</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SearchExtensions.DeleteSearchConfigurationImplementation(Microsoft.SharePoint.Client.ClientRuntimeContext,Microsoft.SharePoint.Client.Search.Administration.SearchObjectLevel,System.String)">
+            <summary>
+            Delete the search configuration at the specified object level - does not apply to managed properties.
             </summary>
             <param name="context"></param>
             <param name="searchObjectLevel"></param>
@@ -43352,7 +43532,7 @@
             <param name="compatibilityLevel">14 for SharePoint 2010, 15 for SharePoint 2013/SharePoint Online</param>
             <returns>Returns collection of SPTenantWebTemplate</returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SetSiteProperties(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{Microsoft.Online.SharePoint.TenantManagement.SharingCapabilities},System.Nullable{System.Int64},System.Nullable{System.Int64},System.Nullable{System.Double},System.Nullable{System.Double},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SetSiteProperties(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{Microsoft.Online.SharePoint.TenantManagement.SharingCapabilities},System.Nullable{System.Int64},System.Nullable{System.Int64},System.Nullable{System.Double},System.Nullable{System.Double},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Nullable{Microsoft.Online.SharePoint.TenantManagement.SharingPermissionType},System.Nullable{Microsoft.Online.SharePoint.TenantManagement.SharingLinkType},System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
             <summary>
             Sets tenant site Properties
             </summary>
@@ -43368,8 +43548,10 @@
             <param name="noScriptSite">Boolean value which allows to customize the site using scripts</param>
             <param name="commentsOnSitePagesDisabled">Boolean value which Enables/Disables comments on the Site Pages</param>
             <param name="socialBarOnSitePagesDisabled">Boolean value which Enables/Disables likes and view count on the Site Pages</param>
+            <param name="defaultSharingLinkType">Specifies the default link type for the site collection</param>
             <param name="wait">Id true this function only returns when the tenant properties are set, if false it will return immediately</param>
             <param name="timeoutFunction">An optional function that will be called while waiting for the tenant properties to be set. If set will override the wait variable. Return true to cancel the wait loop.</param>
+            <param name="defaultLinkPermission">Specifies the default link permission for the site collection</param>
         </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SetSiteLockState(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,OfficeDevPnP.Core.SiteLockState,System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
             <summary>
