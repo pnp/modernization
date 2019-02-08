@@ -12,7 +12,7 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [February release (prod) - unreleased]
+## [February release (prod) - version 1.0.1902.0]
 
 ### Added
 
@@ -24,6 +24,7 @@
 - Wiki page parser: check if this element is nested in another already processed element...this needs to be skipped to avoid content duplication and possible processing errors (issue #37)
 - Improved item level permission copy logic
 - Check for proper permissions before attempting item level copy, if insufficient permissions the item level permissions are not copied but the transformation will still succeed
+- Only transform content editor web part pointing to .aspx file to contentembed, .html files result in a file download instead of a file load
 
 ## [January release (prod) - version 1.0.1901.1]
 
