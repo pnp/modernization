@@ -250,7 +250,7 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                     WriteMetric(listCustomAction, item.Value.XsltViewWebPartCompatibility.BlockedByListCustomAction);
                     WriteMetric(publishingField, item.Value.XsltViewWebPartCompatibility.BlockedByPublishingField);
                     WriteMetric(siteBlocking, item.Value.BlockedAtSiteLevel);
-                    WriteMetric(webBlocking, item.Value.BlockedAtSiteLevel);
+                    WriteMetric(webBlocking, item.Value.BlockedAtWebLevel);
                     WriteMetric(listBlocking, item.Value.BlockedAtListLevel);
                 }
 
