@@ -5,7 +5,7 @@ Setting up the Page Transformation UI solution does involve work at the Azure si
 
 ## General step by step validation of the setup (recommended)
 
-Follow the guidance in here if you want to verify your complete setup. To start with the validation please execute the below PnP PowerShell:
+Follow the guidance in here if you want to verify your complete setup. To start with the validation please execute the below [PnP PowerShell](https://aka.ms/sppnp-powershell):
 
 ```PowerShell
 Get-PnPStorageEntity
@@ -52,7 +52,32 @@ Open the created Azure AD Application in the Azure AD Management portal:
 
 ### SharePoint validation
 
-Open a PnP PowerShell session and run the below command:
+Open a [PnP PowerShell](https://aka.ms/sppnp-powershell) session, save and update below script and then run it:
+
+```PowerShell
+try
+{
+    $credentials = Get-Credential
+    # IMPORTANT: update to point to the created modernization center
+    Connect-PnPOnline -Url https://mytenant.sharepoint.com/sites/modernizationcenter -Credentials $credentials
+    Write-Host "Connection to modernization center ok" -ForegroundColor Green
+    Connect-PnPOnline -Url (Get-PnPTenantAppCatalogUrl) -Credentials $credentials
+    Write-Host "Connection to corporate App Catalog ok" -ForegroundColor Green
+    Get-PnPSiteCollectionAdmin -Web (Get-PnPWeb)
+    Write-Host "Verify your account" $credentials.UserName "is one of the tenant app catalog admins listed below" -ForegroundColor Yellow
+    Disconnect-PnPOnline
+}
+catch [Exception] 
+{
+    $ErrorMessage = $_.Exception.Message
+    Write-Host "Error: $ErrorMessage" -ForegroundColor Red
+}
+```
+
+- _CHECK C1:_ **Do you see an error being returned? If so then please verify you do have the modernization center site available and you do have an app catalog defined in your tenant**
+- _CHECK C2:_ **Is your username listed as admin for the tenant app catalog?**
+
+Open a [PnP PowerShell](https://aka.ms/sppnp-powershell) session and run the below command:
 
 ```PowerShell
 Get-PnPTenantServicePrincipalPermissionGrants
@@ -66,7 +91,8 @@ ResourceId  : 5c171c91-b148-4a96-a0a6-dd40dd320e36
 Scope       : user_impersonation
 ```
 
-- _CHECK C1:_ **You do see a permission for resource SharePointPnP.Modernization and scope user_impersonation**?
+- _CHECK C3:_ **You do see a permission for resource SharePointPnP.Modernization and scope user_impersonation**?
+
 
 > Note:
 > If one or more _CHECKS_ returned an issue then the SharePoint side was not properly configured. Remediation steps are listed **Remediation steps** chapter below.
@@ -139,7 +165,25 @@ When you're using Chrome as your browser then before testing again you need to c
 
 ![clear page cache](./images/troubleshoot_ClearPageCache.png)
 
-### Check C1 (missing SharePoint permission grant)
+### Check C1 (error during app center validation)
+
+- Did you create the modernization center site collection (see the SharePoint section of the [deployment guide](deploymentguide.md))
+- Did you update the modernization center URL in the PowerShell test script? If not update it and run again
+- Do you not have a tenant app catalog? 
+  - Go to your SharePoint Admin center
+  - Click on **Apps** --> **App Catalog**
+  - If you're redirected to the app catalog site collection then all good, if not please create the app catalog site collection
+
+### Check C2 (not admin of the app catalog)
+
+- You have to be an admin before you can deploy applications to the app catalog. To make yourselves an admin follow these steps:
+  - Go to your SharePoint Admin center
+  - Click on **Site collections** and search your app center site collection
+  - Select you app center site collection
+  - Click on **Owners** --> **Manage Administrators**
+  - Add yourselves to the **Site Collection Administrators** list and click on **OK**
+
+### Check C3 (missing SharePoint permission grant)
 
 Use `Grant-PnPTenantServicePrincipalPermission -Scope "user_impersonation" -Resource "SharePointPnP.Modernization"` to grant the needed permission to the SharePoint Client Extensibility SharePoint app.
 
@@ -166,7 +210,7 @@ Sometimes the best option is to reinstall the Page Transformation UI solution ag
 
 ### SharePoint cleanup
 
-To cleanup the SharePoint side run below PnP PowerShell script:
+To cleanup the SharePoint side save and update below [PnP PowerShell](https://aka.ms/sppnp-powershell) script and then execute it:
 
 ```PowerShell
 # IMPORTANT: update the site collection URL in the last line of the script before running
