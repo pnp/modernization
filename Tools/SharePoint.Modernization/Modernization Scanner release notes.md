@@ -4,6 +4,14 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.4 - Unreleased]
+
+### Added
+
+- Built-in webpartmapping.xml file, no need to deploy scanner.exe + webpartmapping.xml file together
+
+### Changed
+
 ## [Version 2.3]
 
 ### Added
