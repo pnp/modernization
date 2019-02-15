@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using SharePointPnP.Modernization.Framework;
 using SharePoint.Modernization.Scanner.Telemetry;
+using SharePoint.Modernization.Scanner.Utilities;
 
 namespace SharePoint.Modernization.Scanner
 {
@@ -311,9 +312,23 @@ namespace SharePoint.Modernization.Scanner
 
             // Load xml mapping data
             XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
-            using (var stream = new FileStream("webpartmapping.xml", FileMode.Open))
+
+            // If there's a webpartmapping file in the .exe folder then use that
+            if (System.IO.File.Exists("webpartmapping.xml"))
             {
-                this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                using (var stream = new FileStream("webpartmapping.xml", FileMode.Open))
+                {
+                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                }
+            }
+            else
+            {
+                // No webpartmapping file found, let's grab the embedded one
+                string webpartMappingString = WebpartMappingLoader.LoadFile("SharePoint.Modernization.Scanner.webpartmapping.xml");
+                using (var stream = WebpartMappingLoader.GenerateStreamFromString(webpartMappingString))
+                {
+                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                }
             }
 
             return sites;
