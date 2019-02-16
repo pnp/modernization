@@ -12,6 +12,8 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ### Changed
 
+- Performance tuning: version 2.4 is 30% faster for a "full" run than 2.3
+
 ## [Version 2.3]
 
 ### Added
