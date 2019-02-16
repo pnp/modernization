@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using SharePointPnP.Modernization.Framework;
 using SharePoint.Modernization.Scanner.Telemetry;
+using SharePoint.Modernization.Scanner.Utilities;
 
 namespace SharePoint.Modernization.Scanner
 {
@@ -144,35 +145,43 @@ namespace SharePoint.Modernization.Scanner
                             {
                                 // Perf optimization: do one call per site to load all the needed properties
                                 var spSite = (ccWeb as ClientContext).Site;
-                                ccWeb.Load(spSite, p => p.RootWeb, p => p.Url, p => p.GroupId);
-                                ccWeb.Load(spSite.RootWeb, p => p.Id);
-                                ccWeb.Load(spSite, p => p.UserCustomActions); // User custom action site level
-                                ccWeb.Load(spSite, p => p.Features); // Features site level
+                                ccWeb.Load(spSite, p => p.Url, p => p.GroupId, p => p.Id,
+                                                   p => p.RootWeb, p => p.RootWeb.Id,
+                                                   p => p.UserCustomActions, // User custom action site level
+                                                   p => p.Features // Features site level
+                                          );
                                 ccWeb.ExecuteQueryRetry();
 
                                 isFirstSiteInList = false;
                             }
 
                             // Perf optimization: do one call per web to load all the needed properties
-                            ccWeb.Load(ccWeb.Web, p => p.Id, p => p.Title, p => p.Url);
-                            ccWeb.Load(ccWeb.Web, p => p.WebTemplate, p => p.Configuration);
-                            ccWeb.Load(ccWeb.Web, p => p.MasterUrl, p => p.CustomMasterUrl, // master page check
+                            // Also load the Site RootWeb and Id again as we've a new client context object and this data is needed for the IsSubSite check
+                            var spSite2 = (ccWeb as ClientContext).Site;
+                            ccWeb.Load(spSite2, p => p.RootWeb, p => p.RootWeb.Id);
+                            ccWeb.Load(ccWeb.Web, p => p.Id, p => p.Title, p => p.Url,
+                                                  p => p.WebTemplate, p => p.Configuration,
+                                                  p => p.MasterUrl, p => p.CustomMasterUrl, // master page check
                                                   p => p.AlternateCssUrl, // Alternate CSS
-                                                  p => p.UserCustomActions); // Web user custom actions  
-                            ccWeb.Load(ccWeb.Web, p => p.Features); // Features web level
-                            ccWeb.Load(ccWeb.Web, p => p.RootFolder); // web home page
+                                                  p => p.UserCustomActions, // Web user custom actions 
+                                                  p => p.Language, p => p.AllProperties, p => p.ServerRelativeUrl, // used in publishing analyzer
+                                                  p => p.Features,
+                                                  p => p.RootFolder
+                                      );
                             ccWeb.ExecuteQueryRetry();
 
                             // Split load in multiple batches to minimize timeout exceptions
                             if (!SkipUserInformation)
                             {
-                                ccWeb.Load(ccWeb.Web, p => p.SiteUsers, p => p.AssociatedOwnerGroup, p => p.AssociatedMemberGroup, p => p.AssociatedVisitorGroup); // site user and groups
-                                ccWeb.Load(ccWeb.Web, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments, p => p.SiteGroups.Include(s => s.Users)); // permission inheritance at web level
+                                ccWeb.Load(ccWeb.Web, p => p.SiteUsers, p => p.AssociatedOwnerGroup, p => p.AssociatedMemberGroup, p => p.AssociatedVisitorGroup, // site user and groups
+                                                      p => p.HasUniqueRoleAssignments, p => p.RoleAssignments, p => p.SiteGroups, p => p.SiteGroups.Include(s => s.Users) // permission inheritance at web level
+                                          );
                                 ccWeb.ExecuteQueryRetry();
 
-                                ccWeb.Load(ccWeb.Web.AssociatedOwnerGroup, p => p.Users); // users in the Owners group
-                                ccWeb.Load(ccWeb.Web.AssociatedMemberGroup, p => p.Users); // users in the Members group
-                                ccWeb.Load(ccWeb.Web.AssociatedVisitorGroup, p => p.Users); // users in the Visitors group
+                                ccWeb.Load(ccWeb.Web, p => p.AssociatedOwnerGroup.Users, // users in the Owners group
+                                                      p => p.AssociatedMemberGroup.Users, // users in the Members group
+                                                      p => p.AssociatedVisitorGroup.Users // users in the Visitors group
+                                          );
                                 ccWeb.ExecuteQueryRetry();
                             }
 
@@ -311,9 +320,23 @@ namespace SharePoint.Modernization.Scanner
 
             // Load xml mapping data
             XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
-            using (var stream = new FileStream("webpartmapping.xml", FileMode.Open))
+
+            // If there's a webpartmapping file in the .exe folder then use that
+            if (System.IO.File.Exists("webpartmapping.xml"))
             {
-                this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                using (var stream = new FileStream("webpartmapping.xml", FileMode.Open))
+                {
+                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                }
+            }
+            else
+            {
+                // No webpartmapping file found, let's grab the embedded one
+                string webpartMappingString = WebpartMappingLoader.LoadFile("SharePoint.Modernization.Scanner.webpartmapping.xml");
+                using (var stream = WebpartMappingLoader.GenerateStreamFromString(webpartMappingString))
+                {
+                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                }
             }
 
             return sites;

@@ -152,7 +152,22 @@ namespace Microsoft.SharePoint.Client
         /// <returns>True if claim1 or claim2 has a role</returns>
         public static bool ClaimsHaveRoleAssignment(this Web web, string claim1, string claim2)
         {
-            web.EnsureProperties(p => p.SiteUsers, p => p.SiteGroups.Include(s => s.Users));
+            web.EnsureProperties(p => p.SiteUsers, p => p.SiteGroups);
+
+            bool usersAreInstantiated = true;
+            foreach (var group in web.SiteGroups)
+            {
+                if (!group.IsObjectPropertyInstantiated("Users"))
+                {
+                    usersAreInstantiated = false;
+                    break;
+                }
+            }
+
+            if (!usersAreInstantiated)
+            {
+                web.SiteGroups.EnsureProperties(p => p.Include(s => s.Users));
+            }
 
             // Check grants via SharePoint groups
             foreach (var group in web.SiteGroups)

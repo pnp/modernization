@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core.Entities;
 using SharePoint.Modernization.Scanner.Results;
 using SharePoint.Scanning.Framework;
 using System;
@@ -110,8 +111,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         scanResult.Language = web.Language;
 
                         // PageLayouts handling
-                        var availablePageLayouts = web.GetPropertyBagValueString(AvailablePageLayouts, "");
-                        var defaultPageLayout = web.GetPropertyBagValueString(DefaultPageLayout, "");
+                        var availablePageLayouts = GetPropertyBagValue<string>(web, AvailablePageLayouts, "");
+                        var defaultPageLayout = GetPropertyBagValue<string>(web, DefaultPageLayout, "");
 
                         if (string.IsNullOrEmpty(availablePageLayouts))
                         {
@@ -209,7 +210,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 scanResult.ManagedNavigationCreateFriendlyUrls = navigationSettings.CreateFriendlyUrlsForNewPages;
 
                                 // get information about the managed nav term set configuration
-                                var managedNavXml = web.GetPropertyBagValueString(WebNavigationSettings, "");
+                                var managedNavXml = GetPropertyBagValue<string>(web, WebNavigationSettings, "");
 
                                 if (!string.IsNullOrEmpty(managedNavXml))
                                 {
@@ -264,7 +265,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         // Variations
                         if (scanResult.Level == 0)
                         {
-                            var variationLabels = cc.GetVariationLabels();
+                            var variationLabels = GetVariationLabels(cc);
 
                             string labels = "";
                             string sourceLabel = "";
@@ -490,6 +491,62 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
             // return the duration of this scan
             return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
+        }
+
+        private static IEnumerable<VariationLabelEntity> GetVariationLabels(ClientContext context)
+        {
+            const string VARIATIONLABELSLISTID = "_VarLabelsListId";
+
+            var variationLabels = new List<VariationLabelEntity>();
+            // Get current web
+            Web web = context.Web;
+            web.EnsureProperties(w => w.ServerRelativeUrl);
+
+            // Try to get _VarLabelsListId property from web property bag
+            string variationLabelsListId = GetPropertyBagValue<string>(web, VARIATIONLABELSLISTID, string.Empty);
+
+            if (!string.IsNullOrEmpty(variationLabelsListId))
+            {
+                var lists = context.Web.GetListsToScan(showHidden:true);
+                Guid varRelationshipsListId = new Guid(variationLabelsListId);
+                var variationLabelsList = lists.Where(p => p.Id.Equals(varRelationshipsListId)).FirstOrDefault();
+
+                if (variationLabelsList != null)
+                {
+                    // Get the variationLabelsList list items
+                    ListItemCollection collListItems = variationLabelsList.GetItems(CamlQuery.CreateAllItemsQuery());
+                    context.Load(collListItems);
+                    context.ExecuteQueryRetry();
+
+                    foreach (var listItem in collListItems)
+                    {
+                        var label = new VariationLabelEntity();
+                        label.Title = (string)listItem["Title"];
+                        label.Description = (string)listItem["Description"];
+                        label.FlagControlDisplayName = (string)listItem["Flag_x0020_Control_x0020_Display"];
+                        label.Language = (string)listItem["Language"];
+                        label.Locale = Convert.ToUInt32(listItem["Locale"]);
+                        label.HierarchyCreationMode = (string)listItem["Hierarchy_x0020_Creation_x0020_M"];
+                        label.IsSource = (bool)listItem["Is_x0020_Source"];
+                        variationLabels.Add(label);
+                    }
+                }
+            }
+            return variationLabels;
+        }
+
+        private static T GetPropertyBagValue<T>(Web web, string key, T defaultValue)
+        {
+            web.EnsureProperties(p => p.AllProperties);
+            
+            if (web.AllProperties.FieldValues.ContainsKey(key))
+            {
+                return (T)web.AllProperties.FieldValues[key];
+            }
+            else
+            {                
+                return defaultValue;
+            }
         }
 
         private string SanitizeXmlString(string xml)

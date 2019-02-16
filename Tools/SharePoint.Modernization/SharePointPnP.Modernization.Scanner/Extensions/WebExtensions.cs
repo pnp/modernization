@@ -17,7 +17,7 @@ namespace Microsoft.SharePoint.Client
         /// </summary>
         /// <param name="web">Web to check</param>
         /// <returns>List of SharePoint lists to scan</returns>
-        public static List<List> GetListsToScan(this Web web)
+        public static List<List> GetListsToScan(this Web web, bool showHidden=false)
         {
             List<List> lists = new List<List>(10);
 
@@ -25,10 +25,10 @@ namespace Microsoft.SharePoint.Client
             web.Context.RequestTimeout = Timeout.Infinite;
 
             ListCollection listCollection = web.Lists;
-            listCollection.EnsureProperties(coll => coll.Include(li => li.ForceCheckout, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder, li => li.ListExperienceOptions, li => li.ItemCount));
+            listCollection.EnsureProperties(coll => coll.Include(li=>li.Id, li => li.ForceCheckout, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder, li => li.ListExperienceOptions, li => li.ItemCount, li => li.UserCustomActions));
 
             // Let's process the visible lists
-            foreach (List list in listCollection.Where(p => p.Hidden == false))
+            foreach (List list in listCollection.Where(p => p.Hidden == showHidden))
             {
                 if (list.DefaultViewUrl.Contains("_catalogs"))
                 {
