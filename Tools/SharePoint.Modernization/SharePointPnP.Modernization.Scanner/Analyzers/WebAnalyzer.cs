@@ -183,6 +183,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 // If the web template is STS#0, GROUP#0 or SITEPAGEPUBLISHING#0 then the feature was activated by SPO, other templates never got it
                 scanResult.ModernPageFeatureWasEnabledBySPO = false;
                 if (scanResult.WebTemplate.Equals("STS#0", StringComparison.InvariantCultureIgnoreCase) ||
+                    scanResult.WebTemplate.Equals("STS#3", StringComparison.InvariantCultureIgnoreCase) ||
                     scanResult.WebTemplate.Equals("GROUP#0", StringComparison.InvariantCulture) ||
                     scanResult.WebTemplate.Equals("SITEPAGEPUBLISHING#0", StringComparison.InvariantCulture))
                 {
@@ -195,7 +196,9 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     {
                         cc.Load(sitePagesLibrary, p => p.ContentTypes.Include(c => c.Id));
                         cc.ExecuteQueryRetry();
-                        if (sitePagesLibrary.ContentTypes.BestMatch(SitePageContentTypeId) != null)
+
+                        var sitePageContentTypeFound = sitePagesLibrary.ContentTypes.Where(c => c.Id.StringValue.StartsWith(SitePageContentTypeId, StringComparison.InvariantCultureIgnoreCase)).OrderBy(c => c.Id.StringValue.Length).FirstOrDefault();
+                        if (sitePageContentTypeFound != null)
                         {
                             scanResult.ModernPageFeatureWasEnabledBySPO = true;
                         }
