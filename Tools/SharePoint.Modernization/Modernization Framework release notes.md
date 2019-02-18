@@ -12,6 +12,14 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
+## [March release (prod) - unreleased]
+
+### Added
+
+- Experimental support for creating the modern site collection in another site collection. Currently does not yet support webparts with references to the source site + copy of page metadata #59 [pkbullock]
+
+### Changed
+
 ## [February release (prod) - version 1.0.1902.0]
 
 ### Added

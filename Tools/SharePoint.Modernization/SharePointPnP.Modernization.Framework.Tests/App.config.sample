@@ -25,6 +25,7 @@
     -->
     <add key="SPOTenantUrl" value="https://[tenant]-admin.sharepoint.com" />
     <add key="SPODevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev" />
+    <!-- <add key="SPOTargetSiteUrl" value="" /> -->
 
     <add key="SPOCredentialManagerLabel" value=""/>
     <!-- If the above value is specified, a lookup will be done to the Windows Credential

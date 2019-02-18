@@ -36,6 +36,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Creates a page transformator instance with a target destination of a target web e.g. Modern/Communication Site
         /// </summary>
         /// <param name="clientContext">ClientContext of the site holding the page</param>
+        /// <param name="targetClientContext">ClientContext of the site that will receive the modernized page</param>
         public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext) : this(sourceClientContext, targetClientContext, "webpartmapping.xml")
         {
 
@@ -63,6 +64,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Creates a page transformator instance
         /// </summary>
         /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
+        /// <param name="targetClientContext">ClientContext of the site that will receive the modernized page</param>
         /// <param name="pageTransformationFile">Used page mapping file</param>
         public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext, string pageTransformationFile)
         {
@@ -113,9 +115,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string Transform(PageTransformationInformation pageTransformationInformation)
         {
             #region Check for Target Site Context
-
             var hasTargetContext = targetClientContext != null;
-
             #endregion
 
             #region Input validation
@@ -147,6 +147,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 throw new ArgumentException("Page transformation for publishing pages is currently not supported.");
             }
 
+            if (hasTargetContext)
+            {
+                // If we're transforming into another site collection the "revert to old page" model does not exist as the 
+                // old page is not present in there. Also adding the page transformation banner does not make sense for the same reason
+                if (pageTransformationInformation.ModernizationCenterInformation != null && pageTransformationInformation.ModernizationCenterInformation.AddPageAcceptBanner)
+                {
+                    throw new ArgumentException("Page transformation towards a different site collection cannot use the page accept banner.");
+                }
+            }
+
             #endregion
 
             #region Telemetry
@@ -155,19 +165,37 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif            
             DateTime transformationStartDateTime = DateTime.Now;
 
-            sourceClientContext = LoadClientObject(sourceClientContext);
-            targetClientContext = LoadClientObject(targetClientContext);
+            LoadClientObject(sourceClientContext);
+            if (hasTargetContext)
+            {
+                LoadClientObject(targetClientContext);
+            }
+
+            if (hasTargetContext)
+            {
+                if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
+                {
+                    // Oops, seems source and target point to the same site collection...switch back the "source only" mode
+                    targetClientContext = null;
+                    hasTargetContext = false;
+                }
+                else
+                {
+                    // Ensure that the newly created page in the other site collection gets the same name as the source page
+                    pageTransformationInformation.TargetPageTakesSourcePageName = true;
+                }
+            }
 
             // Need to add further validation for target template
-            if(hasTargetContext && (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" 
-                && targetClientContext.Web.WebTemplate != "GROUP"))
+            if (hasTargetContext &&
+               (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP"))
             {
                 throw new ArgumentException("Page transformation for targeting non-modern sites is currently not supported.");
             }
-        
+
 #if DEBUG && MEASURE
             Stop("Telemetry");
-#endif            
+#endif
             #endregion
 
             #region Page creation
@@ -468,7 +496,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 targetPage.Save($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
             }
-            else { 
+            else
+            { 
                 targetPage.Save($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}", existingFile, pagesLibrary);
             }
 
@@ -524,12 +553,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif            
                 // Check if we do have item level permissions we want to take over
-                listItemPermissionsToKeep = GetItemLevelPermissions(pagesLibrary, pageTransformationInformation.SourcePage, targetPage.PageListItem);
+                listItemPermissionsToKeep = GetItemLevelPermissions(hasTargetContext, pagesLibrary, pageTransformationInformation.SourcePage, targetPage.PageListItem);
 
-                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
+                if (!pageTransformationInformation.TargetPageTakesSourcePageName || hasTargetContext)
                 {
-                    // If we're not doing a page name swap now we need to update the target item with the needed item level permissions
-                    ApplyItemLevelPermissions(targetPage.PageListItem, listItemPermissionsToKeep);
+                    // If we're not doing a page name swap now we need to update the target item with the needed item level permissions.                    
+                    // When creating the page in another site collection we'll always want to copy item level permissions if specified
+                    ApplyItemLevelPermissions(hasTargetContext, targetPage.PageListItem, listItemPermissionsToKeep);
                 }
 #if DEBUG && MEASURE
                 Stop("Permission handling");
@@ -538,8 +568,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Page name switching
-            // All went well so far...swap pages if that's needed
-            if (pageTransformationInformation.TargetPageTakesSourcePageName)
+            // All went well so far...swap pages if that's needed. When copying to another site collection this step is not needed
+            // as the created page already has the final name
+            if (pageTransformationInformation.TargetPageTakesSourcePageName && !hasTargetContext)
             {
 #if DEBUG && MEASURE
                 Start();
@@ -614,7 +645,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this.sourceClientContext.ExecuteQueryRetry();
 
                 // Reload source page
-                ApplyItemLevelPermissions(newSource.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
+                ApplyItemLevelPermissions(false, newSource.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
             }
 
             //Load the created target page
@@ -669,7 +700,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this.sourceClientContext.Load(newTarget.ListItemAllFields, p => p.RoleAssignments);
                 this.sourceClientContext.ExecuteQueryRetry();
 
-                ApplyItemLevelPermissions(newTarget.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
+                ApplyItemLevelPermissions(false, newTarget.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
             }
 
             // STEP4: Finish with restoring the page navigation: update the navlinks to point back the original page name
@@ -721,42 +752,80 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
-        private void ApplyItemLevelPermissions(ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
+        private void ApplyItemLevelPermissions(bool hasTargetContext, ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
         {
             if (lip == null || item == null)
             {
                 return;
             }
 
-            //item.EnsureProperties(p => p.RoleAssignments, p => p.HasUniqueRoleAssignments);
-
             // Break permission inheritance on the item if not done yet
             if (alwaysBreakItemLevelPermissions || !item.HasUniqueRoleAssignments)
             {
                 item.BreakRoleInheritance(false, false);
+                //this.sourceClientContext.ExecuteQueryRetry();
+                item.Context.ExecuteQueryRetry();
+            }
+
+            if (hasTargetContext)
+            {
+                // Ensure principals are available in the target site
+                Dictionary<string, Principal> targetPrincipals = new Dictionary<string, Principal>(lip.Principals.Count);
+                foreach (var principal in lip.Principals)
+                {
+                    var targetPrincipal = GetPrincipal(this.targetClientContext.Web, principal.Key);
+                    if (targetPrincipal != null)
+                    {
+                        if (!targetPrincipals.ContainsKey(principal.Key))
+                        {
+                            targetPrincipals.Add(principal.Key, targetPrincipal);
+                        }
+                    }
+                }
+
+                // Assign item level permissions          
+                foreach (var roleAssignment in lip.RoleAssignments)
+                {
+                    if (targetPrincipals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
+                    {
+                        var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.targetClientContext);
+                        foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                        {
+                            var targetRoleDef = this.targetClientContext.Web.RoleDefinitions.GetByName(roleDef.Name);
+                            if (targetRoleDef != null)
+                            {
+                                roleDefinitionBindingCollection.Add(targetRoleDef);
+                            }
+                        }
+                        item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
+                    }
+                }
+
+                this.targetClientContext.ExecuteQueryRetry();
+            }
+            else
+            {
+                // Assign item level permissions
+                foreach (var roleAssignment in lip.RoleAssignments)
+                {
+                    if (lip.Principals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
+                    {
+                        var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.sourceClientContext);
+                        foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                        {
+                            roleDefinitionBindingCollection.Add(roleDef);
+                        }
+
+                        item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
+                    }
+                }
+
                 this.sourceClientContext.ExecuteQueryRetry();
             }
-
-            // Assign item level permissions
-            foreach(var roleAssignment in lip.RoleAssignments)
-            {
-                if (lip.Principals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
-                {
-                    var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.sourceClientContext);
-                    foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
-                    {
-                        roleDefinitionBindingCollection.Add(roleDef);
-                    }
-
-                    item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
-                }
-            }
-
-            this.sourceClientContext.ExecuteQueryRetry();
         }
 
 
-        private ListItemPermission GetItemLevelPermissions(List pagesLibrary, ListItem source, ListItem target)
+        private ListItemPermission GetItemLevelPermissions(bool hasTargetContext, List pagesLibrary, ListItem source, ListItem target)
         {
             ListItemPermission lip = null;
 
@@ -777,10 +846,22 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         this.sourceClientContext.Load(this.sourceClientContext.Web.SiteGroups, p => p.Include(g => g.LoginName));
 
                         // Get target page information
-                        //this.clientContext.Load(target, p => p.HasUniqueRoleAssignments, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
-                        //    roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
-                        this.sourceClientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
+                        if (hasTargetContext)
+                        {
+                            this.targetClientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
+                            this.targetClientContext.Load(this.targetClientContext.Web, p => p.RoleDefinitions);
+                        }
+                        else
+                        {
+                            this.sourceClientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
+                        }
+
                         this.sourceClientContext.ExecuteQueryRetry();
+
+                        if (hasTargetContext)
+                        {
+                            this.targetClientContext.ExecuteQueryRetry();
+                        }
 
                         Dictionary<string, Principal> principals = new Dictionary<string, Principal>(10);
                         lip = new ListItemPermission()
@@ -788,13 +869,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             RoleAssignments = source.RoleAssignments,
                             Principals = principals
                         };
-
-                        // Break permission inheritance on the target page if not done yet
-                        //if (!target.HasUniqueRoleAssignments)
-                        //{
-                        //    target.BreakRoleInheritance(false, false);
-                        //    this.clientContext.ExecuteQueryRetry();
-                        //}
 
                         // Apply new permissions
                         foreach (var roleAssignment in source.RoleAssignments)
@@ -806,17 +880,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 {
                                     lip.Principals.Add(roleAssignment.Member.LoginName, principal);
                                 }
-
-                                //var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.clientContext);
-                                //foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
-                                //{
-                                //    roleDefinitionBindingCollection.Add(roleDef);
-                                //}
-
-                                //target.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
                             }
                         }
-                        //this.clientContext.ExecuteQueryRetry();
                     }
                 }
             }
@@ -1079,7 +1144,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Loads the telemetry and properties for the client object
         /// </summary>
         /// <param name="clientContext"></param>
-        private ClientContext LoadClientObject(ClientContext clientContext)
+        private void LoadClientObject(ClientContext clientContext)
         {
             if (clientContext != null)
             {
@@ -1090,8 +1155,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // Use regular ExecuteQuery as we want to send this custom clienttag
                 clientContext.ExecuteQuery();
             }
-
-            return clientContext;
         }
         #endregion
 

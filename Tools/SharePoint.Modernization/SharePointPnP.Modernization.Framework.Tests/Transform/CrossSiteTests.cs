@@ -79,10 +79,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             SkipTelemetry = true,
 
                             // ModernizationCenter options
-                            ModernizationCenterInformation = new ModernizationCenterInformation()
-                            {
-                                AddPageAcceptBanner = true
-                            },
+                            //ModernizationCenterInformation = new ModernizationCenterInformation()
+                            //{
+                            //    AddPageAcceptBanner = true
+                            //},
 
                             // Migrated page gets the name of the original page
                             //TargetPageTakesSourcePageName = true,
