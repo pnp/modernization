@@ -196,6 +196,7 @@
     <Compile Include="Transform\Headers\HeaderTests.cs" />
     <Compile Include="Transform\RichText\RichTextTests.cs" />
     <Compile Include="Transform\Tables\TableTests.cs" />
+    <Compile Include="Transform\CrossSiteTests.cs" />
     <Compile Include="Transform\Tests.cs" />
     <Compile Include="Transform\Text.cs" />
     <Compile Include="Transform\Wp\WpTests.cs" />

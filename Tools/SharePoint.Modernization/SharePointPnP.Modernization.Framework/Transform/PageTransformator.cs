@@ -22,7 +22,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// </summary>
     public class PageTransformator
     {
-        private ClientContext clientContext;
+        private ClientContext sourceClientContext;
+        private ClientContext targetClientContext;
         private PageTransformation pageTransformation;
         private string version = "undefined";
         private PageTelemetry pageTelemetry;
@@ -30,27 +31,49 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private const string ExecutionLog = "execution.csv";
 
         #region Construction
+
         /// <summary>
-        /// Creates a page transformator instance
+        /// Creates a page transformator instance with a target destination of a target web e.g. Modern/Communication Site
         /// </summary>
         /// <param name="clientContext">ClientContext of the site holding the page</param>
-        public PageTransformator(ClientContext clientContext): this(clientContext, "webpartmapping.xml")
+        public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext) : this(sourceClientContext, targetClientContext, "webpartmapping.xml")
         {
+
         }
 
         /// <summary>
         /// Creates a page transformator instance
         /// </summary>
         /// <param name="clientContext">ClientContext of the site holding the page</param>
+        public PageTransformator(ClientContext sourceClientContext) : this(sourceClientContext, null, "webpartmapping.xml")
+        {
+        }
+
+        /// <summary>
+        /// Creates a page transformator instance
+        /// </summary>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
         /// <param name="pageTransformationFile">Used page mapping file</param>
-        public PageTransformator(ClientContext clientContext, string pageTransformationFile)
+        public PageTransformator(ClientContext sourceClientContext, string pageTransformationFile) : this(sourceClientContext, null, pageTransformationFile)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a page transformator instance
+        /// </summary>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
+        /// <param name="pageTransformationFile">Used page mapping file</param>
+        public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext, string pageTransformationFile)
         {
 
 #if DEBUG && MEASURE && MEASURE
             InitMeasurement();
 #endif
 
-            this.clientContext = clientContext;
+            this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = targetClientContext;
+
             this.version = PageTransformator.GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
 
@@ -67,14 +90,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="clientContext">ClientContext of the site holding the page</param>
         /// <param name="pageTransformationModel">Page transformation model</param>
-        public PageTransformator(ClientContext clientContext, PageTransformation pageTransformationModel)
+        public PageTransformator(ClientContext sourceClientContext, PageTransformation pageTransformationModel)
         {
 
 #if DEBUG && MEASURE
             InitMeasurement();
 #endif
 
-            this.clientContext = clientContext;
+            this.sourceClientContext = sourceClientContext;
             this.version = PageTransformator.GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
 
@@ -89,6 +112,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns>The path to created modern page</returns>
         public string Transform(PageTransformationInformation pageTransformationInformation)
         {
+            #region Check for Target Site Context
+
+            var hasTargetContext = targetClientContext != null;
+
+            #endregion
+
             #region Input validation
             if (pageTransformationInformation.SourcePage == null)
             {
@@ -117,6 +146,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 throw new ArgumentException("Page transformation for publishing pages is currently not supported.");
             }
+
             #endregion
 
             #region Telemetry
@@ -124,12 +154,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
             Start();
 #endif            
             DateTime transformationStartDateTime = DateTime.Now;
-            clientContext.ClientTag = $"SPDev:PageTransformator";
-            // Load all web properties needed further one
-            clientContext.Load(clientContext.Web, p => p.Id, p => p.ServerRelativeUrl, p => p.RootFolder.WelcomePage, p => p.Url);
-            clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id);
-            // Use regular ExecuteQuery as we want to send this custom clienttag
-            clientContext.ExecuteQuery();
+
+            sourceClientContext = LoadClientObject(sourceClientContext);
+            targetClientContext = LoadClientObject(targetClientContext);
+
+            // Need to add further validation for target template
+            if(hasTargetContext && (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" 
+                && targetClientContext.Web.WebTemplate != "GROUP"))
+            {
+                throw new ArgumentException("Page transformation for targeting non-modern sites is currently not supported.");
+            }
+        
 #if DEBUG && MEASURE
             Stop("Telemetry");
 #endif            
@@ -141,7 +176,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
             {
                 var fileRefFieldValue = pageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
-                pageFolder = fileRefFieldValue.Replace($"{clientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+                pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
 
                 if (pageFolder.Length > 0)
                 {
@@ -171,7 +206,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     pageTransformationInformation.SetDefaultTargetPagePrefix();
                 }
 
-                pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.TargetPagePrefix}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+                if (hasTargetContext)
+                {
+                    pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+                }
+                else
+                {
+                    pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.TargetPagePrefix}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+                }
+                
             }
 
             // Check if page name is free to use
@@ -182,10 +225,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             ClientSidePage targetPage = null;
             List pagesLibrary = null;
             Microsoft.SharePoint.Client.File existingFile = null;
+
+            //The determines of the target client context has been specified and use that to generate the target page
+            var context = hasTargetContext ? targetClientContext : sourceClientContext;
+
             try
             {
                 // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
-                existingFile = Load(clientContext, pageTransformationInformation, out pagesLibrary);
+                existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary);
                 pageExists = true;
             }
             catch (ArgumentException) { }
@@ -203,7 +250,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             // Create the client side page
 
-            targetPage = clientContext.Web.AddClientSidePage($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
+            targetPage = context.Web.AddClientSidePage($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
             #endregion
 
             #region Home page handling
@@ -212,10 +259,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif
             bool replacedByOOBHomePage = false;
             // Check if the transformed page is the web's home page
-            if (clientContext.Web.RootFolder.IsPropertyAvailable("WelcomePage") && !string.IsNullOrEmpty(clientContext.Web.RootFolder.WelcomePage))
+            if (sourceClientContext.Web.RootFolder.IsPropertyAvailable("WelcomePage") && !string.IsNullOrEmpty(sourceClientContext.Web.RootFolder.WelcomePage))
             {
-                var homePageUrl = clientContext.Web.RootFolder.WelcomePage;
-                var homepageName = Path.GetFileName(clientContext.Web.RootFolder.WelcomePage);
+                var homePageUrl = sourceClientContext.Web.RootFolder.WelcomePage;
+                var homepageName = Path.GetFileName(sourceClientContext.Web.RootFolder.WelcomePage);
                 if (homepageName.Equals(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), StringComparison.InvariantCultureIgnoreCase))
                 {
                     targetPage.LayoutType = ClientSidePageLayoutType.Home;
@@ -361,7 +408,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
                         var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
-                        Uri host = new Uri(clientContext.Web.Url);
+                        Uri host = new Uri(sourceClientContext.Web.Url);
 
                         string path = $"{host.Scheme}://{host.DnsSafeHost}{sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "")}";
 
@@ -417,22 +464,32 @@ namespace SharePointPnP.Modernization.Framework.Transform
             Start();
 #endif            
             // Persist the client side page
-            targetPage.Save($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}", existingFile, pagesLibrary);
+            if (hasTargetContext)
+            {
+                targetPage.Save($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
+            }
+            else { 
+                targetPage.Save($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}", existingFile, pagesLibrary);
+            }
 
             // Tag the file with a page modernization version stamp
             try
             {
                 string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
                 var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
-                var targetPageFile = this.clientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
-                this.clientContext.Load(targetPageFile, p => p.Properties);
+                var targetPageFile = this.sourceClientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
+                this.sourceClientContext.Load(targetPageFile, p => p.Properties);
                 targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                 targetPageFile.Update();
 
                 // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
                 targetPageFile.Publish("Page modernization initial publish");
 
-                this.clientContext.ExecuteQueryRetry();
+                this.sourceClientContext.ExecuteQueryRetry();
+                if (hasTargetContext)
+                {
+                    this.targetClientContext.ExecuteQueryRetry();
+                }
             }
             catch (Exception ex)
             {
@@ -445,7 +502,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Page metadata handling
-            if (pageTransformationInformation.CopyPageMetadata)
+            // Temporary removal of metadata copy for cross site.
+            if (pageTransformationInformation.CopyPageMetadata && !hasTargetContext)
             {
 #if DEBUG && MEASURE
                 Start();
@@ -530,9 +588,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             string path = sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
 
-            var sourcePage = this.clientContext.Web.GetFileByServerRelativeUrl(sourcePageUrl);
-            this.clientContext.Load(sourcePage);
-            this.clientContext.ExecuteQueryRetry();
+            var sourcePage = this.sourceClientContext.Web.GetFileByServerRelativeUrl(sourcePageUrl);
+            this.sourceClientContext.Load(sourcePage);
+            this.sourceClientContext.ExecuteQueryRetry();
 
             if (string.IsNullOrEmpty(pageTransformationInformation.SourcePagePrefix))
             {
@@ -544,16 +602,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // STEP1: First copy the source page to a new name. We on purpose use CopyTo as we want to avoid that "linked" url's get 
             //        patched up during a MoveTo operation as that would also patch the url's in our new modern page
             sourcePage.CopyTo($"{path}{newSourcePageUrl}", true);
-            this.clientContext.ExecuteQueryRetry();
+            this.sourceClientContext.ExecuteQueryRetry();
 
             // Restore the item level permissions on the copied page (if any)
             if (pageTransformationInformation.KeepPageSpecificPermissions && listItemPermissionsToKeep != null)
             {
                 // load the copied target file
-                var newSource = this.clientContext.Web.GetFileByServerRelativeUrl($"{path}{newSourcePageUrl}");
-                this.clientContext.Load(newSource);
-                this.clientContext.Load(newSource.ListItemAllFields, p => p.RoleAssignments);
-                this.clientContext.ExecuteQueryRetry();
+                var newSource = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{path}{newSourcePageUrl}");
+                this.sourceClientContext.Load(newSource);
+                this.sourceClientContext.Load(newSource.ListItemAllFields, p => p.RoleAssignments);
+                this.sourceClientContext.ExecuteQueryRetry();
 
                 // Reload source page
                 ApplyItemLevelPermissions(newSource.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
@@ -561,23 +619,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             //Load the created target page
             var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
-            var targetPageFile = this.clientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
-            this.clientContext.Load(targetPageFile);
-            this.clientContext.ExecuteQueryRetry();
+            var targetPageFile = this.sourceClientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
+            this.sourceClientContext.Load(targetPageFile);
+            this.sourceClientContext.ExecuteQueryRetry();
 
             // STEP2: Fix possible navigation entries to point to the "copied" source page first
             // Rename the target page to the original source page name
             // CopyTo and MoveTo with option to overwrite first internally delete the file to overwrite, which
             // results in all page navigation nodes pointing to this file to be deleted. Hence let's point these
             // navigation entries first to the copied version of the page we just created
-            this.clientContext.Web.Context.Load(this.clientContext.Web, w => w.Navigation.QuickLaunch, w => w.Navigation.TopNavigationBar);
-            this.clientContext.Web.Context.ExecuteQueryRetry();
+            this.sourceClientContext.Web.Context.Load(this.sourceClientContext.Web, w => w.Navigation.QuickLaunch, w => w.Navigation.TopNavigationBar);
+            this.sourceClientContext.Web.Context.ExecuteQueryRetry();
 
             bool navWasFixed = false;
             IQueryable<NavigationNode> currentNavNodes = null;
             IQueryable<NavigationNode> globalNavNodes = null;
-            var currentNavigation = this.clientContext.Web.Navigation.QuickLaunch;
-            var globalNavigation = this.clientContext.Web.Navigation.TopNavigationBar;
+            var currentNavigation = this.sourceClientContext.Web.Navigation.QuickLaunch;
+            var globalNavigation = this.sourceClientContext.Web.Navigation.TopNavigationBar;
             // Check for nav nodes
             currentNavNodes = currentNavigation.Where(n => n.Url.Equals(sourcePageUrl, StringComparison.InvariantCultureIgnoreCase));
             globalNavNodes = globalNavigation.Where(n => n.Url.Equals(sourcePageUrl, StringComparison.InvariantCultureIgnoreCase));
@@ -595,21 +653,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     node.Url = $"{path}{newSourcePageUrl}";
                     node.Update();
                 }
-                this.clientContext.ExecuteQueryRetry();
+                this.sourceClientContext.ExecuteQueryRetry();
             }
 
             // STEP3: Now copy the created modern page over the original source page, at this point the new page has the same name as the original page had before transformation
             targetPageFile.CopyTo($"{path}{orginalSourcePageName}", true);
-            this.clientContext.ExecuteQueryRetry();
+            this.sourceClientContext.ExecuteQueryRetry();
 
             // Apply the item level permissions on the final page (if any)
             if (pageTransformationInformation.KeepPageSpecificPermissions && listItemPermissionsToKeep != null)
             {
                 // load the copied target file
-                var newTarget = this.clientContext.Web.GetFileByServerRelativeUrl($"{path}{orginalSourcePageName}");
-                this.clientContext.Load(newTarget);
-                this.clientContext.Load(newTarget.ListItemAllFields, p => p.RoleAssignments);
-                this.clientContext.ExecuteQueryRetry();
+                var newTarget = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{path}{orginalSourcePageName}");
+                this.sourceClientContext.Load(newTarget);
+                this.sourceClientContext.Load(newTarget.ListItemAllFields, p => p.RoleAssignments);
+                this.sourceClientContext.ExecuteQueryRetry();
 
                 ApplyItemLevelPermissions(newTarget.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
             }
@@ -618,11 +676,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (navWasFixed)
             {
                 // Reload the navigation entries as did update them
-                this.clientContext.Web.Context.Load(this.clientContext.Web, w => w.Navigation.QuickLaunch, w => w.Navigation.TopNavigationBar);
-                this.clientContext.Web.Context.ExecuteQueryRetry();
+                this.sourceClientContext.Web.Context.Load(this.sourceClientContext.Web, w => w.Navigation.QuickLaunch, w => w.Navigation.TopNavigationBar);
+                this.sourceClientContext.Web.Context.ExecuteQueryRetry();
 
-                currentNavigation = this.clientContext.Web.Navigation.QuickLaunch;
-                globalNavigation = this.clientContext.Web.Navigation.TopNavigationBar;
+                currentNavigation = this.sourceClientContext.Web.Navigation.QuickLaunch;
+                globalNavigation = this.sourceClientContext.Web.Navigation.TopNavigationBar;
                 if (!string.IsNullOrEmpty($"{path}{newSourcePageUrl}"))
                 {
                     currentNavNodes = currentNavigation.Where(n => n.Url.Equals($"{path}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
@@ -639,12 +697,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     node.Url = sourcePageUrl;
                     node.Update();
                 }
-                this.clientContext.ExecuteQueryRetry();
+                this.sourceClientContext.ExecuteQueryRetry();
             }
 
             //STEP5: Conclude with deleting the originally created modern page as we did copy that already in step 3
             targetPageFile.DeleteObject();
-            this.clientContext.ExecuteQueryRetry();
+            this.sourceClientContext.ExecuteQueryRetry();
         }
 
         /// <summary>
@@ -676,7 +734,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (alwaysBreakItemLevelPermissions || !item.HasUniqueRoleAssignments)
             {
                 item.BreakRoleInheritance(false, false);
-                this.clientContext.ExecuteQueryRetry();
+                this.sourceClientContext.ExecuteQueryRetry();
             }
 
             // Assign item level permissions
@@ -684,7 +742,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 if (lip.Principals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
                 {
-                    var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.clientContext);
+                    var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.sourceClientContext);
                     foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
                     {
                         roleDefinitionBindingCollection.Add(roleDef);
@@ -694,7 +752,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
             }
 
-            this.clientContext.ExecuteQueryRetry();
+            this.sourceClientContext.ExecuteQueryRetry();
         }
 
 
@@ -709,20 +767,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     // Copy the unique permissions from source to target
                     // Get the unique permissions
-                    this.clientContext.Load(source, a => a.EffectiveBasePermissions, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
+                    this.sourceClientContext.Load(source, a => a.EffectiveBasePermissions, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
                         roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
-                    this.clientContext.ExecuteQueryRetry();
+                    this.sourceClientContext.ExecuteQueryRetry();
 
                     if (source.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
                     {
                         // Load the site groups
-                        this.clientContext.Load(this.clientContext.Web.SiteGroups, p => p.Include(g => g.LoginName));
+                        this.sourceClientContext.Load(this.sourceClientContext.Web.SiteGroups, p => p.Include(g => g.LoginName));
 
                         // Get target page information
                         //this.clientContext.Load(target, p => p.HasUniqueRoleAssignments, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
                         //    roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
-                        this.clientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
-                        this.clientContext.ExecuteQueryRetry();
+                        this.sourceClientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
+                        this.sourceClientContext.ExecuteQueryRetry();
 
                         Dictionary<string, Principal> principals = new Dictionary<string, Principal>(10);
                         lip = new ListItemPermission()
@@ -741,7 +799,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // Apply new permissions
                         foreach (var roleAssignment in source.RoleAssignments)
                         {
-                            var principal = GetPrincipal(this.clientContext.Web, roleAssignment.Member.LoginName);
+                            var principal = GetPrincipal(this.sourceClientContext.Web, roleAssignment.Member.LoginName);
                             if (principal != null)
                             {
                                 if (!lip.Principals.ContainsKey(roleAssignment.Member.LoginName))
@@ -768,7 +826,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         private Principal GetPrincipal(Web web, string principalInput)
         {
-            Principal principal = this.clientContext.Web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
+            Principal principal = this.sourceClientContext.Web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
 
             if (principal == null)
             {
@@ -800,12 +858,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         private void CopyPageMetadata(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage, List pagesLibrary)
         {
-            var fieldsToCopy = CacheManager.Instance.GetFieldsToCopy(this.clientContext.Web, pagesLibrary);
+            var fieldsToCopy = CacheManager.Instance.GetFieldsToCopy(this.sourceClientContext.Web, pagesLibrary);
             if (fieldsToCopy.Count > 0)
             {
                 // Load the target page list item
-                this.clientContext.Load(targetPage.PageListItem);
-                this.clientContext.ExecuteQueryRetry();
+                this.sourceClientContext.Load(targetPage.PageListItem);
+                this.sourceClientContext.ExecuteQueryRetry();
 
                 // regular fields
                 bool isDirty = false;
@@ -821,8 +879,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (isDirty)
                 {
                     targetPage.PageListItem.Update();
-                    this.clientContext.Load(targetPage.PageListItem);
-                    this.clientContext.ExecuteQueryRetry();
+                    this.sourceClientContext.Load(targetPage.PageListItem);
+                    this.sourceClientContext.ExecuteQueryRetry();
                     isDirty = false;
                 }
 
@@ -836,7 +894,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 var taxFieldBeforeCast = pagesLibrary.Fields.Where(p => p.Id.Equals(fieldToCopy.FieldId)).FirstOrDefault();
                                 if (taxFieldBeforeCast != null)
                                 {
-                                    var taxField = this.clientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                                    var taxField = this.sourceClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
 
                                     if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
                                     {
@@ -844,7 +902,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         {
                                             var valueCollectionToCopy = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValueCollection);
                                             var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
-                                            var valueCollection = new TaxonomyFieldValueCollection(this.clientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                            var valueCollection = new TaxonomyFieldValueCollection(this.sourceClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
                                             taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
                                         }
                                         else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
@@ -858,7 +916,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                                 var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
                                                 taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
                                             }
-                                            var valueCollection = new TaxonomyFieldValueCollection(this.clientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                            var valueCollection = new TaxonomyFieldValueCollection(this.sourceClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
                                             taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
                                         }
 
@@ -872,7 +930,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 var taxFieldBeforeCast = pagesLibrary.Fields.Where(p => p.Id.Equals(fieldToCopy.FieldId)).FirstOrDefault();
                                 if (taxFieldBeforeCast != null)
                                 {
-                                    var taxField = this.clientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                                    var taxField = this.sourceClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
                                     var taxValue = new TaxonomyFieldValue();
                                     if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
                                     {
@@ -902,8 +960,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (isDirty)
                 {
                     targetPage.PageListItem.Update();
-                    this.clientContext.Load(targetPage.PageListItem);
-                    this.clientContext.ExecuteQueryRetry();
+                    this.sourceClientContext.Load(targetPage.PageListItem);
+                    this.sourceClientContext.ExecuteQueryRetry();
                 }
             }
         }
@@ -1015,6 +1073,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
             watch.Stop();
             var elapsedTime = watch.ElapsedMilliseconds;
             System.IO.File.AppendAllText(ExecutionLog, $"{method};{elapsedTime}{Environment.NewLine}");
+        }
+
+        /// <summary>
+        /// Loads the telemetry and properties for the client object
+        /// </summary>
+        /// <param name="clientContext"></param>
+        private ClientContext LoadClientObject(ClientContext clientContext)
+        {
+            if (clientContext != null)
+            {
+                clientContext.ClientTag = $"SPDev:PageTransformator";
+                // Load all web properties needed further one
+                clientContext.Load(clientContext.Web, p => p.Id, p => p.ServerRelativeUrl, p => p.RootFolder.WelcomePage, p => p.Url, p => p.WebTemplate);
+                clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id);
+                // Use regular ExecuteQuery as we want to send this custom clienttag
+                clientContext.ExecuteQuery();
+            }
+
+            return clientContext;
         }
         #endregion
 
