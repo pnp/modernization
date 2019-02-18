@@ -1,4 +1,5 @@
-﻿using AngleSharp.Parser.Html;
+﻿using AngleSharp;
+using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -219,6 +220,37 @@ namespace SharePointPnP.Modernization.Framework.Functions
             }
 
             return new SummaryLinksHtmlTransformator().Transform(text, false);
+        }
+
+        [FunctionDocumentation(Description = "Checks if the provided html contains JavaScript",
+                               Example = "{HasScript} = ContainsScript({Text})")]
+        [InputDocumentation(Name = "{Text}", Description = "Html content to check")]
+        [OutputDocumentation(Name = "{HasScript}", Description = "True is the html contains script, false otherwise")]
+        public bool ContainsScript(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return false;
+            }
+
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true }, Configuration.Default.WithDefaultLoader().WithCss());
+
+            try
+            {
+                var doc = parser.Parse(content);
+                // Script information
+                var scriptTags = doc.All.Where(p => p.LocalName == "script");
+                if (scriptTags.Count() > 0)
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return false;
         }
         #endregion
 
@@ -616,9 +648,11 @@ namespace SharePointPnP.Modernization.Framework.Functions
                                Example = "ContentEmbedSelectorContentLink({ContentLink})")]
         [InputDocumentation(Name = "{ContentLink}", Description = "Link value if set")]
         [OutputDocumentation(Name = "Link", Description = "If the link was not empty and it was an aspx file")]
-        [OutputDocumentation(Name = "NonASPXLink", Description = "If the link was not empty and it was not an aspx file")]
-        [OutputDocumentation(Name = "Content", Description = "If no link was specified")]
-        public string ContentEmbedSelectorContentLink(string contentLink)
+        [OutputDocumentation(Name = "NonASPXLink", Description = "If the link was not empty and it was not an aspx file but the file contents did contain JavaScript")]
+        [OutputDocumentation(Name = "NonASPXLinkNoScript", Description = "If the link was not empty and it was not an aspx file and the contents did not contain JavaScript")]
+        [OutputDocumentation(Name = "Content", Description = "If no link was specified but content was embedded and it contains JavaScript")]
+        [OutputDocumentation(Name = "ContentNoScript", Description = "If no link was specified and the embedded content and it does not contain JavaScript")]
+        public string ContentEmbedSelectorContentLink(string contentLink, string embeddedContent, string fileContent)
         {
             if (!string.IsNullOrEmpty(contentLink))
             {
@@ -628,12 +662,56 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
                 else
                 {
-                    return "NonASPXLink";
+                    if (!ContainsScript(fileContent))
+                    {
+                        return "NonASPXLinkNoScript";
+                    }
+                    else
+                    {
+                        return "NonASPXLink";
+                    }
                 }
             }
             else
             {
-                return "Content";
+                if (!ContainsScript(embeddedContent))
+                {
+                    return "ContentNoScript";
+                }
+                else
+                {
+                    return "Content";
+                }
+            }
+        }
+
+        [FunctionDocumentation(Description = "Loads contents of a file as a string.",
+                               Example = "{FileContents} = LoadContentFromFile({ContentLink})")]
+        [InputDocumentation(Name = "{ContentLink}", Description = "Server relative url to the file to load")]
+        [OutputDocumentation(Name = "{FileContents}", Description = "Text content of the file. Return empty string if file was not found")]
+
+        public string LoadContentFromFile(string contentLink)
+        {
+            if (string.IsNullOrEmpty(contentLink) || Path.GetExtension(contentLink).Equals(".aspx", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "";
+            }
+
+            try
+            {
+               return this.clientContext.Web.GetFileAsString(contentLink);
+            }
+            catch (ServerException ex)
+            {
+                if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                {
+                    // Provided html was not found, should not happen but if it happens we're not stopping the transformation
+                    return "";
+                }
+                else
+                {
+                    throw;
+                }
             }
         }
         #endregion

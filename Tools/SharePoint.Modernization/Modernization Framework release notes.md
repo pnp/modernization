@@ -20,6 +20,8 @@
 
 ### Changed
 
+- Content Editor transformation improvements: when not using 3rd party script editor embedded and file contents without script references is not treated as text
+
 ## [February release (prod) - version 1.0.1902.0]
 
 ### Added
