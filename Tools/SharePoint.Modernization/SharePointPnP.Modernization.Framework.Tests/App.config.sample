@@ -25,6 +25,7 @@
     -->
     <add key="SPOTenantUrl" value="https://[tenant]-admin.sharepoint.com" />
     <add key="SPODevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev" />
+    <!-- If you test with transforming into another site collection then use below key to specify the target site collection -->
     <!-- <add key="SPOTargetSiteUrl" value="" /> -->
 
     <add key="SPOCredentialManagerLabel" value=""/>
