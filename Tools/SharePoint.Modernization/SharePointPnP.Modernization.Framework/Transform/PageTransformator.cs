@@ -166,13 +166,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
             DateTime transformationStartDateTime = DateTime.Now;
 
             LoadClientObject(sourceClientContext);
-            if (hasTargetContext)
-            {
-                LoadClientObject(targetClientContext);
-            }
 
             if (hasTargetContext)
             {
+                LoadClientObject(targetClientContext);
+
                 if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
                 {
                     // Oops, seems source and target point to the same site collection...switch back the "source only" mode
