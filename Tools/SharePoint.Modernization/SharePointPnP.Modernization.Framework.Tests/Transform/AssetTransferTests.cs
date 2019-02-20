@@ -38,6 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             // Don't log test runs
                             SkipTelemetry = true,
 
+                            // Transfer the assets to the target site collection
                             IncludeReferencedAssets = true
                         };
 

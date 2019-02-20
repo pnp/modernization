@@ -25,6 +25,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         //      TBC - expanded as testing progresses
 
         /// <summary>
+        /// Main entry point to perform the series of operations to transfer related assets
+        /// </summary>
+        public void TransferAssets()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Collect urls to referenced resources
         /// </summary>
         /// <returns></returns>
