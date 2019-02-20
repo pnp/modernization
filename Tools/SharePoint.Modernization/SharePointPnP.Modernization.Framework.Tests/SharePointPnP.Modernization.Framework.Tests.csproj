@@ -188,6 +188,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Transform\AssetTransferTests.cs" />
     <Compile Include="TestCommon.cs" />
     <Compile Include="AdHocTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
