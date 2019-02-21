@@ -198,16 +198,16 @@ namespace SharePointPnP.Modernization.Framework.Functions
                         // Execute the function
                         object result = ExecuteMethod(functionClassInstance, functionDefinition, methodInfo);
 
-                        if (result is string)
+                        if (result is string || result is bool)
                         {
                             // Update the existing web part property or add a new one
                             if (webPart.Properties.Keys.Contains<string>(functionDefinition.Output.Name))
                             {
-                                webPart.Properties[functionDefinition.Output.Name] = result.ToString();
+                                webPart.Properties[functionDefinition.Output.Name] = (result is bool) ? result.ToString().ToLower() : result.ToString();
                             }
                             else
                             {
-                                webPart.Properties.Add(functionDefinition.Output.Name, result.ToString());
+                                webPart.Properties.Add(functionDefinition.Output.Name, (result is bool) ? result.ToString().ToLower() : result.ToString());
                             }
 
                             // Add results from the function evaluation to the web part properties mapping data so that upcoming functions can use these new properties

@@ -13,7 +13,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
     /// <summary>
     /// Set of native, builtin, functions
     /// </summary>
-    public partial class BuiltIn: FunctionsBase
+    public partial class BuiltIn : FunctionsBase
     {
 
         #region Construction
@@ -21,7 +21,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// Instantiates the base builtin function library
         /// </summary>
         /// <param name="clientContext">ClientContext object for the site holding the page being transformed</param>
-        public BuiltIn(ClientContext clientContext): base(clientContext)
+        public BuiltIn(ClientContext clientContext) : base(clientContext)
         {
         }
         #endregion
@@ -84,7 +84,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// Return false
         /// </summary>
         /// <returns>False</returns>
-        [FunctionDocumentation(Description = "Simply returns the string false.", 
+        [FunctionDocumentation(Description = "Simply returns the string false.",
                                Example = "{UsePlaceHolders} = ReturnFalse()")]
         [OutputDocumentation(Name = "{UsePlaceHolders}", Description = "Value false")]
         public string ReturnFalse()
@@ -162,7 +162,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [SelectorDocumentation(Description = "Allows for option to include a spacer for empty text wiki text parts.",
                                Example = "TextSelector({CleanedText})")]
         [InputDocumentation(Name = "{CleanedText}", Description = "Client side text part compliant html (cleaned via TextCleanup function)")]
-        [OutputDocumentation(Name = "Text", Description = "Will be output if the provided wiki text was not considered empty" )]
+        [OutputDocumentation(Name = "Text", Description = "Will be output if the provided wiki text was not considered empty")]
         [OutputDocumentation(Name = "Spacer", Description = "Will be output if the provided wiki text was considered empty")]
         public string TextSelector(string text)
         {
@@ -222,6 +222,11 @@ namespace SharePointPnP.Modernization.Framework.Functions
             return new SummaryLinksHtmlTransformator().Transform(text, false);
         }
 
+        /// <summary>
+        /// Checks if the provided html contains JavaScript
+        /// </summary>
+        /// <param name="content">Html content to check</param>
+        /// <returns>True is the html contains script, false otherwise</returns>
         [FunctionDocumentation(Description = "Checks if the provided html contains JavaScript",
                                Example = "{HasScript} = ContainsScript({Text})")]
         [InputDocumentation(Name = "{Text}", Description = "Html content to check")]
@@ -245,10 +250,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     return true;
                 }
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch { }
 
             return false;
         }
@@ -380,6 +382,42 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     return list.RootFolder.ServerRelativeUrl;
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if an XSLTListView web part has a hidden toolbar
+        /// </summary>
+        /// <param name="xmlDefinition">XmlDefinition attribute of the XSLTListViewWebPart</param>
+        /// <returns>Boolean indicating if the toolbar should be hidden</returns>
+        [FunctionDocumentation(Description = "Checks if an XSLTListView web part has a hidden toolbar.",
+                               Example = "{HideToolBar} = ListHideToolBar({XmlDefinition})")]
+        [InputDocumentation(Name = "{XmlDefinition}", Description = "XmlDefinition attribute of the XSLTListViewWebPart")]
+        [OutputDocumentation(Name = "{HideToolBar}", Description = "Boolean indicating if the toolbar should be hidden")]
+        public bool ListHideToolBar(string xmlDefinition)
+        {
+            if (string.IsNullOrEmpty(xmlDefinition))
+            {
+                return false;
+            }
+
+            // Get the "identifying" elements from the webpart view xml definition
+            var webPartViewElement = XElement.Parse(xmlDefinition);
+
+            var toolBar = webPartViewElement.Descendants("Toolbar").FirstOrDefault();
+            if (toolBar != null)
+            {
+                string toolBarType = toolBar.Attribute("Type") != null ? toolBar.Attribute("Type").Value : null;
+
+                if (!string.IsNullOrEmpty(toolBarType))
+                {
+                    if (toolBarType.Equals("None", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

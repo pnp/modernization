@@ -16,11 +16,13 @@
 
 ### Added
 
-- Experimental support for creating the modern site collection in another site collection. Currently does not yet support webparts with references to the source site + copy of page metadata #59 [pkbullock]
+- Experimental support for creating the modern site collection in another site collection. Currently does not yet support web parts with references to the source site + copy of page metadata #59 [pkbullock]
+- Support for using Boolean as return type of functions used in the web part transformation model
+- XSLTListView transformation: map the web part toolbar configuration to the hideCommandBar property
 
 ### Changed
 
-- Content Editor transformation improvements: when not using 3rd party script editor embedded and file contents without script references is not treated as text
+- ContentEditor transformation: when not using 3rd party script editor embedded and file contents without script references is not treated as text
 
 ## [February release (prod) - version 1.0.1902.0]
 
