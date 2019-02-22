@@ -23,6 +23,10 @@
 ### Changed
 
 - ContentEditor transformation: when not using 3rd party script editor embedded and file contents without script references is not treated as text
+- Content by query transformation:
+  - Support for site collection and sub site scoped queries, including filters and sorting for those type of queries
+  - Specific support for SitePages library queries in the list scoped query handling
+  - Switched to version 2.2 of data model
 
 ## [February release (prod) - version 1.0.1902.0]
 

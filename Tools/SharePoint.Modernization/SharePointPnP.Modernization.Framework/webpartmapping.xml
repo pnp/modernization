@@ -321,7 +321,7 @@ Page transformation file. Describes:
         <Properties>
           <Property Name="WebUrl" Type="string" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath})"/>
           <Property Name="ListName" Type="string"/>
-          <Property Name="FilterField1" Type="string" Functions="{JsonProperties} = ContentByQueryToHighlightedContentProperties({WebUrl},{ListGuid},{ListName},{ServerTemplate},{ContentTypeBeginsWithId},{FilterField1},{Filter1ChainingOperator},{FilterDisplayValue1},{FilterOperator1},{FilterField2},{Filter2ChainingOperator},{FilterDisplayValue2},{FilterOperator2},{FilterField3},{FilterDisplayValue3},{FilterOperator3},{SortBy},{SortByDirection},{GroupBy},{GroupByDirection},{ItemLimit},{DisplayColumns},{DataMappings})"/>
+          <Property Name="FilterField1" Type="string" Functions="ContentByQueryToHighlightedContentProperties({WebUrl},{ListGuid},{ListName},{ServerTemplate},{ContentTypeBeginsWithId},{FilterField1},{Filter1ChainingOperator},{FilterDisplayValue1},{FilterOperator1},{FilterField2},{Filter2ChainingOperator},{FilterDisplayValue2},{FilterOperator2},{FilterField3},{FilterDisplayValue3},{FilterOperator3},{SortBy},{SortByDirection},{GroupBy},{GroupByDirection},{ItemLimit},{DisplayColumns},{DataMappings})"/>
           <Property Name="FilterOperator1" Type="string" />
           <Property Name="FilterValue1" Type="string" />
           <Property Name="FilterDisplayValue1" Type="string" />
@@ -420,7 +420,7 @@ Page transformation file. Describes:
               Title:{fa564e0f-0c70-4ab9-b863-0177e6ddd247},Title,Text;|
               LinkUrl:{94f89715-e097-4e8b-ba79-ea02aa8b7adb},FileRef,Lookup;|              
               -->
-            <ClientSideWebPart Type="ContentRollup" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&quot;baseUrl&quot;&#58;&quot;{EncodedWeb}&quot;&#125;,&quot;componentDependencies&quot;&#58;&#123;&quot;layoutComponentId&quot;&#58;&quot;cea5863a-b857-46bb-aaf0-ae5f7cb447b6&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;2.1&quot;,&quot;properties&quot;&#58;{JsonProperties}&#125;"/>
+            <ClientSideWebPart Type="ContentRollup" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;{SearchablePlainTexts}&#125;,&quot;imageSources&quot;&#58;&#123;{ImageSources}&#125;,&quot;links&quot;&#58;&#123;&quot;baseUrl&quot;&#58;&quot;{EncodedWeb}&quot;{Links}&#125;,&quot;componentDependencies&quot;&#58;&#123;&quot;layoutComponentId&quot;&#58;&quot;cea5863a-b857-46bb-aaf0-ae5f7cb447b6&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;2.2&quot;,&quot;properties&quot;&#58;{JsonProperties}&#125;"/>
           </Mapping>
           <Mapping Name="NoTransformation" Default="false">
             <ClientSideText Text="There's no OOB replacement for web part {Title}. Custom web parts might be helpfull here" Order="10"/>

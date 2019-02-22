@@ -221,33 +221,37 @@ namespace SharePointPnP.Modernization.Framework.Transform
     #region ISiteMetadata enums and classes
     public class SiteReference
     {
-        [JsonProperty(PropertyName = "siteId")]
-        public string SiteId { get; set; }
-        [JsonProperty(PropertyName = "webId")]
+        [JsonProperty(PropertyName = "WebId")]
         public string WebId { get; set; }
-        [JsonProperty(PropertyName = "type")]
+        [JsonProperty(PropertyName = "IndexId")]
+        public long IndexId { get; set; }
+        [JsonProperty(PropertyName = "ExchangeId")]
+        public string ExchangeId { get; set; } // eg SPO_M2NlYjY4MDctYTZlZS00NDNjLWE4M2ItZWIyNjM2YzYyZTgyLGU...
+        [JsonProperty(PropertyName = "Source")]
+        public string Source { get; set; } //'Users' | string;
+        [JsonProperty(PropertyName = "SiteId")]
+        public string SiteId { get; set; }
+        [JsonProperty(PropertyName = "Type")]
         public string Type { get; set; } //'SiteReference' | 'GroupReference' | string;
-        [JsonProperty(PropertyName = "indexId")]
-        public int IndexId { get; set; }
-        [JsonProperty(PropertyName = "groupId")]
+        [JsonProperty(PropertyName = "GroupId")]
         public string GroupId { get; set; } // The id of the group when site reference type is 'GroupReference, It's not available for other site reference types
     }
 
     public class SiteMetadata
     {
-        [JsonProperty(PropertyName = "acronym")]
+        [JsonProperty(PropertyName = "Acronym")]
         public string Acronym { get; set; } // The acronym of the site. Used in banner image if the banner image url is not available
-        [JsonProperty(PropertyName = "title")]
-        public string Title { get; set; } // Site title
-        [JsonProperty(PropertyName = "bannerColor")] 
+        //[JsonProperty(PropertyName = "title")]
+        //public string Title { get; set; } // Site title
+        [JsonProperty(PropertyName = "BannerColor")] 
         public string BannerColor { get; set; } // The color represents the site theme
         [JsonProperty(PropertyName = "bannerImageUrl")]
         public string BannerImageUrl { get; set; } // The url of the site logo
-        [JsonProperty(PropertyName = "url")]
-        public string Url { get; set; } // The url points to the site
-        [JsonProperty(PropertyName = "type")]
+        //[JsonProperty(PropertyName = "url")]
+        //public string Url { get; set; } // The url points to the site
+        [JsonProperty(PropertyName = "Type")]
         public string Type { get; set; } //Type of the site. E.g. 'Site', 'Group'.
-        [JsonProperty(PropertyName = "itemReference")]
+        [JsonProperty(PropertyName = "ItemReference")]
         public SiteReference ItemReference { get; set; } // Identifiers of the site
     }
     #endregion
@@ -386,6 +390,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
     }
     #endregion
 
+    #region Result class
+    public class ContentByQuerySearchTransformatorResult
+    {
+        public string Properties { get; set; }
+        public string SearchablePlainTexts { get; set; }
+        public string ImageSources { get; set; }
+        public string Links { get; set; }
+    }
+    #endregion
+
     /// <summary>
     /// Class used to generate contentrollup (=highlighted content) web part properties coming from either a content by query or content by search web part
     /// </summary>
@@ -393,7 +407,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     {
         private ContentRollupWebPartProperties properties;
         private ClientContext clientContext;
-        private const string displayMapJson = "{\"1\":{\"headingText\":{\"sources\":[\"SiteTitle\"]},\"headingUrl\":{\"sources\":[\"SitePath\"]},\"title\":{\"sources\":[\"UserName\",\"Title\"]},\"personImageUrl\":{\"sources\":[\"ProfileImageSrc\"]},\"name\":{\"sources\":[\"Name\"]},\"initials\":{\"sources\":[\"Initials\"]},\"itemUrl\":{\"sources\":[\"WebPath\"]},\"activity\":{\"sources\":[\"ModifiedDate\"]},\"previewUrl\":{\"sources\":[\"PreviewUrl\",\"PictureThumbnailURL\"]},\"iconUrl\":{\"sources\":[\"IconUrl\"]},\"accentColor\":{\"sources\":[\"AccentColor\"]},\"cardType\":{\"sources\":[\"CardType\"]},\"tipActionLabel\":{\"sources\":[\"TipActionLabel\"]},\"tipActionButtonIcon\":{\"sources\":[\"TipActionButtonIcon\"]}},\"2\":{\"column1\":{\"heading\":\"\",\"sources\":[\"FileExtension\"],\"width\":34},\"column2\":{\"heading\":\"Title\",\"sources\":[\"Title\"],\"linkUrls\":[\"WebPath\"],\"width\":250},\"column3\":{\"heading\":\"Modified\",\"sources\":[\"ModifiedDate\"],\"width\":100},\"column4\":{\"heading\":\"Modified By\",\"sources\":[\"Name\"],\"width\":150}},\"3\":{\"id\":{\"sources\":[\"UniqueID\"]},\"edit\":{\"sources\":[\"edit\"]},\"DefaultEncodingURL\":{\"sources\":[\"DefaultEncodingURL\"]},\"FileExtension\":{\"sources\":[\"FileExtension\"]},\"FileType\":{\"sources\":[\"FileType\"]},\"Path\":{\"sources\":[\"Path\"]},\"PictureThumbnailURL\":{\"sources\":[\"PictureThumbnailURL\"]},\"SiteID\":{\"sources\":[\"SiteID\"]},\"SiteTitle\":{\"sources\":[\"SiteTitle\"]},\"Title\":{\"sources\":[\"Title\"]},\"UniqueID\":{\"sources\":[\"UniqueID\"]},\"WebId\":{\"sources\":[\"WebId\"]},\"WebPath\":{\"sources\":[\"WebPath\"]}},\"4\":{\"headingText\":{\"sources\":[\"SiteTitle\"]},\"headingUrl\":{\"sources\":[\"SitePath\"]},\"title\":{\"sources\":[\"UserName\",\"Title\"]},\"personImageUrl\":{\"sources\":[\"ProfileImageSrc\"]},\"name\":{\"sources\":[\"Name\"]},\"initials\":{\"sources\":[\"Initials\"]},\"itemUrl\":{\"sources\":[\"WebPath\"]},\"activity\":{\"sources\":[\"ModifiedDate\"]},\"previewUrl\":{\"sources\":[\"PreviewUrl\",\"PictureThumbnailURL\"]},\"iconUrl\":{\"sources\":[\"IconUrl\"]},\"accentColor\":{\"sources\":[\"AccentColor\"]},\"cardType\":{\"sources\":[\"CardType\"]},\"tipActionLabel\":{\"sources\":[\"TipActionLabel\"]},\"tipActionButtonIcon\":{\"sources\":[\"TipActionButtonIcon\"]}}}";
+        private const string displayMapJson = "{\"1\":{\"headingText\":{\"sources\":[\"SiteTitle\"]},\"headingUrl\":{\"sources\":[\"SitePath\"]},\"title\":{\"sources\":[\"UserName\",\"Title\"]},\"personImageUrl\":{\"sources\":[\"ProfileImageSrc\"]},\"name\":{\"sources\":[\"Name\"]},\"initials\":{\"sources\":[\"Initials\"]},\"itemUrl\":{\"sources\":[\"WebPath\"]},\"activity\":{\"sources\":[\"ModifiedDate\"]},\"previewUrl\":{\"sources\":[\"PreviewUrl\",\"PictureThumbnailURL\"]},\"iconUrl\":{\"sources\":[\"IconUrl\"]},\"accentColor\":{\"sources\":[\"AccentColor\"]},\"cardType\":{\"sources\":[\"CardType\"]},\"tipActionLabel\":{\"sources\":[\"TipActionLabel\"]},\"tipActionButtonIcon\":{\"sources\":[\"TipActionButtonIcon\"]},\"className\":{\"sources\":[\"ClassName\"]}},\"2\":{\"column1\":{\"heading\":\"\",\"sources\":[\"FileExtension\"],\"width\":34},\"column2\":{\"heading\":\"Title\",\"sources\":[\"Title\"],\"linkUrls\":[\"WebPath\"],\"width\":250},\"column3\":{\"heading\":\"Modified\",\"sources\":[\"ModifiedDate\"],\"width\":100},\"column4\":{\"heading\":\"Modified By\",\"sources\":[\"Name\"],\"width\":150}},\"3\":{\"id\":{\"sources\":[\"UniqueID\"]},\"edit\":{\"sources\":[\"edit\"]},\"DefaultEncodingURL\":{\"sources\":[\"DefaultEncodingURL\"]},\"FileExtension\":{\"sources\":[\"FileExtension\"]},\"FileType\":{\"sources\":[\"FileType\"]},\"Path\":{\"sources\":[\"Path\"]},\"PictureThumbnailURL\":{\"sources\":[\"PictureThumbnailURL\"]},\"SiteID\":{\"sources\":[\"SiteID\"]},\"SiteTitle\":{\"sources\":[\"SiteTitle\"]},\"Title\":{\"sources\":[\"Title\"]},\"UniqueID\":{\"sources\":[\"UniqueID\"]},\"WebId\":{\"sources\":[\"WebId\"]},\"WebPath\":{\"sources\":[\"WebPath\"]},\"PreviewUrl\":{\"sources\":[\"PreviewUrl\"]}},\"4\":{\"headingText\":{\"sources\":[\"SiteTitle\"]},\"headingUrl\":{\"sources\":[\"SitePath\"]},\"title\":{\"sources\":[\"UserName\",\"Title\"]},\"personImageUrl\":{\"sources\":[\"ProfileImageSrc\"]},\"name\":{\"sources\":[\"Name\"]},\"initials\":{\"sources\":[\"Initials\"]},\"itemUrl\":{\"sources\":[\"WebPath\"]},\"activity\":{\"sources\":[\"ModifiedDate\"]},\"previewUrl\":{\"sources\":[\"PreviewUrl\",\"PictureThumbnailURL\"]},\"iconUrl\":{\"sources\":[\"IconUrl\"]},\"accentColor\":{\"sources\":[\"AccentColor\"]},\"cardType\":{\"sources\":[\"CardType\"]},\"tipActionLabel\":{\"sources\":[\"TipActionLabel\"]},\"tipActionButtonIcon\":{\"sources\":[\"TipActionButtonIcon\"]},\"className\":{\"sources\":[\"ClassName\"]}}}";
         private List<Field> queryFields;
 
         #region Construction
@@ -424,9 +438,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="cbq">Properties coming from the content by query web part</param>
         /// <returns>Properties for highlighted content web part</returns>
-        public string TransformContentByQueryWebPartToHighlightedContent(ContentByQuery cbq)
+        public ContentByQuerySearchTransformatorResult TransformContentByQueryWebPartToHighlightedContent(ContentByQuery cbq)
         {
             // Transformation logic
+            ContentByQuerySearchTransformatorResult result = new ContentByQuerySearchTransformatorResult()
+            {
+                ImageSources = "",
+                SearchablePlainTexts = "",
+                Links = ""
+            };
 
             // Scoped to list?
             if (!Guid.TryParse(cbq.ListGuid, out Guid listId))
@@ -452,15 +472,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this.clientContext.Load(list, p => p.BaseType, p => p.Title, p => p.Id, p => p.Fields);
                 this.clientContext.ExecuteQueryRetry();
 
-                // todo: bail out if not a document library --> should be handled by a selector
-
-
                 // Set basic list properties
                 this.properties.ListId = list.Id.ToString();
                 this.properties.LastListId = this.properties.ListId;
                 this.properties.ListTitle = list.Title;
                 this.properties.DataProviderId = "List";
-                //this.properties.DataProviderId = "Search";
 
                 this.properties.IsDefaultDocumentLibrary = defaultDocLib.Id.Equals(list.Id);
 
@@ -484,14 +500,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // construct query
                 SearchQuery query = new SearchQuery();
 
-                // Libraries always equal to this
-                query.ContentLocation = ContentLocation.CurrentSiteDocumentLibrary;
+                if (list.BaseTemplate == (int)ListTemplateType.WebPageLibrary)
+                {
+                    // for SitePages library we only support the Page content type, document types are not relevant here
+                    query.ContentLocation = ContentLocation.CurrentSitePageLibrary;
+                    query.ContentTypes.Add(ContentType.Page);
+                }
+                else
+                {
+                    query.ContentLocation = ContentLocation.CurrentSiteDocumentLibrary;
+                    // There's no document type filtering in CWQP
+                    query.DocumentTypes.Add(DocumentType.Any);
+                    // Map contenttypeid to 'default' content types if possible
+                    query.ContentTypes.AddRange(MapToContentTypesFromContentType(cbq.ContentTypeBeginsWithId));
+                }
 
-                // There's no document type filtering in CWQP
-                query.DocumentTypes.Add(DocumentType.Any);
-
-                // Map contenttypeid to 'default' content types if possible
-                query.ContentTypes.AddRange(MapToContentTypes(cbq.ContentTypeBeginsWithId));
 
                 // Filtering
                 var filter1 = MapToFilter(list, cbq.FilterOperator1, cbq.FilterField1, cbq.FilterField1Value, FilterChainingOperator.And);
@@ -535,7 +558,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (this.properties.Query.Filters.Any())
                 {
                     this.properties.Caml = CamlQueryBuilder(list, cbq);
-                    
+
                     // ContentRollup web part first needs to be fixed to have it handle the CAML query generation 
                     //this.properties.Caml = "";
                 }
@@ -564,27 +587,95 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     SetLayoutTemplate(ContentRollupLayout.List);
                 }
 
-                // construct query
-                SearchQuery query = new SearchQuery();
+                var contentLocation = MapToContentLocation(cbq.WebUrl);
 
-                // Libraries always equal to this
-                query.ContentLocation = MapToContentLocation(cbq.WebUrl);
+                if (contentLocation == ContentLocation.SelectedSites)
+                {                
+                    // Fill the needed structure to scope the search query to a sub site
+                    var parts = cbq.WebUrl.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+                    var subSiteUrl = parts[1];
+
+                    var siteMetadata = MapToSiteMetadata(subSiteUrl, ref result);
+
+                    if (siteMetadata != null)
+                    {
+                        this.properties.Sites.Add(siteMetadata);
+                    }
+                    else
+                    {
+                        // something went wrong, fall back to full site collection
+                        contentLocation = ContentLocation.CurrentSiteCollection;
+                    }
+                }
+
+                // construct query
+                SearchQuery query = new SearchQuery
+                {
+                    // Libraries always equal to this
+                    ContentLocation = contentLocation
+                };
 
                 // There's no document type filtering in CWQP
                 query.DocumentTypes.Add(DocumentType.Any);
 
                 // Map contenttypeid to 'default' content types if possible
-                query.ContentTypes.AddRange(MapToContentTypes(cbq.ContentTypeBeginsWithId));
-
-                // Add default filter element (needed to show up the filters pane in the web part)
-                query.Filters.Add(new SearchQueryFilter()
+                if (!string.IsNullOrEmpty(cbq.ServerTemplate))
                 {
-                    FilterType = FilterType.TitleContaining,
-                    Value = "",
-                });
+                    query.ContentTypes.AddRange(MapToContentTypesFromListTemplate(cbq.ServerTemplate));
+                }
+                else
+                {
+                    query.ContentTypes.AddRange(MapToContentTypesFromContentType(cbq.ContentTypeBeginsWithId));
+                }
 
-                // Set sort type - default is MostRecent
-                query.SortType = SortType.MostRecent;
+                if (!string.IsNullOrEmpty(cbq.FilterField1) || !string.IsNullOrEmpty(cbq.FilterField2) || !string.IsNullOrEmpty(cbq.FilterField3))
+                {
+                    // Process CBQ filters
+                    var filter1 = MapToFilter(null, cbq.FilterOperator1, cbq.FilterField1, cbq.FilterField1Value, FilterChainingOperator.And);
+                    if (filter1 != null)
+                    {
+                        query.Filters.Add(filter1);
+                    }
+
+                    var filter2 = MapToFilter(null, cbq.FilterOperator2, cbq.FilterField2, cbq.FilterField2Value, cbq.Filter1ChainingOperator);
+                    if (filter2 != null)
+                    {
+                        query.Filters.Add(filter2);
+                    }
+
+                    var filter3 = MapToFilter(null, cbq.FilterOperator3, cbq.FilterField3, cbq.FilterField3Value, cbq.Filter2ChainingOperator);
+                    if (filter3 != null)
+                    {
+                        query.Filters.Add(filter3);
+                    }
+                }
+                else
+                {
+                    // Add default filter element (needed to show up the filters pane in the web part)
+                    query.Filters.Add(new SearchQueryFilter()
+                    {
+                        FilterType = FilterType.TitleContaining,
+                        Value = "",
+                    });
+                }
+
+                // Set sort field 
+                // Possible sort by's are: Most recent, Most viewed, Trending, Managed property ascending, Managed property descending
+                if (!string.IsNullOrEmpty(cbq.SortBy))
+                {
+                    var sortField = MapToSort(cbq.SortBy);
+                    if (sortField != null)
+                    {
+                        query.SortField = sortField;
+                        query.SortFieldMatchText = sortField;
+                        query.SortType = cbq.SortByDirection == SortDirection.Asc ? SortType.FieldAscending : SortType.FieldDescending;
+                    }
+                }
+                else
+                {
+                    // Set sort type - default is MostRecent
+                    query.SortType = SortType.MostRecent;
+                }
 
                 query.AdvancedQueryText = "";
 
@@ -592,8 +683,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this.properties.Query = query;
             }
 
+            // Prep output
+            result.Properties = HighlightedContentProperties();
+
             // Return the json properties for the converted web part
-            return HighlightedContentProperties();
+            return result;
         }
 
         #region Helper methods
@@ -770,7 +864,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // TODO: add to log?
             if (string.IsNullOrEmpty(webUrl) || webUrl.StartsWith("~sitecollection", StringComparison.InvariantCultureIgnoreCase))
             {
-                return ContentLocation.CurrentSiteCollection;
+                if (webUrl.StartsWith("~sitecollection", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var parts = webUrl.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 1 && parts[1] != "/")
+                    {
+                        return ContentLocation.SelectedSites;
+                    }                    
+                }
+                else
+                {
+                    return ContentLocation.CurrentSiteCollection;
+                }
             }
             else if (webUrl.Equals("~site", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -780,7 +885,127 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return ContentLocation.CurrentSiteCollection;
         }
 
-        private List<ContentType> MapToContentTypes(string contentTypeId)
+        private SiteMetadata MapToSiteMetadata(string subSiteUrl, ref ContentByQuerySearchTransformatorResult result)
+        {
+            SiteMetadata siteMetadata = new SiteMetadata();
+
+            try
+            {
+                this.clientContext.Site.EnsureProperties(p => p.Id, p => p.RootWeb);
+                this.clientContext.Site.RootWeb.EnsureProperties(p => p.Id, p => p.Url, p => p.ServerRelativeUrl);
+
+                string subSiteUrlToClone = $"{this.clientContext.Site.RootWeb.Url}/{subSiteUrl}";
+                using (var subSiteContext = this.clientContext.Clone(subSiteUrlToClone))
+                {
+                    subSiteContext.Web.EnsureProperties(p => p.Id, p => p.Url, p => p.ServerRelativeUrl, p => p.Title);
+
+                    // Prep site structure data
+                    siteMetadata.Acronym = GetAcronym(subSiteContext.Web.Title);
+                    siteMetadata.BannerColor = "#986f0b";
+                    siteMetadata.Type = "Site";
+                    siteMetadata.ItemReference = new SiteReference()
+                    {
+                        WebId = subSiteContext.Web.Id.ToString(),
+                        //Source = "Users",
+                        SiteId = this.clientContext.Site.Id.ToString(),
+                        Type = "SiteReference",
+                    };
+
+                    // Prep data for in the ServerProcessedContent node
+                    result.SearchablePlainTexts = $",\"sites[0].Title\": \"{subSiteContext.Web.Title}\"";
+                    result.ImageSources = $"\"sites[0].BannerImageUrl\": null";
+                    result.Links = $",\"sites[0].Url\": \"{subSiteContext.Web.ServerRelativeUrl}\"";
+                }
+
+                return siteMetadata;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+
+        private string GetAcronym(string text)
+        {
+            // return something if no input
+            if(string.IsNullOrEmpty(text))
+            {
+                return "AB";
+            }
+
+            text = text.Trim();
+
+            // if we've less than 2 chars then return the text + something
+            if (text.Length < 2)
+            {
+                return $"{text}B";
+            }
+
+            var split = text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length > 1)
+            {
+                return $"{split[0].Substring(0,1)}{split[1].Substring(0,1)}";
+            }
+            else
+            {
+                // Take the first two characters from the text
+                return text.Substring(0, 2);
+            }
+        }
+
+        private List<ContentType> MapToContentTypesFromListTemplate(string listTemplate)
+        {
+            List<ContentType> cts = new List<ContentType>();
+
+            if (!string.IsNullOrEmpty(listTemplate))
+            {
+                if (int.TryParse(listTemplate, out int baseListTemplate))
+                {
+                    switch (baseListTemplate)
+                    {
+                        case (int)ListTemplateType.DocumentLibrary:
+                            cts.Add(ContentType.Document);
+                            cts.Add(ContentType.Image);
+                            cts.Add(ContentType.Video);
+                            break;
+                        case (int)ListTemplateType.WebPageLibrary:
+                            cts.Add(ContentType.Page);
+                            break;
+                        case (int)ListTemplateType.Events:
+                            cts.Add(ContentType.Event);
+                            break;
+                        case (int)ListTemplateType.Announcements:
+                            cts.Add(ContentType.News);
+                            break;
+                        case (int)ListTemplateType.Contacts:
+                            cts.Add(ContentType.Contact);
+                            break;
+                        case (int)ListTemplateType.Tasks:
+                        case (int)ListTemplateType.TasksWithTimelineAndHierarchy:
+                            cts.Add(ContentType.Task);
+                            break;
+                        case (int)ListTemplateType.Links:
+                        case 170: // Promoted Links
+                            cts.Add(ContentType.Link);
+                            break;
+                        case (int)ListTemplateType.PictureLibrary:
+                            cts.Add(ContentType.Image);
+                            cts.Add(ContentType.Video);
+                            break;
+                        case (int)ListTemplateType.IssueTracking:
+                            cts.Add(ContentType.Issue);
+                            break;
+                        default:
+                            cts.Add(ContentType.All);
+                            break;
+                    }
+                }
+            }
+
+            return cts;
+        }
+
+        private List<ContentType> MapToContentTypesFromContentType(string contentTypeId)
         {
             List<ContentType> cts = new List<ContentType>();
 
@@ -798,6 +1023,33 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return cts;
         }
 
+        private string MapToSort(string sortField)
+        {
+            if (string.IsNullOrEmpty(sortField))
+            {
+                return null;
+            }
+
+            IEnumerable<Field> foundFields = null;
+            this.clientContext.Web.EnsureProperties(p => p.Fields);
+
+            if (Guid.TryParse(sortField, out Guid fieldId))
+            {
+                foundFields = this.clientContext.Web.Fields.Where(item => item.Id.Equals(fieldId));
+            }
+            else
+            {
+                foundFields = this.clientContext.Web.Fields.Where(item => item.InternalName == sortField);
+            }
+
+            if (foundFields.FirstOrDefault() != null)
+            {
+                return foundFields.FirstOrDefault().InternalName;
+            }
+
+            return null;
+        }
+
         private SearchQueryFilter MapToFilter(List list, FilterFieldQueryOperator filterOperator, string filterField, string filterFieldValue, FilterChainingOperator? chainingOperatorUsedInCQWP)
         {
             if (string.IsNullOrEmpty(filterField))
@@ -805,8 +1057,26 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 return null;
             }
 
-            var foundFields = list.Context.LoadQuery(list.Fields.Where(item => item.InternalName == filterField));
-            list.Context.ExecuteQueryRetry();
+            IEnumerable<Field> foundFields = null;
+
+            if (list != null)
+            {
+                foundFields = list.Context.LoadQuery(list.Fields.Where(item => item.InternalName == filterField));
+                list.Context.ExecuteQueryRetry();
+            }
+            else
+            {
+                this.clientContext.Web.EnsureProperties(p => p.Fields);
+
+                if (Guid.TryParse(filterField, out Guid fieldId))
+                {
+                    foundFields = this.clientContext.Web.Fields.Where(item => item.Id.Equals(fieldId));
+                }
+                else
+                {
+                    foundFields = this.clientContext.Web.Fields.Where(item => item.InternalName == filterField);
+                }
+            }
 
             if (foundFields.FirstOrDefault() != null)
             {
