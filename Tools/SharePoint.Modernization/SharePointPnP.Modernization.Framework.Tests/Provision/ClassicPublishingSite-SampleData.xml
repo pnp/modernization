@@ -1,0 +1,859 @@
+<?xml version="1.0"?>
+<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2018/07/ProvisioningSchema">
+  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=3.5.1901.0, Culture=neutral, PublicKeyToken=5e633289e95c321a" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-7475F4747A744A3A8D8C7CA6822392DB">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-7475F4747A744A3A8D8C7CA6822392DB" Version="1" BaseSiteTemplate="BLANKINTERNET#0" Scope="RootSite">
+      <pnp:WebSettings NoCrawl="false" WelcomePage="Pages/default.aspx" CommentsOnSitePagesDisabled="false" QuickLaunchEnabled="false" />
+          
+      <pnp:Navigation AddNewPagesToNavigation="true" CreateFriendlyUrlsForNewPages="true">
+        <pnp:GlobalNavigation NavigationType="Managed">
+          <pnp:ManagedNavigation TermStoreId="{sitecollectiontermstoreid}" TermSetId="{sitecollectiontermsetid:Site Navigation}" />
+        </pnp:GlobalNavigation>
+        <pnp:CurrentNavigation NavigationType="Managed">
+          <pnp:ManagedNavigation TermStoreId="{sitecollectiontermstoreid}" TermSetId="{sitecollectiontermsetid:Site Navigation}" />
+        </pnp:CurrentNavigation>
+      </pnp:Navigation>
+      <pnp:SiteFields>
+        <Field Type="Note" DisplayName="My Classification_0" StaticName="b31265b859324bc190f0ea6186388b49" Name="b31265b859324bc190f0ea6186388b49" ID="{d046adff-3b2c-42b1-ba91-8bd3d303d907}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" />
+        <Field Type="Note" DisplayName="Corporate Classification_1" StaticName="j9643757df20455a92d05da5987aebd4" Name="j9643757df20455a92d05da5987aebd4" ID="{b41ad76d-aef4-4cb3-a28d-041cedcc3f57}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" />
+        <Field ID="{36193413-DD5C-4096-8C1E-1B40098B9BA3}" Name="_OriginalSourceSiteId" StaticName="_OriginalSourceSiteId" DisplayName="Original Source Site ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
+        <Field Type="User" Name="Submitter" ID="{7dbebf15-a5f9-4844-ad10-e58fc61df5d3}" DisplayName="Submitter" ShowField="Title" Presence="TRUE" UserSelectionMode="PeopleOnly" Group="EDRM Columns" StaticName="Submitter" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" Required="FALSE" EnforceUniqueValues="FALSE" UserSelectionScope="0" AllowDeletion="TRUE" />
+        <Field Type="Boolean" Name="HasAttachments" ID="{d0f4c020-08fd-46b4-aec2-1df348e9ee9f}" DisplayName="Has Attachments" Group="EDRM Columns" StaticName="HasAttachments" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field ID="{0E7B982F-698A-4D0C-AACB-F16906F66D30}" Name="_OriginalSourceUrl" StaticName="_OriginalSourceUrl" DisplayName="Original Source Url" Type="Text" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
+        <Field Type="Text" Name="Fingerprint" ID="{87ebf237-bf4a-407f-8cec-b0fa5a173945}" DisplayName="Fingerprint" Group="EDRM Columns" StaticName="Fingerprint" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" Hidden="TRUE" />
+        <Field Type="Choice" Name="Sensitivity" ID="{9d29cb3a-0699-4216-be54-1e09798526cd}" DisplayName="Sensitivity" Group="EDRM Columns" Required="TRUE" Format="Dropdown" FillInChoice="FALSE" StaticName="Sensitivity" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE">
+          <CHOICES>
+            <CHOICE>Official - Sensitive</CHOICE>
+            <CHOICE>Official</CHOICE>
+            <CHOICE>Unclassified</CHOICE>
+          </CHOICES>
+          <Default>Official</Default>
+        </Field>
+        <Field ID="{91E86A43-75F2-426F-80DA-35EDFB47D55D}" Name="_OriginalSourceItemId" StaticName="_OriginalSourceItemId" DisplayName="Original Source Item ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
+        <Field Type="TaxonomyFieldType" Name="corpclass" DisplayName="Corporate Classification" ID="{39643757-df20-455a-92d0-5da5987aebd4}" Group="EDRM Columns" Required="TRUE" ShowField="Term1033" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" StaticName="corpclass" List="{{listid:TaxonomyHiddenList}}" WebId="{siteid}" AllowDeletion="TRUE">
+          <Customization>
+            <ArrayOfProperty>
+              <Property>
+                <Name>SspId</Name>
+                <Value xmlns:q1="http://www.w3.org/2001/XMLSchema" p4:type="q1:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{sitecollectiontermstoreid}</Value>
+              </Property>
+              <Property>
+                <Name>GroupId</Name>
+              </Property>
+              <Property>
+                <Name>TermSetId</Name>
+                <Value xmlns:q2="http://www.w3.org/2001/XMLSchema" p4:type="q2:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{termsetid:EDRM:DMS Classification}</Value>
+              </Property>
+              <Property>
+                <Name>AnchorId</Name>
+                <Value xmlns:q3="http://www.w3.org/2001/XMLSchema" p4:type="q3:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">00000000-0000-0000-0000-000000000000</Value>
+              </Property>
+              <Property>
+                <Name>UserCreated</Name>
+                <Value xmlns:q4="http://www.w3.org/2001/XMLSchema" p4:type="q4:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>Open</Name>
+                <Value xmlns:q5="http://www.w3.org/2001/XMLSchema" p4:type="q5:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>TextField</Name>
+                <Value xmlns:q6="http://www.w3.org/2001/XMLSchema" p4:type="q6:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{b41ad76d-aef4-4cb3-a28d-041cedcc3f57}</Value>
+              </Property>
+              <Property>
+                <Name>IsPathRendered</Name>
+                <Value xmlns:q7="http://www.w3.org/2001/XMLSchema" p4:type="q7:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>IsKeyword</Name>
+                <Value xmlns:q8="http://www.w3.org/2001/XMLSchema" p4:type="q8:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>TargetTemplate</Name>
+              </Property>
+              <Property>
+                <Name>CreateValuesInEditForm</Name>
+                <Value xmlns:q9="http://www.w3.org/2001/XMLSchema" p4:type="q9:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>FilterAssemblyStrongName</Name>
+                <Value xmlns:q10="http://www.w3.org/2001/XMLSchema" p4:type="q10:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Value>
+              </Property>
+              <Property>
+                <Name>FilterClassName</Name>
+                <Value xmlns:q11="http://www.w3.org/2001/XMLSchema" p4:type="q11:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy.TaxonomyField</Value>
+              </Property>
+              <Property>
+                <Name>FilterMethodName</Name>
+                <Value xmlns:q12="http://www.w3.org/2001/XMLSchema" p4:type="q12:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">GetFilteringHtml</Value>
+              </Property>
+              <Property>
+                <Name>FilterJavascriptProperty</Name>
+                <Value xmlns:q13="http://www.w3.org/2001/XMLSchema" p4:type="q13:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">FilteringJavascript</Value>
+              </Property>
+            </ArrayOfProperty>
+          </Customization>
+        </Field>
+        <Field Type="DateTime" Name="DateSent" ID="{cd200a64-d081-4592-afa9-9ac4bbb3630b}" DisplayName="Date Sent" Format="DateTime" Group="EDRM Columns" StaticName="DateSent" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field ID="{139DA674-DBF6-439F-98E0-4EB05FA9A669}" Name="_OriginalSourceListId" StaticName="_OriginalSourceListId" DisplayName="Original Source List ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
+        <Field Type="Text" Name="ConversationID" ID="{07963675-3136-4d46-9db0-9d89e137edc6}" DisplayName="ConversationID" Group="EDRM Columns" StaticName="ConversationID" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field Type="Text" Name="ConversationTopic" ID="{5b3afe7a-6096-44a2-9ad0-9b6369045a54}" DisplayName="Conversation Topic" Group="EDRM Columns" StaticName="ConversationTopic" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field Type="Text" Name="RecordPointID" ID="{27700e84-9ab3-47eb-b04e-8cadd3bdce8e}" DisplayName="RecordPoint ID" Group="EDRM Columns" StaticName="RecordPointID" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field Type="Text" Name="FromEmail" ID="{17877985-8aab-4260-a8c7-ebddeee8e46d}" DisplayName="From" Group="EDRM Columns" StaticName="FromEmail" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field ID="{4966388E-6E12-4BC6-8990-5B5B66153EAE}" Name="CanvasContent1" StaticName="CanvasContent1" DisplayName="Authoring Canvas Content" Type="HTML" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="This column stores the content of the authoring canvas in a site page." ReadOnly="TRUE" AllowDeletion="FALSE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" ShowInVersionHistory="FALSE" RichText="TRUE" RichTextMode="FullHtml" />
+        <Field ID="{C84F8697-331E-457D-884A-C4FB8F30EA74}" Name="FirstPublishedDate" StaticName="FirstPublishedDate" DisplayName="First Published Date" Type="DateTime" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" AllowDeletion="FALSE" Indexed="TRUE" StorageTZ="TRUE" Sortable="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" ShowInVersionHistory="FALSE" />
+        <Field ID="{F5AD16A2-85BE-46B2-B5F0-2BB8B4A5074A}" Name="PromotedState" StaticName="PromotedState" DisplayName="Promoted State" Type="Number" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" AllowDeletion="FALSE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" ShowInVersionHistory="FALSE">
+          <Default>0</Default>
+        </Field>
+        <Field ID="{FB3259AC-BD07-4397-B7AA-03E885B0838E}" Name="BannerImageOffset" StaticName="BannerImageOffset" DisplayName="Banner Image Offset" Type="Text" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" AllowDeletion="FALSE" Hidden="TRUE" />
+        <Field ID="{5BAF6DB5-9D25-4738-B15E-DB5789298E82}" Name="BannerImageUrl" StaticName="BannerImageUrl" DisplayName="Banner Image URL" Type="URL" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" AllowDeletion="FALSE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" ShowInVersionHistory="FALSE" />
+        <Field Type="TaxonomyFieldType" Name="myclass" DisplayName="My Classification" ID="{b31265b8-5932-4bc1-90f0-ea6186388b49}" Group="EDRM Columns" Required="TRUE" ShowField="Term1033" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" StaticName="myclass" List="{{listid:TaxonomyHiddenList}}" WebId="{siteid}" AllowDeletion="TRUE">
+          <Customization>
+            <ArrayOfProperty>
+              <Property>
+                <Name>SspId</Name>
+                <Value xmlns:q1="http://www.w3.org/2001/XMLSchema" p4:type="q1:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{sitecollectiontermstoreid}</Value>
+              </Property>
+              <Property>
+                <Name>GroupId</Name>
+              </Property>
+              <Property>
+                <Name>TermSetId</Name>
+                <Value xmlns:q2="http://www.w3.org/2001/XMLSchema" p4:type="q2:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{termsetid:EDRM:My Classification}</Value>
+              </Property>
+              <Property>
+                <Name>AnchorId</Name>
+                <Value xmlns:q3="http://www.w3.org/2001/XMLSchema" p4:type="q3:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">00000000-0000-0000-0000-000000000000</Value>
+              </Property>
+              <Property>
+                <Name>UserCreated</Name>
+                <Value xmlns:q4="http://www.w3.org/2001/XMLSchema" p4:type="q4:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>Open</Name>
+                <Value xmlns:q5="http://www.w3.org/2001/XMLSchema" p4:type="q5:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>TextField</Name>
+                <Value xmlns:q6="http://www.w3.org/2001/XMLSchema" p4:type="q6:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{d046adff-3b2c-42b1-ba91-8bd3d303d907}</Value>
+              </Property>
+              <Property>
+                <Name>IsPathRendered</Name>
+                <Value xmlns:q7="http://www.w3.org/2001/XMLSchema" p4:type="q7:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>IsKeyword</Name>
+                <Value xmlns:q8="http://www.w3.org/2001/XMLSchema" p4:type="q8:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>TargetTemplate</Name>
+              </Property>
+              <Property>
+                <Name>CreateValuesInEditForm</Name>
+                <Value xmlns:q9="http://www.w3.org/2001/XMLSchema" p4:type="q9:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>FilterAssemblyStrongName</Name>
+                <Value xmlns:q10="http://www.w3.org/2001/XMLSchema" p4:type="q10:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Value>
+              </Property>
+              <Property>
+                <Name>FilterClassName</Name>
+                <Value xmlns:q11="http://www.w3.org/2001/XMLSchema" p4:type="q11:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy.TaxonomyField</Value>
+              </Property>
+              <Property>
+                <Name>FilterMethodName</Name>
+                <Value xmlns:q12="http://www.w3.org/2001/XMLSchema" p4:type="q12:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">GetFilteringHtml</Value>
+              </Property>
+              <Property>
+                <Name>FilterJavascriptProperty</Name>
+                <Value xmlns:q13="http://www.w3.org/2001/XMLSchema" p4:type="q13:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">FilteringJavascript</Value>
+              </Property>
+            </ArrayOfProperty>
+          </Customization>
+        </Field>
+        <Field Type="Note" Name="CC" ID="{3711d8b9-bbb0-4b0f-9a7b-1cd52842aa91}" DisplayName="CC" RichText="FALSE" NumLines="6" Group="EDRM Columns" StaticName="CC" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field ID="{3477A5BC-C605-4B2E-A7C1-8DB8F13C017E}" Name="_OriginalSourceWebId" StaticName="_OriginalSourceWebId" DisplayName="Original Source Web ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
+        <Field ID="{7EFC33C1-B56B-490E-9C9B-1097E971BA96}" Name="ClientSideApplicationId" StaticName="ClientSideApplicationId" DisplayName="Client Application Page ID" Type="Guid" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" AllowDeletion="FALSE" Hidden="TRUE" />
+        <Field ID="{9DE685C5-FDF5-4319-B987-3EDF55EFB36F}" Name="_SPSitePageFlags" StaticName="_SPSitePageFlags" DisplayName="Site Page Flags" Type="MultiChoice" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" AllowDeletion="FALSE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" ShowInVersionHistory="FALSE">
+          <CHOICES>
+            <CHOICE>Template</CHOICE>
+          </CHOICES>
+        </Field>
+        <Field Type="Note" Name="To" ID="{bd2887c7-9fa3-4c9c-8616-16e10dc6fee7}" DisplayName="To" RichText="FALSE" NumLines="6" Group="EDRM Columns" StaticName="To" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field ID="{DAEF58D7-CCFD-43FC-B776-2E292CC66BBA}" Name="PageLayoutType" StaticName="PageLayoutType" DisplayName="Page Layout Type" Type="Text" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" AllowDeletion="FALSE" MaxLength="255" Hidden="TRUE" />
+        <Field ID="{261075DB-0525-4FB8-A6EA-772014186599}" Name="LayoutWebpartsContent" StaticName="LayoutWebpartsContent" DisplayName="Page Layout Content" Type="HTML" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="This column stores the content of webparts in page layout in a site page." ReadOnly="TRUE" AllowDeletion="FALSE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" ShowInVersionHistory="FALSE" RichText="TRUE" RichTextMode="FullHtml" />
+        <Field ID="{1A7348E7-1BB7-4A47-9790-088E7CB20B58}" Name="_AuthorByline" StaticName="_AuthorByline" DisplayName="Author Byline" Type="UserMulti" Mult="TRUE" List="UserInfo" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
+        <Field Type="Note" Name="BCC" ID="{313cbfe8-7470-41d7-89a0-48661fcb8e0d}" DisplayName="BCC" RichText="FALSE" NumLines="6" Group="EDRM Columns" StaticName="BCC" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+        <Field ID="{D60D65FF-FF42-4044-A684-AC3F7A5E598C}" Name="_TopicHeader" StaticName="_TopicHeader" DisplayName="Topic header" Type="Text" SourceID="http://schemas.microsoft.com/sharepoint/v3" Group="_Hidden" Description="" ReadOnly="TRUE" ShowInNewForm="FALSE" ShowInEditForm="FALSE" ShowInDisplayForm="FALSE" ShowInViewForms="FALSE" ShowInListSettings="FALSE" AllowDeletion="FALSE" />
+        <Field Type="DateTime" Name="DateReceived" ID="{a19dcbff-31d0-4f46-b77b-1ef23a195946}" DisplayName="Date Received" Format="DateTime" Group="EDRM Columns" StaticName="DateReceived" SourceID="{72ddd8c6-e157-4cbb-a8a7-f93c3a89eea2}" AllowDeletion="TRUE" />
+      </pnp:SiteFields>
+      <pnp:ContentTypes>
+        <pnp:ContentType ID="0x0101000AF467361929404486B395BE5253DB24" Name="E-mail Submission" Description="Standard content type for emails" Group="EDRM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" />
+            <pnp:FieldRef ID="5f47e085-2150-41dc-b661-442f3027f552" Name="SelectFilename" />
+            <pnp:FieldRef ID="8553196d-ec8d-4564-9861-3dbe931050c8" Name="FileLeafRef" Required="true" />
+            <pnp:FieldRef ID="8c06beca-0777-48f7-91c7-6da68bc07b69" Name="Created" Hidden="true" />
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" />
+            <pnp:FieldRef ID="28cf69c5-fa48-462a-b5cd-27b6f9d2bd5f" Name="Modified" Hidden="true" />
+            <pnp:FieldRef ID="822c78e3-1ea9-4943-b449-57863ad33ca9" Name="Modified_x0020_By" />
+            <pnp:FieldRef ID="4dd7e525-8d6b-4cb4-9d3e-44ee25f973eb" Name="Created_x0020_By" />
+            <pnp:FieldRef ID="76a81629-44d4-4ce1-8d4d-6d7ebcd885fc" Name="Subject" Required="true" />
+            <pnp:FieldRef ID="bd2887c7-9fa3-4c9c-8616-16e10dc6fee7" Name="To" />
+            <pnp:FieldRef ID="17877985-8aab-4260-a8c7-ebddeee8e46d" Name="FromEmail" Required="true" />
+            <pnp:FieldRef ID="3711d8b9-bbb0-4b0f-9a7b-1cd52842aa91" Name="CC" />
+            <pnp:FieldRef ID="313cbfe8-7470-41d7-89a0-48661fcb8e0d" Name="BCC" />
+            <pnp:FieldRef ID="cd200a64-d081-4592-afa9-9ac4bbb3630b" Name="DateSent" />
+            <pnp:FieldRef ID="a19dcbff-31d0-4f46-b77b-1ef23a195946" Name="DateReceived" />
+            <pnp:FieldRef ID="5b3afe7a-6096-44a2-9ad0-9b6369045a54" Name="ConversationTopic" />
+            <pnp:FieldRef ID="07963675-3136-4d46-9db0-9d89e137edc6" Name="ConversationID" />
+            <pnp:FieldRef ID="87ebf237-bf4a-407f-8cec-b0fa5a173945" Name="Fingerprint" />
+            <pnp:FieldRef ID="d0f4c020-08fd-46b4-aec2-1df348e9ee9f" Name="HasAttachments" />
+            <pnp:FieldRef ID="7dbebf15-a5f9-4844-ad10-e58fc61df5d3" Name="Submitter" />
+            <pnp:FieldRef ID="b41ad76d-aef4-4cb3-a28d-041cedcc3f57" Name="j9643757df20455a92d05da5987aebd4" Hidden="true" />
+            <pnp:FieldRef ID="f3b0adf9-c1a2-4b02-920d-943fba4b3611" Name="TaxCatchAll" Hidden="true" />
+            <pnp:FieldRef ID="8f6b6dd8-9357-4019-8172-966fcd502ed2" Name="TaxCatchAllLabel" Hidden="true" />
+            <pnp:FieldRef ID="39643757-df20-455a-92d0-5da5987aebd4" Name="corpclass" Required="true" />
+            <pnp:FieldRef ID="d046adff-3b2c-42b1-ba91-8bd3d303d907" Name="b31265b859324bc190f0ea6186388b49" Hidden="true" />
+            <pnp:FieldRef ID="b31265b8-5932-4bc1-90f0-ea6186388b49" Name="myclass" />
+            <pnp:FieldRef ID="9d29cb3a-0699-4216-be54-1e09798526cd" Name="Sensitivity" Required="true" />
+            <pnp:FieldRef ID="27700e84-9ab3-47eb-b04e-8cadd3bdce8e" Name="RecordPointID" Hidden="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+        <pnp:ContentType ID="0x0101008C4471523B9DAB408DF4D34DA754B589" Name="EDRM Document" Description="Standard content type for documents" Group="EDRM Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" />
+            <pnp:FieldRef ID="5f47e085-2150-41dc-b661-442f3027f552" Name="SelectFilename" />
+            <pnp:FieldRef ID="8553196d-ec8d-4564-9861-3dbe931050c8" Name="FileLeafRef" Required="true" />
+            <pnp:FieldRef ID="8c06beca-0777-48f7-91c7-6da68bc07b69" Name="Created" Hidden="true" />
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" />
+            <pnp:FieldRef ID="28cf69c5-fa48-462a-b5cd-27b6f9d2bd5f" Name="Modified" Hidden="true" />
+            <pnp:FieldRef ID="822c78e3-1ea9-4943-b449-57863ad33ca9" Name="Modified_x0020_By" />
+            <pnp:FieldRef ID="4dd7e525-8d6b-4cb4-9d3e-44ee25f973eb" Name="Created_x0020_By" />
+            <pnp:FieldRef ID="b41ad76d-aef4-4cb3-a28d-041cedcc3f57" Name="j9643757df20455a92d05da5987aebd4" Hidden="true" />
+            <pnp:FieldRef ID="f3b0adf9-c1a2-4b02-920d-943fba4b3611" Name="TaxCatchAll" Hidden="true" />
+            <pnp:FieldRef ID="8f6b6dd8-9357-4019-8172-966fcd502ed2" Name="TaxCatchAllLabel" Hidden="true" />
+            <pnp:FieldRef ID="39643757-df20-455a-92d0-5da5987aebd4" Name="corpclass" Required="true" />
+            <pnp:FieldRef ID="d046adff-3b2c-42b1-ba91-8bd3d303d907" Name="b31265b859324bc190f0ea6186388b49" Hidden="true" />
+            <pnp:FieldRef ID="b31265b8-5932-4bc1-90f0-ea6186388b49" Name="myclass" />
+            <pnp:FieldRef ID="9d29cb3a-0699-4216-be54-1e09798526cd" Name="Sensitivity" Required="true" />
+            <pnp:FieldRef ID="27700e84-9ab3-47eb-b04e-8cadd3bdce8e" Name="RecordPointID" Hidden="true" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+        <pnp:ContentType ID="0x0101009D1CB255DA76424F860D91F20E6C4118002A50BFCFB7614729B56886FADA02339B" Name="Repost Page" Description="Create a new repost page." Group="Document Content Types" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" />
+            <pnp:FieldRef ID="5f47e085-2150-41dc-b661-442f3027f552" Name="SelectFilename" />
+            <pnp:FieldRef ID="8553196d-ec8d-4564-9861-3dbe931050c8" Name="FileLeafRef" Required="true" />
+            <pnp:FieldRef ID="8c06beca-0777-48f7-91c7-6da68bc07b69" Name="Created" Hidden="true" />
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" />
+            <pnp:FieldRef ID="28cf69c5-fa48-462a-b5cd-27b6f9d2bd5f" Name="Modified" Hidden="true" />
+            <pnp:FieldRef ID="822c78e3-1ea9-4943-b449-57863ad33ca9" Name="Modified_x0020_By" />
+            <pnp:FieldRef ID="4dd7e525-8d6b-4cb4-9d3e-44ee25f973eb" Name="Created_x0020_By" />
+            <pnp:FieldRef ID="82642ec8-ef9b-478f-acf9-31f7d45fbc31" Name="LinkTitle" />
+            <pnp:FieldRef ID="7efc33c1-b56b-490e-9c9b-1097e971ba96" Name="ClientSideApplicationId" />
+            <pnp:FieldRef ID="daef58d7-ccfd-43fc-b776-2e292cc66bba" Name="PageLayoutType" />
+            <pnp:FieldRef ID="4966388e-6e12-4bc6-8990-5b5b66153eae" Name="CanvasContent1" />
+            <pnp:FieldRef ID="5baf6db5-9d25-4738-b15e-db5789298e82" Name="BannerImageUrl" />
+            <pnp:FieldRef ID="fb3259ac-bd07-4397-b7aa-03e885b0838e" Name="BannerImageOffset" />
+            <pnp:FieldRef ID="3f155110-a6a2-4d70-926c-94648101f0e8" Name="Description" />
+            <pnp:FieldRef ID="f5ad16a2-85be-46b2-b5f0-2bb8b4a5074a" Name="PromotedState" />
+            <pnp:FieldRef ID="c84f8697-331e-457d-884a-c4fb8f30ea74" Name="FirstPublishedDate" />
+            <pnp:FieldRef ID="261075db-0525-4fb8-a6ea-772014186599" Name="LayoutWebpartsContent" />
+            <pnp:FieldRef ID="1a7348e7-1bb7-4a47-9790-088e7cb20b58" Name="_AuthorByline" />
+            <pnp:FieldRef ID="d60d65ff-ff42-4044-a684-ac3f7a5e598c" Name="_TopicHeader" />
+            <pnp:FieldRef ID="9de685c5-fdf5-4319-b987-3edf55efb36f" Name="_SPSitePageFlags" />
+            <pnp:FieldRef ID="0e7b982f-698a-4d0c-aacb-f16906f66d30" Name="_OriginalSourceUrl" />
+            <pnp:FieldRef ID="36193413-dd5c-4096-8c1e-1b40098b9ba3" Name="_OriginalSourceSiteId" />
+            <pnp:FieldRef ID="3477a5bc-c605-4b2e-a7c1-8db8f13c017e" Name="_OriginalSourceWebId" />
+            <pnp:FieldRef ID="139da674-dbf6-439f-98e0-4eb05fa9a669" Name="_OriginalSourceListId" />
+            <pnp:FieldRef ID="91e86a43-75f2-426f-80da-35edfb47d55d" Name="_OriginalSourceItemId" />
+          </pnp:FieldRefs>
+          <pnp:DocumentTemplate TargetName="/_layouts/15/CreateSitePage.aspx" />
+        </pnp:ContentType>
+      </pnp:ContentTypes>
+      <pnp:Lists>
+        <pnp:ListInstance Title="Pages" Description="This system library was created by the Publishing feature to store pages that are created in this site." DocumentTemplate="" TemplateType="850" Url="Pages" ForceCheckout="true" EnableVersioning="true" EnableMinorVersions="true" MinorVersionLimit="0" MaxVersionLimit="500" DraftVersionVisibility="1" TemplateFeatureID="22a9ef51-737b-4ff2-9346-694633fe4416" ContentTypesEnabled="true" EnableAttachments="false" DefaultDisplayFormUrl="{site}/Pages/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/Pages/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/Pages/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=45" IrmExpire="false" IrmReject="false" IsApplicationList="false" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x010100C568DB52D9D0A14D9B2FDCC96666E9F2007948130EC3DB064584E219954237AF39" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x010100C568DB52D9D0A14D9B2FDCC96666E9F2007948130EC3DB064584E219954237AF3900242457EFB8B24247815D688C526CD44D" />
+            <pnp:ContentTypeBinding ContentTypeID="0x010100C568DB52D9D0A14D9B2FDCC96666E9F2007948130EC3DB064584E219954237AF390064DEA0F50FC8C147B0B6EA0636C4A7D4" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+            <pnp:ContentTypeBinding ContentTypeID="0x010100C568DB52D9D0A14D9B2FDCC96666E9F2007948130EC3DB064584E219954237AF3900796F542FC5E446758C697981E370458C" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{60975283-D619-453D-830F-1B9B77C0D437}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Documents" Url="/sites/PnPTransformationSource/Pages/Forms/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="FileLeafRef" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Editor" />
+                <FieldRef Name="CheckoutUser" />
+                <FieldRef Name="PublishingContact" />
+                <FieldRef Name="PublishingPageLayout" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="9da97a8a-1da5-4a77-98d3-4bc10456e700" Name="Comments" DisplayName="Comments" />
+            <pnp:FieldRef ID="aea1a4dd-0f19-417d-8721-95a1d28762ab" Name="PublishingContact" DisplayName="Contact" />
+            <pnp:FieldRef ID="c79dba91-e60b-400e-973d-c6d06f192720" Name="PublishingContactEmail" DisplayName="Contact E-Mail Address" />
+            <pnp:FieldRef ID="7546ad0d-6c33-4501-b470-fb3003ca14ba" Name="PublishingContactName" DisplayName="Contact Name" />
+            <pnp:FieldRef ID="dc47d55f-9bf9-494a-8d5b-e619214dd19a" Name="PublishingContactPicture" DisplayName="Contact Picture" />
+            <pnp:FieldRef ID="0f800910-b30d-4c8f-b011-8189b2297094" Name="PublishingPageLayout" DisplayName="Page Layout" />
+            <pnp:FieldRef ID="543bc2cf-1f30-488e-8f25-6fe3b689d9ac" Name="PublishingRollupImage" DisplayName="Rollup Image" />
+            <pnp:FieldRef ID="61cbb965-1e04-4273-b658-eedaa662f48d" Name="Audience" DisplayName="Target Audiences" />
+            <pnp:FieldRef ID="50631c24-1371-4ecf-a5ae-ed41b03f4499" Name="PublishingIsFurlPage" DisplayName="Hide physical URLs from search" />
+            <pnp:FieldRef ID="ff92f929-d18b-46d4-9879-521378c689ef" Name="SeoBrowserTitle" DisplayName="Browser Title" />
+            <pnp:FieldRef ID="d83897e5-2430-4df7-8e5a-9bc06c664992" Name="SeoMetaDescription" DisplayName="Meta Description" />
+            <pnp:FieldRef ID="45ae2169-585c-440b-aa4c-1d5e981fbbe5" Name="SeoKeywords" DisplayName="Meta Keywords" />
+            <pnp:FieldRef ID="325c00dd-fd91-468b-81cf-5bb9951abba1" Name="RobotsNoIndex" DisplayName="Hide from Internet Search Engines" />
+            <pnp:FieldRef ID="3de94b06-4120-41a5-b907-88773e493458" Name="PublishingPageImage" DisplayName="Page Image" />
+            <pnp:FieldRef ID="f55c4d88-1f2e-4ad9-aaa8-819af4ee7ee8" Name="PublishingPageContent" DisplayName="Page Content" />
+            <pnp:FieldRef ID="b3525efe-59b5-4f0f-b1e4-6e26cb6ef6aa" Name="SummaryLinks" DisplayName="Summary Links" />
+            <pnp:FieldRef ID="d3429cc9-adc4-439b-84a8-5679070f84cb" Name="ArticleByLine" DisplayName="Byline" />
+            <pnp:FieldRef ID="71316cea-40a0-49f3-8659-f0cefdbdbd4f" Name="ArticleStartDate" DisplayName="Article Date" />
+            <pnp:FieldRef ID="66f500e9-7955-49ab-abb1-663621727d10" Name="PublishingImageCaption" DisplayName="Image Caption" />
+            <pnp:FieldRef ID="27761311-936a-40ba-80cd-ca5e7a540a36" Name="SummaryLinks2" DisplayName="Summary Links 2" />
+          </pnp:FieldRefs>
+          <pnp:Webhooks>
+            <pnp:Webhook ServerNotificationUrl="https://1-uksouth21.pushp.svc.ms/notifications?token=w2-78a3ec43-3eea-4c43-a21f-b2227baa5ca2" ExpiresInDays="1" />
+          </pnp:Webhooks>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Site Pages" Description="" DocumentTemplate="" OnQuickLaunch="true" TemplateType="119" Url="SitePages" EnableVersioning="true" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-c796-4402-9f2f-0eb9a6e71b18" ContentTypesEnabled="true" EnableAttachments="false" EnableFolderCreation="false" DefaultDisplayFormUrl="{site}/SitePages/Forms/DispForm.aspx" DefaultEditFormUrl="{site}/SitePages/Forms/EditForm.aspx" DefaultNewFormUrl="{site}/SitePages/Forms/Upload.aspx" ImageUrl="/_layouts/15/images/itdl.png?rev=45" IrmExpire="false" IrmReject="false" IsApplicationList="true" ValidationFormula="" ValidationMessage="">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0101009D1CB255DA76424F860D91F20E6C4118" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0101009D1CB255DA76424F860D91F20E6C4118002A50BFCFB7614729B56886FADA02339B" />
+            <pnp:ContentTypeBinding ContentTypeID="0x01010901" />
+            <pnp:ContentTypeBinding ContentTypeID="0x010108" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{8406AAFC-0F39-4B97-A964-81B6DA9A370A}" Type="HTML" DisplayName="All Pages" Url="/sites/PnPTransformationSource/SitePages/Forms/AllPages.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ToolbarTemplate="WikiLibraryViewToolBar" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="Modified" Ascending="FALSE" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Editor" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Author" />
+                <FieldRef Name="Created" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+            <View Name="{4A176CF0-0429-4DF1-800D-D9D9F7D0EE87}" Type="HTML" DisplayName="Recent Changes" Url="/sites/PnPTransformationSource/SitePages/Forms/RecentChanges.aspx" Level="1" BaseViewID="2" ContentTypeID="0x" ToolbarTemplate="WikiLibraryViewToolBar" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="Modified" Ascending="FALSE" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Editor" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Author" />
+                <FieldRef Name="Created" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+            <View Name="{71B4E4FD-D200-4DEA-9D1F-A9F2D98F31C1}" Type="HTML" DisplayName="Created By Me" Url="/sites/PnPTransformationSource/SitePages/Forms/CreatedByMe.aspx" Level="1" BaseViewID="3" ContentTypeID="0x" ToolbarTemplate="WikiLibraryViewToolBar" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <Where>
+                  <Eq>
+                    <FieldRef Name="Author" />
+                    <Value Type="Integer">
+                      <UserID />
+                    </Value>
+                  </Eq>
+                </Where>
+                <OrderBy>
+                  <FieldRef Name="FileLeafRef" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Editor" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Author" />
+                <FieldRef Name="Created" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+            <View Name="{7F729789-2209-444B-BA5F-182A317873CF}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="By Author" Url="/sites/PnPTransformationSource/SitePages/Forms/ByAuthor.aspx" Level="1" BaseViewID="4" ContentTypeID="0x" ToolbarTemplate="WikiLibraryViewToolBar" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <GroupBy Collapse="FALSE">
+                  <FieldRef Name="Author" />
+                </GroupBy>
+                <OrderBy>
+                  <FieldRef Name="Modified" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Editor" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Created" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+            <View Name="{AA66FB10-0207-4FF8-A784-4AC8F70BAD16}" Type="HTML" DisplayName="By Editor" Url="/sites/PnPTransformationSource/SitePages/Forms/ByEditor.aspx" Level="1" BaseViewID="5" ContentTypeID="0x" ToolbarTemplate="WikiLibraryViewToolBar" ImageUrl="/_layouts/15/images/dlicon.png?rev=45">
+              <Query>
+                <GroupBy Collapse="FALSE">
+                  <FieldRef Name="Editor" />
+                </GroupBy>
+                <OrderBy>
+                  <FieldRef Name="FileLeafRef" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="DocIcon" />
+                <FieldRef Name="LinkFilename" />
+                <FieldRef Name="Editor" />
+                <FieldRef Name="Modified" />
+                <FieldRef Name="Author" />
+                <FieldRef Name="Created" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="c33527b4-d920-4587-b791-45024d00068a" Name="WikiField" DisplayName="Wiki Content" />
+            <pnp:FieldRef ID="4966388e-6e12-4bc6-8990-5b5b66153eae" Name="CanvasContent1" DisplayName="Authoring Canvas Content" />
+            <pnp:FieldRef ID="5baf6db5-9d25-4738-b15e-db5789298e82" Name="BannerImageUrl" DisplayName="Banner Image URL" />
+            <pnp:FieldRef ID="3f155110-a6a2-4d70-926c-94648101f0e8" Name="Description" DisplayName="Description" />
+            <pnp:FieldRef ID="f5ad16a2-85be-46b2-b5f0-2bb8b4a5074a" Name="PromotedState" DisplayName="Promoted State" />
+            <pnp:FieldRef ID="c84f8697-331e-457d-884a-c4fb8f30ea74" Name="FirstPublishedDate" DisplayName="First Published Date" />
+            <pnp:FieldRef ID="261075db-0525-4fb8-a6ea-772014186599" Name="LayoutWebpartsContent" DisplayName="Page Layout Content" />
+            <pnp:FieldRef ID="1a7348e7-1bb7-4a47-9790-088e7cb20b58" Name="_AuthorByline" DisplayName="Author Byline" />
+            <pnp:FieldRef ID="d60d65ff-ff42-4044-a684-ac3f7a5e598c" Name="_TopicHeader" DisplayName="Topic header" />
+            <pnp:FieldRef ID="9de685c5-fdf5-4319-b987-3edf55efb36f" Name="_SPSitePageFlags" DisplayName="Site Page Flags" />
+            <pnp:FieldRef ID="0e7b982f-698a-4d0c-aacb-f16906f66d30" Name="_OriginalSourceUrl" DisplayName="Original Source Url" />
+            <pnp:FieldRef ID="36193413-dd5c-4096-8c1e-1b40098b9ba3" Name="_OriginalSourceSiteId" DisplayName="Original Source Site ID" />
+            <pnp:FieldRef ID="3477a5bc-c605-4b2e-a7c1-8db8f13c017e" Name="_OriginalSourceWebId" DisplayName="Original Source Web ID" />
+            <pnp:FieldRef ID="139da674-dbf6-439f-98e0-4eb05fa9a669" Name="_OriginalSourceListId" DisplayName="Original Source List ID" />
+            <pnp:FieldRef ID="91e86a43-75f2-426f-80da-35edfb47d55d" Name="_OriginalSourceItemId" DisplayName="Original Source Item ID" />
+          </pnp:FieldRefs>
+          <pnp:Webhooks>
+            <pnp:Webhook ServerNotificationUrl="https://1-uksouth21.pushp.svc.ms/notifications?token=w3-0ce8c2f1-6a4e-4ec2-80ad-f610f4a57f60" ExpiresInDays="1" />
+          </pnp:Webhooks>
+        </pnp:ListInstance>
+      </pnp:Lists>
+      <pnp:Features>
+        <pnp:SiteFeatures>
+          <pnp:Feature ID="ff77ac56-88d0-4147-b865-e84f5f03fc42" />
+        </pnp:SiteFeatures>
+        <pnp:WebFeatures>
+          <pnp:Feature ID="8c6f9096-388d-4eed-96ff-698b3ec46fc4" />
+          <pnp:Feature ID="b6917cb1-93a0-4b97-a84d-7cf49975d4ec" />
+        </pnp:WebFeatures>
+      </pnp:Features>
+      <pnp:Files>
+        <pnp:File Src="Pages\default.aspx" Folder="{site}/Pages" Overwrite="true" Level="Published">
+          <pnp:Properties>
+            <pnp:Property Key="ContentTypeId" Value="{contenttypeid:Welcome Page}" />
+            <pnp:Property Key="Title" Value="Contoso Sauce" />
+            <pnp:Property Key="PublishingPageLayout" Value="{masterpagecatalog}/BlankWebPartPage.aspx, Blank Web Part page" />
+            <pnp:Property Key="PublishingPageContent" Value="&lt;h2&gt;Welcome to Your Publishing Site&lt;/h2&gt;&lt;h3 class=&quot;ms-rteElement-H3&quot;&gt;These links will help you get started.&lt;/h3&gt;" />
+            <pnp:Property Key="BSN" Value="Microsoft.SharePoint.Client.FieldLookupValue" />
+            <pnp:Property Key="_ListSchemaVersion" Value="49" />
+            <pnp:Property Key="_Dirty" Value="0" />
+            <pnp:Property Key="_Parsable" Value="1" />
+            <pnp:Property Key="_StubFile" Value="0" />
+            <pnp:Property Key="_VirusStatus" Value="0" />
+            <pnp:Property Key="_VirusVendorID" Value="4564" />
+            <pnp:Property Key="_IpLabelId" Value="Microsoft.SharePoint.Client.FieldLookupValue" />
+          </pnp:Properties>
+          <pnp:WebParts>
+            <pnp:WebPart Title="Content" Zone="TopLeftRow" Order="1">
+              <pnp:Contents>
+                <WebPart xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/WebPart/v2">
+                  <Title>Content</Title>
+                  <FrameType>None</FrameType>
+                  <Description>Use for formatted text, tables, and images.</Description>
+                  <IsIncluded>true</IsIncluded>
+                  <ZoneID>TopLeftRow</ZoneID>
+                  <PartOrder>1</PartOrder>
+                  <FrameState>Normal</FrameState>
+                  <Height />
+                  <Width />
+                  <AllowRemove>true</AllowRemove>
+                  <AllowZoneChange>true</AllowZoneChange>
+                  <AllowMinimize>true</AllowMinimize>
+                  <AllowConnect>true</AllowConnect>
+                  <AllowEdit>true</AllowEdit>
+                  <AllowHide>true</AllowHide>
+                  <IsVisible>true</IsVisible>
+                  <DetailLink />
+                  <HelpLink />
+                  <HelpMode>Modeless</HelpMode>
+                  <Dir>Default</Dir>
+                  <PartImageSmall />
+                  <MissingAssembly>Cannot import this Web Part.</MissingAssembly>
+                  <PartImageLarge />
+                  <IsIncludedFilter />
+                  <Assembly>Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Assembly>
+                  <TypeName>Microsoft.SharePoint.WebPartPages.ContentEditorWebPart</TypeName>
+                  <ContentLink xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor" />
+                  <Content xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor"><![CDATA[
+                            <h2>I'm the Information Architect</h2>
+                          ]]></Content>
+                  <PartStorage xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor" />
+                </WebPart>
+              </pnp:Contents>
+            </pnp:WebPart>
+            <pnp:WebPart Title="Content" Zone="TopRightRow" Order="1">
+              <pnp:Contents>
+                <WebPart xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/WebPart/v2">
+                  <Title>Content</Title>
+                  <FrameType>None</FrameType>
+                  <Description>Use for formatted text, tables, and images.</Description>
+                  <IsIncluded>true</IsIncluded>
+                  <ZoneID>TopRightRow</ZoneID>
+                  <PartOrder>1</PartOrder>
+                  <FrameState>Normal</FrameState>
+                  <Height />
+                  <Width />
+                  <AllowRemove>true</AllowRemove>
+                  <AllowZoneChange>true</AllowZoneChange>
+                  <AllowMinimize>true</AllowMinimize>
+                  <AllowConnect>true</AllowConnect>
+                  <AllowEdit>true</AllowEdit>
+                  <AllowHide>true</AllowHide>
+                  <IsVisible>true</IsVisible>
+                  <DetailLink />
+                  <HelpLink />
+                  <HelpMode>Modeless</HelpMode>
+                  <Dir>Default</Dir>
+                  <PartImageSmall />
+                  <MissingAssembly>Cannot import this Web Part.</MissingAssembly>
+                  <PartImageLarge />
+                  <IsIncludedFilter />
+                  <Assembly>Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Assembly>
+                  <TypeName>Microsoft.SharePoint.WebPartPages.ContentEditorWebPart</TypeName>
+                  <ContentLink xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor" />
+                  <Content xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor"><![CDATA[
+                            <h2>I'm the Visual Designer</h2>
+                          ]]></Content>
+                  <PartStorage xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor" />
+                </WebPart>
+              </pnp:Contents>
+            </pnp:WebPart>
+            <pnp:WebPart Title="" Zone="TopLeftRow" Order="2">
+              <pnp:Contents>
+                <webParts>
+                  <webPart xmlns="http://schemas.microsoft.com/WebPart/v3">
+                    <metaData>
+                      <type name="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />
+                      <importErrorMessage>Cannot import this web part.</importErrorMessage>
+                    </metaData>
+                    <data>
+                      <properties>
+                        <property name="InitialAsyncDataFetch" type="bool">False</property>
+                        <property name="ChromeType" type="chrometype">None</property>
+                        <property name="HeaderXslLink" type="string" />
+                        <property name="Height" type="string" />
+                        <property name="CacheXslStorage" type="bool">True</property>
+                        <property name="SummaryLinkStore" type="string">
+                                    &lt;div title="_schemaversion" id="_3"&gt;
+                                        &lt;div title="_links"&gt;        
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Set up site permissions&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Manage users' permission levels.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/user.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/user.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Manage users' permission levels.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;1&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;True&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Make your site multilingual&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Use the variations feature to manage sites and navigation across languages.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/VariationLabels.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/VariationLabels.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Use the variations feature to manage sites and navigation across languages.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;2&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Define content types&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Create content types for the page, document, and item types in this site.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/mngctype.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/mngctype.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Create content types for the page, document, and item types in this site.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;4&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Configure navigation&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Choose and configure the navigation model for this site.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/areanavigationsettings.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/areanavigationsettings.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Choose and configure the navigation model for this site.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;5&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Create and configure site content&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Create libraries, lists, apps, and subsites to store content, and configure them to use content types.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/viewlsts.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/viewlsts.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Create libraries, lists, apps, and subsites to store content, and configure them to use content types.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;6&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Customize your search center&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Configure the search settings for this site.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/enhancedSearch.aspx?level=site"&gt;/sites/PnPTransformationSource/_layouts/15/enhancedSearch.aspx?level=site&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Configure the search settings for this site.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;8&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                        &lt;div title="_view"&gt;
+                                            &lt;span title="_columns"&gt;1&lt;/span&gt;
+                                            &lt;span title="_linkstyle"&gt;&lt;/span&gt;
+                                            &lt;span title="_groupstyle"&gt;&lt;/span&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                    </property>
+                        <property name="ListName" type="string" null="true" />
+                        <property name="AllowZoneChange" type="bool">True</property>
+                        <property name="AutoRefresh" type="bool">False</property>
+                        <property name="XmlDefinitionLink" type="string" />
+                        <property name="DataFields" type="string" />
+                        <property name="NoDefaultStyle" type="string" />
+                        <property name="XslLink" type="string" null="true" />
+                        <property name="ViewFlag" type="string">0</property>
+                        <property name="MainXslLink" type="string" />
+                        <property name="CatalogIconImageUrl" type="string" />
+                        <property name="AutoRefreshInterval" type="int">60</property>
+                        <property name="AllowConnect" type="bool">True</property>
+                        <property name="DataSourcesString" type="string" />
+                        <property name="AllowClose" type="bool">True</property>
+                        <property name="ShowWithSampleData" type="bool">False</property>
+                        <property name="Xsl" type="string" null="true" />
+                        <property name="EnableOriginalValue" type="bool">False</property>
+                        <property name="Default" type="string" />
+                        <property name="Hidden" type="bool">False</property>
+                        <property name="ListUrl" type="string" null="true" />
+                        <property name="DataSourceID" type="string" />
+                        <property name="ParameterBindings" type="string" />
+                        <property name="FireInitialRow" type="bool">True</property>
+                        <property name="ManualRefresh" type="bool">False</property>
+                        <property name="ViewFlags" type="Microsoft.SharePoint.SPViewFlags, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">None</property>
+                        <property name="ChromeState" type="chromestate">Normal</property>
+                        <property name="AllowHide" type="bool">True</property>
+                        <property name="ListDisplayName" type="string" null="true" />
+                        <property name="SampleData" type="string" null="true" />
+                        <property name="AsyncRefresh" type="bool">False</property>
+                        <property name="Title" type="string" />
+                        <property name="ListId" type="System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">00000000-0000-0000-0000-000000000000</property>
+                        <property name="Description" type="string" />
+                        <property name="AllowMinimize" type="bool">True</property>
+                        <property name="TitleUrl" type="string" />
+                        <property name="ItemXslLink" type="string" />
+                        <property name="CacheXslTimeOut" type="int">86400</property>
+                        <property name="DisplayName" type="string" />
+                        <property name="PageType" type="Microsoft.SharePoint.PAGETYPE, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">PAGE_NORMALVIEW</property>
+                        <property name="Width" type="string" />
+                        <property name="AllowEdit" type="bool">True</property>
+                        <property name="ExportMode" type="exportmode">All</property>
+                        <property name="Direction" type="direction">NotSet</property>
+                        <property name="PageSize" type="int">-1</property>
+                        <property name="ViewContentTypeId" type="string" />
+                        <property name="HelpUrl" type="string" />
+                        <property name="XmlDefinition" type="string" />
+                        <property name="UseSQLDataSourcePaging" type="bool">True</property>
+                        <property name="TitleIconImageUrl" type="string" />
+                        <property name="MissingAssembly" type="string">Cannot import this web part.</property>
+                        <property name="HelpMode" type="helpmode">Modeless</property>
+                      </properties>
+                    </data>
+                  </webPart>
+                </webParts>
+              </pnp:Contents>
+            </pnp:WebPart>
+            <pnp:WebPart Title="" Zone="TopRightRow" Order="2">
+              <pnp:Contents>
+                <webParts>
+                  <webPart xmlns="http://schemas.microsoft.com/WebPart/v3">
+                    <metaData>
+                      <type name="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />
+                      <importErrorMessage>Cannot import this web part.</importErrorMessage>
+                    </metaData>
+                    <data>
+                      <properties>
+                        <property name="InitialAsyncDataFetch" type="bool">False</property>
+                        <property name="ChromeType" type="chrometype">None</property>
+                        <property name="HeaderXslLink" type="string" />
+                        <property name="Height" type="string" />
+                        <property name="CacheXslStorage" type="bool">True</property>
+                        <property name="SummaryLinkStore" type="string">
+                                    &lt;div title="_schemaversion" id="_3"&gt;
+                                        &lt;div title="_links"&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Import a design package&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Import a design package to apply to your site.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/DesignPackageInstall.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/DesignPackageInstall.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Import a design package to apply to your site.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;1&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;True&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Configure image renditions&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Define the dimensions that will be used and available for uploaded images that appear throughout this site.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/ImageRenditionSettings.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/ImageRenditionSettings.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Define the dimensions that will be used and available for uploaded images that appear throughout this site.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;2&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Design your site&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Create the brand of your site through device channels, master pages, page layouts, and display templates.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/DesignSite.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/DesignSite.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Design your site&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;3&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                            &lt;div title="_link"&gt;
+                                                &lt;span title="_title"&gt;Choose availability of site templates&lt;/span&gt;
+                                                &lt;span title="_description"&gt;Specify which page layouts and site templates will be available for use on this site or any subsites.&lt;/span&gt;
+                                                &lt;span title="_linkurl"&gt;
+                                                    &lt;a href="{site}/_layouts/15/AreaTemplateSettings.aspx"&gt;/sites/PnPTransformationSource/_layouts/15/AreaTemplateSettings.aspx&lt;/a&gt;
+                                                &lt;/span&gt;
+                                                &lt;span title="_linktooltip"&gt;Specify which page layouts and site templates will be available for use on this site or any subsites.&lt;/span&gt;
+                                                &lt;span title="_openinnewwindow"&gt;True&lt;/span&gt;
+                                                &lt;span title="_style"&gt;Default&lt;/span&gt;
+                                                &lt;span title="_order"&gt;4&lt;/span&gt;
+                                                &lt;span title="_begincolumn"&gt;False&lt;/span&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                        &lt;div title="_view"&gt;
+                                            &lt;span title="_columns"&gt;1&lt;/span&gt;
+                                            &lt;span title="_linkstyle"&gt;&lt;/span&gt;
+                                            &lt;span title="_groupstyle"&gt;&lt;/span&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                    </property>
+                        <property name="ListName" type="string" null="true" />
+                        <property name="AllowZoneChange" type="bool">True</property>
+                        <property name="AutoRefresh" type="bool">False</property>
+                        <property name="XmlDefinitionLink" type="string" />
+                        <property name="DataFields" type="string" />
+                        <property name="NoDefaultStyle" type="string" />
+                        <property name="XslLink" type="string" null="true" />
+                        <property name="ViewFlag" type="string">0</property>
+                        <property name="MainXslLink" type="string" />
+                        <property name="CatalogIconImageUrl" type="string" />
+                        <property name="AutoRefreshInterval" type="int">60</property>
+                        <property name="AllowConnect" type="bool">True</property>
+                        <property name="DataSourcesString" type="string" />
+                        <property name="AllowClose" type="bool">True</property>
+                        <property name="ShowWithSampleData" type="bool">False</property>
+                        <property name="Xsl" type="string" null="true" />
+                        <property name="EnableOriginalValue" type="bool">False</property>
+                        <property name="Default" type="string" />
+                        <property name="Hidden" type="bool">False</property>
+                        <property name="ListUrl" type="string" null="true" />
+                        <property name="DataSourceID" type="string" />
+                        <property name="ParameterBindings" type="string" />
+                        <property name="FireInitialRow" type="bool">True</property>
+                        <property name="ManualRefresh" type="bool">False</property>
+                        <property name="ViewFlags" type="Microsoft.SharePoint.SPViewFlags, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">None</property>
+                        <property name="ChromeState" type="chromestate">Normal</property>
+                        <property name="AllowHide" type="bool">True</property>
+                        <property name="ListDisplayName" type="string" null="true" />
+                        <property name="SampleData" type="string" null="true" />
+                        <property name="AsyncRefresh" type="bool">False</property>
+                        <property name="Title" type="string" />
+                        <property name="ListId" type="System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">00000000-0000-0000-0000-000000000000</property>
+                        <property name="Description" type="string" />
+                        <property name="AllowMinimize" type="bool">True</property>
+                        <property name="TitleUrl" type="string" />
+                        <property name="ItemXslLink" type="string" />
+                        <property name="CacheXslTimeOut" type="int">86400</property>
+                        <property name="DisplayName" type="string" />
+                        <property name="PageType" type="Microsoft.SharePoint.PAGETYPE, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">PAGE_NORMALVIEW</property>
+                        <property name="Width" type="string" />
+                        <property name="AllowEdit" type="bool">True</property>
+                        <property name="ExportMode" type="exportmode">All</property>
+                        <property name="Direction" type="direction">NotSet</property>
+                        <property name="PageSize" type="int">-1</property>
+                        <property name="ViewContentTypeId" type="string" />
+                        <property name="HelpUrl" type="string" />
+                        <property name="XmlDefinition" type="string" />
+                        <property name="UseSQLDataSourcePaging" type="bool">True</property>
+                        <property name="TitleIconImageUrl" type="string" />
+                        <property name="MissingAssembly" type="string">Cannot import this web part.</property>
+                        <property name="HelpMode" type="helpmode">Modeless</property>
+                      </properties>
+                    </data>
+                  </webPart>
+                </webParts>
+              </pnp:Contents>
+            </pnp:WebPart>
+          </pnp:WebParts>
+        </pnp:File>
+      </pnp:Files>
+      <pnp:Publishing AutoCheckRequirements="MakeCompliant">
+        <pnp:ImageRenditions>
+          <pnp:ImageRendition Name="Display Template Picture 3 Lines" Width="100" Height="100" />
+          <pnp:ImageRendition Name="Display Template Picture On Top" Width="304" Height="100" />
+          <pnp:ImageRendition Name="Display Template Large Picture" Width="468" Height="220" />
+          <pnp:ImageRendition Name="Display Template Video" Width="120" Height="68" />
+        </pnp:ImageRenditions>
+      </pnp:Publishing>
+    </pnp:ProvisioningTemplate>
+  </pnp:Templates>
+</pnp:Provisioning>
