@@ -94,11 +94,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Use a PnP Provisioning template to create a site assets library
             // We cannot assume the SiteAssets library exists, in the case of vanilla communication sites - provision a new library if none exists
             // If a site assets library exist, add a folder, into the library using the same format as SharePoint uses for creating sub folders for pages
-            // Investigate this endpoint -  Request URL: https://capadev.sharepoint.com/sites/TestSiteAssetsProvision/_api/sitepages/AddImage?
-            //      imageFileName =%2748815%2Dshutterstock%5F42176488%2Ejpg%27&pageName=%27TestSiteAssetsProvision%27&$select=ListId,ServerRelativeUrl,Title,UniqueId
-            // 
-            // Request URL: https://capadev.sharepoint.com/sites/TestSiteAssetsProvision/_api/SP.Web.GetDocumentAndMediaLibraries
-            // ?webFullUrl='https%3A%2F%2Fcapadev%2Esharepoint%2Ecom%2Fsites%2FTestSiteAssetsProvision'&includePageLibraries='false'
 
             throw new NotImplementedException();
         }
@@ -108,43 +103,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="sourceFileUrl"></param>
         /// <param name="targetLocationUrl"></param>
-        //public void CopyAssetToTargetLocation(string sourceFileUrl, string targetLocationUrl)
-        //{
-        //    // This copies the latest version of the asset to the target site collection
-        //    // Going to need to add a bunch of checks to ensure the target file exists
-
-        //    // Get the file from SharePoint
-        //    var sourceAssetFile = _sourceClientContext.Web.GetFileByServerRelativeUrl(sourceFileUrl);
-        //    _sourceClientContext.Load(sourceAssetFile);
-        //    _sourceClientContext.ExecuteQueryRetry();
-
-        //    // Transfer the file using stream
-        //    var sourceStream = sourceAssetFile.OpenBinaryStream();
-
-        //    // Create a new file
-        //    var fileCreationInformation = new FileCreationInformation();
-        //    fileCreationInformation.ContentStream = sourceStream.Value;
-        //    fileCreationInformation.Overwrite = false; // No need to overwrite
-        //    fileCreationInformation.Url = $"{targetLocationUrl}/{sourceAssetFile.Name}";
-
-        //    // Add the file to the target site
-        //    Folder folder = _targetClientContext.Web.GetFolderByServerRelativeUrl(targetLocationUrl);
-        //    Microsoft.SharePoint.Client.File uploadFile = folder.Files.Add(
-        //        fileCreationInformation);
-
-        //    _targetClientContext.Load(uploadFile);
-        //    _targetClientContext.ExecuteQueryRetry();
-
-        //}
-
-        /// <summary>
-        /// Copy the file from the source to the target location
-        /// </summary>
-        /// <param name="sourceFileUrl"></param>
-        /// <param name="targetLocationUrl"></param>
-        /// <remarks>Based on the documentation: https://docs.microsoft.com/en-us/sharepoint/dev/solution-guidance/upload-large-files-sample-app-for-sharepoint</remarks>
+        /// <remarks>
+        ///     Based on the documentation: https://docs.microsoft.com/en-us/sharepoint/dev/solution-guidance/upload-large-files-sample-app-for-sharepoint
+        /// </remarks>
         public void CopyAssetToTargetLocation(string sourceFileUrl, string targetLocationUrl, int fileChunkSizeInMB = 3)
         {
+            // This copies the latest version of the asset to the target site collection
+            // Going to need to add a bunch of checks to ensure the target file exists
             // TODO: Need to add a ton of error and logging here
 
             // Each sliced upload requires a unique ID.
