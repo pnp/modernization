@@ -18,32 +18,45 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_TransformTest()
+        public void AssetTransfer_CopyAssetToTargetLocation_SmallFileTest()
         {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
                 using (var sourceClientContext = TestCommon.CreateClientContext())
                 {
-                    var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
 
-                    var pages = sourceClientContext.Web.GetPages("p");
+                    // Very crude test - ensure the site is setup for this ahead of the test
+                    var sourceFileServerRelativeUrl = "/sites/PnPTransformationSource/SiteCollectionImages/extra8_500x500.jpg";
+                    var targetLocation = "/sites/PnPTransformationTarget/Shared%20Documents"; //Shared Documents for example, Site Assets may not exist on vanilla sites
 
-                    foreach (var page in pages)
-                    {
-                        PageTransformationInformation pti = new PageTransformationInformation(page)
-                        {
-                            // If target page exists, then overwrite it
-                            Overwrite = true,
+                    assetTransfer.CopyAssetToTargetLocation(sourceFileServerRelativeUrl, targetLocation);
+                }
+            }
+        }
 
-                            // Don't log test runs
-                            SkipTelemetry = true,
+        /// <summary>
+        /// This test validates with SharePoint the entire operation
+        /// </summary>
+        [TestMethod]
+        public void AssetTransfer_CopyAssetToTargetLocation_LargeFileTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
-                            // Transfer the assets to the target site collection
-                            IncludeReferencedAssets = true
-                        };
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext())
+                {
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
 
-                        pageTransformator.Transform(pti);
-                    }
+                    // Very crude test - ensure the site is setup for this ahead of the test
+                    // Note this file is not included in this project assets due to its licensing. Pls find a > 3MB file to use as a test.
+                    var sourceFileServerRelativeUrl = "/sites/PnPTransformationSource/SiteCollectionImages/bigstock-Html-Web-Code-57446159.jpg";
+                    var targetLocation = "/sites/PnPTransformationTarget/Shared%20Documents"; //Shared Documents for example, Site Assets may not exist on vanilla sites
+
+                    assetTransfer.CopyAssetToTargetLocation(sourceFileServerRelativeUrl, targetLocation);
                 }
             }
         }
