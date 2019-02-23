@@ -208,6 +208,7 @@
     </None>
     <None Include="App.config.sample" />
     <None Include="packages.config" />
+    <None Include="Provision\Documents\Contoso_Report.pptx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharePointPnP.Modernization.Framework\SharePointPnP.Modernization.Framework.csproj">
@@ -216,6 +217,51 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Provision\ClassicPublishingSite-SampleData.xml" />
+    <Content Include="Provision\Publishing Images\Commercial16_smallmeeting_02.jpg" />
+    <Content Include="Provision\Publishing Images\meeting-rooms.jpg" />
+    <Content Include="Provision\Publishing Images\modernOffice_002.jpg" />
+    <Content Include="Provision\Publishing Images\modernOffice_007.jpg" />
+    <Content Include="Provision\Publishing Images\modernOffice_011.jpg" />
+    <Content Include="Provision\Publishing Images\MSSurface_Pro4_SMB_Seattle_0578.jpg" />
+    <Content Include="Provision\Publishing Images\page-faq.jpg" />
+    <Content Include="Provision\Publishing Images\page-feedback.jpg" />
+    <Content Include="Provision\Publishing Images\page-financial-results.jpg" />
+    <Content Include="Provision\Publishing Images\page-hr.jpg" />
+    <Content Include="Provision\Publishing Images\page-my-profile.jpg" />
+    <Content Include="Provision\Publishing Images\page-people-directory.jpg" />
+    <Content Include="Provision\Publishing Images\page-support.jpg" />
+    <Content Include="Provision\Publishing Images\page-training.jpg" />
+    <Content Include="Provision\Publishing Images\page-travel-instructions.jpg" />
+    <Content Include="Provision\Publishing Images\WCO18_ITHelp_004.jpg" />
+    <Content Include="Provision\Publishing Images\WCO18_whiteboard_002.jpg" />
+    <Content Include="Provision\Publishing Images\Win17_15021_00_N9.jpg" />
+    <Content Include="Provision\Publishing Images\work-life-balance.png" />
+    <Content Include="Provision\Publishing Images\working-methods.jpg" />
+    <Content Include="Provision\Site Collection Images\contoso-electronics-transp-1200.png" />
+    <Content Include="Provision\Site Collection Images\contoso-electronics-transp-300.png" />
+    <Content Include="Provision\Site Collection Images\contoso-electronics-transp-600.png" />
+    <Content Include="Provision\Site Collection Images\contoso-sale-site.png" />
+    <Content Include="Provision\Site Collection Images\contoso_logo_twitter.png" />
+    <Content Include="Provision\Site Collection Images\logo_benefits.png" />
+    <Content Include="Provision\Site Collection Images\logo_data_center_technologies.png" />
+    <Content Include="Provision\Site Collection Images\logo_design_tools_software.png" />
+    <Content Include="Provision\Site Collection Images\logo_finance.png" />
+    <Content Include="Provision\Site Collection Images\logo_graphics_visual_technologies.png" />
+    <Content Include="Provision\Site Collection Images\logo_hr.png" />
+    <Content Include="Provision\Site Collection Images\logo_IT.png" />
+    <Content Include="Provision\Site Collection Images\logo_legal.png" />
+    <Content Include="Provision\Site Collection Images\logo_memory_networking_technologies.png" />
+    <Content Include="Provision\Site Collection Images\logo_sales_web_site.png" />
+    <Content Include="Provision\Site Collection Images\logo_technologies.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_01.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_03.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_08.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_11.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_14.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_15.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_16.png" />
+    <Content Include="Provision\Site Collection Images\logo_v_19.png" />
     <Content Include="Transform\Bullets\Bullets_1.html" />
     <Content Include="Transform\Headers\header_1.html" />
     <Content Include="Transform\RichText\richtext_1.html" />
