@@ -116,13 +116,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
         }
         [TestMethod]
-        public void CrossSiteTransform_SameSiteTest()
+        public void CrossSiteTransform_SameSite_WebPartPageTest()
         {
             using (var sourceClientContext = TestCommon.CreateClientContext())
             {
                 var pageTransformator = new PageTransformator(sourceClientContext);
 
-                var pages = sourceClientContext.Web.GetPages("p");
+                var pages = sourceClientContext.Web.GetPages("wpp");
 
                 foreach (var page in pages)
                 {
@@ -144,7 +144,64 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                         //TargetPageTakesSourcePageName = true,
 
                         // Give the migrated page a specific prefix, default is Migrated_
-                        //TargetPagePrefix = "Yes_",
+                        TargetPagePrefix = "Converted_",
+
+                        // Configure the page header, empty value means ClientSidePageHeaderType.None
+                        //PageHeader = new ClientSidePageHeader(cc, ClientSidePageHeaderType.None, null),
+
+                        // If the page is a home page then replace with stock home page
+                        //ReplaceHomePageWithDefaultHomePage = true,
+
+                        // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
+                        HandleWikiImagesAndVideos = false,
+
+                        // Callout to your custom code to allow for title overriding
+                        //PageTitleOverride = titleOverride,
+
+                        // Callout to your custom layout handler
+                        //LayoutTransformatorOverride = layoutOverride,
+
+                        // Callout to your custom content transformator...in case you fully want replace the model
+                        //ContentTransformatorOverride = contentOverride,
+                    };
+
+                    pageTransformator.Transform(pti);
+                }
+
+            }
+
+        }
+
+        [TestMethod]
+        public void CrossSiteTransform_SameSite_WikiPageTest()
+        {
+            using (var sourceClientContext = TestCommon.CreateClientContext())
+            {
+                var pageTransformator = new PageTransformator(sourceClientContext);
+
+                var pages = sourceClientContext.Web.GetPages("wk");
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        // ModernizationCenter options
+                        ModernizationCenterInformation = new ModernizationCenterInformation()
+                        {
+                            AddPageAcceptBanner = true
+                        },
+
+                        // Migrated page gets the name of the original page
+                        //TargetPageTakesSourcePageName = true,
+
+                        // Give the migrated page a specific prefix, default is Migrated_
+                        TargetPagePrefix = "Converted_",
 
                         // Configure the page header, empty value means ClientSidePageHeaderType.None
                         //PageHeader = new ClientSidePageHeader(cc, ClientSidePageHeaderType.None, null),
