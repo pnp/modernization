@@ -181,6 +181,10 @@ namespace SharePointPnP.Modernization.Framework {
         
         private string typeField;
         
+        private bool crossSiteTransformationSupportedField;
+        
+        private bool crossSiteTransformationSupportedFieldSpecified;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
         public Property[] Properties {
@@ -210,6 +214,28 @@ namespace SharePointPnP.Modernization.Framework {
             }
             set {
                 this.typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool CrossSiteTransformationSupported {
+            get {
+                return this.crossSiteTransformationSupportedField;
+            }
+            set {
+                this.crossSiteTransformationSupportedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool CrossSiteTransformationSupportedSpecified {
+            get {
+                return this.crossSiteTransformationSupportedFieldSpecified;
+            }
+            set {
+                this.crossSiteTransformationSupportedFieldSpecified = value;
             }
         }
     }

@@ -135,6 +135,7 @@
       <xs:element name="Mappings" type="Mappings" minOccurs="0" maxOccurs="1" />
     </xs:sequence>
     <xs:attribute name="Type" type="xs:string" use="required" />
+    <xs:attribute name="CrossSiteTransformationSupported" type="xs:boolean" use="optional" />
   </xs:complexType>
 
   <xs:complexType name="WebParts">
