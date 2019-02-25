@@ -781,9 +781,9 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// <param name="itemLimit"></param>
         /// <param name="displayColumns"></param>
         /// <param name="dataMappings"></param>
-        /// <returns>Properties collection for the contentrollup (= Highlighted Content) web part</returns>
-        [FunctionDocumentation(Description = "Maps content by query web part data into a properties collection for the contentrollup (= Highlighted Content) web part", 
-                               Example = "{JsonProperties} = ContentByQueryToHighlightedContentProperties({WebUrl},{ListGuid},{ListName},{ServerTemplate},{ContentTypeBeginsWithId},{FilterField1},{Filter1ChainingOperator},{FilterDisplayValue1},{FilterOperator1},{FilterField2},{Filter2ChainingOperator},{FilterDisplayValue2},{FilterOperator2},{FilterField3},{FilterDisplayValue3},{FilterOperator3},{SortBy},{SortByDirection},{GroupBy},{GroupByDirection},{ItemLimit},{DisplayColumns},{DataMappings})")]
+        /// <returns>A properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part</returns>
+        [FunctionDocumentation(Description = "Maps content by query web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part", 
+                               Example = "ContentByQueryToHighlightedContentProperties({WebUrl},{ListGuid},{ListName},{ServerTemplate},{ContentTypeBeginsWithId},{FilterField1},{Filter1ChainingOperator},{FilterDisplayValue1},{FilterOperator1},{FilterField2},{Filter2ChainingOperator},{FilterDisplayValue2},{FilterOperator2},{FilterField3},{FilterDisplayValue3},{FilterOperator3},{SortBy},{SortByDirection},{GroupBy},{GroupByDirection},{ItemLimit},{DisplayColumns},{DataMappings})")]
         [InputDocumentation(Name = "{WebUrl}", Description = "")]
         [InputDocumentation(Name = "{ListGuid}", Description = "")]
         [InputDocumentation(Name = "{ListName}", Description = "")]
@@ -808,13 +808,18 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [InputDocumentation(Name = "{DisplayColumns}", Description = "")]
         [InputDocumentation(Name = "{DataMappings}", Description = "")]
         [OutputDocumentation(Name = "JsonProperties", Description = "Properties collection for the contentrollup (= Highlighted Content) web part")]
-        public string ContentByQueryToHighlightedContentProperties(string webUrl, string listGuid, string listName, string serverTemplate, string contentTypeBeginsWithId,
-                                                                   string filterField1, string filter1ChainingOperator, string filterField1Value, string filterOperator1,
-                                                                   string filterField2, string filter2ChainingOperator, string filterField2Value, string filterOperator2,
-                                                                   string filterField3, string filterField3Value, string filterOperator3,
-                                                                   string sortBy, string sortByDirection, string groupBy, string groupByDirection, string itemLimit, int displayColumns,
-                                                                   string dataMappings)
+        [OutputDocumentation(Name = "SearchablePlainTexts", Description = "SearchablePlainTexts nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "Links", Description = "Links nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "ImageSources", Description = "ImageSources nodes to be added in the serverProcessedContent node")]
+        public Dictionary<string, string> ContentByQueryToHighlightedContentProperties(string webUrl, string listGuid, string listName, string serverTemplate, string contentTypeBeginsWithId,
+                                                                                       string filterField1, string filter1ChainingOperator, string filterField1Value, string filterOperator1,
+                                                                                       string filterField2, string filter2ChainingOperator, string filterField2Value, string filterOperator2,
+                                                                                       string filterField3, string filterField3Value, string filterOperator3,
+                                                                                       string sortBy, string sortByDirection, string groupBy, string groupByDirection, string itemLimit, int displayColumns,
+                                                                                       string dataMappings)
         {
+            Dictionary<string, string> results = new Dictionary<string, string>();
+
             ContentByQuery cbq = new ContentByQuery()
             {
                 WebUrl = webUrl,
@@ -848,7 +853,14 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             ContentByQuerySearchTransformator cqs = new ContentByQuerySearchTransformator(this.clientContext);
             var res = cqs.TransformContentByQueryWebPartToHighlightedContent(cbq);
-            return res;
+
+            // Output the calculated properties so then can be used in the mapping
+            results.Add("JsonProperties", res.Properties);
+            results.Add("SearchablePlainTexts", res.SearchablePlainTexts);
+            results.Add("Links", res.Links);
+            results.Add("ImageSources", res.ImageSources);
+
+            return results;
         }
 
         [SelectorDocumentation(Description = "Analyzes a list and returns if the list can be transformed.",
