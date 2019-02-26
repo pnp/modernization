@@ -20,7 +20,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Transforms a classic wiki/webpart page into a modern client side page
     /// </summary>
-    public class PageTransformator
+    public class PageTransformator : BaseTransform
     {
         private ClientContext sourceClientContext;
         private ClientContext targetClientContext;
@@ -72,6 +72,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #if DEBUG && MEASURE && MEASURE
             InitMeasurement();
 #endif
+            
+            // Register a default set of observers here
+
 
             this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
@@ -121,6 +124,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #region Input validation
             if (pageTransformationInformation.SourcePage == null)
             {
+                base.NotifyLogErrorObservers(new LogEntry() { Message = "SourcePage cannot be null" });
                 throw new ArgumentNullException("SourcePage cannot be null");
             }
 

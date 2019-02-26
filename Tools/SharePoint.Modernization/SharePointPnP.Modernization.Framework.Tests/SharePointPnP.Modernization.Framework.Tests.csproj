@@ -188,6 +188,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UnitTestLogObserver.cs" />
+    <Compile Include="Transform\LoggingTests.cs" />
     <Compile Include="Transform\AssetTransferTests.cs" />
     <Compile Include="TestCommon.cs" />
     <Compile Include="AdHocTests.cs" />
