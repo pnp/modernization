@@ -89,13 +89,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Create a site assets library
         /// </summary>
-        public void CreateSiteAssetsLibrary()
+        public void EnsureSiteAssetsLibrary()
         {
             // Use a PnP Provisioning template to create a site assets library
             // We cannot assume the SiteAssets library exists, in the case of vanilla communication sites - provision a new library if none exists
             // If a site assets library exist, add a folder, into the library using the same format as SharePoint uses for creating sub folders for pages
 
-            throw new NotImplementedException();
+            //Ensure that the Site Assets library is created using the out of the box creation mechanism
+            //Site Assets that are created using the EnsureSiteAssetsLibrary method slightly differ from
+            //default Document Libraries. See issue 512 (https://github.com/SharePoint/PnP-Sites-Core/issues/512)
+            //for details about the issue fixed by this approach.
+            var createdList = this._targetClientContext.Web.Lists.EnsureSiteAssetsLibrary();
+            //Check that Title and Description have the correct values
+            this._targetClientContext.Web.Context.Load(createdList, l => l.Title);
+            this._targetClientContext.Web.Context.ExecuteQueryRetry();
         }
 
         /// <summary>
