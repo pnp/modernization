@@ -31,6 +31,8 @@
   - Specific support for SitePages library queries in the list scoped query handling
   - More detailed content type filter handling
   - Switched to version 2.2 of data model
+- SummaryLinks transformation: links without heading are now correctly transformed to html
+- Mapping properties allow for mapping based up on configuration: the UseCommunityScriptEditor property can be set to use the community script editor, no need for changing mapping files to support this scenario
 
 ## [February release (prod) - version 1.0.1902.0]
 
