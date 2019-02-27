@@ -63,6 +63,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             if (list == null)
                             {
                                 list = newDocument.CreateElement("ul");
+
+                                if (header == null)
+                                {
+                                    header = newDocument.CreateElement("div");
+                                    newDocument.DocumentElement.Children[1].AppendChild(header);
+                                }
+
                                 header.AppendChild(list);
                             }
 
