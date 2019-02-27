@@ -43,6 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             KeepPageSpecificPermissions = true;
             CopyPageMetadata = false;
             SkipTelemetry = false;
+            RemoveEmptySectionsAndColumns = true;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
         }
@@ -98,6 +99,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Configuration driven by the presence of a modernization center
         /// </summary>
         public ModernizationCenterInformation ModernizationCenterInformation { get; set; }
+
+        /// <summary>
+        /// Removes empty sections and columns to optimize screen real estate
+        /// </summary>
+        public bool RemoveEmptySectionsAndColumns { get; set; }
         #endregion
 
         #region Webpart replacement configuration
