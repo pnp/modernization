@@ -89,6 +89,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     continue;
                 }
                 
+                // Assign the default mapping, if we're a more specific mapping than that will overwrite this mapping
                 Mapping mapping = defaultMapping;
                 // Does the web part have a mapping defined?
                 var webPartData = pageTransformation.WebParts.Where(p => p.Type == webPart.Type).FirstOrDefault();

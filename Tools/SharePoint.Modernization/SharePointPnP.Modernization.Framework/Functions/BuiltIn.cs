@@ -755,6 +755,49 @@ namespace SharePointPnP.Modernization.Framework.Functions
         #endregion
 
         #region HighlightedContent functions
+
+        /// <summary>
+        /// Maps content by search web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part
+        /// </summary>
+        /// <param name="dataProviderJson"></param>
+        /// <param name="selectedPropertiesJson"></param>
+        /// <param name="resultsPerPage"></param>
+        /// <param name="renderTemplateId"></param>
+        /// <returns>A properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part</returns>
+        [FunctionDocumentation(Description = "Maps content by search web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part",
+                                   Example = "ContentBySearchToHighlightedContentProperties({DataProviderJSON}, {SelectedPropertiesJson}, {ResultsPerPage}, {RenderTemplateId})")]
+        [InputDocumentation(Name = "{DataProviderJson}", Description = "")]
+        [InputDocumentation(Name = "{SelectedPropertiesJson}", Description = "")]
+        [InputDocumentation(Name = "{ResultsPerPage}", Description = "")]
+        [InputDocumentation(Name = "{RenderTemplateId}", Description = "")]
+        [OutputDocumentation(Name = "JsonProperties", Description = "Properties collection for the contentrollup (= Highlighted Content) web part")]
+        [OutputDocumentation(Name = "SearchablePlainTexts", Description = "SearchablePlainTexts nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "Links", Description = "Links nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "ImageSources", Description = "ImageSources nodes to be added in the serverProcessedContent node")]
+        public Dictionary<string, string> ContentBySearchToHighlightedContentProperties(string dataProviderJson, string selectedPropertiesJson, int resultsPerPage, string renderTemplateId)
+        {
+            Dictionary<string, string> results = new Dictionary<string, string>();
+
+            ContentBySearch cbs = new ContentBySearch()
+            {
+                DataProviderJson = dataProviderJson,
+                SelectedPropertiesJson = selectedPropertiesJson,
+                ResultsPerPage = resultsPerPage,
+                RenderTemplateId = renderTemplateId
+            };
+
+            ContentByQuerySearchTransformator cqs = new ContentByQuerySearchTransformator(this.clientContext);
+            var res = cqs.TransformContentBySearchWebPartToHighlightedContent(cbs);
+
+            // Output the calculated properties so then can be used in the mapping
+            results.Add("JsonProperties", res.Properties);
+            results.Add("SearchablePlainTexts", res.SearchablePlainTexts);
+            results.Add("Links", res.Links);
+            results.Add("ImageSources", res.ImageSources);
+
+            return results;
+        }
+
         /// <summary>
         /// Maps content by query web part data into a properties collection for the contentrollup (= Highlighted Content) web part
         /// </summary>
