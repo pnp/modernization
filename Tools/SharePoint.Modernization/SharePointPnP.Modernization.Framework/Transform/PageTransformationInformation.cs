@@ -46,6 +46,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             RemoveEmptySectionsAndColumns = true;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
+            IncludeReferencedAssets = false; // Default to false for now until out of experimental phase
         }
         #endregion
 
@@ -99,6 +100,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Configuration driven by the presence of a modernization center
         /// </summary>
         public ModernizationCenterInformation ModernizationCenterInformation { get; set; }
+
+        /// <summary>
+        /// Includes referenced assets in the web part
+        /// </summary>
+        public bool IncludeReferencedAssets { get; set; }
 
         /// <summary>
         /// Removes empty sections and columns to optimize screen real estate
