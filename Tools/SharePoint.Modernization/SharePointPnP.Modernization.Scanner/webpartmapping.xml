@@ -433,6 +433,115 @@ uncomment the nodes
           </Mapping>
         </Mappings>
       </WebPart>
+      <!-- Content by Search web part -->
+      <WebPart Type="Microsoft.Office.Server.Search.WebControls.ContentBySearchWebPart, Microsoft.Office.Server.Search, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+        <Properties>
+          <Property Name="BypassResultTypes" Type="bool"/>
+          <Property Name="ItemTemplateId" Type="string"/>
+          <Property Name="PropertyMappings" Type="string"/>
+          <Property Name="IncludeResultTypeConstraint" Type="bool"/>
+          <Property Name="StartingItemIndex" Type="integer"/>
+          <Property Name="ShowDefinitions" Type="bool"/>
+          <Property Name="HitHighlightedPropertiesJson" Type="string"/>
+          <Property Name="RepositionLanguageDropDown" Type="bool"/>
+          <Property Name="ItemBodyTemplateId" Type="string"/>
+          <Property Name="ShowAlertMe" Type="bool"/>
+          <Property Name="AddSEOPropertiesFromSearch" Type="bool"/>
+          <Property Name="ShowUpScopeMessage" Type="bool"/>
+          <Property Name="ShouldHideControlWhenEmpty" Type="bool"/>
+          <Property Name="ResultType" Type="string"/>
+          <Property Name="LogAnalyticsViewEvent" Type="bool"/>
+          <Property Name="MaxPagesAfterCurrent" Type="integer"/>
+          <Property Name="AdvancedSearchPageAddress" Type="string"/>
+          <Property Name="ShowBestBets" Type="bool"/>
+          <Property Name="NumberOfItems" Type="integer"/>
+          <Property Name="ShowPaging" Type="bool"/>
+          <Property Name="ShowViewDuplicates" Type="bool"/>
+          <Property Name="SelectedPropertiesJson" Type="string"/>
+          <Property Name="TargetResultTable" Type="string"/>
+          <Property Name="ShowXGeoOptions" Type="bool"/>
+          <Property Name="ShowPersonalFavorites" Type="string"/>
+          <Property Name="EnableXGeo3SForwarding" Type="string"/>
+          <Property Name="PreloadedItemTemplateIdsJson" Type="string"/>
+          <Property Name="ShowPreferencesLink" Type="bool"/>
+          <Property Name="ShowResultCount" Type="bool"/>
+          <Property Name="ResultsPerPage" Type="integer"/>
+          <Property Name="AvailableSortsJson" Type="string"/>
+          <Property Name="ShowResults" Type="bool"/>
+          <Property Name="ServerIncludeScriptsJson" Type="string"/>
+          <Property Name="SearchCenterXGeoLocations" Type="string"/>
+          <Property Name="DataProviderJSON" Type="string" Functions="ContentBySearchToHighlightedContentProperties({DataProviderJSON}, {SelectedPropertiesJson}, {ResultsPerPage}, {RenderTemplateId})"/>
+          <Property Name="ShowAdvancedLink" Type="bool"/>
+          <Property Name="ShowDidYouMean" Type="bool"/>
+          <Property Name="GroupTemplateId" Type="string"/>
+          <Property Name="OverwriteResultPath" Type="bool"/>
+          <Property Name="MaxPagesBeforeCurrent" Type="integer"/>
+          <Property Name="XGeoTenantsInfo" Type="string"/>
+          <Property Name="ShowLanguageOptions" Type="bool"/>
+          <Property Name="ResultTypeId" Type="string"/>
+          <Property Name="RenderTemplateId" Type="string"/>
+          <Property Name="EmitStyleReference" Type="bool"/>
+          <Property Name="StatesJson" Type="string"/>
+          <Property Name="ShowSortOptions" Type="bool"/>
+        </Properties>
+        <Mappings>
+          <Mapping Default="true" Name="default">
+            <ClientSideWebPart Type="ContentRollup" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;{SearchablePlainTexts}&#125;,&quot;imageSources&quot;&#58;&#123;{ImageSources}&#125;,&quot;links&quot;&#58;&#123;&quot;baseUrl&quot;&#58;&quot;{EncodedWeb}&quot;{Links}&#125;,&quot;componentDependencies&quot;&#58;&#123;&quot;layoutComponentId&quot;&#58;&quot;cea5863a-b857-46bb-aaf0-ae5f7cb447b6&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;2.2&quot;,&quot;properties&quot;&#58;{JsonProperties}&#125;"/>
+          </Mapping>
+        </Mappings>
+      </WebPart>
+      <!-- Result script web part -->
+      <WebPart Type="Microsoft.Office.Server.Search.WebControls.ResultScriptWebPart, Microsoft.Office.Server.Search, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+        <Properties>
+          <Property Name="StatesJson" Type="string"/>
+          <Property Name="ShowXGeoOptions" Type="string"/>
+          <Property Name="QueryGroupName" Type="string"/>
+          <Property Name="SelectedPropertiesJson" Type="string"/>
+          <Property Name="ShowAdvancedLink" Type="bool"/>
+          <Property Name="EmitStyleReference" Type="bool"/>
+          <Property Name="SearchCenterXGeoLocations" Type="string"/>
+          <Property Name="ShowPreferencesLink" Type="bool"/>
+          <Property Name="ServerIncludeScriptsJson" Type="string"/>
+          <Property Name="GroupTemplateId" Type="string"/>
+          <Property Name="ResultTypeId" Type="string"/>
+          <Property Name="ItemTemplateId" Type="string"/>
+          <Property Name="ResultsPerPage" Type="integer"/>
+          <Property Name="RenderTemplateId" Type="string"/>
+          <Property Name="AdvancedSearchPageAddress" Type="string"/>
+          <Property Name="HitHighlightedPropertiesJson" Type="string"/>
+          <Property Name="ShowPaging" Type="bool"/>
+          <Property Name="EmptyMessage" Type="string"/>
+          <Property Name="ShowBestBets" Type="bool"/>
+          <Property Name="BypassResultTypes" Type="bool"/>
+          <Property Name="ShowSortOptions" Type="bool"/>
+          <Property Name="ShowPersonalFavorites" Type="bool"/>
+          <Property Name="EnableXGeo3SForwarding" Type="bool"/>
+          <Property Name="AlternateErrorMessage" Type="string"/>
+          <Property Name="ItemBodyTemplateId" Type="string"/>
+          <Property Name="XGeoTenantsInfo" Type="string"/>
+          <Property Name="UseSimplifiedQueryBuilder" Type="bool"/>
+          <Property Name="ShowUpScopeMessage" Type="bool"/>
+          <Property Name="ShowDidYouMean" Type="bool"/>
+          <Property Name="RepositionLanguageDropDown" Type="bool"/>
+          <Property Name="ScrollToTopOnRedraw" Type="bool"/>
+          <Property Name="ShowResults" Type="bool"/>
+          <Property Name="ShowAlertMe" Type="bool"/>
+          <Property Name="PreloadedItemTemplateIdsJson" Type="string"/>
+          <Property Name="MaxPagesBeforeCurrent" Type="integer"/>
+          <Property Name="ShowDefinitions" Type="bool"/>
+          <Property Name="MaxPagesAfterCurrent" Type="integer"/>
+          <Property Name="ShowViewDuplicates" Type="bool"/>
+          <Property Name="ShowLanguageOptions" Type="bool"/>
+          <Property Name="AvailableSortsJson" Type="string"/>
+          <Property Name="DataProviderJSON" Type="string" Functions="ContentBySearchToHighlightedContentProperties({DataProviderJSON}, {SelectedPropertiesJson}, {ResultsPerPage}, {RenderTemplateId})"/>
+          <Property Name="ShowResultCount" Type="bool"/>
+        </Properties>
+        <Mappings>
+          <Mapping Default="true" Name="default">
+            <ClientSideWebPart Type="ContentRollup" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;{SearchablePlainTexts}&#125;,&quot;imageSources&quot;&#58;&#123;{ImageSources}&#125;,&quot;links&quot;&#58;&#123;&quot;baseUrl&quot;&#58;&quot;{EncodedWeb}&quot;{Links}&#125;,&quot;componentDependencies&quot;&#58;&#123;&quot;layoutComponentId&quot;&#58;&quot;cea5863a-b857-46bb-aaf0-ae5f7cb447b6&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;2.2&quot;,&quot;properties&quot;&#58;{JsonProperties}&#125;"/>
+          </Mapping>
+        </Mappings>
+      </WebPart>
       <!-- Excel web part -->
       <WebPart Type="Microsoft.Office.Excel.WebUI.ExcelWebRenderer, Microsoft.Office.Excel.WebUI, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
         <Properties>
@@ -719,104 +828,6 @@ uncomment the nodes
           <!-- Empty mapping as this will never be mapped / it's also excluded by the engine -->
           <Mapping Default="true" Name="default"></Mapping>
         </Mappings>
-      </WebPart>
-      <!-- Search web parts -->
-      <WebPart Type="Microsoft.Office.Server.Search.WebControls.ContentBySearchWebPart, Microsoft.Office.Server.Search, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
-        <Properties>
-          <Property Name="BypassResultTypes" Type="bool"/>
-          <Property Name="ItemTemplateId" Type="string"/>
-          <Property Name="PropertyMappings" Type="string"/>
-          <Property Name="IncludeResultTypeConstraint" Type="bool"/>
-          <Property Name="StartingItemIndex" Type="integer"/>
-          <Property Name="ShowDefinitions" Type="bool"/>
-          <Property Name="HitHighlightedPropertiesJson" Type="string"/>
-          <Property Name="RepositionLanguageDropDown" Type="bool"/>
-          <Property Name="ItemBodyTemplateId" Type="string"/>
-          <Property Name="ShowAlertMe" Type="bool"/>
-          <Property Name="AddSEOPropertiesFromSearch" Type="bool"/>
-          <Property Name="ShowUpScopeMessage" Type="bool"/>
-          <Property Name="ShouldHideControlWhenEmpty" Type="bool"/>
-          <Property Name="ResultType" Type="string"/>
-          <Property Name="LogAnalyticsViewEvent" Type="bool"/>
-          <Property Name="MaxPagesAfterCurrent" Type="integer"/>
-          <Property Name="AdvancedSearchPageAddress" Type="string"/>
-          <Property Name="ShowBestBets" Type="bool"/>
-          <Property Name="NumberOfItems" Type="integer"/>
-          <Property Name="ShowPaging" Type="bool"/>
-          <Property Name="ShowViewDuplicates" Type="bool"/>
-          <Property Name="SelectedPropertiesJson" Type="string"/>
-          <Property Name="TargetResultTable" Type="string"/>
-          <Property Name="ShowXGeoOptions" Type="bool"/>
-          <Property Name="ShowPersonalFavorites" Type="string"/>
-          <Property Name="EnableXGeo3SForwarding" Type="string"/>
-          <Property Name="PreloadedItemTemplateIdsJson" Type="string"/>
-          <Property Name="ShowPreferencesLink" Type="bool"/>
-          <Property Name="ShowResultCount" Type="bool"/>
-          <Property Name="ResultsPerPage" Type="integer"/>
-          <Property Name="AvailableSortsJson" Type="string"/>
-          <Property Name="ShowResults" Type="bool"/>
-          <Property Name="ServerIncludeScriptsJson" Type="string"/>
-          <Property Name="SearchCenterXGeoLocations" Type="string"/>
-          <Property Name="DataProviderJSON" Type="string"/>
-          <Property Name="ShowAdvancedLink" Type="bool"/>
-          <Property Name="ShowDidYouMean" Type="bool"/>
-          <Property Name="GroupTemplateId" Type="string"/>
-          <Property Name="OverwriteResultPath" Type="bool"/>
-          <Property Name="MaxPagesBeforeCurrent" Type="integer"/>
-          <Property Name="XGeoTenantsInfo" Type="string"/>
-          <Property Name="ShowLanguageOptions" Type="bool"/>
-          <Property Name="ResultTypeId" Type="string"/>
-          <Property Name="RenderTemplateId" Type="string"/>
-          <Property Name="EmitStyleReference" Type="bool"/>
-          <Property Name="StatesJson" Type="string"/>
-          <Property Name="ShowSortOptions" Type="bool"/>
-        </Properties>
-      </WebPart>
-      <WebPart Type="Microsoft.Office.Server.Search.WebControls.ResultScriptWebPart, Microsoft.Office.Server.Search, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
-        <Properties>
-          <Property Name="StatesJson" Type="string"/>
-          <Property Name="ShowXGeoOptions" Type="string"/>
-          <Property Name="QueryGroupName" Type="string"/>
-          <Property Name="SelectedPropertiesJson" Type="string"/>
-          <Property Name="ShowAdvancedLink" Type="bool"/>
-          <Property Name="EmitStyleReference" Type="bool"/>
-          <Property Name="SearchCenterXGeoLocations" Type="string"/>
-          <Property Name="ShowPreferencesLink" Type="bool"/>
-          <Property Name="ServerIncludeScriptsJson" Type="string"/>
-          <Property Name="GroupTemplateId" Type="string"/>
-          <Property Name="ResultTypeId" Type="string"/>
-          <Property Name="ItemTemplateId" Type="string"/>
-          <Property Name="ResultsPerPage" Type="integer"/>
-          <Property Name="RenderTemplateId" Type="string"/>
-          <Property Name="AdvancedSearchPageAddress" Type="string"/>
-          <Property Name="HitHighlightedPropertiesJson" Type="string"/>
-          <Property Name="ShowPaging" Type="bool"/>
-          <Property Name="EmptyMessage" Type="string"/>
-          <Property Name="ShowBestBets" Type="bool"/>
-          <Property Name="BypassResultTypes" Type="bool"/>
-          <Property Name="ShowSortOptions" Type="bool"/>
-          <Property Name="ShowPersonalFavorites" Type="bool"/>
-          <Property Name="EnableXGeo3SForwarding" Type="bool"/>
-          <Property Name="AlternateErrorMessage" Type="string"/>
-          <Property Name="ItemBodyTemplateId" Type="string"/>
-          <Property Name="XGeoTenantsInfo" Type="string"/>
-          <Property Name="UseSimplifiedQueryBuilder" Type="bool"/>
-          <Property Name="ShowUpScopeMessage" Type="bool"/>
-          <Property Name="ShowDidYouMean" Type="bool"/>
-          <Property Name="RepositionLanguageDropDown" Type="bool"/>
-          <Property Name="ScrollToTopOnRedraw" Type="bool"/>
-          <Property Name="ShowResults" Type="bool"/>
-          <Property Name="ShowAlertMe" Type="bool"/>
-          <Property Name="PreloadedItemTemplateIdsJson" Type="string"/>
-          <Property Name="MaxPagesBeforeCurrent" Type="integer"/>
-          <Property Name="ShowDefinitions" Type="bool"/>
-          <Property Name="MaxPagesAfterCurrent" Type="integer"/>
-          <Property Name="ShowViewDuplicates" Type="bool"/>
-          <Property Name="ShowLanguageOptions" Type="bool"/>
-          <Property Name="AvailableSortsJson" Type="string"/>
-          <Property Name="DataProviderJSON" Type="string"/>
-          <Property Name="ShowResultCount" Type="bool"/>
-        </Properties>
       </WebPart>
       <WebPart Type="Microsoft.Office.Server.Search.WebControls.SearchNavigationWebPart, Microsoft.Office.Server.Search,Version=16.0.0.0,Culture=neutral,PublicKeyToken=71e9bce111e9429c">
         <Properties>

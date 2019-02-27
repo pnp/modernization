@@ -43,6 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             KeepPageSpecificPermissions = true;
             CopyPageMetadata = false;
             SkipTelemetry = false;
+            RemoveEmptySectionsAndColumns = true;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
             IncludeReferencedAssets = false; // Default to false for now until out of experimental phase
@@ -104,6 +105,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Includes referenced assets in the web part
         /// </summary>
         public bool IncludeReferencedAssets { get; set; }
+        /// Removes empty sections and columns to optimize screen real estate
+        /// </summary>
+        public bool RemoveEmptySectionsAndColumns { get; set; }
         #endregion
 
         #region Webpart replacement configuration

@@ -481,6 +481,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Stop("Content transformation");
 #endif
                 #endregion
+
+                #region Section/column cleanup
+                // Remove empty sections and columns to optimize screen real estate
+                if (pageTransformationInformation.RemoveEmptySectionsAndColumns)
+                {
+                    RemoveEmptySectionsAndColumns(targetPage);
+                }
+                #endregion
             }
             #endregion
 
@@ -750,6 +758,65 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private void RemoveEmptySectionsAndColumns(ClientSidePage targetPage)
+        {
+            foreach (var section in targetPage.Sections.ToList())
+            {
+                // First remove all empty sections
+                if (section.Controls.Count == 0)
+                {
+                    targetPage.Sections.Remove(section);
+                }
+            }
+
+            // Remove empty columns
+            foreach (var section in targetPage.Sections)
+            {
+                if (section.Type == CanvasSectionTemplate.TwoColumn ||
+                    section.Type == CanvasSectionTemplate.TwoColumnLeft ||
+                    section.Type == CanvasSectionTemplate.TwoColumnRight)
+                {
+                    var emptyColumn = section.Columns.Where(p => p.Controls.Count == 0).FirstOrDefault();
+                    if (emptyColumn != null)
+                    {
+                        // drop the empty column and change to single column section
+                        section.Columns.Remove(emptyColumn);
+                        section.Type = CanvasSectionTemplate.OneColumn;
+                        section.Columns.First().ResetColumn(0, 12);
+                    }
+                }
+                else if (section.Type == CanvasSectionTemplate.ThreeColumn)
+                {
+                    var emptyColumns = section.Columns.Where(p => p.Controls.Count == 0);
+                    if (emptyColumns != null)
+                    {
+                        if (emptyColumns.Any() && emptyColumns.Count() == 2)
+                        {
+                            // drop the two empty columns and change to single column section
+                            foreach (var emptyColumn in emptyColumns.ToList())
+                            {
+                                section.Columns.Remove(emptyColumn);
+                            }
+                            section.Type = CanvasSectionTemplate.OneColumn;
+                            section.Columns.First().ResetColumn(0, 12);
+                        }
+                        else if (emptyColumns.Any() && emptyColumns.Count() == 1)
+                        {
+                            // Remove the empty column and change to two column section
+                            section.Columns.Remove(emptyColumns.First());
+                            section.Type = CanvasSectionTemplate.TwoColumn;
+                            int i = 0;
+                            foreach (var column in section.Columns)
+                            {
+                                column.ResetColumn(i, 6);
+                                i++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void ApplyItemLevelPermissions(bool hasTargetContext, ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
         {
             if (lip == null || item == null)

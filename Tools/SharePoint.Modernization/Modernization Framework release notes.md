@@ -19,6 +19,8 @@
 - Experimental support for creating the modern site collection in another site collection. Currently does not yet support web parts with references to the source site + copy of page metadata #59 [pkbullock]
 - Support for using Boolean as return type of functions used in the web part transformation model
 - XSLTListView transformation: map the web part toolbar configuration to the hideCommandBar property
+- Transformation support for ContentBySearchWebPart and ResultScriptWebPart web parts
+- Drop empty sections and columns to optimize the screen real estate - also better aligns with how web part pages and wiki pages behave in classic. This behavior is on by default, but can be turned off via the RemoveEmptySectionsAndColumns flag in the PageTransformationInformation class
 
 ### Changed
 
@@ -26,6 +28,7 @@
 - Content by query transformation:
   - Support for site collection and sub site scoped queries, including filters and sorting for those type of queries
   - Specific support for SitePages library queries in the list scoped query handling
+  - More detailed content type filter handling
   - Switched to version 2.2 of data model
 
 ## [February release (prod) - version 1.0.1902.0]

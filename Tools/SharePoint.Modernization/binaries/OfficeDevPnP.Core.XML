@@ -32518,6 +32518,13 @@
             </summary>
             <returns>The HTML presentation of this section</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Pages.CanvasColumn.ResetColumn(System.Int32,System.Int32)">
+            <summary>
+            Resets the column, used in scenarios where a section is changed from type (e.g. from 3 column to 2 column)
+            </summary>
+            <param name="order">Column order to set</param>
+            <param name="columnFactor">Column factor to set</param>
+        </member>
         <member name="T:OfficeDevPnP.Core.Pages.CanvasControl">
             <summary>
             Base class for a canvas control 
@@ -33891,6 +33898,33 @@
             <param name="certificate">Private key certificate (.pfx) used to authenticate</param>
             <param name="certificateIssuerId">The IssuerID under which the CER counterpart of the PFX has been registered in SharePoint as a Trusted Security Token issuer</param>
             <returns>Authenticated SharePoint ClientContext</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.Security.SecureString)">
+            <summary>
+            Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app being registered in your Azure AD.
+            </summary>
+            <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
+            <param name="userPrincipalName">The user id</param>
+            <param name="userPassword">The user's password as a secure string</param>
+            <returns>Client context object</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.String)">
+            <summary>
+            Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app being registered in your Azure AD.
+            </summary>
+            <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
+            <param name="userPrincipalName">The user id</param>
+            <param name="userPassword">The user's password as a string</param>
+            <returns>Client context object</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.AcquireTokenAsync(System.String,System.String,System.String)">
+            <summary>
+            Acquires an access token using Azure AD credential flow. This depends on the SPO Management Shell app being registered in your Azure AD.
+            </summary>
+            <param name="resourceUri">Resouce to request access for</param>
+            <param name="username">User id</param>
+            <param name="password">Password</param>
+            <returns>Acces token</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADNativeApplicationAuthenticatedContext(System.String,System.String,System.String,Microsoft.IdentityModel.Clients.ActiveDirectory.TokenCache,OfficeDevPnP.Core.AzureEnvironment)">
             <summary>
@@ -44676,6 +44710,11 @@
             <param name="web">Web to be shared externally</param>
             <param name="shareOption">Permissions to be given for the external user</param>
             <returns>group ID</returns>
+        </member>
+        <member name="T:Microsoft.SharePoint.Client.InternalClientContextExtensions">
+            <summary>
+            Class that holds the extension methods used to "tag" a client context for cloning support
+            </summary>
         </member>
         <member name="T:Microsoft.SharePoint.Client.ListRatingExtensions">
             <summary>
