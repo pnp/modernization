@@ -51,7 +51,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             MappingProperties = new Dictionary<string, string>(5)
             {
                 { "UseCommunityScriptEditor", "false" },
-                { "SummaryLinksToQuickLinks", "false" }
+                { "SummaryLinksToQuickLinks", "true" }
             };
         }
         #endregion

@@ -15,7 +15,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
     /// </summary>
     public partial class BuiltIn : FunctionsBase
     {
-
         #region Construction
         /// <summary>
         /// Instantiates the base builtin function library
@@ -26,7 +25,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         }
         #endregion
 
-        // All functions return either a single string or a Dictionary<string,string> with key value pairs. 
+        // All functions return either a single string, boolean or a Dictionary<string,string> with key value pairs. 
         // Allowed input parameter types are string, int, bool, DateTime and Guid
 
         #region Generic functions
@@ -973,6 +972,11 @@ namespace SharePointPnP.Modernization.Framework.Functions
             return "UseText";
         }
 
+        /// <summary>
+        /// Rewrites summarylinks web part html to be compliant with the html supported by the client side text part
+        /// </summary>
+        /// <param name="text">Original wiki html content</param>
+        /// <returns>Html compliant with client side text part</returns>
         [FunctionDocumentation(Description = "Rewrites summarylinks web part html to be compliant with the html supported by the client side text part.",
                        Example = "{CleanedText} = TextCleanUpSummaryLinks({Text})")]
         [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
@@ -985,6 +989,36 @@ namespace SharePointPnP.Modernization.Framework.Functions
             }
 
             return new SummaryLinksHtmlTransformator().Transform(text, false);
+        }
+
+        /// <summary>
+        /// Maps summarylinks web part data into a properties collection and supporting serverProcessedContent nodes for the quicklinks web part
+        /// </summary>
+        /// <param name="text">Original wiki html content</param>
+        /// <returns>Properties collection for the quicklinks web part</returns>
+        [FunctionDocumentation(Description = "Maps summarylinks web part data into a properties collection and supporting serverProcessedContent nodes for the quicklinks web part",
+                               Example = "SummaryLinksToQuickLinksProperties({Text})")]
+        [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
+        [OutputDocumentation(Name = "JsonProperties", Description = "Properties collection for the quicklinks web part")]
+        [OutputDocumentation(Name = "SearchablePlainTexts", Description = "SearchablePlainTexts nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "Links", Description = "Links nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "ImageSources", Description = "ImageSources nodes to be added in the serverProcessedContent node")]
+        public Dictionary<string, string> SummaryLinksToQuickLinksProperties(string text)
+        {
+            Dictionary<string, string> results = new Dictionary<string, string>();
+
+            var links = new SummaryLinksHtmlTransformator().GetLinks(text);
+
+            QuickLinksTransformator qlt = new QuickLinksTransformator(this.clientContext);
+            var res = qlt.Transform(links);
+
+            // Output the calculated properties so then can be used in the mapping
+            results.Add("JsonProperties", res.Properties);
+            results.Add("SearchablePlainTexts", res.SearchablePlainTexts);
+            results.Add("Links", res.Links);
+            results.Add("ImageSources", res.ImageSources);
+
+            return results;
         }
         #endregion
 

@@ -439,7 +439,7 @@ uncomment the nodes
       <!-- Content by Search web part -->
       <WebPart Type="Microsoft.Office.Server.Search.WebControls.ContentBySearchWebPart, Microsoft.Office.Server.Search, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
         <Properties>
-          <Property Name="BypassResultTypes" Type="bool"/>
+          <Property Name="BypassResultTypes" Type="bool" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath})"/>
           <Property Name="ItemTemplateId" Type="string"/>
           <Property Name="PropertyMappings" Type="string"/>
           <Property Name="IncludeResultTypeConstraint" Type="bool"/>
@@ -496,7 +496,7 @@ uncomment the nodes
       <!-- Result script web part -->
       <WebPart Type="Microsoft.Office.Server.Search.WebControls.ResultScriptWebPart, Microsoft.Office.Server.Search, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
         <Properties>
-          <Property Name="StatesJson" Type="string"/>
+          <Property Name="StatesJson" Type="string" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath})"/>
           <Property Name="ShowXGeoOptions" Type="string"/>
           <Property Name="QueryGroupName" Type="string"/>
           <Property Name="SelectedPropertiesJson" Type="string"/>
@@ -783,7 +783,7 @@ uncomment the nodes
       <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
         <Properties>
           <!-- Contains the html representation of the links -->
-          <Property Name="SummaryLinkStore" Type="string" Functions="{CleanedText} = TextCleanUpSummaryLinks({SummaryLinkStore}"/>
+          <Property Name="SummaryLinkStore" Type="string" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath});{CleanedText} = TextCleanUpSummaryLinks({SummaryLinkStore});SummaryLinksToQuickLinksProperties({SummaryLinkStore})"/>
           <Property Name="Xsl" Type="string"/>
         </Properties>
         <Mappings Selector="SummaryLinkSelector({SummaryLinksToQuickLinks})">
@@ -792,8 +792,8 @@ uncomment the nodes
             <ClientSideText Order="10" Text="{CleanedText}"/>
           </Mapping>
           <Mapping Name="UseQuickLinks" Default="false">
-            <!-- Summary links html is tranformed to html that be presented using the text editor -->
-            <ClientSideText Order="10" Text="Let's go for quicklinks!"/>
+            <!-- Summary links html is tranformed to the quicklinks web part -->
+            <ClientSideWebPart Type="QuickLinks" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;{SearchablePlainTexts}&#125;,&quot;imageSources&quot;&#58;&#123;{ImageSources}&#125;,&quot;links&quot;&#58;&#123;&quot;baseUrl&quot;&#58;&quot;{EncodedWeb}&quot;{Links}&#125;,&quot;componentDependencies&quot;&#58;&#123;&quot;layoutComponentId&quot;&#58;&quot;706e33c8-af37-4e7b-9d22-6e5694d92a6f&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;2.1&quot;,&quot;properties&quot;&#58;{JsonProperties}&#125;"/>
           </Mapping>          
         </Mappings>
       </WebPart>
