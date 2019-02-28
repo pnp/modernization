@@ -572,6 +572,10 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// Copy the asset to target site in cross site transformation
         /// </summary>
         /// <param name="imageLink"></param>
+        [FunctionDocumentation(Description = "Transforms the incoming path into a server relative path. If the page is located on another page the asset is transferred and url updated. Any failures keep to the original value.",
+            Example = "{ServerRelativeFileName} = ReturnCrossSiteRelativePath({ImageLink})")]
+        [InputDocumentation(Name = "{ImageLink}", Description = "Original value for the image link")]
+        [OutputDocumentation(Name = "{ServerRelativeFileName}", Description = "New target location for the asset if transferred.")]
         public string ReturnCrossSiteRelativePath(string imageLink)
         {
             // Defaults to the orignal operation
