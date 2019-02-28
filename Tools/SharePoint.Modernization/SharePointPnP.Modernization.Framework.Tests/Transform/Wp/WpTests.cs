@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
             {
                 var pageTransformator = new PageTransformator(cc);
 
-                var pages = cc.Web.GetPages("wp_summarylinks_1");
+                var pages = cc.Web.GetPages("wp_contactfield_1");
                 foreach (var page in pages)
                 {
                     PageTransformationInformation pti = new PageTransformationInformation(page)

@@ -836,6 +836,46 @@ uncomment the nodes
           <Mapping Default="true" Name="default"></Mapping>
         </Mappings>
       </WebPart>
+      <!-- Members or Site Users web part -->
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.MembersWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+        <Properties>
+          <Property Name="IsIncluded" Type="bool"/>
+          <Property Name="Dir" Type="string"/>
+          <Property Name="PartImageSmall" Type="string"/>
+          <Property Name="PartImageLarge" Type="string"/>
+          <Property Name="IsIncludedFilter" Type="bool"/>
+          <Property Name="DisplayType" Type="string"/>
+          <Property Name="MembershipGroupId" Type="integer"/>
+          <Property Name="Toolbar" Type="bool"/>
+        </Properties>
+        <Mappings>
+          <Mapping Default="true" Name="default">
+            <!-- Managing site members now is done using the site permissions feature -->
+            <ClientSideText Order="10" Text="Managing site members now is done using the &lt;strong&gt;Settings -> Site Permissions pane&lt;/strong&gt;. No need anymore for this custom web part."/>
+          </Mapping>
+        </Mappings>
+      </WebPart>
+      <!-- Contact web part -->
+      <WebPart Type="Microsoft.SharePoint.Portal.WebControls.ContactFieldControl, Microsoft.SharePoint.Portal, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+        <Properties>
+          <Property Name="IsIncluded" Type="bool"/>
+          <Property Name="Dir" Type="string"/>
+          <Property Name="PartImageSmall" Type="string"/>
+          <Property Name="PartImageLarge" Type="string"/>
+          <Property Name="IsIncludedFilter" Type="bool"/>
+          <Property Name="CacheTimeout" Type="integer" />
+          <Property Name="ContactLoginName" Type="string" Functions="LookupPerson({ContactLoginName})"/>
+        </Properties>
+        <Mappings Selector="UserExistsSelector({PersonEmail})">
+          <Mapping Name="ValidUser" Default="true">
+            <ClientSideWebPart Type="People" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;,&quot;persons[0].name&quot;&#58;&quot;{PersonName}&quot;,&quot;persons[0].email&quot;&#58;&quot;{PersonEmail}&quot;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.2&quot;,&quot;properties&quot;&#58;&#123;&quot;layout&quot;&#58;1,&quot;persons&quot;&#58;[&#123;&quot;id&quot;&#58;&quot;{PersonEmail}&quot;,&quot;upn&quot;&#58;&quot;{PersonUPN}&quot;,&quot;role&quot;&#58;&quot;{PersonRole}&quot;,&quot;department&quot;&#58;&quot;{PersonDepartment}&quot;,&quot;phone&quot;&#58;&quot;{PersonPhone}&quot;,&quot;sip&quot;&#58;&quot;{PersonSip}&quot;&#125;]&#125;&#125;"/>
+          </Mapping>
+          <Mapping Name="InvalidUser" Default="false">
+            <ClientSideText Order="10" Text="User with ID {ContactLoginName} could not be found. Mapping to People web part was skipped."/>
+          </Mapping>
+        </Mappings>
+      </WebPart>
+      <!-- =========================== UNMAPPED WEBPARTS ========================= -->
       <WebPart Type="Microsoft.Office.Server.Search.WebControls.SearchNavigationWebPart, Microsoft.Office.Server.Search,Version=16.0.0.0,Culture=neutral,PublicKeyToken=71e9bce111e9429c">
         <Properties>
           <Property Name="QueryGroupName" Type="string"/>
@@ -957,18 +997,6 @@ uncomment the nodes
           <Property Name="PageSize" Type="integer"/>
           <Property Name="ViewContentTypeId" Type="string"/>
           <Property Name="XmlDefinition" Type="string"/>
-        </Properties>
-      </WebPart>
-      <!-- Contact web part -->
-      <WebPart Type="Microsoft.SharePoint.Portal.WebControls.ContactFieldControl, Microsoft.SharePoint.Portal, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
-        <Properties>
-          <Property Name="IsIncluded" Type="bool"/>
-          <Property Name="Dir" Type="string"/>
-          <Property Name="PartImageSmall" Type="string"/>
-          <Property Name="PartImageLarge" Type="string"/>
-          <Property Name="IsIncludedFilter" Type="bool"/>
-          <Property Name="CacheTimeout" Type="integer" />
-          <Property Name="ContactLoginName" Type="string"/>
         </Properties>
       </WebPart>
       <!-- Social comments web part -->
@@ -1263,18 +1291,6 @@ uncomment the nodes
           <Property Name="DateUrl" Type="string"/>
           <Property Name="ArchiveUrl" Type="string"/>
         </Properties>
-      </WebPart>
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.MembersWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
-        <Properties>
-          <Property Name="IsIncluded" Type="bool"/>
-          <Property Name="Dir" Type="string"/>
-          <Property Name="PartImageSmall" Type="string"/>
-          <Property Name="PartImageLarge" Type="string"/>
-          <Property Name="IsIncludedFilter" Type="bool"/>
-          <Property Name="DisplayType" Type="string"/>
-          <Property Name="MembershipGroupId" Type="integer"/>
-          <Property Name="Toolbar" Type="bool"/>
-        </Properties>        
       </WebPart>
       <!-- Error web part -->
       <WebPart Type="Microsoft.SharePoint.WebPartPages.ErrorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
