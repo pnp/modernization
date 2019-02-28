@@ -467,7 +467,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif            
                 // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(targetPage, pageTransformation);
+                IContentTransformator contentTransformator = new ContentTransformator(targetPage, pageTransformation, pageTransformationInformation.MappingProperties);
 
                 // Do we have an override?
                 if (pageTransformationInformation.ContentTransformatorOverride != null)

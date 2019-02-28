@@ -207,21 +207,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
             return new HtmlTransformator().Transform(text, usePlaceHolder);
         }
 
-
-        [FunctionDocumentation(Description = "Rewrites summarylinks web part html to be compliant with the html supported by the client side text part.",
-                               Example = "{CleanedText} = TextCleanUpSummaryLinks({Text})")]
-        [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
-        [OutputDocumentation(Name = "{CleanedText}", Description = "Html compliant with client side text part")]
-        public string TextCleanUpSummaryLinks(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return "";
-            }
-
-            return new SummaryLinksHtmlTransformator().Transform(text, false);
-        }
-
         /// <summary>
         /// Checks if the provided html contains JavaScript
         /// </summary>
@@ -682,16 +667,23 @@ namespace SharePointPnP.Modernization.Framework.Functions
             return "ServerFolderOrFile";
         }
 
-        [SelectorDocumentation(Description = "If ContentLink is set (content editor) then return Link, otherwise return Content.",
-                               Example = "ContentEmbedSelectorContentLink({ContentLink})")]
+        [SelectorDocumentation(Description = "Content editor can be transformed in various ways depending on whether a link was used, what file type was used, if script is used or not...",
+                               Example = "ContentEmbedSelectorContentLink({ContentLink}, {Content}, {FileContents}, {UseCommunityScriptEditor})")]
         [InputDocumentation(Name = "{ContentLink}", Description = "Link value if set")]
+        [InputDocumentation(Name = "{Content}", Description = "Content embedded inside the web part")]
+        [InputDocumentation(Name = "{FileContents}", Description = "Text content of the file. Return empty string if file was not found")]
+        [InputDocumentation(Name = "{UseCommunityScriptEditor}", Description = "The UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance")]
         [OutputDocumentation(Name = "Link", Description = "If the link was not empty and it was an aspx file")]
         [OutputDocumentation(Name = "NonASPXLink", Description = "If the link was not empty and it was not an aspx file but the file contents did contain JavaScript")]
         [OutputDocumentation(Name = "NonASPXLinkNoScript", Description = "If the link was not empty and it was not an aspx file and the contents did not contain JavaScript")]
+        [OutputDocumentation(Name = "NonASPXUseCommunityScriptEditor", Description = "Use the community script editor to host the content")]
         [OutputDocumentation(Name = "Content", Description = "If no link was specified but content was embedded and it contains JavaScript")]
         [OutputDocumentation(Name = "ContentNoScript", Description = "If no link was specified and the embedded content and it does not contain JavaScript")]
-        public string ContentEmbedSelectorContentLink(string contentLink, string embeddedContent, string fileContent)
+        [OutputDocumentation(Name = "ContentUseCommunityScriptEditor", Description = "Use the community script editor to host the content")]
+        public string ContentEmbedSelectorContentLink(string contentLink, string embeddedContent, string fileContent, string useCommunityScriptEditor)
         {
+            bool.TryParse(useCommunityScriptEditor, out bool useCommunityScriptEditorBool);
+
             if (!string.IsNullOrEmpty(contentLink))
             {
                 if (contentLink.ToLower().EndsWith(".aspx"))
@@ -706,7 +698,14 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     }
                     else
                     {
-                        return "NonASPXLink";
+                        if (useCommunityScriptEditorBool)
+                        {
+                            return "NonASPXUseCommunityScriptEditor";
+                        }
+                        else
+                        {
+                            return "NonASPXLink";
+                        }
                     }
                 }
             }
@@ -718,7 +717,14 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
                 else
                 {
-                    return "Content";
+                    if (useCommunityScriptEditorBool)
+                    {
+                        return "ContentUseCommunityScriptEditor";
+                    }
+                    else
+                    {
+                        return "Content";
+                    }
                 }
             }
         }
@@ -755,7 +761,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
         #endregion
 
         #region HighlightedContent functions
-
         /// <summary>
         /// Maps content by search web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part
         /// </summary>
@@ -944,5 +949,68 @@ namespace SharePointPnP.Modernization.Framework.Functions
         }
         #endregion
 
+        #region SummaryLink functions
+        /// <summary>
+        /// Uses the SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance to determine the mapping
+        /// </summary>
+        /// <param name="useQuickLinks">The SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance</param>
+        /// <returns>Whether to transform via the QuickLinks web part or via Text</returns>
+        [SelectorDocumentation(Description = "Uses the SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance to determine the mapping",
+                               Example = "SummaryLinkSelector({SummaryLinksToQuickLinks})")]
+        [InputDocumentation(Name = "{SummaryLinksToQuickLinks}", Description = "The SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance")]
+        [OutputDocumentation(Name = "UseQuickLinks", Description = "Transform to the QuickLinks web part")]
+        [OutputDocumentation(Name = "UseText", Description = "Transform to the formatted text")]
+        public string SummaryLinkSelector(string useQuickLinks)
+        {
+            if (bool.TryParse(useQuickLinks, out bool useQuickLinksBool))
+            {
+                if (useQuickLinksBool)
+                {
+                    return "UseQuickLinks";
+                }
+            }
+
+            return "UseText";
+        }
+
+        [FunctionDocumentation(Description = "Rewrites summarylinks web part html to be compliant with the html supported by the client side text part.",
+                       Example = "{CleanedText} = TextCleanUpSummaryLinks({Text})")]
+        [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
+        [OutputDocumentation(Name = "{CleanedText}", Description = "Html compliant with client side text part")]
+        public string TextCleanUpSummaryLinks(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return "";
+            }
+
+            return new SummaryLinksHtmlTransformator().Transform(text, false);
+        }
+        #endregion
+
+        #region Script Editor functions
+        /// <summary>
+        /// Uses the UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance to determine the mapping
+        /// </summary>
+        /// <param name="useQuickLinks">The UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance</param>
+        /// <returns>Whether to transform via the community script editor web part</returns>
+        [SelectorDocumentation(Description = "Uses the UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance to determine the mapping",
+                               Example = "ScriptEditorSelector({UseCommunityScriptEditor})")]
+        [InputDocumentation(Name = "{UseCommunityScriptEditor}", Description = "The UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance")]
+        [OutputDocumentation(Name = "UseCommunityScriptEditor", Description = "Transform to the community script editor web part")]
+        [OutputDocumentation(Name = "NoScriptEditor", Description = "Don't transform as there's no script editor")]
+        public string ScriptEditorSelector(string useCommunityScriptEditor)
+        {
+            if (bool.TryParse(useCommunityScriptEditor, out bool useCommunityScriptEditorBool))
+            {
+                if (useCommunityScriptEditorBool)
+                {
+                    return "UseCommunityScriptEditor";
+                }
+            }
+
+            return "NoScriptEditor";
+        }
+        #endregion
     }
 }
