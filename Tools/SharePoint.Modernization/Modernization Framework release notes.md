@@ -19,8 +19,9 @@
 - Experimental support for creating the modern site collection in another site collection. Currently does not yet support web parts with references to the source site + copy of page metadata #59 [pkbullock]
 - Support for using Boolean as return type of functions used in the web part transformation model
 - XSLTListView transformation: map the web part toolbar configuration to the hideCommandBar property
-- Transformation support for ContentBySearchWebPart and ResultScriptWebPart web parts
+- Transformation support for ContentBySearchWebPart and ResultScriptWebPart
 - Drop empty sections and columns to optimize the screen real estate - also better aligns with how web part pages and wiki pages behave in classic. This behavior is on by default, but can be turned off via the RemoveEmptySectionsAndColumns flag in the PageTransformationInformation class
+- ExcelWebRenderer transformation: take over the configured named item (table, chart, range)
 
 ### Changed
 
@@ -30,6 +31,8 @@
   - Specific support for SitePages library queries in the list scoped query handling
   - More detailed content type filter handling
   - Switched to version 2.2 of data model
+- SummaryLinks transformation: links without heading are now correctly transformed to html
+- Mapping properties allow for mapping based up on configuration: the UseCommunityScriptEditor property can be set to use the community script editor, no need for changing mapping files to support this scenario
 
 ## [February release (prod) - version 1.0.1902.0]
 

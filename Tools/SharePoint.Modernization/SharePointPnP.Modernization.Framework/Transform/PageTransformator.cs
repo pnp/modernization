@@ -467,16 +467,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif            
                 // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation);
+                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation.MappingProperties);
 
                 // Do we have an override?
                 if (pageTransformationInformation.ContentTransformatorOverride != null)
                 {
                     contentTransformator = pageTransformationInformation.ContentTransformatorOverride(targetPage, pageTransformation);
                 }
-
-                //Entry point for the assets transfer
-                
 
                 // Run the content transformator
                 contentTransformator.Transform(pageData.Item2);

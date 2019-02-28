@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using System;
+using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -46,6 +47,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
             RemoveEmptySectionsAndColumns = true;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
+            // Populate with OOB mapping properties
+            MappingProperties = new Dictionary<string, string>(5)
+            {
+                { "UseCommunityScriptEditor", "false" },
+                { "SummaryLinksToQuickLinks", "false" }
+            };
             CopyReferencedAssets = false; // Default to false for now until out of experimental phase
         }
         #endregion
@@ -123,6 +130,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// If the page to be transformed is the web's home page then replace with stock modern home page instead of transforming it
         /// </summary>
         public bool ReplaceHomePageWithDefaultHomePage { get; set; }
+
+        /// <summary>
+        /// Property bag for adding properties that will be exposed to the functions and selectors in the web part mapping file.
+        /// These properties are used to condition the transformation process.
+        /// </summary>
+        public Dictionary<string, string> MappingProperties { get; }
         #endregion
 
         #region Override properties
