@@ -224,9 +224,9 @@ Page transformation file. Describes:
         </Mappings>
       </WebPart>
       <!-- Image web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.ImageWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.ImageWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
-          <Property Name="ImageLink" Type="string" Functions="{ServerRelativeFileName} = ReturnServerRelativePath({ImageLink});ImageLookup({ServerRelativeFileName});{FileName} = ReturnFileName({ImageLink})"/>
+          <Property Name="ImageLink" Type="string" Functions="{ServerRelativeFileName} = ReturnCrossSiteRelativePath({ImageLink});ImageLookup({ServerRelativeFileName});{FileName} = ReturnFileName({ImageLink});"/>
           <Property Name="AlternativeText" Type="string" />
           <Property Name="VerticalAlignment" Type="string" />
           <Property Name="HorizontalAlignment" Type="string" />

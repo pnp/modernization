@@ -21,6 +21,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private FunctionProcessor functionProcessor;
         private List<CombinedMapping> combinedMappinglist;
         private Dictionary<string, string> siteTokens;
+        private ClientContext sourceClientContext;
 
         class CombinedMapping
         {
@@ -35,12 +36,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="page">Client side page that will be updates</param>
         /// <param name="pageTransformation">Transformation information</param>
-        public ContentTransformator(ClientSidePage page, PageTransformation pageTransformation)
+        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation)
         {
             this.page = page ?? throw new ArgumentException("Page cannot be null");
             this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
-            this.functionProcessor = new FunctionProcessor(this.page, this.pageTransformation);
+            this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation);
             this.siteTokens = CreateSiteTokenList(page.Context);
+            this.sourceClientContext = sourceClientContext;
+
         }
         #endregion
 
