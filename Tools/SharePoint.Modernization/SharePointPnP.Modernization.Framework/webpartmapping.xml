@@ -836,6 +836,25 @@ uncomment the nodes
           <Mapping Default="true" Name="default"></Mapping>
         </Mappings>
       </WebPart>
+      <!-- Members or Site Users web part -->
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.MembersWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+        <Properties>
+          <Property Name="IsIncluded" Type="bool"/>
+          <Property Name="Dir" Type="string"/>
+          <Property Name="PartImageSmall" Type="string"/>
+          <Property Name="PartImageLarge" Type="string"/>
+          <Property Name="IsIncludedFilter" Type="bool"/>
+          <Property Name="DisplayType" Type="string"/>
+          <Property Name="MembershipGroupId" Type="integer"/>
+          <Property Name="Toolbar" Type="bool"/>
+        </Properties>
+        <Mappings>
+          <Mapping Default="true" Name="default">
+            <!-- Managing site members now is done using the site permissions feature -->
+            <ClientSideText Order="10" Text="Managing site members now is done using the &lt;strong&gt;Settings -> Site Permissions pane&lt;/strong&gt;. No need anymore for this custom web part."/>
+          </Mapping>
+        </Mappings>
+      </WebPart>
       <WebPart Type="Microsoft.Office.Server.Search.WebControls.SearchNavigationWebPart, Microsoft.Office.Server.Search,Version=16.0.0.0,Culture=neutral,PublicKeyToken=71e9bce111e9429c">
         <Properties>
           <Property Name="QueryGroupName" Type="string"/>
@@ -1263,18 +1282,6 @@ uncomment the nodes
           <Property Name="DateUrl" Type="string"/>
           <Property Name="ArchiveUrl" Type="string"/>
         </Properties>
-      </WebPart>
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.MembersWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
-        <Properties>
-          <Property Name="IsIncluded" Type="bool"/>
-          <Property Name="Dir" Type="string"/>
-          <Property Name="PartImageSmall" Type="string"/>
-          <Property Name="PartImageLarge" Type="string"/>
-          <Property Name="IsIncludedFilter" Type="bool"/>
-          <Property Name="DisplayType" Type="string"/>
-          <Property Name="MembershipGroupId" Type="integer"/>
-          <Property Name="Toolbar" Type="bool"/>
-        </Properties>        
       </WebPart>
       <!-- Error web part -->
       <WebPart Type="Microsoft.SharePoint.WebPartPages.ErrorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">

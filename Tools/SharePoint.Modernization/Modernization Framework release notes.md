@@ -34,6 +34,7 @@
   - Switched to version 2.2 of data model
 - SummaryLinks transformation: links without heading are now correctly transformed to html
 - Mapping properties allow for mapping based up on configuration: the UseCommunityScriptEditor property can be set to use the community script editor, no need for changing mapping files to support this scenario
+- MembersWebPart transformation: now shows a text making users aware of the OOB Site Permissions feature that replaces this web part's functionality
 
 ## [February release (prod) - version 1.0.1902.0]
 
