@@ -22,6 +22,8 @@
 - Transformation support for ContentBySearchWebPart and ResultScriptWebPart
 - Drop empty sections and columns to optimize the screen real estate - also better aligns with how web part pages and wiki pages behave in classic. This behavior is on by default, but can be turned off via the RemoveEmptySectionsAndColumns flag in the PageTransformationInformation class
 - ExcelWebRenderer transformation: take over the configured named item (table, chart, range)
+- SummaryLinks transformation: new default is transform to QuickLinks, optionally you still transform to text by setting the SummaryLinksToQuickLinks mapping property to false
+- ContactFieldControl transformation support: this web part transforms to the People web part
 
 ### Changed
 
@@ -33,6 +35,7 @@
   - Switched to version 2.2 of data model
 - SummaryLinks transformation: links without heading are now correctly transformed to html
 - Mapping properties allow for mapping based up on configuration: the UseCommunityScriptEditor property can be set to use the community script editor, no need for changing mapping files to support this scenario
+- MembersWebPart transformation: now shows a text making users aware of the OOB Site Permissions feature that replaces this web part's functionality
 
 ## [February release (prod) - version 1.0.1902.0]
 

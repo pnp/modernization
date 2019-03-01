@@ -51,7 +51,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             MappingProperties = new Dictionary<string, string>(5)
             {
                 { "UseCommunityScriptEditor", "false" },
-                { "SummaryLinksToQuickLinks", "false" }
+                { "SummaryLinksToQuickLinks", "true" }
             };
             CopyReferencedAssets = false; // Default to false for now until out of experimental phase
         }
