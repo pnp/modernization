@@ -267,7 +267,7 @@ namespace SharePoint.Modernization.Scanner.Results
             if (WebTemplate.Equals("BICENTERSITE#0", StringComparison.InvariantCultureIgnoreCase)   || WebTemplate.Equals("BLANKINTERNET#0", StringComparison.InvariantCultureIgnoreCase) ||
                 WebTemplate.Equals("ENTERWIKI#0", StringComparison.InvariantCultureIgnoreCase)      || WebTemplate.Equals("SRCHCEN#0", StringComparison.InvariantCultureIgnoreCase) ||
                 WebTemplate.Equals("SRCHCENTERLITE#0", StringComparison.InvariantCultureIgnoreCase) || WebTemplate.Equals("POINTPUBLISHINGHUB#0", StringComparison.InvariantCultureIgnoreCase) ||
-                WebTemplate.Equals("POINTPUBLISHINGTOPIC#0", StringComparison.InvariantCultureIgnoreCase))
+                WebTemplate.Equals("POINTPUBLISHINGTOPIC#0", StringComparison.InvariantCultureIgnoreCase) || WebTemplate.Equals("CMSPUBLISHING#0", StringComparison.InvariantCultureIgnoreCase) )
             {
                 return true;
             }
@@ -291,7 +291,8 @@ namespace SharePoint.Modernization.Scanner.Results
             else if (WebTemplate.Equals("BICENTERSITE#0", StringComparison.InvariantCultureIgnoreCase) || WebTemplate.Equals("BLANKINTERNET#0", StringComparison.InvariantCultureIgnoreCase) ||
                      WebTemplate.Equals("ENTERWIKI#0", StringComparison.InvariantCultureIgnoreCase) || WebTemplate.Equals("SRCHCEN#0", StringComparison.InvariantCultureIgnoreCase) ||
                      WebTemplate.Equals("SRCHCENTERLITE#0", StringComparison.InvariantCultureIgnoreCase) || WebTemplate.Equals("POINTPUBLISHINGHUB#0", StringComparison.InvariantCultureIgnoreCase) ||
-                     WebTemplate.Equals("POINTPUBLISHINGTOPIC#0", StringComparison.InvariantCultureIgnoreCase) || SiteColUrl.EndsWith("/sites/contenttypehub", StringComparison.InvariantCultureIgnoreCase))
+                     WebTemplate.Equals("POINTPUBLISHINGTOPIC#0", StringComparison.InvariantCultureIgnoreCase) || WebTemplate.Equals("CMSPUBLISHING#0", StringComparison.InvariantCultureIgnoreCase) || 
+                     SiteColUrl.EndsWith("/sites/contenttypehub", StringComparison.InvariantCultureIgnoreCase))
             {
                 // Block these                
                 if (blocker)

@@ -14,6 +14,7 @@ See https://aka.ms/sppnp-modernizationscanner
   - Publishing portal now is correctly aggregated
   - Handle the scenario where there's certain scan files missing because that scan component was not selected
   - Handle the use of relative paths
+- Sites based upon CMSPUBLISHING#0 are counted as publishing sites
 
 ## [Version 2.4]
 

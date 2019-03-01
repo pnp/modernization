@@ -581,13 +581,15 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 Web web = cc.Web;
 
                 // "Classic" publishing portal found
-                if ((this.siteScanResult.WebTemplate == "BLANKINTERNET#0" || this.siteScanResult.WebTemplate == "ENTERWIKI#0" || this.siteScanResult.WebTemplate == "SRCHCEN#0") &&
+                if ((this.siteScanResult.WebTemplate == "BLANKINTERNET#0" || this.siteScanResult.WebTemplate == "ENTERWIKI#0" || 
+                     this.siteScanResult.WebTemplate == "SRCHCEN#0" || this.siteScanResult.WebTemplate == "CMSPUBLISHING#0") &&
                     (this.siteScanResult.SitePublishingFeatureEnabled && this.siteScanResult.WebPublishingFeatureEnabled))
                 {
                     var pagesLibrary = web.GetListsToScan().Where(p => p.BaseTemplate == 850).FirstOrDefault();
                     if (pagesLibrary != null)
                     {
-                        if (pagesLibrary.ItemCount > 0)
+                        // Take in account the "PageNotFoundError.aspx" default page. We want to assess if folks use publishing pages or not.
+                        if (pagesLibrary.ItemCount > 1)
                         {
                             return pagesLibrary.ItemCount;
                         }
