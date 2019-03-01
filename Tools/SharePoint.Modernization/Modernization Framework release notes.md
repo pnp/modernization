@@ -16,7 +16,7 @@
 
 ### Added
 
-- Experimental support for creating the modern site collection in another site collection. Currently does not yet support web parts with references to the source site + copy of page metadata #59 [pkbullock]
+- Experimental support for creating the modern site collection in another site collection. Currently does supported a limited set of web parts decorated with the CrossSiteTransformationSupported="true" attribute. #59, #65 and #66 [pkbullock]
 - Support for using Boolean as return type of functions used in the web part transformation model
 - XSLTListView transformation: map the web part toolbar configuration to the hideCommandBar property
 - Transformation support for ContentBySearchWebPart and ResultScriptWebPart

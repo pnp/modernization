@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
@@ -15,13 +16,23 @@ namespace SharePointPnP.Modernization.Framework.Functions
     /// </summary>
     public partial class BuiltIn : FunctionsBase
     {
+
+        private ClientContext sourceClientContext;
+        private ClientSidePage clientSidePage;
+
+
         #region Construction
         /// <summary>
         /// Instantiates the base builtin function library
         /// </summary>
-        /// <param name="clientContext">ClientContext object for the site holding the page being transformed</param>
-        public BuiltIn(ClientContext clientContext) : base(clientContext)
+        /// <param name="pageClientContext">ClientContext object for the site holding the page being transformed</param>
+        /// <param name="sourceClientContext">The ClientContext for the source </param>
+        /// <param name="clientSidePage">Reference to the client side page</param>
+        public BuiltIn(ClientContext pageClientContext, ClientContext sourceClientContext = null, ClientSidePage clientSidePage = null) : base(pageClientContext)
         {
+            // This is an optional property, in cross site transfer the two contexts would be different.
+            this.sourceClientContext = sourceClientContext;
+            this.clientSidePage = clientSidePage;
         }
         #endregion
 
@@ -555,6 +566,37 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     throw;
                 }
             }
+        }
+
+        /// <summary>
+        /// Copy the asset to target site in cross site transformation
+        /// </summary>
+        /// <param name="imageLink"></param>
+        [FunctionDocumentation(Description = "Transforms the incoming path into a server relative path. If the page is located on another page the asset is transferred and url updated. Any failures keep to the original value.",
+            Example = "{ServerRelativeFileName} = ReturnCrossSiteRelativePath({ImageLink})")]
+        [InputDocumentation(Name = "{ImageLink}", Description = "Original value for the image link")]
+        [OutputDocumentation(Name = "{ServerRelativeFileName}", Description = "New target location for the asset if transferred.")]
+        public string ReturnCrossSiteRelativePath(string imageLink)
+        {
+            // Defaults to the orignal operation
+            var serverRelativeAssetFileName = ReturnServerRelativePath(imageLink);
+
+            try
+            {
+                var clientSidePage = this.clientSidePage.PageTitle;
+
+                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext);
+                var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
+
+                return newAssetLocation;
+
+            }
+            catch (Exception ex)
+            {
+                // Swallow until reporting feature is implemented
+            }
+                       
+            return serverRelativeAssetFileName;
         }
         #endregion
 

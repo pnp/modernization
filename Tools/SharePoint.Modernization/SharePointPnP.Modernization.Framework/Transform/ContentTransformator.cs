@@ -20,7 +20,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private PageTransformation pageTransformation;
         private FunctionProcessor functionProcessor;
         private List<CombinedMapping> combinedMappinglist;
+        private ClientContext sourceClientContext;
         private Dictionary<string, string> globalTokens;
+        private bool isCrossSiteTransfer;
 
         class CombinedMapping
         {
@@ -35,12 +37,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="page">Client side page that will be updates</param>
         /// <param name="pageTransformation">Transformation information</param>
-        public ContentTransformator(ClientSidePage page, PageTransformation pageTransformation, Dictionary<string, string> mappingProperties)
+        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, Dictionary<string, string> mappingProperties)
         {
             this.page = page ?? throw new ArgumentException("Page cannot be null");
             this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
-            this.functionProcessor = new FunctionProcessor(this.page, this.pageTransformation);
             this.globalTokens = CreateGlobalTokenList(page.Context, mappingProperties);
+            this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation);
+            this.sourceClientContext = sourceClientContext;
+            this.isCrossSiteTransfer = IsCrossSiteTransfer();
         }
         #endregion
 
@@ -93,6 +97,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Mapping mapping = defaultMapping;
                 // Does the web part have a mapping defined?
                 var webPartData = pageTransformation.WebParts.Where(p => p.Type == webPart.Type).FirstOrDefault();
+
+                // Check for cross site transfer support
+                if (webPartData != null && this.isCrossSiteTransfer)
+                {
+                    if (!webPartData.CrossSiteTransformationSupported)
+                    {
+                        continue;
+                    }
+                }
+
                 if (webPartData != null && webPartData.Mappings != null)
                 {
                     // Add site level (e.g. site) tokens to the web part properties and model so they can be used in the same manner as a web part property
@@ -429,6 +443,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private bool IsCrossSiteTransfer()
+        {
+            if (this.sourceClientContext == null)
+            {
+                return false;
+            }
+
+            this.sourceClientContext.Web.EnsureProperties(p => p.Url);
+            this.page.Context.Web.EnsureProperties(p => p.Url);
+
+            if (this.sourceClientContext.Web.Url.Equals(this.page.Context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private static void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
         {
             List<Property> tempList = new List<Property>();

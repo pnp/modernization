@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
 
@@ -100,14 +101,14 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// </summary>
         /// <param name="page">Client side page for which we're executing the functions/selectors as part of the mapping</param>
         /// <param name="pageTransformation">Webpart mapping information</param>
-        public FunctionProcessor(ClientSidePage page, PageTransformation pageTransformation)
+        public FunctionProcessor(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation)
         {
             this.page = page;
             this.pageTransformation = pageTransformation;
 
             // instantiate default built in functions class
             this.addOnTypes = new List<AddOnType>();
-            this.builtInFunctions = Activator.CreateInstance(typeof(BuiltIn), this.page.Context);
+            this.builtInFunctions = Activator.CreateInstance(typeof(BuiltIn), this.page.Context, sourceClientContext, this.page);
 
             // instantiate the custom function classes (if there are)
             foreach (var addOn in this.pageTransformation.AddOns)

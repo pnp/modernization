@@ -35,7 +35,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Creates a page transformator instance with a target destination of a target web e.g. Modern/Communication Site
         /// </summary>
-        /// <param name="clientContext">ClientContext of the site holding the page</param>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
         /// <param name="targetClientContext">ClientContext of the site that will receive the modernized page</param>
         public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext) : this(sourceClientContext, targetClientContext, "webpartmapping.xml")
         {
@@ -45,7 +45,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Creates a page transformator instance
         /// </summary>
-        /// <param name="clientContext">ClientContext of the site holding the page</param>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
         public PageTransformator(ClientContext sourceClientContext) : this(sourceClientContext, null, "webpartmapping.xml")
         {
         }
@@ -90,9 +90,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Creates a page transformator instance
         /// </summary>
-        /// <param name="clientContext">ClientContext of the site holding the page</param>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
         /// <param name="pageTransformationModel">Page transformation model</param>
-        public PageTransformator(ClientContext sourceClientContext, PageTransformation pageTransformationModel)
+        public PageTransformator(ClientContext sourceClientContext, PageTransformation pageTransformationModel): this(sourceClientContext, null, pageTransformationModel)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a page transformator instance
+        /// </summary>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
+        /// <param name="targetClientContext">ClientContext of the site that will receive the modernized page</param>
+        /// <param name="pageTransformationModel">Page transformation model</param>
+        public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext, PageTransformation pageTransformationModel)
         {
 
 #if DEBUG && MEASURE
@@ -100,6 +111,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif
 
             this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = targetClientContext;
+
             this.version = PageTransformator.GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
 
@@ -467,7 +480,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif            
                 // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(targetPage, pageTransformation, pageTransformationInformation.MappingProperties);
+                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation.MappingProperties);
 
                 // Do we have an override?
                 if (pageTransformationInformation.ContentTransformatorOverride != null)

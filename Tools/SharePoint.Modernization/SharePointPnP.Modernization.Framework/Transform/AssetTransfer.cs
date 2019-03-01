@@ -1,12 +1,8 @@
 ﻿using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OfficeDevPnP.Core.Utilities;
 using System.IO;
+using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -49,47 +45,88 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Main entry point to perform the series of operations to transfer related assets
         /// </summary>
-        public void TransferAssets()
+        public string TransferAsset(string sourceAssetRelativeUrl, string pageFileName)
         {
-            throw new NotImplementedException();
-        }
 
-        /// <summary>
-        /// Collect urls to referenced resources
-        /// </summary>
-        /// <returns></returns>
-        public List<AssetTransferReferenceEntity> CollectUrlReferencesFromWebPartContent()
-        {
-            throw new NotImplementedException();
+            // Deep validation of urls
+            var isValid = ValidateAssetInSupportedLocation(sourceAssetRelativeUrl) && !string.IsNullOrEmpty(pageFileName);
+
+            // Check the string is not null
+            if (!string.IsNullOrEmpty(sourceAssetRelativeUrl) && isValid)
+            {
+
+                // Check the target library exists
+                string targetFolderServerRelativeUrl = EnsureDestination(pageFileName);
+                // Read in a preferred location
+
+                // Check that the target location, a file does not already exist
+
+                // Copy the asset file
+                string newLocationUrl = CopyAssetToTargetLocation(sourceAssetRelativeUrl, targetFolderServerRelativeUrl);
+
+                // Store a reference in the cache manager - ensure a test exists with multiple identical web parts
+                // Return the URL for the new location
+                return newLocationUrl;
+            }
+            
+            // Fall back to send back the same link
+            return sourceAssetRelativeUrl;
         }
+               
 
         /// <summary>
         /// Checks if the URL is located in a supported location
         /// </summary>
-        public bool IsAssetInSupportedLocation(string currentContextUrl, string sourceUrl)
+        public bool ValidateAssetInSupportedLocation(string sourceUrl)
         {
             //  Referenced assets should only be files e.g. 
             //      not aspx pages 
             //      located in the pages, site pages libraries
-            //  Ensure the referenced assets exist within the same site collection/web according to the level of transformation
+            
+            var fileExtension = Path.GetExtension(sourceUrl);
+            var containsBlockedExtension = Constants.BlockedAssetFileExtensions.Any(o => o == fileExtension.Replace(".",""));
+            if (containsBlockedExtension)
+            {
+                return false;
+            }
 
-            throw new NotImplementedException();
+            //  Ensure the referenced assets exist within the same site collection/web according to the level of transformation
+            var sourceWebUrl = _sourceClientContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
+            var targetWebUrl = _targetClientContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
+
+            if ( sourceWebUrl == targetWebUrl)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
         /// Ensure the site assets and page sub-folder exists in the target location
         /// </summary>
-        public void EnsureDestination()
+        public string EnsureDestination(string pageFileName)
         {
+            // In this method we need to calculate the target location from the following factors
+            //  Target Site Context + Site Assets Library + Folder (if located in or calculate based on SP method)
+            //  Check the libary and folder exists in the target site collection
+            //  Currently this method ignores anything from the source, will probabily need an override or params for target location
 
+            // Ensure the Site Assets library exists
+            var siteAssetsLibrary = this.EnsureSiteAssetsLibrary();
+            var sitePagesFolder = siteAssetsLibrary.RootFolder.EnsureFolder("SitePages");
 
-            throw new NotImplementedException();
+            var friendlyFolder = ConvertFileToFolderFriendlyName(pageFileName);
+            var pageFolder = sitePagesFolder.EnsureFolder(friendlyFolder);
+
+            return pageFolder.EnsureProperty(o => o.ServerRelativeUrl);
+            
         }
 
         /// <summary>
         /// Create a site assets library
         /// </summary>
-        public void EnsureSiteAssetsLibrary()
+        public List EnsureSiteAssetsLibrary()
         {
             // Use a PnP Provisioning template to create a site assets library
             // We cannot assume the SiteAssets library exists, in the case of vanilla communication sites - provision a new library if none exists
@@ -101,8 +138,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //for details about the issue fixed by this approach.
             var createdList = this._targetClientContext.Web.Lists.EnsureSiteAssetsLibrary();
             //Check that Title and Description have the correct values
-            this._targetClientContext.Web.Context.Load(createdList, l => l.Title);
+            this._targetClientContext.Web.Context.Load(createdList, l => l.Title, l => l.RootFolder);
             this._targetClientContext.Web.Context.ExecuteQueryRetry();
+
+            return createdList;
         }
 
         /// <summary>
@@ -113,7 +152,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <remarks>
         ///     Based on the documentation: https://docs.microsoft.com/en-us/sharepoint/dev/solution-guidance/upload-large-files-sample-app-for-sharepoint
         /// </remarks>
-        public void CopyAssetToTargetLocation(string sourceFileUrl, string targetLocationUrl, int fileChunkSizeInMB = 3)
+        public string CopyAssetToTargetLocation(string sourceFileUrl, string targetLocationUrl, int fileChunkSizeInMB = 3)
         {
             // This copies the latest version of the asset to the target site collection
             // Going to need to add a bunch of checks to ensure the target file exists
@@ -165,7 +204,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     _targetClientContext.ExecuteQuery();
 
                     // Return the file object for the uploaded file.
-                    // return uploadFile;
+                    return uploadFile.EnsureProperty(o => o.ServerRelativeUrl);
 
                 }
                 else
@@ -225,7 +264,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             else
                             {
                                 // Get a reference to your file.
-                                uploadFile = _targetClientContext.Web.GetFileByServerRelativeUrl(targetFolder.ServerRelativeUrl + System.IO.Path.AltDirectorySeparatorChar + fileName);
+                                var fileUrl = targetFolder.ServerRelativeUrl + System.IO.Path.AltDirectorySeparatorChar + fileName;
+                                uploadFile = _targetClientContext.Web.GetFileByServerRelativeUrl(fileUrl);
 
                                 if (last)
                                 {
@@ -237,7 +277,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         _targetClientContext.ExecuteQuery();
 
                                         // Return the file object for the uploaded file.
-                                        // return uploadFile;
+                                        return fileUrl;
                                     }
                                 }
                                 else
@@ -258,7 +298,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
             }
-            //return null;
+
+            return null;
         }
 
         /// <summary>
@@ -283,13 +324,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         /// <summary>
-        /// Gets a list of assets pending transfer to the target location
+        /// Converts the file name into a friendly format
         /// </summary>
+        /// <param name="fileName"></param>
         /// <returns></returns>
-        public List<AssetTransferReferenceEntity> GetPendingAssetTransfers()
+        public string ConvertFileToFolderFriendlyName(string fileName)
         {
-            // Using the Cache Manager get the assets new transferred
-            throw new NotImplementedException();
+            // This is going to need some heavy testing
+            var justFileName = Path.GetFileNameWithoutExtension(fileName);
+            var friendlyName = justFileName.Replace(" ", "-");
+            return friendlyName;
         }
 
     }

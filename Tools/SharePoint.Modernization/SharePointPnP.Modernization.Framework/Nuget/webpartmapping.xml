@@ -40,7 +40,7 @@ uncomment the nodes
     <!-- Web parts with their property definition and mappings to client side web parts --> 
     <WebParts>
       <!-- Fake wiki text web part, not needed for scanning but needed for transformation -->
-      <WebPart Type="SharePointPnP.Modernization.WikiTextPart">
+      <WebPart Type="SharePointPnP.Modernization.WikiTextPart" CrossSiteTransformationSupported="true">
         <Properties>
           <!-- To turn off placeholders set the UsePlaceHolders property to false via the ReturnFalse() function. Set to true using the ReturnTrue() function -->          
           <Property Name="Text" Type="string" Functions="{UsePlaceHolders} = ReturnTrue(); {CleanedText} = TextCleanup({Text},{UsePlaceHolders})" />
@@ -58,14 +58,14 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Fake wiki image web part, used to handle images embedded in wiki text -->
-      <WebPart Type="SharePointPnP.Modernization.WikiImagePart">
+      <WebPart Type="SharePointPnP.Modernization.WikiImagePart" CrossSiteTransformationSupported="true">
         <Properties>
           <!-- Functions are executed in web part property order using the order they're listed in the functions attribute.
                This implies that {serverRelativeFileName} as function output can be used in any function executed after the ReturnServerRelativePath function
                Note that ImageLookup returns a Dictionary<string,string> with a collection of output parameters. Although these output parameters are not named 
                in the model you can still use them. Consult the function documentation to understand the output parameters.
           -->
-          <Property Name="ImageUrl" Type="string" Functions="{ServerRelativeFileName} = ReturnServerRelativePath({ImageUrl});ImageLookup({ServerRelativeFileName});{FileName} = ReturnFileName({ImageUrl})"/>
+          <Property Name="ImageUrl" Type="string" Functions="{ServerRelativeFileName} = ReturnCrossSiteRelativePath({ImageUrl});ImageLookup({ServerRelativeFileName});{FileName} = ReturnFileName({ImageUrl})"/>
           <Property Name="AlternativeText" Type="string"/>
         </Properties>
         <Mappings>
@@ -76,7 +76,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Fake wiki video web part, used to handle videos embedded in wiki text -->
-      <WebPart Type="SharePointPnP.Modernization.WikiVideoPart">
+      <WebPart Type="SharePointPnP.Modernization.WikiVideoPart" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="Source" Type="string"/>
           <!-- Before inserting the iframe snippet it needs to be correctly encoded in -->
@@ -92,7 +92,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Fake pageheader web part, used to embed a page acceptance web part -->
-      <WebPart Type="SharePointPnP.Modernization.PageAcceptanceBanner">
+      <WebPart Type="SharePointPnP.Modernization.PageAcceptanceBanner" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="SourcePage" Type="string"/>
           <Property Name="TargetPage" Type="string"/>
@@ -233,9 +233,9 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Image web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.ImageWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.ImageWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
-          <Property Name="ImageLink" Type="string" Functions="{ServerRelativeFileName} = ReturnServerRelativePath({ImageLink});ImageLookup({ServerRelativeFileName});{FileName} = ReturnFileName({ImageLink})"/>
+          <Property Name="ImageLink" Type="string" Functions="{ServerRelativeFileName} = ReturnCrossSiteRelativePath({ImageLink});ImageLookup({ServerRelativeFileName});{FileName} = ReturnFileName({ImageLink});"/>
           <Property Name="AlternativeText" Type="string" />
           <Property Name="VerticalAlignment" Type="string" />
           <Property Name="HorizontalAlignment" Type="string" />
