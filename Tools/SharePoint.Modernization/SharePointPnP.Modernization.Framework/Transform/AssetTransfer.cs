@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Entities;
 using System;
 using System.IO;
@@ -90,11 +91,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 return false;
             }
 
-            //  Ensure the referenced assets exist within the same site collection/web according to the level of transformation
-            var sourceWebUrl = _sourceClientContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
-            var targetWebUrl = _targetClientContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
+            //  Ensure the referenced assets exist within the source site collection
+            var sourceSiteContextUrl = _sourceClientContext.Site.EnsureProperty(w => w.ServerRelativeUrl);
+            if (!sourceUrl.Contains(sourceSiteContextUrl))
+            {
+                return false;
+            }
 
-            if ( sourceWebUrl == targetWebUrl)
+            //  Ensure the contexts are not e.g. cross-site the same site collection/web according to the level of transformation
+            var targetSiteContextUrl = _targetClientContext.Site.EnsureProperty(w => w.ServerRelativeUrl);
+            if (sourceSiteContextUrl == targetSiteContextUrl)
             {
                 return false;
             }

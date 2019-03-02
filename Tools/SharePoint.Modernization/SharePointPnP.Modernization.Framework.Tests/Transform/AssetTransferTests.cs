@@ -71,7 +71,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_CopyAssetToTargetLocation_WithImageWebPartTest()
+        public void AssetTransfer_CopyAssetToTargetLocation_PagesWithImageWebPartTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -110,7 +110,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_ValiateSupportedAssetLocation_AspxRejectTest()
+        public void AssetTransfer_ValidateSupportedAssetLocation_AspxRejectTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -120,8 +120,76 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 {
                     // Needs valid client contexts as they are part of the checks.
                     AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
-                    var result = assetTransfer.ValidateAssetInSupportedLocation("/sites/testsite/siteassets/wrongfile.aspx");
+
+                    var webUrl = sourceClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+                    var result = assetTransfer.ValidateAssetInSupportedLocation($"{webUrl}/siteassets/wrongfile.aspx");
                     var expected = false;
+
+                    Assert.AreEqual(expected, result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This test validates with SharePoint the entire operation
+        /// </summary>
+        [TestMethod]
+        public void AssetTransfer_ValidateSupportedAssetLocation_OtherTenantRejectTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext())
+                {
+                    // Needs valid client contexts as they are part of the checks.
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
+                    var result = assetTransfer.ValidateAssetInSupportedLocation("https://faketenant.sharepoint.com/sites/fakesitecollection/images/afakeimage.jpg");
+                    var expected = false;
+
+                    Assert.AreEqual(expected, result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This test validates with SharePoint the entire operation
+        /// </summary>
+        [TestMethod]
+        public void AssetTransfer_ValidateSupportedAssetLocation_OtherSiteCollectionRelativeRejectTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext())
+                {
+                    // Needs valid client contexts as they are part of the checks.
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
+                    var result = assetTransfer.ValidateAssetInSupportedLocation($"/sites/fakesitecollection/images/afakeimage.jpg");
+                    var expected = false;
+
+                    Assert.AreEqual(expected, result);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void AssetTransfer_ValidateSupportedAssetLocation_SubsiteAcceptTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext())
+                {
+                    // Needs valid client contexts as they are part of the checks.
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
+
+                    var webUrl = sourceClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+                    
+                    var result = assetTransfer.ValidateAssetInSupportedLocation($"{webUrl}/subsite/siteassets/afakeimage.jpg");
+                    var expected = true;
 
                     Assert.AreEqual(expected, result);
                 }
@@ -142,7 +210,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 {
                     // Needs valid client contexts as they are part of the checks.
                     AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
-                    var result = assetTransfer.ValidateAssetInSupportedLocation("/sites/testsite/siteassets/rightfile.jpg");
+                    var webUrl = sourceClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+                    var result = assetTransfer.ValidateAssetInSupportedLocation($"{webUrl}/siteassets/rightfile.jpg");
                     var expected = false;
 
                     Assert.AreEqual(expected, result);
@@ -164,7 +233,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 {
                     // Needs valid client contexts as they are part of the checks.
                     AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
-                    var result = assetTransfer.ValidateAssetInSupportedLocation("/sites/testsite/siteassets/rightfile.jpg");
+
+                    var webUrl = sourceClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+                    var result = assetTransfer.ValidateAssetInSupportedLocation($"{webUrl}/siteassets/rightfile.jpg");
                     var expected = true;
 
                     Assert.AreEqual(expected, result);
