@@ -38,6 +38,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     assetTransfer.CopyAssetToTargetLocation(sourceFileServerRelativeUrl, targetLocation);
                 }
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
         }
 
         /// <summary>
@@ -65,6 +67,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     assetTransfer.CopyAssetToTargetLocation(sourceFileServerRelativeUrl, targetLocation);
                 }
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
         }
 
         /// <summary>
@@ -104,6 +108,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     }
                 }
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
         }
 
         /// <summary>
@@ -281,7 +287,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
             }
 
-            Assert.Inconclusive("Please manually check the results of the test");
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
         }
 
         /// <summary>
@@ -322,7 +328,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
             }
 
-            Assert.Inconclusive("Please manually check the results of the test");
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
         }
 
         /// <summary>
@@ -362,6 +368,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     }
                 }
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
         }
 
         /// <summary>
