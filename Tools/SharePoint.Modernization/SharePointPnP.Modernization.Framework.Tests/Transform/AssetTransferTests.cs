@@ -243,6 +243,87 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
             }
         }
 
+        /// <summary>
+        /// This test validates with SharePoint the entire operation
+        /// </summary>
+        [TestMethod]
+        public void AssetTransfer_CopyAssetToTargetLocation_WithCacheSameFileTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext())
+                {
+                    var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+
+                    var pages = sourceClientContext.Web.GetPages("WPP_Image-Asset-MultipleImages-Test");
+
+                    foreach (var page in pages)
+                    {
+                        PageTransformationInformation pti = new PageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                            // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
+                            HandleWikiImagesAndVideos = false,
+
+                            //Include the assets within the file transfer
+                            CopyReferencedAssets = true
+                        };
+
+                        pageTransformator.Transform(pti);
+                    }
+                }
+            }
+
+            Assert.Inconclusive("Please manually check the results of the test");
+        }
+
+        /// <summary>
+        /// This test validates with SharePoint the entire operation
+        /// </summary>
+        [TestMethod]
+        public void AssetTransfer_CopyAssetToTargetLocation_WithCacheMultipleFileTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext())
+                {
+                    var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+
+                    var pages = sourceClientContext.Web.GetPages("WPP_Image-Asset");
+
+                    foreach (var page in pages)
+                    {
+                        PageTransformationInformation pti = new PageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                            // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
+                            HandleWikiImagesAndVideos = false,
+
+                            //Include the assets within the file transfer
+                            CopyReferencedAssets = true
+                        };
+
+                        pageTransformator.Transform(pti);
+                    }
+                }
+            }
+
+            Assert.Inconclusive("Please manually check the results of the test");
+        }
 
         /// <summary>
         /// This test validates with SharePoint the entire operation
