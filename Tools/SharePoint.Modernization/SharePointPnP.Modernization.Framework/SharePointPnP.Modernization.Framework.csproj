@@ -187,7 +187,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\AssetTransferReferenceEntity.cs" />
+    <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Transform\AssetTransfer.cs" />
     <Compile Include="Cache\CacheManager.cs" />
     <Compile Include="Caml\FieldReference.cs" />

@@ -1137,6 +1137,202 @@ Even though a topological qubit is expected to be more robust than a regular qub
           </pnp:WebParts>
         </pnp:File>
 
+        <pnp:File Src="SitePages\WPP_Blank.aspx" Folder="{site}/SitePages" TargetFileName="WPP_Image-Asset-MultipleImages-Test.aspx" Overwrite="true" Level="Published">
+          <pnp:Properties>
+            <pnp:Property Key="ContentTypeId" Value="{contenttypeid:Web Part Page}" />
+            <pnp:Property Key="HTML_x0020_File_x0020_Type" Value="SharePoint.WebPartPage.Document" />
+            <pnp:Property Key="_ListSchemaVersion" Value="25" />
+            <pnp:Property Key="_Dirty" Value="0" />
+            <pnp:Property Key="_Parsable" Value="1" />
+            <pnp:Property Key="_StubFile" Value="0" />
+            <pnp:Property Key="_IpLabelId" Value="Microsoft.SharePoint.Client.FieldLookupValue" />
+          </pnp:Properties>
+          <pnp:WebParts>
+            <pnp:WebPart Title="Web Part Page Title Bar" Zone="TitleBar" Order="1">
+              <pnp:Contents>
+                <WebPart xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/WebPart/v2">
+                  <Title>Web Part Page Title Bar</Title>
+                  <FrameType>None</FrameType>
+                  <Description />
+                  <IsIncluded>true</IsIncluded>
+                  <ZoneID>TitleBar</ZoneID>
+                  <PartOrder>1</PartOrder>
+                  <FrameState>Normal</FrameState>
+                  <Height />
+                  <Width />
+                  <AllowRemove>false</AllowRemove>
+                  <AllowZoneChange>true</AllowZoneChange>
+                  <AllowMinimize>false</AllowMinimize>
+                  <AllowConnect>true</AllowConnect>
+                  <AllowEdit>true</AllowEdit>
+                  <AllowHide>true</AllowHide>
+                  <IsVisible>true</IsVisible>
+                  <DetailLink />
+                  <HelpLink />
+                  <HelpMode>Modeless</HelpMode>
+                  <Dir>Default</Dir>
+                  <PartImageSmall />
+                  <MissingAssembly>Cannot import this Web Part.</MissingAssembly>
+                  <PartImageLarge />
+                  <IsIncludedFilter />
+                  <Assembly>Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Assembly>
+                  <TypeName>Microsoft.SharePoint.WebPartPages.TitleBarWebPart</TypeName>
+                  <HeaderTitle xmlns="http://schemas.microsoft.com/WebPart/v2/TitleBar">WPP_Image Asset Test</HeaderTitle>
+                </WebPart>
+              </pnp:Contents>
+            </pnp:WebPart>
+            <pnp:WebPart Title="Image Viewer" Zone="MiddleColumn" Order="1">
+              <pnp:Contents>
+                <WebPart xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/WebPart/v2">
+                  <Title>Image Viewer</Title>
+                  <FrameType>None</FrameType>
+                  <Description>Displays a specified image.</Description>
+                  <IsIncluded>true</IsIncluded>
+                  <ZoneID>MiddleColumn</ZoneID>
+                  <PartOrder>10</PartOrder>
+                  <FrameState>Normal</FrameState>
+                  <Height />
+                  <Width />
+                  <AllowRemove>true</AllowRemove>
+                  <AllowZoneChange>true</AllowZoneChange>
+                  <AllowMinimize>true</AllowMinimize>
+                  <AllowConnect>true</AllowConnect>
+                  <AllowEdit>true</AllowEdit>
+                  <AllowHide>true</AllowHide>
+                  <IsVisible>true</IsVisible>
+                  <DetailLink />
+                  <HelpLink />
+                  <HelpMode>Modeless</HelpMode>
+                  <Dir>Default</Dir>
+                  <PartImageSmall />
+                  <MissingAssembly>Cannot import this Web Part.</MissingAssembly>
+                  <PartImageLarge>/_layouts/15/SiteImages/msimagel.gif</PartImageLarge>
+                  <IsIncludedFilter />
+                  <Assembly>Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Assembly>
+                  <TypeName>Microsoft.SharePoint.WebPartPages.ImageWebPart</TypeName>
+                  <ImageLink xmlns="http://schemas.microsoft.com/WebPart/v2/Image">{site}/SiteImages/wirebonding_qubit.jpg</ImageLink>
+                  <AlternativeText xmlns="http://schemas.microsoft.com/WebPart/v2/Image" />
+                  <VerticalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Middle</VerticalAlignment>
+                  <HorizontalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Center</HorizontalAlignment>
+                  <BackgroundColor xmlns="http://schemas.microsoft.com/WebPart/v2/Image">transparent</BackgroundColor>
+                </WebPart>
+              </pnp:Contents>
+            </pnp:WebPart>
+            <pnp:WebPart Title="Image Viewer" Zone="Header" Order="1">
+              <pnp:Contents>
+                <WebPart xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/WebPart/v2">
+                  <Title>Image Viewer</Title>
+                  <FrameType>None</FrameType>
+                  <Description>Displays a specified image.</Description>
+                  <IsIncluded>true</IsIncluded>
+                  <ZoneID>Header</ZoneID>
+                  <PartOrder>0</PartOrder>
+                  <FrameState>Normal</FrameState>
+                  <Height />
+                  <Width />
+                  <AllowRemove>true</AllowRemove>
+                  <AllowZoneChange>true</AllowZoneChange>
+                  <AllowMinimize>true</AllowMinimize>
+                  <AllowConnect>true</AllowConnect>
+                  <AllowEdit>true</AllowEdit>
+                  <AllowHide>true</AllowHide>
+                  <IsVisible>true</IsVisible>
+                  <DetailLink />
+                  <HelpLink />
+                  <HelpMode>Modeless</HelpMode>
+                  <Dir>Default</Dir>
+                  <PartImageSmall />
+                  <MissingAssembly>Cannot import this Web Part.</MissingAssembly>
+                  <PartImageLarge>/_layouts/15/SiteImages/msimagel.gif</PartImageLarge>
+                  <IsIncludedFilter />
+                  <Assembly>Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Assembly>
+                  <TypeName>Microsoft.SharePoint.WebPartPages.ImageWebPart</TypeName>
+                  <ImageLink xmlns="http://schemas.microsoft.com/WebPart/v2/Image">{site}/SiteImages/KLAPSTUK-TU-Delft-Qutech-5-of-113-3.jpg</ImageLink>
+                  <AlternativeText xmlns="http://schemas.microsoft.com/WebPart/v2/Image" />
+                  <VerticalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Middle</VerticalAlignment>
+                  <HorizontalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Center</HorizontalAlignment>
+                  <BackgroundColor xmlns="http://schemas.microsoft.com/WebPart/v2/Image">transparent</BackgroundColor>
+                </WebPart>
+              </pnp:Contents>
+            </pnp:WebPart>
+            <pnp:WebPart Title="Image Viewer" Zone="Header" Order="2">
+              <pnp:Contents>
+                <WebPart xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/WebPart/v2">
+                  <Title>Image Viewer</Title>
+                  <FrameType>None</FrameType>
+                  <Description>Displays a specified image.</Description>
+                  <IsIncluded>true</IsIncluded>
+                  <ZoneID>Header</ZoneID>
+                  <PartOrder>0</PartOrder>
+                  <FrameState>Normal</FrameState>
+                  <Height />
+                  <Width />
+                  <AllowRemove>true</AllowRemove>
+                  <AllowZoneChange>true</AllowZoneChange>
+                  <AllowMinimize>true</AllowMinimize>
+                  <AllowConnect>true</AllowConnect>
+                  <AllowEdit>true</AllowEdit>
+                  <AllowHide>true</AllowHide>
+                  <IsVisible>true</IsVisible>
+                  <DetailLink />
+                  <HelpLink />
+                  <HelpMode>Modeless</HelpMode>
+                  <Dir>Default</Dir>
+                  <PartImageSmall />
+                  <MissingAssembly>Cannot import this Web Part.</MissingAssembly>
+                  <PartImageLarge>/_layouts/15/SiteImages/msimagel.gif</PartImageLarge>
+                  <IsIncludedFilter />
+                  <Assembly>Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Assembly>
+                  <TypeName>Microsoft.SharePoint.WebPartPages.ImageWebPart</TypeName>
+                  <ImageLink xmlns="http://schemas.microsoft.com/WebPart/v2/Image">{site}/SiteImages/KLAPSTUK-TU-Delft-Qutech-5-of-113-3.jpg</ImageLink>
+                  <AlternativeText xmlns="http://schemas.microsoft.com/WebPart/v2/Image" />
+                  <VerticalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Middle</VerticalAlignment>
+                  <HorizontalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Center</HorizontalAlignment>
+                  <BackgroundColor xmlns="http://schemas.microsoft.com/WebPart/v2/Image">transparent</BackgroundColor>
+                </WebPart>
+              </pnp:Contents>
+            </pnp:WebPart>
+            <pnp:WebPart Title="Image Viewer" Zone="MiddleColumn" Order="2">
+              <pnp:Contents>
+                <WebPart xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/WebPart/v2">
+                  <Title>Image Viewer</Title>
+                  <FrameType>None</FrameType>
+                  <Description>Displays a specified image.</Description>
+                  <IsIncluded>true</IsIncluded>
+                  <ZoneID>MiddleColumn</ZoneID>
+                  <PartOrder>10</PartOrder>
+                  <FrameState>Normal</FrameState>
+                  <Height />
+                  <Width />
+                  <AllowRemove>true</AllowRemove>
+                  <AllowZoneChange>true</AllowZoneChange>
+                  <AllowMinimize>true</AllowMinimize>
+                  <AllowConnect>true</AllowConnect>
+                  <AllowEdit>true</AllowEdit>
+                  <AllowHide>true</AllowHide>
+                  <IsVisible>true</IsVisible>
+                  <DetailLink />
+                  <HelpLink />
+                  <HelpMode>Modeless</HelpMode>
+                  <Dir>Default</Dir>
+                  <PartImageSmall />
+                  <MissingAssembly>Cannot import this Web Part.</MissingAssembly>
+                  <PartImageLarge>/_layouts/15/SiteImages/msimagel.gif</PartImageLarge>
+                  <IsIncludedFilter />
+                  <Assembly>Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Assembly>
+                  <TypeName>Microsoft.SharePoint.WebPartPages.ImageWebPart</TypeName>
+                  <ImageLink xmlns="http://schemas.microsoft.com/WebPart/v2/Image">{site}/SiteImages/wirebonding_qubit.jpg</ImageLink>
+                  <AlternativeText xmlns="http://schemas.microsoft.com/WebPart/v2/Image" />
+                  <VerticalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Middle</VerticalAlignment>
+                  <HorizontalAlignment xmlns="http://schemas.microsoft.com/WebPart/v2/Image">Center</HorizontalAlignment>
+                  <BackgroundColor xmlns="http://schemas.microsoft.com/WebPart/v2/Image">transparent</BackgroundColor>
+                </WebPart>
+              </pnp:Contents>
+            </pnp:WebPart>
+            
+          </pnp:WebParts>
+        </pnp:File>
+
         <pnp:File Src="Images/Photos/Allison-Linn_Head-Shot-215x215.png" Folder="{site}/SiteImages" Overwrite="false" Level="Published" />
         <pnp:File Src="Images/Photos/Commercial16_smallmeeting_02.jpg" Folder="{site}/SiteImages" Overwrite="false" Level="Published" />
         <pnp:File Src="Images/Photos/Craig-Mundie-_20-Ann.-768x983.jpg" Folder="{site}/SiteImages" Overwrite="false" Level="Published" />

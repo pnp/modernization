@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Entities;
 using System;
 using System.IO;
@@ -59,14 +60,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 string targetFolderServerRelativeUrl = EnsureDestination(pageFileName);
                 // Read in a preferred location
 
-                // Check that the target location, a file does not already exist
+                // Check that the operation to transfer an asset hasnt already been performed for the file on different web parts.
+                var assetDetails = GetAssetTransferredIfExists(
+                    new AssetTransferredEntity() { SourceAssetUrl = sourceAssetRelativeUrl, TargetAssetFolderUrl = targetFolderServerRelativeUrl });
 
-                // Copy the asset file
-                string newLocationUrl = CopyAssetToTargetLocation(sourceAssetRelativeUrl, targetFolderServerRelativeUrl);
+                if (string.IsNullOrEmpty(assetDetails.TargetAssetTransferredUrl)) {
+                    
+                    // Copy the asset file
+                    string newLocationUrl = CopyAssetToTargetLocation(sourceAssetRelativeUrl, targetFolderServerRelativeUrl);
+                    assetDetails.TargetAssetTransferredUrl = newLocationUrl;
+                    
+                    // Store a reference in the cache manager - ensure a test exists with multiple identical web parts
+                    StoreAssetTransferred(assetDetails);
+                    
+                }
 
-                // Store a reference in the cache manager - ensure a test exists with multiple identical web parts
-                // Return the URL for the new location
-                return newLocationUrl;
+                return assetDetails.TargetAssetTransferredUrl;
+
             }
             
             // Fall back to send back the same link
@@ -90,11 +100,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 return false;
             }
 
-            //  Ensure the referenced assets exist within the same site collection/web according to the level of transformation
-            var sourceWebUrl = _sourceClientContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
-            var targetWebUrl = _targetClientContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
+            //  Ensure the referenced assets exist within the source site collection
+            var sourceSiteContextUrl = _sourceClientContext.Site.EnsureProperty(w => w.ServerRelativeUrl);
+            if (!sourceUrl.Contains(sourceSiteContextUrl))
+            {
+                return false;
+            }
 
-            if ( sourceWebUrl == targetWebUrl)
+            //  Ensure the contexts are not e.g. cross-site the same site collection/web according to the level of transformation
+            var targetSiteContextUrl = _targetClientContext.Site.EnsureProperty(w => w.ServerRelativeUrl);
+            if (sourceSiteContextUrl == targetSiteContextUrl)
             {
                 return false;
             }
@@ -307,20 +322,44 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="assetTransferReferenceEntity"></param>
         /// <param name="update"></param>
-        public void StoreAssetTransferReference(AssetTransferReferenceEntity assetTransferReferenceEntity, bool? update)
+        public void StoreAssetTransferred(AssetTransferredEntity assetTransferredEntity)
         {
             // Using the Cache Manager store the asset transfer references
             // If update - treat the source URL as unique, if multiple web parts reference to this, then it will still refer to the single resource
-            throw new NotImplementedException();
+            var cache = Cache.CacheManager.Instance;
+            if(!cache.AssetsTransfered.Any(asset => 
+                string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                cache.AssetsTransfered.Add(assetTransferredEntity);
+            }
+
         }
 
         /// <summary>
-        /// Get all asset transfer references
+        /// Get asset transfer details if they already exist
         /// </summary>
-        public void GetAssetTransferReferences()
+        public AssetTransferredEntity GetAssetTransferredIfExists(AssetTransferredEntity assetTransferredEntity)
         {
-            // Using the Cache Manager retrieve asset transfer references (all)
-            throw new NotImplementedException();
+            try
+            {
+                // Using the Cache Manager retrieve asset transfer references (all)
+                var cache = Cache.CacheManager.Instance;
+
+                var result = cache.AssetsTransfered.SingleOrDefault(
+                    asset => string.Equals(asset.TargetAssetFolderUrl,assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
+                    string.Equals(asset.SourceAssetUrl, assetTransferredEntity.SourceAssetUrl, StringComparison.InvariantCultureIgnoreCase));
+
+                // Return the cached details if found, if not return original search 
+                return result != default(AssetTransferredEntity) ? result : assetTransferredEntity;
+            }
+            catch (Exception ex)
+            {
+                //swallow until reporting
+            }
+
+            // Fallback in case of error - this will trigger a transfer of the asset
+            return assetTransferredEntity;
+
         }
 
         /// <summary>

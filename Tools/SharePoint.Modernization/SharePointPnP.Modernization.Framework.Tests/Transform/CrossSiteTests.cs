@@ -114,6 +114,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
             }
 
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
+
         }
         [TestMethod]
         public void CrossSiteTransform_SameSite_WebPartPageTest()
@@ -169,6 +171,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
 
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
 
@@ -226,6 +230,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
 
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
     }
