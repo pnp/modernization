@@ -16,10 +16,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
     /// </summary>
     public partial class BuiltIn : FunctionsBase
     {
-
         private ClientContext sourceClientContext;
         private ClientSidePage clientSidePage;
-
 
         #region Construction
         /// <summary>
@@ -805,6 +803,38 @@ namespace SharePointPnP.Modernization.Framework.Functions
             }
         }
 
+        /// <summary>
+        /// Throws an exception when link to .aspx file.
+        /// </summary>
+        /// <param name="listId">Link value if set</param>
+        /// <returns>Unused variable</returns>
+        [FunctionDocumentation(Description = "Throws an exception when link to .aspx file.",
+                               Example = "{Temp} = ContentEmbedCrossSiteCheck({ContentLink})")]
+        [InputDocumentation(Name = "{ContentLink}", Description = "Link value if set")]
+        [OutputDocumentation(Name = "{Temp}", Description = "Unused variable")]
+        public string ContentEmbedCrossSiteCheck(string contentLink)
+        {
+
+            if (! IsCrossSiteTransfer() || string.IsNullOrEmpty(contentLink))
+            {
+                return "";
+            }
+            else
+            {
+                if (contentLink.ToLower().EndsWith(".aspx"))
+                {
+                    throw new NotAvailableAtTargetException($"ASPX Page with link {contentLink} is not available in the target site collection. This web part will be skipped.");
+                }
+            }
+
+            return "";
+        }
+
+        /// <summary>
+        /// Loads contents of a file as a string.
+        /// </summary>
+        /// <param name="contentLink">Server relative url to the file to load</param>
+        /// <returns>Text content of the file. Return empty string if file was not found</returns>
         [FunctionDocumentation(Description = "Loads contents of a file as a string.",
                                Example = "{FileContents} = LoadContentFromFile({ContentLink})")]
         [InputDocumentation(Name = "{ContentLink}", Description = "Server relative url to the file to load")]
@@ -819,7 +849,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             try
             {
-                return this.clientContext.Web.GetFileAsString(contentLink);
+                return this.sourceClientContext.Web.GetFileAsString(contentLink);
             }
             catch (ServerException ex)
             {
@@ -1181,13 +1211,13 @@ namespace SharePointPnP.Modernization.Framework.Functions
                   </Query>
                 </View>";
 
-            List siteUserInfoList = this.clientContext.Web.SiteUserInfoList;
+            List siteUserInfoList = this.sourceClientContext.Web.SiteUserInfoList;
             CamlQuery query = new CamlQuery
             {
                 ViewXml = String.Format(CAMLQueryByName, person)
             };
-            var loadedUsers = this.clientContext.LoadQuery(siteUserInfoList.GetItems(query));
-            this.clientContext.ExecuteQueryRetry();
+            var loadedUsers = this.sourceClientContext.LoadQuery(siteUserInfoList.GetItems(query));
+            this.sourceClientContext.ExecuteQueryRetry();
 
             if (loadedUsers != null)
             {
@@ -1222,6 +1252,26 @@ namespace SharePointPnP.Modernization.Framework.Functions
             }
 
             return result;
+        }
+        #endregion
+
+        #region Helper methods
+        private bool IsCrossSiteTransfer()
+        {
+            if (this.sourceClientContext == null)
+            {
+                return false;
+            }
+
+            this.sourceClientContext.Web.EnsureProperties(p => p.Url);
+            this.clientSidePage.Context.Web.EnsureProperties(p => p.Url);
+
+            if (this.sourceClientContext.Web.Url.Equals(this.clientSidePage.Context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            return true;
         }
         #endregion
     }
