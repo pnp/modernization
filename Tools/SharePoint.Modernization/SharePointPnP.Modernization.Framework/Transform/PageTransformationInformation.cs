@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using System;
+using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -46,7 +47,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
             RemoveEmptySectionsAndColumns = true;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
-            IncludeReferencedAssets = false; // Default to false for now until out of experimental phase
+            // Populate with OOB mapping properties
+            MappingProperties = new Dictionary<string, string>(5)
+            {
+                { "UseCommunityScriptEditor", "false" },
+                { "SummaryLinksToQuickLinks", "true" }
+            };
+            CopyReferencedAssets = false; // Default to false for now until out of experimental phase
         }
         #endregion
 
@@ -102,9 +109,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public ModernizationCenterInformation ModernizationCenterInformation { get; set; }
 
         /// <summary>
-        /// Includes referenced assets in the web part
+        /// Copies referenced assets to the target site collection. Only applies to transformations where source and target site collection are different.
         /// </summary>
-        public bool IncludeReferencedAssets { get; set; }
+        public bool CopyReferencedAssets { get; set; }
+
+        /// <summary>
         /// Removes empty sections and columns to optimize screen real estate
         /// </summary>
         public bool RemoveEmptySectionsAndColumns { get; set; }
@@ -121,6 +130,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// If the page to be transformed is the web's home page then replace with stock modern home page instead of transforming it
         /// </summary>
         public bool ReplaceHomePageWithDefaultHomePage { get; set; }
+
+        /// <summary>
+        /// Property bag for adding properties that will be exposed to the functions and selectors in the web part mapping file.
+        /// These properties are used to condition the transformation process.
+        /// </summary>
+        public Dictionary<string, string> MappingProperties { get; }
         #endregion
 
         #region Override properties

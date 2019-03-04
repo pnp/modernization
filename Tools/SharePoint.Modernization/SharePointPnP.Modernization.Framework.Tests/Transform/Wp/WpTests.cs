@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
             {
                 var pageTransformator = new PageTransformator(cc);
 
-                var pages = cc.Web.GetPages("wp_cb");
+                var pages = cc.Web.GetPages("wp_contactfield_1");
                 foreach (var page in pages)
                 {
                     PageTransformationInformation pti = new PageTransformationInformation(page)
@@ -80,6 +80,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
                         // Callout to your custom content transformator...in case you fully want replace the model
                         //ContentTransformatorOverride = contentOverride,
                     };
+
+                    pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                    pti.MappingProperties["UseCommunityScriptEditor"] = "false";
 
                     pageTransformator.Transform(pti);
                 }

@@ -187,7 +187,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\AssetTransferReferenceEntity.cs" />
+    <Compile Include="Entities\AssetTransferredEntity.cs" />
+    <Compile Include="Functions\NotAvailableAtTargetException.cs" />
     <Compile Include="Transform\AssetTransfer.cs" />
     <Compile Include="Cache\CacheManager.cs" />
     <Compile Include="Caml\FieldReference.cs" />
@@ -249,6 +250,7 @@
     <Compile Include="Transform\PageTransformationInformation.cs" />
     <Compile Include="Transform\PageTransformator.cs" />
     <Compile Include="Transform\HtmlTransformator.cs" />
+    <Compile Include="Transform\QuickLinksTransformator.cs" />
     <Compile Include="Transform\SummaryLinksHtmlTransformator.cs" />
     <Compile Include="Transform\TokenParser.cs" />
     <Compile Include="Transform\WikiTransformator.cs" />

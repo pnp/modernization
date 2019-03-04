@@ -54,5 +54,7 @@ namespace SharePointPnP.Modernization.Framework
                   </Query>
                 </View>";
 
+        // Cross site assets transfer blocked files that are referred to
+        public static string[] BlockedAssetFileExtensions = new string[] { "aspx" };
     }
 }

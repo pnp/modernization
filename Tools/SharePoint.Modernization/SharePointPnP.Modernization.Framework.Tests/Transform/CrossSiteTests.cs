@@ -97,7 +97,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             //ReplaceHomePageWithDefaultHomePage = true,
 
                             // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
-                            HandleWikiImagesAndVideos = false,
+                            // HandleWikiImagesAndVideos = false,
 
                             // Callout to your custom code to allow for title overriding
                             //PageTitleOverride = titleOverride,
@@ -113,6 +113,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     }
                 }
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
         [TestMethod]
@@ -170,6 +172,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
             }
 
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
+
         }
 
         [TestMethod]
@@ -226,6 +230,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
 
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
     }
