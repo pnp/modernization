@@ -188,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
+    <Compile Include="Functions\NotAvailableAtTargetException.cs" />
     <Compile Include="Transform\AssetTransfer.cs" />
     <Compile Include="Cache\CacheManager.cs" />
     <Compile Include="Caml\FieldReference.cs" />

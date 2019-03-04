@@ -324,6 +324,41 @@ namespace SharePointPnP.Modernization.Framework.Functions
         }
 
         /// <summary>
+        /// Returns the cross site collection save list id.
+        /// </summary>
+        /// <param name="listId">Id of the list</param>
+        /// <returns>Cross site collection safe list id</returns>
+        [FunctionDocumentation(Description = "Returns the cross site collection save list id.",
+                               Example = "{ListId} = ListCrossSiteCheck({ListId})")]
+        [InputDocumentation(Name = "{ListId}", Description = "Guid of the list to use")]
+        [OutputDocumentation(Name = "{ListId}", Description = "Cross site collection safe list id")]
+        public string ListCrossSiteCheck(Guid listId)
+        {
+            if (listId == Guid.Empty)
+            {
+                return "";
+            }
+            else
+            {
+                var sourceList = this.sourceClientContext.Web.GetListById(listId);
+                sourceList.EnsureProperties(p=>p.Title);
+
+                List targetlist = null;
+                try
+                {
+                    targetlist = this.clientContext.Web.GetListByTitle(sourceList.Title);
+                    targetlist.EnsureProperties(p => p.Id);
+                }
+                catch (Exception ex)
+                {
+                    throw new NotAvailableAtTargetException($"List with id {listId} and Title {sourceList.Title} is not available in the target site collection. This web part will be skipped.", ex);
+                }
+
+                return targetlist.Id.ToString();
+            }
+        }
+
+        /// <summary>
         /// Function that returns the server relative url of the given list
         /// </summary>
         /// <param name="listId">Id of the list</param>

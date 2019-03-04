@@ -112,8 +112,22 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     // Add site level (e.g. site) tokens to the web part properties and model so they can be used in the same manner as a web part property
                     UpdateWebPartDataProperties(webPart, webPartData, this.globalTokens);
 
-                    // The mapping can have a selector function defined, is so it will be executed. If a selector was executed the selectorResult will contain the name of the mapping to use
-                    var selectorResult = functionProcessor.Process(ref webPartData, webPart);
+                    string selectorResult = null;
+                    try
+                    {
+                        // The mapping can have a selector function defined, is so it will be executed. If a selector was executed the selectorResult will contain the name of the mapping to use
+                        selectorResult = functionProcessor.Process(ref webPartData, webPart);
+                    }
+                    catch(Exception ex)
+                    {
+                        // NotAvailableAtTargetException is used to "skip" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)
+                        if (ex.InnerException is NotAvailableAtTargetException)
+                        {
+                            continue;
+                        }
+
+                        throw;                          
+                    }
 
                     Mapping webPartMapping = null;
                     // Get the needed mapping:
