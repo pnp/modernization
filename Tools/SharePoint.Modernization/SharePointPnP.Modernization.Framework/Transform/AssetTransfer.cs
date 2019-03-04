@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Entities;
 using System;
 using System.IO;

@@ -100,6 +100,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         {
             clientSideComponents.Clear();
             siteToComponentMapping.Clear();
+            AssetsTransfered.Clear();
         }
         #endregion
 
