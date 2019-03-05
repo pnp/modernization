@@ -616,15 +616,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Return final page url
-            if (!pageTransformationInformation.TargetPageTakesSourcePageName)
+            if (hasTargetContext)
             {
-                string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
-                var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
-                return targetPageUrl;
+                string originalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
+                string path = this.targetClientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
+                return $"{path}/SitePages/{originalSourcePageName}";
             }
             else
             {
-                return pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
+                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
+                {
+                    string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+                    var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
+                    return targetPageUrl;
+                }
+                else
+                {
+                    return pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
+                }
             }
             #endregion
 
