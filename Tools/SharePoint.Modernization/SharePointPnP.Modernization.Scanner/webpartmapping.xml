@@ -9,13 +9,13 @@ Page transformation file. Describes:
   - If no mapping specified (so no explicit and no empty one) then the default mapping will be taken
   
 IMPORTANT:
-Mapping to use a third party script editor are commented out in this file (e.g. search for ClientSideWebPart Type="Custom" ControlId="3a328f0a-99c4-4b28-95ab-fe0847f657a3"). 
-If you want to use this third party web part then follow the instructions mentioned here: https://github.com/SharePoint/sp-dev-fx-webparts/tree/master/samples/react-script-editor and 
-uncomment the nodes
-  
-  
-    
+Mappings to use a community script editor are available in this file (e.g. search for ClientSideWebPart Type="Custom" ControlId="3a328f0a-99c4-4b28-95ab-fe0847f657a3"). 
+If you want to use this community web part then follow the instructions mentioned here: https://github.com/SharePoint/sp-dev-fx-webparts/tree/master/samples/react-script-editor plus 
+configure the page transformation engine to use the community script editor. You can do this by:
+- Setting the needed mapping property (e.g. pti.MappingProperties["UseCommunityScriptEditor"] = "true");
+- Using the needed switch in PnP PowerShell
 -->
+
 <PageTransformation xmlns="http://schemas.dev.office.com/PnP/2018/01/PageTransformationSchema">
     <!-- Information that applies to all web parts listed in this file -->
     <BaseWebPart>
