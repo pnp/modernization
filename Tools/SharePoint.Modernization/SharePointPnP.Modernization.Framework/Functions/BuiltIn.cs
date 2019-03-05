@@ -1116,6 +1116,31 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             var links = new SummaryLinksHtmlTransformator().GetLinks(text);
 
+            if (IsCrossSiteTransfer())
+            {
+                var clientSidePage = this.clientSidePage.PageTitle;
+                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext);
+
+                foreach (var link in links)
+                {
+                    // preview images
+                    if (!string.IsNullOrEmpty(link.ImageUrl))
+                    {
+                        var serverRelativeAssetFileName = ReturnServerRelativePath(link.ImageUrl);
+                        var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
+                        link.ImageUrl = newAssetLocation;
+                    }
+
+                    // urls
+                    if (!string.IsNullOrEmpty(link.Url))
+                    {
+                        var serverRelativeAssetFileName = ReturnServerRelativePath(link.Url);
+                        var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
+                        link.Url = newAssetLocation;
+                    }
+                }
+            }
+
             QuickLinksTransformator qlt = new QuickLinksTransformator(this.clientContext);
             var res = qlt.Transform(links);
 

@@ -291,6 +291,8 @@ namespace SharePointPnP.Modernization.Framework {
         
         private bool defaultField;
         
+        private string functionsField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("ClientSideText")]
         public ClientSideText[] ClientSideText {
@@ -332,6 +334,17 @@ namespace SharePointPnP.Modernization.Framework {
             }
             set {
                 this.defaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Functions {
+            get {
+                return this.functionsField;
+            }
+            set {
+                this.functionsField = value;
             }
         }
     }

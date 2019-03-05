@@ -606,7 +606,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Page viewer web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.PageViewerWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.PageViewerWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="IsIncluded" Type="bool"/>
           <Property Name="Dir" Type="string"/>
@@ -784,18 +784,18 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Summary Link web part -->
-      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <!-- Contains the html representation of the links -->
-          <Property Name="SummaryLinkStore" Type="string" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath});{CleanedText} = TextCleanUpSummaryLinks({SummaryLinkStore});SummaryLinksToQuickLinksProperties({SummaryLinkStore})"/>
+          <Property Name="SummaryLinkStore" Type="string" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath});"/>
           <Property Name="Xsl" Type="string"/>
         </Properties>
         <Mappings Selector="SummaryLinkSelector({SummaryLinksToQuickLinks})">
-          <Mapping Name="UseText" Default="true">
+          <Mapping Name="UseText" Default="true" Functions="{CleanedText} = TextCleanUpSummaryLinks({SummaryLinkStore})">
             <!-- Summary links html is tranformed to html that be presented using the text editor -->
             <ClientSideText Order="10" Text="{CleanedText}"/>
           </Mapping>
-          <Mapping Name="UseQuickLinks" Default="false">
+          <Mapping Name="UseQuickLinks" Default="false" Functions="SummaryLinksToQuickLinksProperties({SummaryLinkStore})">
             <!-- Summary links html is tranformed to the quicklinks web part -->
             <ClientSideWebPart Type="QuickLinks" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;{SearchablePlainTexts}&#125;,&quot;imageSources&quot;&#58;&#123;{ImageSources}&#125;,&quot;links&quot;&#58;&#123;&quot;baseUrl&quot;&#58;&quot;{EncodedWeb}&quot;{Links}&#125;,&quot;componentDependencies&quot;&#58;&#123;&quot;layoutComponentId&quot;&#58;&quot;706e33c8-af37-4e7b-9d22-6e5694d92a6f&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;2.1&quot;,&quot;properties&quot;&#58;{JsonProperties}&#125;"/>
           </Mapping>          

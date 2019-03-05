@@ -92,9 +92,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //      not aspx pages 
             //      located in the pages, site pages libraries
             
-            var fileExtension = Path.GetExtension(sourceUrl);
+            var fileExtension = Path.GetExtension(sourceUrl).ToLower();
+
+            // Check block list
             var containsBlockedExtension = Constants.BlockedAssetFileExtensions.Any(o => o == fileExtension.Replace(".",""));
             if (containsBlockedExtension)
+            {
+                return false;
+            }
+
+            // Check allow list
+            var containsAllowedExtension = Constants.AllowedAssetFileExtensions.Any(o => o == fileExtension.Replace(".", ""));
+            if (!containsAllowedExtension)
             {
                 return false;
             }
@@ -373,6 +382,5 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var friendlyName = justFileName.Replace(" ", "-");
             return friendlyName;
         }
-
     }
 }
