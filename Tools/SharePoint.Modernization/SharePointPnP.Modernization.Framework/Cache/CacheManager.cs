@@ -44,12 +44,10 @@ namespace SharePointPnP.Modernization.Framework.Cache
         }
 
         #region Asset Transfer
-
         /// <summary>
         /// List of assets transferred from source to destination
         /// </summary>
         public List<AssetTransferredEntity> AssetsTransfered { get; set; }
-
         #endregion
 
         #region Client Side Components
@@ -100,7 +98,6 @@ namespace SharePointPnP.Modernization.Framework.Cache
         {
             clientSideComponents.Clear();
             siteToComponentMapping.Clear();
-            AssetsTransfered.Clear();
         }
         #endregion
 
@@ -215,6 +212,16 @@ namespace SharePointPnP.Modernization.Framework.Cache
             this.fieldsToCopy.Clear();
         }
 
+        #endregion
+
+        #region Generic methods
+        public void ClearAllCaches()
+        {
+            this.AssetsTransfered.Clear();
+            ClearClientSideComponents();
+            ClearBaseTemplate();
+            ClearFieldsToCopy();
+        }
         #endregion
 
         private static string Sha256(string randomString)

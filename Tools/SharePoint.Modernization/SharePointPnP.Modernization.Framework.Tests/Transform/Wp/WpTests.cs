@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
             {
                 var pageTransformator = new PageTransformator(cc);
 
-                var pages = cc.Web.GetPages("wp_contactfield_1");
+                var pages = cc.Web.GetPages("wp_summarylinks_1");
                 foreach (var page in pages)
                 {
                     PageTransformationInformation pti = new PageTransformationInformation(page)
@@ -49,6 +49,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
 
                         // Don't log test runs
                         SkipTelemetry = true,
+
+                        RemoveEmptySectionsAndColumns = false,
 
                         // ModernizationCenter options
                         //ModernizationCenterInformation = new ModernizationCenterInformation()
@@ -82,7 +84,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
                     };
 
                     pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
-                    pti.MappingProperties["UseCommunityScriptEditor"] = "false";
+                    pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
                     pageTransformator.Transform(pti);
                 }
