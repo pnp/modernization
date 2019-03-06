@@ -112,7 +112,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                         pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
                         pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
-                        pageTransformator.Transform(pti);
+                        var result = pageTransformator.Transform(pti);
                     }
                 }
             }
