@@ -336,6 +336,18 @@ namespace SharePoint.Modernization.Scanner
                 using (var stream = WebpartMappingLoader.GenerateStreamFromString(webpartMappingString))
                 {
                     this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+
+                    // Drop web parts that have community mappings as we're not sure if that mapping will be used. This is 
+                    // needed to align with the older model where the community mapping was in comments in the standard
+                    // mapping file.
+                    var webPartsWithMappingsToRemove = this.PageTransformation.WebParts.Where(p => p.Type.Equals(WebParts.ScriptEditor) || p.Type.Equals(WebParts.SimpleForm));
+                    if (webPartsWithMappingsToRemove.Any())
+                    {
+                        foreach(var webPart in webPartsWithMappingsToRemove)
+                        {
+                            webPart.Mappings = null;
+                        }
+                    }
                 }
             }
 
