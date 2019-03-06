@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Parser.Html;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Transform
@@ -63,6 +64,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             if (list == null)
                             {
                                 list = newDocument.CreateElement("ul");
+
+                                if (header == null)
+                                {
+                                    header = newDocument.CreateElement("div");
+                                    newDocument.DocumentElement.Children[1].AppendChild(header);
+                                }
+
                                 header.AppendChild(list);
                             }
 
@@ -111,6 +119,84 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Transforms the passed summarylinks html a list of links
+        /// </summary>
+        /// <param name="text">Summarylinks html to be transformed</param>
+        /// <returns>List of links</returns>
+        public List<SummaryLink> GetLinks(string text)
+        {
+            List<SummaryLink> links = new List<SummaryLink>();
+
+            using (var document = this.parser.Parse(text))
+            {
+                // Iterate over the divs
+                var divs = document.QuerySelectorAll("div").Where(p => p.GetAttribute("title") == "_link");
+                foreach (var div in divs)
+                {
+                    var summaryLinkHeader = div.Children.Where(p => p.GetAttribute("title") == "_groupstyle").FirstOrDefault();
+                    if (summaryLinkHeader != null)
+                    {
+                        // no support for headers
+                    }
+                    else
+                    {
+                        // Link
+                        var linkTitle = div.Children.Where(p => p.GetAttribute("title") == "_title").FirstOrDefault();
+                        var linkDescription = div.Children.Where(p => p.GetAttribute("title") == "_description").FirstOrDefault();
+                        var linkUrl = div.Children.Where(p => p.GetAttribute("title") == "_linkurl").FirstOrDefault();
+                        var linkImageUrl = div.Children.Where(p => p.GetAttribute("title") == "_imageurl").FirstOrDefault();
+                        var linkImageAltText = div.Children.Where(p => p.GetAttribute("title") == "_imageurlalttext").FirstOrDefault();
+                        var linkToolTip = div.Children.Where(p => p.GetAttribute("title") == "_linktooltip").FirstOrDefault();
+                        var linkStyle = div.Children.Where(p => p.GetAttribute("title") == "_style").FirstOrDefault();
+                        var openInNewWindow = div.Children.Where(p => p.GetAttribute("title") == "_openinnewwindow").FirstOrDefault();
+
+                        SummaryLink l = new SummaryLink()
+                        {
+                            Title = linkTitle?.TextContent,
+                            Description = linkDescription?.TextContent,
+                            ImageAltText = linkImageAltText?.TextContent,
+                            ToolTip = linkToolTip?.TextContent,
+                            Style = linkStyle?.TextContent
+                        };
+
+                        // Handle Url fields
+                        if (linkUrl != null)
+                        {
+                            var href = linkUrl.Children.Where(p => p.HasAttribute("href")).FirstOrDefault();
+                            if (href != null)
+                            {
+                                l.Url = href.GetAttribute("href");
+                            }
+                        }
+                        if (linkImageUrl != null)
+                        {
+                            var href = linkImageUrl.Children.Where(p => p.HasAttribute("href")).FirstOrDefault();
+                            if (href != null)
+                            {
+                                l.ImageUrl = href.GetAttribute("href");
+                            }
+                        }
+
+                        // Handle bool fields
+                        if (openInNewWindow != null)
+                        {
+                            if (bool.TryParse(openInNewWindow.TextContent, out bool openInNewWindowValue))
+                            {
+                                l.OpenInNewWindow = openInNewWindowValue;
+                            }
+                        }
+
+                        // Add to collection
+                        links.Add(l);
+                    }
+                }
+            }
+
+            return links;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.SharePoint.Client;
+﻿using AngleSharp.Parser.Html;
+using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Taxonomy;
 using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
@@ -35,7 +36,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Creates a page transformator instance with a target destination of a target web e.g. Modern/Communication Site
         /// </summary>
-        /// <param name="clientContext">ClientContext of the site holding the page</param>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
         /// <param name="targetClientContext">ClientContext of the site that will receive the modernized page</param>
         public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext) : this(sourceClientContext, targetClientContext, "webpartmapping.xml")
         {
@@ -45,7 +46,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Creates a page transformator instance
         /// </summary>
-        /// <param name="clientContext">ClientContext of the site holding the page</param>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
         public PageTransformator(ClientContext sourceClientContext) : this(sourceClientContext, null, "webpartmapping.xml")
         {
         }
@@ -93,9 +94,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Creates a page transformator instance
         /// </summary>
-        /// <param name="clientContext">ClientContext of the site holding the page</param>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
         /// <param name="pageTransformationModel">Page transformation model</param>
-        public PageTransformator(ClientContext sourceClientContext, PageTransformation pageTransformationModel)
+        public PageTransformator(ClientContext sourceClientContext, PageTransformation pageTransformationModel) : this(sourceClientContext, null, pageTransformationModel)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a page transformator instance
+        /// </summary>
+        /// <param name="sourceClientContext">ClientContext of the site holding the page</param>
+        /// <param name="targetClientContext">ClientContext of the site that will receive the modernized page</param>
+        /// <param name="pageTransformationModel">Page transformation model</param>
+        public PageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext, PageTransformation pageTransformationModel)
         {
 
 #if DEBUG && MEASURE
@@ -103,6 +115,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif
 
             this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = targetClientContext;
+
             this.version = GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
 
@@ -270,7 +284,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo($"Using the supplied prefix in the case of same site location", "Page Creation");
                     pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.TargetPagePrefix}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
                 }
-                
+
             }
 
             // Check if page name is free to use
@@ -497,7 +511,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         targetPage.Sections.Insert(0, new CanvasSection(targetPage, CanvasSectionTemplate.OneColumn, 0));
 
                         // Bump the row values for the existing web parts as we've inserted a new section
-                        foreach(var webpart in pageData.Item2)
+                        foreach (var webpart in pageData.Item2)
                         {
                             webpart.Row = webpart.Row + 1;
                         }
@@ -541,7 +555,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif            
                 // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(targetPage, pageTransformation);
+                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation.MappingProperties);
 
                 // Do we have an override?
                 if (pageTransformationInformation.ContentTransformatorOverride != null)
@@ -558,6 +572,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #if DEBUG && MEASURE
                 Stop("Content transformation");
 #endif
+                #endregion
+
+                #region Text/Section/Column cleanup
+                // Drop "empty" text parts. Wiki pages tend to have a lot of text parts just containing div's and BR's...no point in keep those as they generate to much whitespace
+                RemoveEmptyTextParts(targetPage);
+
+                // Remove empty sections and columns to optimize screen real estate
+                if (pageTransformationInformation.RemoveEmptySectionsAndColumns)
+                {
+                    RemoveEmptySectionsAndColumns(targetPage);
+                }
                 #endregion
             }
             #endregion
@@ -674,21 +699,30 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Return final page url
-            if(!pageTransformationInformation.TargetPageTakesSourcePageName)
+            if (hasTargetContext)
             {
-                string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
-                var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
-                return targetPageUrl;
+                string originalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
+                string path = this.targetClientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
+                return $"{path}/SitePages/{originalSourcePageName}";
             }
             else
             {
-                return pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
+                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
+                {
+                    string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+                    var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
+                    return targetPageUrl;
+                }
+                else
+                {
+                    return pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
+                }
             }
             #endregion
 
             #endregion
         }
-        
+
         /// <summary>
         /// Performs the logic needed to swap a genered Migrated_Page.aspx to Page.aspx and then Page.aspx to Old_Page.aspx
         /// </summary>
@@ -851,6 +885,86 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private void RemoveEmptyTextParts(ClientSidePage targetPage)
+        {
+            var textParts = targetPage.Controls.Where(p => p.Type == typeof(OfficeDevPnP.Core.Pages.ClientSideText));
+            if (textParts != null && textParts.Any())
+            {
+                HtmlParser parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true });
+
+                foreach(var textPart in textParts.ToList())
+                {
+                    using (var document = parser.Parse(((OfficeDevPnP.Core.Pages.ClientSideText)textPart).Text))
+                    {
+                        if (document.FirstChild != null && string.IsNullOrEmpty(document.FirstChild.TextContent))
+                        {
+                            // Drop text part
+                            targetPage.Controls.Remove(textPart);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void RemoveEmptySectionsAndColumns(ClientSidePage targetPage)
+        {
+            foreach (var section in targetPage.Sections.ToList())
+            {
+                // First remove all empty sections
+                if (section.Controls.Count == 0)
+                {
+                    targetPage.Sections.Remove(section);
+                }
+            }
+
+            // Remove empty columns
+            foreach (var section in targetPage.Sections)
+            {
+                if (section.Type == CanvasSectionTemplate.TwoColumn ||
+                    section.Type == CanvasSectionTemplate.TwoColumnLeft ||
+                    section.Type == CanvasSectionTemplate.TwoColumnRight)
+                {
+                    var emptyColumn = section.Columns.Where(p => p.Controls.Count == 0).FirstOrDefault();
+                    if (emptyColumn != null)
+                    {
+                        // drop the empty column and change to single column section
+                        section.Columns.Remove(emptyColumn);
+                        section.Type = CanvasSectionTemplate.OneColumn;
+                        section.Columns.First().ResetColumn(0, 12);
+                    }
+                }
+                else if (section.Type == CanvasSectionTemplate.ThreeColumn)
+                {
+                    var emptyColumns = section.Columns.Where(p => p.Controls.Count == 0);
+                    if (emptyColumns != null)
+                    {
+                        if (emptyColumns.Any() && emptyColumns.Count() == 2)
+                        {
+                            // drop the two empty columns and change to single column section
+                            foreach (var emptyColumn in emptyColumns.ToList())
+                            {
+                                section.Columns.Remove(emptyColumn);
+                            }
+                            section.Type = CanvasSectionTemplate.OneColumn;
+                            section.Columns.First().ResetColumn(0, 12);
+                        }
+                        else if (emptyColumns.Any() && emptyColumns.Count() == 1)
+                        {
+                            // Remove the empty column and change to two column section
+                            section.Columns.Remove(emptyColumns.First());
+                            section.Type = CanvasSectionTemplate.TwoColumn;
+                            int i = 0;
+                            foreach (var column in section.Columns)
+                            {
+                                column.ResetColumn(i, 6);
+                                i++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void ApplyItemLevelPermissions(bool hasTargetContext, ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
         {
             if (lip == null || item == null)

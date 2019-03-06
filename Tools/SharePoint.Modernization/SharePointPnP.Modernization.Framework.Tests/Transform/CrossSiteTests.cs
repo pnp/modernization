@@ -66,7 +66,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
 
-                    var pages = sourceClientContext.Web.GetPages("p");
+                    var pages = sourceClientContext.Web.GetPages("wp_summarylinks_1");
 
                     foreach (var page in pages)
                     {
@@ -97,7 +97,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             //ReplaceHomePageWithDefaultHomePage = true,
 
                             // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
-                            HandleWikiImagesAndVideos = false,
+                            // HandleWikiImagesAndVideos = false,
 
                             // Callout to your custom code to allow for title overriding
                             //PageTitleOverride = titleOverride,
@@ -109,10 +109,15 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             //ContentTransformatorOverride = contentOverride,
                         };
 
-                        pageTransformator.Transform(pti);
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                        var result = pageTransformator.Transform(pti);
                     }
                 }
             }
+
+            //Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
         [TestMethod]
@@ -170,6 +175,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
             }
 
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
+
         }
 
         [TestMethod]
@@ -226,6 +233,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
 
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
     }

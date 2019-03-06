@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
+using SharePointPnP.Modernization.Framework.Entities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -39,7 +40,15 @@ namespace SharePointPnP.Modernization.Framework.Cache
             siteToComponentMapping = new ConcurrentDictionary<Guid, string>(10, 100);
             baseTemplate = null;
             fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>(10, 10);
+            AssetsTransfered = new List<AssetTransferredEntity>();
         }
+
+        #region Asset Transfer
+        /// <summary>
+        /// List of assets transferred from source to destination
+        /// </summary>
+        public List<AssetTransferredEntity> AssetsTransfered { get; set; }
+        #endregion
 
         #region Client Side Components
         /// <summary>
@@ -203,6 +212,16 @@ namespace SharePointPnP.Modernization.Framework.Cache
             this.fieldsToCopy.Clear();
         }
 
+        #endregion
+
+        #region Generic methods
+        public void ClearAllCaches()
+        {
+            this.AssetsTransfered.Clear();
+            ClearClientSideComponents();
+            ClearBaseTemplate();
+            ClearFieldsToCopy();
+        }
         #endregion
 
         private static string Sha256(string randomString)

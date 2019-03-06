@@ -20,7 +20,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private PageTransformation pageTransformation;
         private FunctionProcessor functionProcessor;
         private List<CombinedMapping> combinedMappinglist;
-        private Dictionary<string, string> siteTokens;
+        private ClientContext sourceClientContext;
+        private Dictionary<string, string> globalTokens;
+        private bool isCrossSiteTransfer;
 
         class CombinedMapping
         {
@@ -35,12 +37,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="page">Client side page that will be updates</param>
         /// <param name="pageTransformation">Transformation information</param>
-        public ContentTransformator(ClientSidePage page, PageTransformation pageTransformation)
+        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, Dictionary<string, string> mappingProperties)
         {
             this.page = page ?? throw new ArgumentException("Page cannot be null");
             this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
-            this.functionProcessor = new FunctionProcessor(this.page, this.pageTransformation);
-            this.siteTokens = CreateSiteTokenList(page.Context);
+            this.globalTokens = CreateGlobalTokenList(page.Context, mappingProperties);
+            this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation);
+            this.sourceClientContext = sourceClientContext;
+            this.isCrossSiteTransfer = IsCrossSiteTransfer();
         }
         #endregion
 
@@ -89,16 +93,41 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     continue;
                 }
                 
+                // Assign the default mapping, if we're a more specific mapping than that will overwrite this mapping
                 Mapping mapping = defaultMapping;
                 // Does the web part have a mapping defined?
                 var webPartData = pageTransformation.WebParts.Where(p => p.Type == webPart.Type).FirstOrDefault();
+
+                // Check for cross site transfer support
+                if (webPartData != null && this.isCrossSiteTransfer)
+                {
+                    if (!webPartData.CrossSiteTransformationSupported)
+                    {
+                        continue;
+                    }
+                }
+
                 if (webPartData != null && webPartData.Mappings != null)
                 {
                     // Add site level (e.g. site) tokens to the web part properties and model so they can be used in the same manner as a web part property
-                    UpdateWebPartDataProperties(webPart, webPartData, this.siteTokens);
+                    UpdateWebPartDataProperties(webPart, webPartData, this.globalTokens);
 
-                    // The mapping can have a selector function defined, is so it will be executed. If a selector was executed the selectorResult will contain the name of the mapping to use
-                    var selectorResult = functionProcessor.Process(ref webPartData, webPart);
+                    string selectorResult = null;
+                    try
+                    {
+                        // The mapping can have a selector function defined, is so it will be executed. If a selector was executed the selectorResult will contain the name of the mapping to use
+                        selectorResult = functionProcessor.Process(ref webPartData, webPart);
+                    }
+                    catch(Exception ex)
+                    {
+                        // NotAvailableAtTargetException is used to "skip" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)
+                        if (ex.InnerException is NotAvailableAtTargetException)
+                        {
+                            continue;
+                        }
+
+                        throw;                          
+                    }
 
                     Mapping webPartMapping = null;
                     // Get the needed mapping:
@@ -125,6 +154,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     if (webPartMapping != null)
                     {
                         mapping = webPartMapping;
+                    }
+
+                    // Process mapping specific functions (if any)
+                    if (!String.IsNullOrEmpty(mapping.Functions))
+                    {
+                        try
+                        {
+                            functionProcessor.ProcessMappingFunctions(ref webPartData, webPart, mapping);
+                        }
+                        catch (Exception ex)
+                        {
+                            // NotAvailableAtTargetException is used to "skip" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)
+                            if (ex.InnerException is NotAvailableAtTargetException)
+                            {
+                                continue;
+                            }
+
+                            throw;
+                        }
                     }
                 }
 
@@ -428,6 +476,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private bool IsCrossSiteTransfer()
+        {
+            if (this.sourceClientContext == null)
+            {
+                return false;
+            }
+
+            this.sourceClientContext.Web.EnsureProperties(p => p.Url);
+            this.page.Context.Web.EnsureProperties(p => p.Url);
+
+            if (this.sourceClientContext.Web.Url.Equals(this.page.Context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private static void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
         {
             List<Property> tempList = new List<Property>();
@@ -485,18 +551,26 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return jsonProperties;
         }
 
-        private Dictionary<string, string> CreateSiteTokenList(ClientContext cc)
+        private Dictionary<string, string> CreateGlobalTokenList(ClientContext cc, Dictionary<string, string> mappingProperties)
         {
-            Dictionary<string, string> siteTokens = new Dictionary<string, string>(5);
+            Dictionary<string, string> globalTokens = new Dictionary<string, string>(5);
 
             Uri hostUri = new Uri(cc.Web.Url);
-            siteTokens.Add("Host", $"{hostUri.Scheme}://{hostUri.DnsSafeHost}");
-            siteTokens.Add("Web", cc.Web.ServerRelativeUrl.TrimEnd('/'));
-            siteTokens.Add("SiteCollection", cc.Site.RootWeb.ServerRelativeUrl.TrimEnd('/'));
-            siteTokens.Add("WebId", cc.Web.Id.ToString());
-            siteTokens.Add("SiteId", cc.Site.Id.ToString());
+            
+            // Add the fixed properties
+            globalTokens.Add("Host", $"{hostUri.Scheme}://{hostUri.DnsSafeHost}");
+            globalTokens.Add("Web", cc.Web.ServerRelativeUrl.TrimEnd('/'));
+            globalTokens.Add("SiteCollection", cc.Site.RootWeb.ServerRelativeUrl.TrimEnd('/'));
+            globalTokens.Add("WebId", cc.Web.Id.ToString());
+            globalTokens.Add("SiteId", cc.Site.Id.ToString());
 
-            return siteTokens;
+            // Add the properties provided via configuration
+            foreach(var property in mappingProperties)
+            {
+                globalTokens.Add(property.Key, property.Value);
+            }
+
+            return globalTokens;
         }
 
         private Int32 LastColumnOrder(int row, int col)

@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
@@ -15,18 +16,25 @@ namespace SharePointPnP.Modernization.Framework.Functions
     /// </summary>
     public partial class BuiltIn : FunctionsBase
     {
+        private ClientContext sourceClientContext;
+        private ClientSidePage clientSidePage;
 
         #region Construction
         /// <summary>
         /// Instantiates the base builtin function library
         /// </summary>
-        /// <param name="clientContext">ClientContext object for the site holding the page being transformed</param>
-        public BuiltIn(ClientContext clientContext) : base(clientContext)
+        /// <param name="pageClientContext">ClientContext object for the site holding the page being transformed</param>
+        /// <param name="sourceClientContext">The ClientContext for the source </param>
+        /// <param name="clientSidePage">Reference to the client side page</param>
+        public BuiltIn(ClientContext pageClientContext, ClientContext sourceClientContext = null, ClientSidePage clientSidePage = null) : base(pageClientContext)
         {
+            // This is an optional property, in cross site transfer the two contexts would be different.
+            this.sourceClientContext = sourceClientContext;
+            this.clientSidePage = clientSidePage;
         }
         #endregion
 
-        // All functions return either a single string or a Dictionary<string,string> with key value pairs. 
+        // All functions return either a single string, boolean or a Dictionary<string,string> with key value pairs. 
         // Allowed input parameter types are string, int, bool, DateTime and Guid
 
         #region Generic functions
@@ -207,21 +215,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
             return new HtmlTransformator().Transform(text, usePlaceHolder);
         }
 
-
-        [FunctionDocumentation(Description = "Rewrites summarylinks web part html to be compliant with the html supported by the client side text part.",
-                               Example = "{CleanedText} = TextCleanUpSummaryLinks({Text})")]
-        [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
-        [OutputDocumentation(Name = "{CleanedText}", Description = "Html compliant with client side text part")]
-        public string TextCleanUpSummaryLinks(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return "";
-            }
-
-            return new SummaryLinksHtmlTransformator().Transform(text, false);
-        }
-
         /// <summary>
         /// Checks if the provided html contains JavaScript
         /// </summary>
@@ -325,6 +318,41 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
 
                 return "Undefined";
+            }
+        }
+
+        /// <summary>
+        /// Returns the cross site collection save list id.
+        /// </summary>
+        /// <param name="listId">Id of the list</param>
+        /// <returns>Cross site collection safe list id</returns>
+        [FunctionDocumentation(Description = "Returns the cross site collection save list id.",
+                               Example = "{ListId} = ListCrossSiteCheck({ListId})")]
+        [InputDocumentation(Name = "{ListId}", Description = "Guid of the list to use")]
+        [OutputDocumentation(Name = "{ListId}", Description = "Cross site collection safe list id")]
+        public string ListCrossSiteCheck(Guid listId)
+        {
+            if (listId == Guid.Empty)
+            {
+                return "";
+            }
+            else
+            {
+                var sourceList = this.sourceClientContext.Web.GetListById(listId);
+                sourceList.EnsureProperties(p=>p.Title);
+
+                List targetlist = null;
+                try
+                {
+                    targetlist = this.clientContext.Web.GetListByTitle(sourceList.Title);
+                    targetlist.EnsureProperties(p => p.Id);
+                }
+                catch (Exception ex)
+                {
+                    throw new NotAvailableAtTargetException($"List with id {listId} and Title {sourceList.Title} is not available in the target site collection. This web part will be skipped.", ex);
+                }
+
+                return targetlist.Id.ToString();
             }
         }
 
@@ -440,7 +468,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             // Grab the list and the needed properties
             var list = this.clientContext.Web.GetListById(listId);
-            list.EnsureProperties(l=>l.DefaultView, l => l.Views.Include(v => v.Hidden, v => v.Id, v => v.ListViewXml));
+            list.EnsureProperties(l => l.DefaultView, l => l.Views.Include(v => v.Hidden, v => v.Id, v => v.ListViewXml));
 
             // Get the "identifying" elements from the webpart view xml definition
             var webPartViewElement = XElement.Parse(xmlDefinition);
@@ -522,7 +550,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [InputDocumentation(Name = "{ServerRelativeFileName}", Description = "Server relative file name of the image")]
         [OutputDocumentation(Name = "{ImageListId}", Description = "Id of the list holding the file")]
         [OutputDocumentation(Name = "{ImageUniqueId}", Description = "UniqueId of the file")]
-        public Dictionary<string,string> ImageLookup(string serverRelativeImagePath)
+        public Dictionary<string, string> ImageLookup(string serverRelativeImagePath)
         {
 
             bool stop = false;
@@ -536,7 +564,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             // Check if this url is pointing to content living in this site
             if (!stop && !serverRelativeImagePath.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
             {
-                // TODO: add handling of files living in another web
+                // We're not looking up the image, providing the server relative path to the modern Image web part is sufficient
                 stop = true;
             }
 
@@ -571,6 +599,37 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     throw;
                 }
             }
+        }
+
+        /// <summary>
+        /// Copy the asset to target site in cross site transformation
+        /// </summary>
+        /// <param name="imageLink"></param>
+        [FunctionDocumentation(Description = "Transforms the incoming path into a server relative path. If the page is located on another page the asset is transferred and url updated. Any failures keep to the original value.",
+            Example = "{ServerRelativeFileName} = ReturnCrossSiteRelativePath({ImageLink})")]
+        [InputDocumentation(Name = "{ImageLink}", Description = "Original value for the image link")]
+        [OutputDocumentation(Name = "{ServerRelativeFileName}", Description = "New target location for the asset if transferred.")]
+        public string ReturnCrossSiteRelativePath(string imageLink)
+        {
+            // Defaults to the orignal operation
+            var serverRelativeAssetFileName = ReturnServerRelativePath(imageLink);
+
+            try
+            {
+                var clientSidePage = this.clientSidePage.PageTitle;
+
+                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext);
+                var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
+
+                return newAssetLocation;
+
+            }
+            catch (Exception ex)
+            {
+                // Swallow until reporting feature is implemented
+            }
+                       
+            return serverRelativeAssetFileName;
         }
         #endregion
 
@@ -607,27 +666,12 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [OutputDocumentation(Name = "{DocumentUniqueId}", Description = "UniqueId of the file")]
         [OutputDocumentation(Name = "{DocumentAuthor}", Description = "User principal name of the document author")]
         [OutputDocumentation(Name = "{DocumentAuthorName}", Description = "Name of the file author")]
-        public Dictionary<string,string> DocumentEmbedLookup(string serverRelativeUrl)
+        public Dictionary<string, string> DocumentEmbedLookup(string serverRelativeUrl)
         {
-            bool stop = false;
+            Dictionary<string, string> results = new Dictionary<string, string>();
             if (string.IsNullOrEmpty(serverRelativeUrl))
             {
-                stop = true;
-            }
-
-            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
-
-            // Check if this url is pointing to content living in this site
-            if (!stop && !serverRelativeUrl.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
-            {
-                // TODO: add handling of files living in another web
-                stop = true;
-            }
-
-            Dictionary<string, string> results = new Dictionary<string, string>();
-
-            if (stop)
-            {
+                results.Add("DocumentWeb", "");
                 results.Add("DocumentListId", "");
                 results.Add("DocumentUniqueId", "");
                 results.Add("DocumentAuthor", "");
@@ -635,14 +679,45 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return results;
             }
 
+            // Assume document lives in current web
+            ClientContext contextToUse = this.clientContext;
+
+            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
+            if (!serverRelativeUrl.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
+            {
+                try
+                {
+                    // 
+                    Uri hostUri = new Uri(this.clientContext.Web.Url);
+
+                    // Find the web url hosting the content file
+                    var webUrlResult = Web.GetWebUrlFromPageUrl(this.clientContext, $"{hostUri.Scheme}://{hostUri.DnsSafeHost}{serverRelativeUrl}");
+                    this.clientContext.ExecuteQueryRetry();
+
+                    contextToUse = this.clientContext.Clone(webUrlResult.Value);
+                }
+                catch (Exception ex)
+                {
+                    // TODO: add logging
+                    results.Add("DocumentWeb", "");
+                    results.Add("DocumentListId", "");
+                    results.Add("DocumentUniqueId", "");
+                    results.Add("DocumentAuthor", "");
+                    results.Add("DocumentAuthorName", "");
+                    return results;
+                }
+            }
+
             try
             {
-                var document = this.clientContext.Web.GetFileByServerRelativeUrl(serverRelativeUrl);
-                this.clientContext.Load(document, p => p.UniqueId, p => p.ListId, p => p.Author);
-                this.clientContext.ExecuteQueryRetry();
+                var document = contextToUse.Web.GetFileByServerRelativeUrl(serverRelativeUrl);
+                contextToUse.Load(document, p => p.UniqueId, p => p.ListId, p => p.Author);
+                contextToUse.Load(contextToUse.Web, p => p.ServerRelativeUrl);
+                contextToUse.ExecuteQueryRetry();
 
                 string[] authorParts = document.Author.LoginName.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
 
+                results.Add("DocumentWeb", contextToUse.Web.ServerRelativeUrl);
                 results.Add("DocumentListId", document.ListId.ToString());
                 results.Add("DocumentUniqueId", document.UniqueId.ToString());
                 results.Add("DocumentAuthor", authorParts.Length == 3 ? authorParts[2] : "");
@@ -682,16 +757,23 @@ namespace SharePointPnP.Modernization.Framework.Functions
             return "ServerFolderOrFile";
         }
 
-        [SelectorDocumentation(Description = "If ContentLink is set (content editor) then return Link, otherwise return Content.",
-                               Example = "ContentEmbedSelectorContentLink({ContentLink})")]
+        [SelectorDocumentation(Description = "Content editor can be transformed in various ways depending on whether a link was used, what file type was used, if script is used or not...",
+                               Example = "ContentEmbedSelectorContentLink({ContentLink}, {Content}, {FileContents}, {UseCommunityScriptEditor})")]
         [InputDocumentation(Name = "{ContentLink}", Description = "Link value if set")]
+        [InputDocumentation(Name = "{Content}", Description = "Content embedded inside the web part")]
+        [InputDocumentation(Name = "{FileContents}", Description = "Text content of the file. Return empty string if file was not found")]
+        [InputDocumentation(Name = "{UseCommunityScriptEditor}", Description = "The UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance")]
         [OutputDocumentation(Name = "Link", Description = "If the link was not empty and it was an aspx file")]
         [OutputDocumentation(Name = "NonASPXLink", Description = "If the link was not empty and it was not an aspx file but the file contents did contain JavaScript")]
         [OutputDocumentation(Name = "NonASPXLinkNoScript", Description = "If the link was not empty and it was not an aspx file and the contents did not contain JavaScript")]
+        [OutputDocumentation(Name = "NonASPXUseCommunityScriptEditor", Description = "Use the community script editor to host the content")]
         [OutputDocumentation(Name = "Content", Description = "If no link was specified but content was embedded and it contains JavaScript")]
         [OutputDocumentation(Name = "ContentNoScript", Description = "If no link was specified and the embedded content and it does not contain JavaScript")]
-        public string ContentEmbedSelectorContentLink(string contentLink, string embeddedContent, string fileContent)
+        [OutputDocumentation(Name = "ContentUseCommunityScriptEditor", Description = "Use the community script editor to host the content")]
+        public string ContentEmbedSelectorContentLink(string contentLink, string embeddedContent, string fileContent, string useCommunityScriptEditor)
         {
+            bool.TryParse(useCommunityScriptEditor, out bool useCommunityScriptEditorBool);
+
             if (!string.IsNullOrEmpty(contentLink))
             {
                 if (contentLink.ToLower().EndsWith(".aspx"))
@@ -706,7 +788,14 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     }
                     else
                     {
-                        return "NonASPXLink";
+                        if (useCommunityScriptEditorBool)
+                        {
+                            return "NonASPXUseCommunityScriptEditor";
+                        }
+                        else
+                        {
+                            return "NonASPXLink";
+                        }
                     }
                 }
             }
@@ -718,11 +807,50 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
                 else
                 {
-                    return "Content";
+                    if (useCommunityScriptEditorBool)
+                    {
+                        return "ContentUseCommunityScriptEditor";
+                    }
+                    else
+                    {
+                        return "Content";
+                    }
                 }
             }
         }
 
+        /// <summary>
+        /// Throws an exception when link to .aspx file.
+        /// </summary>
+        /// <param name="listId">Link value if set</param>
+        /// <returns>Unused variable</returns>
+        [FunctionDocumentation(Description = "Throws an exception when link to .aspx file.",
+                               Example = "{Temp} = ContentEmbedCrossSiteCheck({ContentLink})")]
+        [InputDocumentation(Name = "{ContentLink}", Description = "Link value if set")]
+        [OutputDocumentation(Name = "{Temp}", Description = "Unused variable")]
+        public string ContentEmbedCrossSiteCheck(string contentLink)
+        {
+
+            if (! IsCrossSiteTransfer() || string.IsNullOrEmpty(contentLink))
+            {
+                return "";
+            }
+            else
+            {
+                if (contentLink.ToLower().EndsWith(".aspx"))
+                {
+                    throw new NotAvailableAtTargetException($"ASPX Page with link {contentLink} is not available in the target site collection. This web part will be skipped.");
+                }
+            }
+
+            return "";
+        }
+
+        /// <summary>
+        /// Loads contents of a file as a string.
+        /// </summary>
+        /// <param name="contentLink">Server relative url to the file to load</param>
+        /// <returns>Text content of the file. Return empty string if file was not found</returns>
         [FunctionDocumentation(Description = "Loads contents of a file as a string.",
                                Example = "{FileContents} = LoadContentFromFile({ContentLink})")]
         [InputDocumentation(Name = "{ContentLink}", Description = "Server relative url to the file to load")]
@@ -735,26 +863,94 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return "";
             }
 
-            try
+            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl, p => p.Url);
+            if (!contentLink.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
             {
-               return this.clientContext.Web.GetFileAsString(contentLink);
-            }
-            catch (ServerException ex)
-            {
-                if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                try
                 {
-                    // Provided html was not found, should not happen but if it happens we're not stopping the transformation
+                    // Content editor does allow a web part on a sub web to point to a file in the rootweb...Pointing to files outside of the current site collection is not allowed
+                    Uri hostUri = new Uri(this.clientContext.Web.Url);
+
+                    // Find the web url hosting the content file
+                    var webUrlResult = Web.GetWebUrlFromPageUrl(this.clientContext, $"{hostUri.Scheme}://{hostUri.DnsSafeHost}{contentLink}");
+                    this.clientContext.ExecuteQueryRetry();
+
+                    using (var cc = this.clientContext.Clone(webUrlResult.Value))
+                    {
+                        return cc.Web.GetFileAsString(contentLink);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // TODO: add logging
                     return "";
                 }
-                else
+            }
+            else
+            {
+                try
                 {
-                    throw;
+                    return this.sourceClientContext.Web.GetFileAsString(contentLink);
+                }
+                catch (ServerException ex)
+                {
+                    if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                    {
+                        // Provided html was not found, should not happen but if it happens we're not stopping the transformation
+                        return "";
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
         #endregion
 
         #region HighlightedContent functions
+        /// <summary>
+        /// Maps content by search web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part
+        /// </summary>
+        /// <param name="dataProviderJson"></param>
+        /// <param name="selectedPropertiesJson"></param>
+        /// <param name="resultsPerPage"></param>
+        /// <param name="renderTemplateId"></param>
+        /// <returns>A properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part</returns>
+        [FunctionDocumentation(Description = "Maps content by search web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part",
+                                   Example = "ContentBySearchToHighlightedContentProperties({DataProviderJSON}, {SelectedPropertiesJson}, {ResultsPerPage}, {RenderTemplateId})")]
+        [InputDocumentation(Name = "{DataProviderJson}", Description = "")]
+        [InputDocumentation(Name = "{SelectedPropertiesJson}", Description = "")]
+        [InputDocumentation(Name = "{ResultsPerPage}", Description = "")]
+        [InputDocumentation(Name = "{RenderTemplateId}", Description = "")]
+        [OutputDocumentation(Name = "JsonProperties", Description = "Properties collection for the contentrollup (= Highlighted Content) web part")]
+        [OutputDocumentation(Name = "SearchablePlainTexts", Description = "SearchablePlainTexts nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "Links", Description = "Links nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "ImageSources", Description = "ImageSources nodes to be added in the serverProcessedContent node")]
+        public Dictionary<string, string> ContentBySearchToHighlightedContentProperties(string dataProviderJson, string selectedPropertiesJson, int resultsPerPage, string renderTemplateId)
+        {
+            Dictionary<string, string> results = new Dictionary<string, string>();
+
+            ContentBySearch cbs = new ContentBySearch()
+            {
+                DataProviderJson = dataProviderJson,
+                SelectedPropertiesJson = selectedPropertiesJson,
+                ResultsPerPage = resultsPerPage,
+                RenderTemplateId = renderTemplateId
+            };
+
+            ContentByQuerySearchTransformator cqs = new ContentByQuerySearchTransformator(this.clientContext);
+            var res = cqs.TransformContentBySearchWebPartToHighlightedContent(cbs);
+
+            // Output the calculated properties so then can be used in the mapping
+            results.Add("JsonProperties", res.Properties);
+            results.Add("SearchablePlainTexts", res.SearchablePlainTexts);
+            results.Add("Links", res.Links);
+            results.Add("ImageSources", res.ImageSources);
+
+            return results;
+        }
+
         /// <summary>
         /// Maps content by query web part data into a properties collection for the contentrollup (= Highlighted Content) web part
         /// </summary>
@@ -782,7 +978,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// <param name="displayColumns"></param>
         /// <param name="dataMappings"></param>
         /// <returns>A properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part</returns>
-        [FunctionDocumentation(Description = "Maps content by query web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part", 
+        [FunctionDocumentation(Description = "Maps content by query web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part",
                                Example = "ContentByQueryToHighlightedContentProperties({WebUrl},{ListGuid},{ListName},{ServerTemplate},{ContentTypeBeginsWithId},{FilterField1},{Filter1ChainingOperator},{FilterDisplayValue1},{FilterOperator1},{FilterField2},{Filter2ChainingOperator},{FilterDisplayValue2},{FilterOperator2},{FilterField3},{FilterDisplayValue3},{FilterOperator3},{SortBy},{SortByDirection},{GroupBy},{GroupByDirection},{ItemLimit},{DisplayColumns},{DataMappings})")]
         [InputDocumentation(Name = "{WebUrl}", Description = "")]
         [InputDocumentation(Name = "{ListGuid}", Description = "")]
@@ -901,5 +1097,249 @@ namespace SharePointPnP.Modernization.Framework.Functions
         }
         #endregion
 
+        #region SummaryLink functions
+        /// <summary>
+        /// Uses the SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance to determine the mapping
+        /// </summary>
+        /// <param name="useQuickLinks">The SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance</param>
+        /// <returns>Whether to transform via the QuickLinks web part or via Text</returns>
+        [SelectorDocumentation(Description = "Uses the SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance to determine the mapping",
+                               Example = "SummaryLinkSelector({SummaryLinksToQuickLinks})")]
+        [InputDocumentation(Name = "{SummaryLinksToQuickLinks}", Description = "The SummaryLinksToQuickLinks mapping property provided via the PageTransformationInformation instance")]
+        [OutputDocumentation(Name = "UseQuickLinks", Description = "Transform to the QuickLinks web part")]
+        [OutputDocumentation(Name = "UseText", Description = "Transform to the formatted text")]
+        public string SummaryLinkSelector(string useQuickLinks)
+        {
+            if (bool.TryParse(useQuickLinks, out bool useQuickLinksBool))
+            {
+                if (useQuickLinksBool)
+                {
+                    return "UseQuickLinks";
+                }
+            }
+
+            return "UseText";
+        }
+
+        /// <summary>
+        /// Rewrites summarylinks web part html to be compliant with the html supported by the client side text part
+        /// </summary>
+        /// <param name="text">Original wiki html content</param>
+        /// <returns>Html compliant with client side text part</returns>
+        [FunctionDocumentation(Description = "Rewrites summarylinks web part html to be compliant with the html supported by the client side text part.",
+                       Example = "{CleanedText} = TextCleanUpSummaryLinks({Text})")]
+        [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
+        [OutputDocumentation(Name = "{CleanedText}", Description = "Html compliant with client side text part")]
+        public string TextCleanUpSummaryLinks(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return "";
+            }
+
+            return new SummaryLinksHtmlTransformator().Transform(text, false);
+        }
+
+        /// <summary>
+        /// Maps summarylinks web part data into a properties collection and supporting serverProcessedContent nodes for the quicklinks web part
+        /// </summary>
+        /// <param name="text">Original wiki html content</param>
+        /// <returns>Properties collection for the quicklinks web part</returns>
+        [FunctionDocumentation(Description = "Maps summarylinks web part data into a properties collection and supporting serverProcessedContent nodes for the quicklinks web part",
+                               Example = "SummaryLinksToQuickLinksProperties({Text})")]
+        [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
+        [OutputDocumentation(Name = "JsonProperties", Description = "Properties collection for the quicklinks web part")]
+        [OutputDocumentation(Name = "SearchablePlainTexts", Description = "SearchablePlainTexts nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "Links", Description = "Links nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "ImageSources", Description = "ImageSources nodes to be added in the serverProcessedContent node")]
+        public Dictionary<string, string> SummaryLinksToQuickLinksProperties(string text)
+        {
+            Dictionary<string, string> results = new Dictionary<string, string>();
+
+            var links = new SummaryLinksHtmlTransformator().GetLinks(text);
+
+            if (IsCrossSiteTransfer())
+            {
+                var clientSidePage = this.clientSidePage.PageTitle;
+                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext);
+
+                foreach (var link in links)
+                {
+                    // preview images
+                    if (!string.IsNullOrEmpty(link.ImageUrl))
+                    {
+                        var serverRelativeAssetFileName = ReturnServerRelativePath(link.ImageUrl);
+                        var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
+                        link.ImageUrl = newAssetLocation;
+                    }
+
+                    // urls
+                    if (!string.IsNullOrEmpty(link.Url))
+                    {
+                        var serverRelativeAssetFileName = ReturnServerRelativePath(link.Url);
+                        var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
+                        link.Url = newAssetLocation;
+                    }
+                }
+            }
+
+            QuickLinksTransformator qlt = new QuickLinksTransformator(this.clientContext);
+            var res = qlt.Transform(links);
+
+            // Output the calculated properties so then can be used in the mapping
+            results.Add("JsonProperties", res.Properties);
+            results.Add("SearchablePlainTexts", res.SearchablePlainTexts);
+            results.Add("Links", res.Links);
+            results.Add("ImageSources", res.ImageSources);
+
+            return results;
+        }
+        #endregion
+
+        #region Script Editor functions
+        /// <summary>
+        /// Uses the UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance to determine the mapping
+        /// </summary>
+        /// <param name="useQuickLinks">The UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance</param>
+        /// <returns>Whether to transform via the community script editor web part</returns>
+        [SelectorDocumentation(Description = "Uses the UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance to determine the mapping",
+                               Example = "ScriptEditorSelector({UseCommunityScriptEditor})")]
+        [InputDocumentation(Name = "{UseCommunityScriptEditor}", Description = "The UseCommunityScriptEditor mapping property provided via the PageTransformationInformation instance")]
+        [OutputDocumentation(Name = "UseCommunityScriptEditor", Description = "Transform to the community script editor web part")]
+        [OutputDocumentation(Name = "NoScriptEditor", Description = "Don't transform as there's no script editor")]
+        public string ScriptEditorSelector(string useCommunityScriptEditor)
+        {
+            if (bool.TryParse(useCommunityScriptEditor, out bool useCommunityScriptEditorBool))
+            {
+                if (useCommunityScriptEditorBool)
+                {
+                    return "UseCommunityScriptEditor";
+                }
+            }
+
+            return "NoScriptEditor";
+        }
+        #endregion
+
+        #region Contact functions
+        /// <summary>
+        /// Checks if the passed value is a user or not
+        /// </summary>
+        /// <param name="person">Account of the user</param>
+        /// <returns>Indication if user is valid or not</returns>
+        [SelectorDocumentation(Description = "Checks if the passed value is a user or not",
+                               Example = "UserExistsSelector({PersonEmail})")]
+        [InputDocumentation(Name = "{PersonEmail}", Description = "Account of the user")]
+        [OutputDocumentation(Name = "InvalidUser", Description = "User is invalid")]
+        [OutputDocumentation(Name = "ValidUser", Description = "User info is valid")]
+        public string UserExistsSelector(string person)
+        {
+            if (string.IsNullOrEmpty(person))
+            {
+                return "InvalidUser";
+            }
+
+            return "ValidUser";
+        }
+
+        /// <summary>
+        /// Looks up a person from the UserInfo list and returns the needed details
+        /// </summary>
+        /// <param name="person">User account to lookup (in i:0#.f|membership|joe@contoso.onmicrosoft.com format)</param>
+        /// <returns>Information about the found user</returns>
+        [FunctionDocumentation(Description = "Looks up a person from the UserInfo list and returns the needed details",
+                               Example = "LookupPerson({ContactLoginName})")]
+        [InputDocumentation(Name = "{ContactLoginName}", Description = "User account to lookup (in i:0#.f|membership|joe@contoso.onmicrosoft.com format)")]
+        [OutputDocumentation(Name = "PersonName", Description = "Name of the user")]
+        [OutputDocumentation(Name = "PersonEmail", Description = "User's email")]
+        [OutputDocumentation(Name = "PersonUPN", Description = "UPN of the user")]
+        [OutputDocumentation(Name = "PersonRole", Description = "Role of the user")]
+        [OutputDocumentation(Name = "PersonDepartment", Description = "User's department")]
+        [OutputDocumentation(Name = "PersonPhone", Description = "Phone number of the user")]
+        [OutputDocumentation(Name = "PersonSip", Description = "SIP address of the user")]
+        public Dictionary<string, string> LookupPerson(string person)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+
+            if (string.IsNullOrEmpty(person))
+            {
+                return result;
+            }
+
+            string CAMLQueryByName = @"
+                <View Scope='Recursive'>
+                  <Query>
+                    <Where>
+                      <Contains>
+                        <FieldRef Name='Name'/>
+                        <Value Type='text'>{0}</Value>
+                      </Contains>
+                    </Where>
+                  </Query>
+                </View>";
+
+            List siteUserInfoList = this.sourceClientContext.Web.SiteUserInfoList;
+            CamlQuery query = new CamlQuery
+            {
+                ViewXml = String.Format(CAMLQueryByName, person)
+            };
+            var loadedUsers = this.sourceClientContext.LoadQuery(siteUserInfoList.GetItems(query));
+            this.sourceClientContext.ExecuteQueryRetry();
+
+            if (loadedUsers != null)
+            {
+                var loadedUser = loadedUsers.FirstOrDefault();
+                if (loadedUser != null)
+                {
+                    result.Add("PersonName", loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "");
+                    result.Add("PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
+                    result.Add("PersonUPN", loadedUser["UserName"] != null ? loadedUser["UserName"].ToString() : "");
+                    result.Add("PersonRole", loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "");
+                    result.Add("PersonDepartment", loadedUser["Department"] != null ? loadedUser["Department"].ToString() : "");
+                    result.Add("PersonPhone", loadedUser["WorkPhone"] != null ? loadedUser["WorkPhone"].ToString() : "");
+                    result.Add("PersonSip", loadedUser["SipAddress"] != null ? loadedUser["SipAddress"].ToString() : "");
+                }
+            }
+            else
+            {
+                // Fallback...
+                var personParts = person.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                if (personParts.Length == 3)
+                {
+                    person = personParts[2];
+                }
+
+                result.Add("PersonName", "");
+                result.Add("PersonEmail", person);
+                result.Add("PersonUPN", person);
+                result.Add("PersonRole", "");
+                result.Add("PersonDepartment", "");
+                result.Add("PersonPhone", "");
+                result.Add("PersonSip", "");
+            }
+
+            return result;
+        }
+        #endregion
+
+        #region Helper methods
+        private bool IsCrossSiteTransfer()
+        {
+            if (this.sourceClientContext == null)
+            {
+                return false;
+            }
+
+            this.sourceClientContext.Web.EnsureProperties(p => p.Url);
+            this.clientSidePage.Context.Web.EnsureProperties(p => p.Url);
+
+            if (this.sourceClientContext.Web.Url.Equals(this.clientSidePage.Context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
     }
 }

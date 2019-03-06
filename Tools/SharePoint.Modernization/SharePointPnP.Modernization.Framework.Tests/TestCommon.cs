@@ -96,6 +96,12 @@ namespace SharePointPnP.Modernization.Framework.Tests
                 return false;
             }
         }
+
+        /// <summary>
+        /// Common warning that the test is used to perform the process and not yet automated in checks/validation of results.
+        /// </summary>
+        public static string InconclusiveNoAutomatedChecksMessage { get { return "Does not yet have automated checks, please manually check the results of the test";} }
+
         #endregion
 
         #region methods

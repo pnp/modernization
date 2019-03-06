@@ -16,9 +16,16 @@
 
 ### Added
 
-- Experimental support for creating the modern site collection in another site collection. Currently does not yet support web parts with references to the source site + copy of page metadata #59 [pkbullock]
+- Support for creating the modern site pages in another site collection. Does support asset transfer to the target site collection for a limited set of web parts decorated with the CrossSiteTransformationSupported="true" attribute. #59, #65, #66 and #71 [pkbullock]
 - Support for using Boolean as return type of functions used in the web part transformation model
 - XSLTListView transformation: map the web part toolbar configuration to the hideCommandBar property
+- Transformation support for ContentBySearchWebPart and ResultScriptWebPart
+- Drop "empty" text parts...text parts with html tags without visual presentation are useless. Wiki pages, especially with multi section/column layouts, tend to have these
+- Drop empty sections and columns to optimize the screen real estate - also better aligns with how web part pages and wiki pages behave in classic. This behavior is on by default, but can be turned off via the RemoveEmptySectionsAndColumns flag in the PageTransformationInformation class
+- ExcelWebRenderer transformation: take over the configured named item (table, chart, range)
+- SummaryLinks transformation: new default is transform to QuickLinks, optionally you still transform to text by setting the SummaryLinksToQuickLinks mapping property to false
+- ContactFieldControl transformation support: this web part transforms to the People web part
+- Support for defining functions on a mapping: this allows to execute code only when a specific mapping was chosen
 
 ### Changed
 
@@ -26,7 +33,11 @@
 - Content by query transformation:
   - Support for site collection and sub site scoped queries, including filters and sorting for those type of queries
   - Specific support for SitePages library queries in the list scoped query handling
+  - More detailed content type filter handling
   - Switched to version 2.2 of data model
+- SummaryLinks transformation: links without heading are now correctly transformed to html
+- Mapping properties allow for mapping based up on configuration: the UseCommunityScriptEditor property can be set to use the community script editor, no need for changing mapping files to support this scenario
+- MembersWebPart transformation: now shows a text making users aware of the OOB Site Permissions feature that replaces this web part's functionality
 
 ## [February release (prod) - version 1.0.1902.0]
 

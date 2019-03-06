@@ -56,9 +56,10 @@ namespace SharePoint.Modernization.Scanner.Reports
             }
 
             // import the data and "clean" it
+            var fileLoaded = false;
             foreach (var path in exportPaths)
             {
-                var pathToUse = path.TrimEnd(new char[] { '\\' });
+                var pathToUse = Path.GetFullPath(path.Trim()).TrimEnd(new char[] { '\\' });
 
                 string csvToLoad = $"{pathToUse}\\{ListCSV}";
 
@@ -67,6 +68,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Skipping as one does not always have this report 
                     continue;
                 }
+                fileLoaded = true;
 
                 Console.WriteLine($"Generating Modern UI List Readiness report based upon data coming from {path}");
 
@@ -112,6 +114,12 @@ namespace SharePoint.Modernization.Scanner.Reports
                         MergeScanSummaries(scanSummary, scanSummary1);
                     }
                 }
+            }
+
+            if (!fileLoaded)
+            {
+                // nothing loaded, so nothing to use for report generation
+                return;
             }
 
             if (blockedListsTable.Rows.Count == 0)
@@ -219,9 +227,11 @@ namespace SharePoint.Modernization.Scanner.Reports
             }
 
             // import the data and "clean" it
+            int publishingSiteCollectionsCount = 0;
+            var fileLoaded = false;
             foreach (var path in exportPaths)
             {
-                var pathToUse = path.TrimEnd(new char[] { '\\' });
+                var pathToUse = Path.GetFullPath(path.Trim()).TrimEnd(new char[] { '\\' });
 
                 // Load the webs CSV file
                 string csvToLoad = $"{pathToUse}\\{PublishingWebCSV}";
@@ -231,6 +241,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Skipping as one does not always have this report 
                     continue;
                 }
+                fileLoaded = true;
 
                 Console.WriteLine($"Generating Publishing transformation report based upon data coming from {path}");
 
@@ -283,7 +294,8 @@ namespace SharePoint.Modernization.Scanner.Reports
                         var siteData = parser.GetDataTable();
                         if (siteData != null)
                         {
-                            scanSummary.SiteCollections = siteData.Rows.Count;
+                            //scanSummary.SiteCollections =  siteData.Rows.Count;
+                            publishingSiteCollectionsCount = publishingSiteCollectionsCount + siteData.Rows.Count;
                         }
                     }
                 }
@@ -316,76 +328,85 @@ namespace SharePoint.Modernization.Scanner.Reports
                         }
                     }
                 }
+            }
 
-                // Get the template Excel file
-                using (Stream stream = typeof(Generator).Assembly.GetManifestResourceStream($"SharePoint.Modernization.Scanner.Reports.{PublishingMasterFile}"))
-                {
-                    if (File.Exists($"{outputfolder}\\{PublishingMasterFile}"))
-                    {
-                        File.Delete($"{outputfolder}\\{PublishingMasterFile}");
-                    }
+            if (!fileLoaded)
+            {
+                // nothing loaded, so nothing to use for report generation
+                return;
+            }
 
-                    using (var fileStream = File.Create($"{outputfolder}\\{PublishingMasterFile}"))
-                    {
-                        stream.Seek(0, SeekOrigin.Begin);
-                        stream.CopyTo(fileStream);
-                    }
-                }
+            scanSummary.SiteCollections = publishingSiteCollectionsCount;
 
-                // Push the data to Excel, starting from an Excel template
-                using (var excel = new ExcelPackage(new FileInfo($"{outputfolder}\\{PublishingMasterFile}"), false))
-                {
-
-                    var dashboardSheet = excel.Workbook.Worksheets["Dashboard"];
-                    if (scanSummary != null)
-                    {
-                        if (scanSummary.SiteCollections.HasValue)
-                        {
-                            dashboardSheet.SetValue("U7", scanSummary.SiteCollections.Value);
-                        }
-                        if (scanSummary.Duration != null)
-                        {
-                            dashboardSheet.SetValue("U8", scanSummary.Duration);
-                        }
-                        if (scanSummary.Version != null)
-                        {
-                            dashboardSheet.SetValue("U9", scanSummary.Version);
-                        }
-                    }
-
-                    if (dateCreationTime > DateTime.Now.Subtract(new TimeSpan(5*365,0,0,0,0)))
-                    {
-                        dashboardSheet.SetValue("U6", dateCreationTime.ToString("G", DateTimeFormatInfo.InvariantInfo));
-                    }
-                    else
-                    {
-                        dashboardSheet.SetValue("U6", "-");
-                    }
-
-                    var pubWebsSheet = excel.Workbook.Worksheets["PubWebs"];
-                    InsertTableData(pubWebsSheet.Tables[0], pubWebsTable);
-
-                    var pubPagesSheet = excel.Workbook.Worksheets["PubPages"];
-                    if (pubPagesTable != null)
-                    {
-                        InsertTableData(pubPagesSheet.Tables[0], pubPagesTable);
-                    }
-
-                    // Save the resulting file
-                    if (File.Exists($"{outputfolder}\\{PublishingReport}"))
-                    {
-                        File.Delete($"{outputfolder}\\{PublishingReport}");
-                    }
-                    excel.SaveAs(new FileInfo($"{outputfolder}\\{PublishingReport}"));
-                }
-
-                // Clean the template file
+            // Get the template Excel file
+            using (Stream stream = typeof(Generator).Assembly.GetManifestResourceStream($"SharePoint.Modernization.Scanner.Reports.{PublishingMasterFile}"))
+            {
                 if (File.Exists($"{outputfolder}\\{PublishingMasterFile}"))
                 {
-                    Task.Delay(2000).Wait();
                     File.Delete($"{outputfolder}\\{PublishingMasterFile}");
                 }
+
+                using (var fileStream = File.Create($"{outputfolder}\\{PublishingMasterFile}"))
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+                    stream.CopyTo(fileStream);
+                }
             }
+
+            // Push the data to Excel, starting from an Excel template
+            using (var excel = new ExcelPackage(new FileInfo($"{outputfolder}\\{PublishingMasterFile}"), false))
+            {
+
+                var dashboardSheet = excel.Workbook.Worksheets["Dashboard"];
+                if (scanSummary != null)
+                {
+                    if (scanSummary.SiteCollections.HasValue)
+                    {
+                        dashboardSheet.SetValue("U7", scanSummary.SiteCollections.Value);
+                    }
+                    if (scanSummary.Duration != null)
+                    {
+                        dashboardSheet.SetValue("U8", scanSummary.Duration);
+                    }
+                    if (scanSummary.Version != null)
+                    {
+                        dashboardSheet.SetValue("U9", scanSummary.Version);
+                    }
+                }
+
+                if (dateCreationTime > DateTime.Now.Subtract(new TimeSpan(5 * 365, 0, 0, 0, 0)))
+                {
+                    dashboardSheet.SetValue("U6", dateCreationTime.ToString("G", DateTimeFormatInfo.InvariantInfo));
+                }
+                else
+                {
+                    dashboardSheet.SetValue("U6", "-");
+                }
+
+                var pubWebsSheet = excel.Workbook.Worksheets["PubWebs"];
+                InsertTableData(pubWebsSheet.Tables[0], pubWebsTable);
+
+                var pubPagesSheet = excel.Workbook.Worksheets["PubPages"];
+                if (pubPagesTable != null)
+                {
+                    InsertTableData(pubPagesSheet.Tables[0], pubPagesTable);
+                }
+
+                // Save the resulting file
+                if (File.Exists($"{outputfolder}\\{PublishingReport}"))
+                {
+                    File.Delete($"{outputfolder}\\{PublishingReport}");
+                }
+                excel.SaveAs(new FileInfo($"{outputfolder}\\{PublishingReport}"));
+            }
+
+            // Clean the template file
+            if (File.Exists($"{outputfolder}\\{PublishingMasterFile}"))
+            {
+                Task.Delay(2000).Wait();
+                File.Delete($"{outputfolder}\\{PublishingMasterFile}");
+            }
+
         }
 
         /// <summary>
@@ -408,9 +429,10 @@ namespace SharePoint.Modernization.Scanner.Reports
             }
 
             // import the data and "clean" it
+            var fileLoaded = false;
             foreach (var path in exportPaths)
             {
-                var pathToUse = path.TrimEnd(new char[] { '\\' });
+                var pathToUse = Path.GetFullPath(path.Trim()).TrimEnd(new char[] { '\\' });
 
                 string csvToLoad = $"{pathToUse}\\{PageCSV}";
 
@@ -419,6 +441,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Skipping as one does not always have this report 
                     continue;
                 }
+                fileLoaded = true;
 
                 Console.WriteLine($"Generating Page Transformation Readiness report based upon data coming from {path}");
 
@@ -485,6 +508,12 @@ namespace SharePoint.Modernization.Scanner.Reports
                         MergeScanSummaries(scanSummary, scanSummary1);
                     }
                 }
+            }
+
+            if (!fileLoaded)
+            {
+                // nothing loaded, so nothing to use for report generation
+                return;
             }
 
             // Get the template Excel file
@@ -594,7 +623,7 @@ namespace SharePoint.Modernization.Scanner.Reports
             // import the data and "clean" it
             foreach (var path in exportPaths)
             {
-                var pathToUse = path.TrimEnd(new char[] {'\\'});
+                var pathToUse = Path.GetFullPath(path.Trim()).TrimEnd(new char[] {'\\'});
 
                 string csvToLoad = $"{pathToUse}\\{GroupifyCSV}";
 

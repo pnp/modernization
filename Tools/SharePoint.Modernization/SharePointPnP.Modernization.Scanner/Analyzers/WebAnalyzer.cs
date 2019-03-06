@@ -150,6 +150,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     if (!(scanResult.WebTemplate.Equals("BICENTERSITE#0", StringComparison.InvariantCultureIgnoreCase) ||
                           scanResult.WebTemplate.Equals("BLANKINTERNET#0", StringComparison.InvariantCulture) ||
                           scanResult.WebTemplate.Equals("SRCHCEN#0", StringComparison.InvariantCulture) ||
+                          scanResult.WebTemplate.Equals("CMSPUBLISHING#0", StringComparison.InvariantCulture) ||
                           scanResult.WebTemplate.Equals("SRCHCENTERLITE#0", StringComparison.InvariantCulture) ||
                           scanResult.WebTemplate.Equals("POINTPUBLISHINGHUB#0", StringComparison.InvariantCulture) ||
                           scanResult.WebTemplate.Equals("POINTPUBLISHINGTOPIC#0", StringComparison.InvariantCulture) ||
