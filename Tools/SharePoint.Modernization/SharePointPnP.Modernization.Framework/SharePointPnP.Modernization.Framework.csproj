@@ -192,6 +192,7 @@
     <Compile Include="Telemetry\ILogObserver.cs" />
     <Compile Include="Telemetry\LogEntry.cs" />
     <Compile Include="Telemetry\LogLevel.cs" />
+    <Compile Include="Telemetry\Observers\MarkdownObserver.cs" />
     <Compile Include="Telemetry\PageTelemetry.cs" />
     <Compile Include="Transform\AssetTransfer.cs" />
     <Compile Include="Cache\CacheManager.cs" />
@@ -294,9 +295,7 @@
     </Content>
     <Content Include="xsd.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Telemetry\Observers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>Copy $(ProjectDir)Nuget\webpartmapping.xml $(SolutionDir)SharePointPnP.Modernization.Scanner</PostBuildEvent>

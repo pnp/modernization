@@ -20,6 +20,11 @@ namespace SharePointPnP.Modernization.Framework.Tests
             Console.WriteLine($"ERROR: HEADING: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Id: {entry.CorrelationId}, Error: { error }");
         }
 
+        public void Flush()
+        {
+            //Do nothing
+        }
+
         public void Info(LogEntry entry)
         {
             Console.WriteLine($"INFO: HEADING: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Id: {entry.CorrelationId}");

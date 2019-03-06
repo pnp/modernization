@@ -35,6 +35,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
         }
 
+        /// <summary>
+        /// Flush all log observers
+        /// </summary>
+        public void FlushObservers()
+        {
+            foreach (ILogObserver observer in _logObservers)
+            {
+                observer.Flush();
+            }
+        }
         
 
         /// <summary>

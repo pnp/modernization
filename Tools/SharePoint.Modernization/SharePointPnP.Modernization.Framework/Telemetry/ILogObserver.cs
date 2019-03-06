@@ -29,6 +29,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// <param name="entry">LogEntry object</param>
         void Debug(LogEntry entry);
 
-
+        /// <summary>
+        /// Pushes all output to destination
+        /// </summary>
+        void Flush();
     }
 }

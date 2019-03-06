@@ -7,6 +7,7 @@ using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -73,9 +74,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #if DEBUG && MEASURE && MEASURE
             InitMeasurement();
 #endif
-            
-            // Register a default set of observers here
 
+            // Register a default set of observers here
+            RegisterObserver(new MarkdownObserver()); //Report only at this point
 
             this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
