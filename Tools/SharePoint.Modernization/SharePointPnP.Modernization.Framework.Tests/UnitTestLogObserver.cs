@@ -11,23 +11,23 @@ namespace SharePointPnP.Modernization.Framework.Tests
     {
         public void Debug(LogEntry entry)
         {
-            Console.WriteLine($"DEBUG: Message: {entry.Message}, Source: {entry.Source}, Id: {entry.CorrelationId}");
+            Console.WriteLine($"DEBUG: HEADING: {entry.Heading}  - Message: {entry.Message} \n\t Source: {entry.Source}, Id: {entry.CorrelationId}");
         }
 
         public void Error(LogEntry entry)
         {
             var error = entry.Exception != null ? entry.Exception.Message : "No error logged";
-            Console.WriteLine($"DEBUG: Message: {entry.Message}, Source: {entry.Source}, Id: {entry.CorrelationId}, Error: { error }");
+            Console.WriteLine($"ERROR: HEADING: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Id: {entry.CorrelationId}, Error: { error }");
         }
 
         public void Info(LogEntry entry)
         {
-            Console.WriteLine($"DEBUG: Message: {entry.Message}, Source: {entry.Source}, Id: {entry.CorrelationId}");
+            Console.WriteLine($"INFO: HEADING: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Id: {entry.CorrelationId}");
         }
 
         public void Warning(LogEntry entry)
         {
-            Console.WriteLine($"DEBUG: Message: {entry.Message}, Source: {entry.Source}, Id: {entry.CorrelationId}");
+            Console.WriteLine($"WARNING: HEADING: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Id: {entry.CorrelationId}");
         }
     }
 }

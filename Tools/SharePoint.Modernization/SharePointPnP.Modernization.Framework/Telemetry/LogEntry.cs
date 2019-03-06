@@ -9,6 +9,14 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
     public class LogEntry
     {
         /// <summary>
+        /// Create a new Log Entry
+        /// </summary>
+        public LogEntry()
+        {
+            EntryTime = DateTime.Now;
+        }
+
+        /// <summary>
         /// Gets or sets Log message
         /// </summary>
         public string Message { get; set; }
@@ -24,5 +32,20 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Gets or sets Log Exception
         /// </summary>
         public Exception Exception { get; set; }
+
+        /// <summary>
+        /// Specified the logical grouping for the messages based on the stage of transformation
+        /// </summary>
+        public string Heading { get; set; }
+
+        /// <summary>
+        /// For those areas where we swallow errors or they are non-criticai to report
+        /// </summary>
+        public bool IgnoreException { get; set; }
+
+        /// <summary>
+        /// Time in which the log entry was made
+        /// </summary>
+        public DateTime EntryTime { get; private set; }
     }
 }

@@ -41,10 +41,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Notifies the observers of error messages
         /// </summary>
         /// <param name="logEntry">The message.</param>
-        public void NotifyLogErrorObservers(LogEntry logEntry)
+        public void LogError(string message, string heading = "", Exception exception = null, bool ignoreException = false)
         {
             StackTrace stackTrace = new StackTrace();
-            logEntry.Source = stackTrace.GetFrame(1).ToString();
+            var logEntry = new LogEntry() {
+                Heading = heading,
+                Message = message,
+                CorrelationId = _correlationId,
+                Source = stackTrace.GetFrame(1).GetMethod().ToString(),
+                Exception = exception,
+                IgnoreException = ignoreException
+            };
 
             foreach (ILogObserver observer in _logObservers)
             {
@@ -56,8 +63,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Notifies the observers of info messages
         /// </summary>
         /// <param name="logEntry">The message.</param>
-        public void NotifyLogInfoObservers(LogEntry logEntry)
+        public void LogInfo(string message, string heading = "")
         {
+            StackTrace stackTrace = new StackTrace();
+            var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
+
             foreach (ILogObserver observer in _logObservers)
             {
                 observer.Info(logEntry);
@@ -68,8 +78,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Notifies the observers of warning messages
         /// </summary>
         /// <param name="logEntry">The message.</param>
-        public void NotifyLogWarningObservers(LogEntry logEntry)
+        public void LogWarning(string message, string heading = "")
         {
+            StackTrace stackTrace = new StackTrace();
+            var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
+
             foreach (ILogObserver observer in _logObservers)
             {
                 observer.Warning(logEntry);
@@ -80,8 +93,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Notifies the observers of debug messages
         /// </summary>
         /// <param name="logEntry">The message.</param>
-        public void NotifyLogDebugObservers(LogEntry logEntry)
+        public void LogDebug(string message, string heading = "")
         {
+            StackTrace stackTrace = new StackTrace();
+            var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
+
             foreach (ILogObserver observer in _logObservers)
             {
                 observer.Debug(logEntry);
