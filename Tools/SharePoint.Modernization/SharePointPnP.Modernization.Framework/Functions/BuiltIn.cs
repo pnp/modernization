@@ -564,7 +564,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             // Check if this url is pointing to content living in this site
             if (!stop && !serverRelativeImagePath.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
             {
-                // TODO: add handling of files living in another web
+                // We're not looking up the image, providing the server relative path to the modern Image web part is sufficient
                 stop = true;
             }
 
@@ -668,25 +668,10 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [OutputDocumentation(Name = "{DocumentAuthorName}", Description = "Name of the file author")]
         public Dictionary<string, string> DocumentEmbedLookup(string serverRelativeUrl)
         {
-            bool stop = false;
+            Dictionary<string, string> results = new Dictionary<string, string>();
             if (string.IsNullOrEmpty(serverRelativeUrl))
             {
-                stop = true;
-            }
-
-            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
-
-            // Check if this url is pointing to content living in this site
-            if (!stop && !serverRelativeUrl.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
-            {
-                // TODO: add handling of files living in another web
-                stop = true;
-            }
-
-            Dictionary<string, string> results = new Dictionary<string, string>();
-
-            if (stop)
-            {
+                results.Add("DocumentWeb", "");
                 results.Add("DocumentListId", "");
                 results.Add("DocumentUniqueId", "");
                 results.Add("DocumentAuthor", "");
@@ -694,14 +679,45 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return results;
             }
 
+            // Assume document lives in current web
+            ClientContext contextToUse = this.clientContext;
+
+            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
+            if (!serverRelativeUrl.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
+            {
+                try
+                {
+                    // 
+                    Uri hostUri = new Uri(this.clientContext.Web.Url);
+
+                    // Find the web url hosting the content file
+                    var webUrlResult = Web.GetWebUrlFromPageUrl(this.clientContext, $"{hostUri.Scheme}://{hostUri.DnsSafeHost}{serverRelativeUrl}");
+                    this.clientContext.ExecuteQueryRetry();
+
+                    contextToUse = this.clientContext.Clone(webUrlResult.Value);
+                }
+                catch (Exception ex)
+                {
+                    // TODO: add logging
+                    results.Add("DocumentWeb", "");
+                    results.Add("DocumentListId", "");
+                    results.Add("DocumentUniqueId", "");
+                    results.Add("DocumentAuthor", "");
+                    results.Add("DocumentAuthorName", "");
+                    return results;
+                }
+            }
+
             try
             {
-                var document = this.clientContext.Web.GetFileByServerRelativeUrl(serverRelativeUrl);
-                this.clientContext.Load(document, p => p.UniqueId, p => p.ListId, p => p.Author);
-                this.clientContext.ExecuteQueryRetry();
+                var document = contextToUse.Web.GetFileByServerRelativeUrl(serverRelativeUrl);
+                contextToUse.Load(document, p => p.UniqueId, p => p.ListId, p => p.Author);
+                contextToUse.Load(contextToUse.Web, p => p.ServerRelativeUrl);
+                contextToUse.ExecuteQueryRetry();
 
                 string[] authorParts = document.Author.LoginName.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
 
+                results.Add("DocumentWeb", contextToUse.Web.ServerRelativeUrl);
                 results.Add("DocumentListId", document.ListId.ToString());
                 results.Add("DocumentUniqueId", document.UniqueId.ToString());
                 results.Add("DocumentAuthor", authorParts.Length == 3 ? authorParts[2] : "");
@@ -847,20 +863,46 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return "";
             }
 
-            try
+            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl, p => p.Url);
+            if (!contentLink.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
             {
-                return this.sourceClientContext.Web.GetFileAsString(contentLink);
-            }
-            catch (ServerException ex)
-            {
-                if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                try
                 {
-                    // Provided html was not found, should not happen but if it happens we're not stopping the transformation
+                    // Content editor does allow a web part on a sub web to point to a file in the rootweb...Pointing to files outside of the current site collection is not allowed
+                    Uri hostUri = new Uri(this.clientContext.Web.Url);
+
+                    // Find the web url hosting the content file
+                    var webUrlResult = Web.GetWebUrlFromPageUrl(this.clientContext, $"{hostUri.Scheme}://{hostUri.DnsSafeHost}{contentLink}");
+                    this.clientContext.ExecuteQueryRetry();
+
+                    using (var cc = this.clientContext.Clone(webUrlResult.Value))
+                    {
+                        return cc.Web.GetFileAsString(contentLink);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // TODO: add logging
                     return "";
                 }
-                else
+            }
+            else
+            {
+                try
                 {
-                    throw;
+                    return this.sourceClientContext.Web.GetFileAsString(contentLink);
+                }
+                catch (ServerException ex)
+                {
+                    if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                    {
+                        // Provided html was not found, should not happen but if it happens we're not stopping the transformation
+                        return "";
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
