@@ -66,7 +66,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
 
-                    var pages = sourceClientContext.Web.GetPages("p");
+                    var pages = sourceClientContext.Web.GetPages("wp_summarylinks_1");
 
                     foreach (var page in pages)
                     {
@@ -109,12 +109,15 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             //ContentTransformatorOverride = contentOverride,
                         };
 
-                        pageTransformator.Transform(pti);
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                        var result = pageTransformator.Transform(pti);
                     }
                 }
             }
 
-            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
+            //Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
         [TestMethod]

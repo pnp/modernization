@@ -166,85 +166,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
                 // Multiple functions can be specified using ; as delimiter
                 var functionsToProcess = property.Functions.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-
-                // Process each function
-                foreach (var function in functionsToProcess)
-                {
-                    // Parse the function
-                    FunctionDefinition functionDefinition = ParseFunctionDefinition(function, property, webPartData, webPart);
-
-                    // Execute function
-                    MethodInfo methodInfo = null;
-                    object functionClassInstance = null;
-
-                    if (string.IsNullOrEmpty(functionDefinition.AddOn))
-                    {
-                        // Native builtin function
-                        methodInfo = typeof(BuiltIn).GetMethod(functionDefinition.Name);
-                        functionClassInstance = this.builtInFunctions;
-                    }
-                    else
-                    {
-                        // Function specified via addon
-                        var addOn = this.addOnTypes.Where(p => p.Name.Equals(functionDefinition.AddOn, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-                        if (addOn != null)
-                        {
-                            methodInfo = addOn.Type.GetMethod(functionDefinition.Name);
-                            functionClassInstance = addOn.Instance;
-                        }
-                    }
-
-                    if (methodInfo != null)
-                    {
-                        // Execute the function
-                        object result = ExecuteMethod(functionClassInstance, functionDefinition, methodInfo);
-
-                        if (result is string || result is bool)
-                        {
-                            // Update the existing web part property or add a new one
-                            if (webPart.Properties.Keys.Contains<string>(functionDefinition.Output.Name))
-                            {
-                                webPart.Properties[functionDefinition.Output.Name] = (result is bool) ? result.ToString().ToLower() : result.ToString();
-                            }
-                            else
-                            {
-                                webPart.Properties.Add(functionDefinition.Output.Name, (result is bool) ? result.ToString().ToLower() : result.ToString());
-                            }
-
-                            // Add results from the function evaluation to the web part properties mapping data so that upcoming functions can use these new properties
-                            if (Array.FindIndex<Property>(webPartData.Properties, p => p.Name.Equals(functionDefinition.Output.Name, StringComparison.InvariantCultureIgnoreCase)) < 0)
-                            {
-                                UpdateWebPartDataProperties(webPartData, functionDefinition.Output.Name);
-                            }
-                        }
-                        else if (result is Dictionary<string,string>)
-                        {
-                            if (result != null)
-                            {
-                                var parameters = result as Dictionary<string, string>;
-                                foreach (var param in parameters)
-                                {
-                                    // Update the existing web part property or add a new one
-                                    if (webPart.Properties.Keys.Contains<string>(param.Key))
-                                    {
-                                        webPart.Properties[param.Key] = result.ToString();
-                                    }
-                                    else
-                                    {
-                                        webPart.Properties.Add(param.Key, param.Value);
-                                    }
-
-                                    // Add results from the function evaluation to the web part properties mapping data so that upcoming functions can use these new properties
-                                    if (Array.FindIndex<Property>(webPartData.Properties, p => p.Name.Equals(param.Key, StringComparison.InvariantCultureIgnoreCase)) < 0)
-                                    {
-                                        UpdateWebPartDataProperties(webPartData, param.Key);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
+                // Use reflection to run the functions
+                ExecutePropertyFunctions(functionsToProcess, webPartData, webPart, property);
             }
 
             // Process the selector function
@@ -283,9 +206,111 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             return null;
         }
+
+        /// <summary>
+        /// Executes the defined functions and selectors in the provided web part
+        /// </summary>
+        /// <param name="webPartData">Web Part mapping data</param>
+        /// <param name="webPart">Definition of the web part to be transformed</param>
+        /// <returns>The ouput of the mapping selector if there was one executed, null otherwise</returns>
+        public void ProcessMappingFunctions(ref WebPart webPartData, WebPartEntity webPart, Mapping webPartMapping)
+        {
+            // No function defined, so skip
+            if (string.IsNullOrEmpty(webPartMapping.Functions))
+            {
+                return;
+            }
+
+            // Multiple functions can be specified using ; as delimiter
+            var functionsToProcess = webPartMapping.Functions.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+            // Use reflection to run the functions
+            ExecutePropertyFunctions(functionsToProcess, webPartData, webPart, null);
+        }
         #endregion
 
         #region Helper methods
+        private void ExecutePropertyFunctions(string[] functionsToProcess, WebPart webPartData, WebPartEntity webPart, Property property)
+        {
+            // Process each function
+            foreach (var function in functionsToProcess)
+            {
+                // Parse the function
+                FunctionDefinition functionDefinition = ParseFunctionDefinition(function, property, webPartData, webPart);
+
+                // Execute function
+                MethodInfo methodInfo = null;
+                object functionClassInstance = null;
+
+                if (string.IsNullOrEmpty(functionDefinition.AddOn))
+                {
+                    // Native builtin function
+                    methodInfo = typeof(BuiltIn).GetMethod(functionDefinition.Name);
+                    functionClassInstance = this.builtInFunctions;
+                }
+                else
+                {
+                    // Function specified via addon
+                    var addOn = this.addOnTypes.Where(p => p.Name.Equals(functionDefinition.AddOn, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    if (addOn != null)
+                    {
+                        methodInfo = addOn.Type.GetMethod(functionDefinition.Name);
+                        functionClassInstance = addOn.Instance;
+                    }
+                }
+
+                if (methodInfo != null)
+                {
+                    // Execute the function
+                    object result = ExecuteMethod(functionClassInstance, functionDefinition, methodInfo);
+
+                    if (result is string || result is bool)
+                    {
+                        // Update the existing web part property or add a new one
+                        if (webPart.Properties.Keys.Contains<string>(functionDefinition.Output.Name))
+                        {
+                            webPart.Properties[functionDefinition.Output.Name] = (result is bool) ? result.ToString().ToLower() : result.ToString();
+                        }
+                        else
+                        {
+                            webPart.Properties.Add(functionDefinition.Output.Name, (result is bool) ? result.ToString().ToLower() : result.ToString());
+                        }
+
+                        // Add results from the function evaluation to the web part properties mapping data so that upcoming functions can use these new properties
+                        if (Array.FindIndex<Property>(webPartData.Properties, p => p.Name.Equals(functionDefinition.Output.Name, StringComparison.InvariantCultureIgnoreCase)) < 0)
+                        {
+                            UpdateWebPartDataProperties(webPartData, functionDefinition.Output.Name);
+                        }
+                    }
+                    else if (result is Dictionary<string, string>)
+                    {
+                        if (result != null)
+                        {
+                            var parameters = result as Dictionary<string, string>;
+                            foreach (var param in parameters)
+                            {
+                                // Update the existing web part property or add a new one
+                                if (webPart.Properties.Keys.Contains<string>(param.Key))
+                                {
+                                    webPart.Properties[param.Key] = result.ToString();
+                                }
+                                else
+                                {
+                                    webPart.Properties.Add(param.Key, param.Value);
+                                }
+
+                                // Add results from the function evaluation to the web part properties mapping data so that upcoming functions can use these new properties
+                                if (Array.FindIndex<Property>(webPartData.Properties, p => p.Name.Equals(param.Key, StringComparison.InvariantCultureIgnoreCase)) < 0)
+                                {
+                                    UpdateWebPartDataProperties(webPartData, param.Key);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
         private static void UpdateWebPartDataProperties(WebPart webPartData, string functionDefinitionName)
         {
             List<Property> tempList = new List<Property>();

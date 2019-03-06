@@ -43631,13 +43631,6 @@
             <param name="tenant">A tenant object pointing to the context of a Tenant Administration site </param>
             <returns>UserProfileService web service client</returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.GetAppCatalog(Microsoft.Online.SharePoint.TenantAdministration.Tenant)">
-            <summary>
-            Gets the Uri for the tenant's app catalog site (if that one has already been created)
-            </summary>
-            <param name="tenant">Tenant to operate against</param>
-            <returns>The Uri holding the app catalog site URL</returns>
-        </member>
         <!-- Badly formed XML comment ignored for member "M:Microsoft.SharePoint.Client.TenantExtensions.EnableSiteClassifications(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,OfficeDevPnP.Core.Framework.Graph.Model.SiteClassificationsSettings)" -->
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.EnableSiteClassifications(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
@@ -43689,6 +43682,13 @@
             <param name="tenant">The target tenant</param>
             <param name="siteUrl">Url to the site collection that needs to get connected to an Office 365 group</param>
             <param name="siteCollectionGroupifyInformation">Information that configures the "groupify" process</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.GetAppCatalog(Microsoft.Online.SharePoint.TenantAdministration.Tenant)">
+            <summary>
+            Gets the Uri for the tenant's app catalog site (if that one has already been created)
+            </summary>
+            <param name="tenant">Tenant to operate against</param>
+            <returns>The Uri holding the app catalog site URL</returns>
         </member>
         <member name="T:Microsoft.SharePoint.Client.WebExtensions">
             <summary>

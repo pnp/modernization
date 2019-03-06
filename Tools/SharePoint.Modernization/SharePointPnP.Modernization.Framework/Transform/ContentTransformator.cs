@@ -155,6 +155,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         mapping = webPartMapping;
                     }
+
+                    // Process mapping specific functions (if any)
+                    if (!String.IsNullOrEmpty(mapping.Functions))
+                    {
+                        try
+                        {
+                            functionProcessor.ProcessMappingFunctions(ref webPartData, webPart, mapping);
+                        }
+                        catch (Exception ex)
+                        {
+                            // NotAvailableAtTargetException is used to "skip" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)
+                            if (ex.InnerException is NotAvailableAtTargetException)
+                            {
+                                continue;
+                            }
+
+                            throw;
+                        }
+                    }
                 }
 
                 // Use the mapping data => make one list of Text and WebParts to allow for correct ordering

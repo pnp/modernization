@@ -15,6 +15,7 @@ See https://aka.ms/sppnp-modernizationscanner
   - Handle the scenario where there's certain scan files missing because that scan component was not selected
   - Handle the use of relative paths
 - Sites based upon CMSPUBLISHING#0 are counted as publishing sites
+- Drop mappings for scripteditor and htmlform web parts as these depend on the community script editor. This change is required to align with the new default webpartmapping.xml file
 
 ## [Version 2.4]
 

@@ -9,13 +9,13 @@ Page transformation file. Describes:
   - If no mapping specified (so no explicit and no empty one) then the default mapping will be taken
   
 IMPORTANT:
-Mapping to use a third party script editor are commented out in this file (e.g. search for ClientSideWebPart Type="Custom" ControlId="3a328f0a-99c4-4b28-95ab-fe0847f657a3"). 
-If you want to use this third party web part then follow the instructions mentioned here: https://github.com/SharePoint/sp-dev-fx-webparts/tree/master/samples/react-script-editor and 
-uncomment the nodes
-  
-  
-    
+Mappings to use a community script editor are available in this file (e.g. search for ClientSideWebPart Type="Custom" ControlId="3a328f0a-99c4-4b28-95ab-fe0847f657a3"). 
+If you want to use this community web part then follow the instructions mentioned here: https://github.com/SharePoint/sp-dev-fx-webparts/tree/master/samples/react-script-editor plus 
+configure the page transformation engine to use the community script editor. You can do this by:
+- Setting the needed mapping property (e.g. pti.MappingProperties["UseCommunityScriptEditor"] = "true");
+- Using the needed switch in PnP PowerShell
 -->
+
 <PageTransformation xmlns="http://schemas.dev.office.com/PnP/2018/01/PageTransformationSchema">
     <!-- Information that applies to all web parts listed in this file -->
     <BaseWebPart>
@@ -163,7 +163,7 @@ uncomment the nodes
         </Mappings> 
       </WebPart>
       <!-- Site Feed Web part -->
-      <WebPart Type="Microsoft.SharePoint.Portal.WebControls.SiteFeedWebPart, Microsoft.SharePoint.Portal, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.Portal.WebControls.SiteFeedWebPart, Microsoft.SharePoint.Portal, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="IsIncluded" Type="bool" Functions="{EncodedHostUrl} = HtmlEncodeForJson({Host})"/>
           <Property Name="Dir" Type="string"/>
@@ -179,9 +179,9 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Content Editor web part-->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
-          <Property Name="ContentLink" Type="string" Functions="{ServerRelativeContent} = ReturnServerRelativePath({ContentLink}); {FullPath} = Concatenate({Host}, {ServerRelativeContent});{EncodedContentLink} = HtmlEncodeForJson({FullPath})" />
+          <Property Name="ContentLink" Type="string" Functions="{Temp} = ContentEmbedCrossSiteCheck({ContentLink}); {ServerRelativeContent} = ReturnServerRelativePath({ContentLink}); {FullPath} = Concatenate({Host}, {ServerRelativeContent});{EncodedContentLink} = HtmlEncodeForJson({FullPath})" />
           <Property Name="Content" Type="string" Functions="{Script} = HtmlEncodeForJson({Content}); {FileContents} = LoadContentFromFile({ContentLink}); {UsePlaceHolders} = ReturnTrue(); {CleanedContents} = TextCleanup({Content},{UsePlaceHolders}); {CleanedFileContents} = TextCleanup({FileContents},{UsePlaceHolders}); {FileContentsEncoded} = HtmlEncodeForJson({FileContents})"/>
           <Property Name="PartStorage" Type="string"/>
         </Properties>
@@ -219,7 +219,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Script Editor web part-->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.ScriptEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.ScriptEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="Content" Type="string" Functions="{Script} = HtmlEncodeForJson({Content})" />
         </Properties>
@@ -248,7 +248,8 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Modern ClientSide Web Part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.ClientSideWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.ClientSideWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="false">
+        <!-- No cross site support as this requires the app to be installed + the app can depend on assets that live in the source site, which is not something we can detect -->
         <Properties>
           <Property Name="ClientSideWebPartId" Type="guid" />
           <Property Name="ClientSideWebPartData" Type="string" Functions="{JsonProperties} = ExtractWebpartProperties({ClientSideWebPartData})"/>
@@ -260,7 +261,8 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Add-In part (App Part) -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.ClientWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.ClientWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="false">
+        <!-- No cross site support as this requires the add-in to be installed + the add-in can depend on assets that live in the source site, which is not something we can detect -->
         <Properties>
           <Property Name="FeatureId" Type="guid"/>
           <Property Name="ProductWebId" Type="guid"/>
@@ -274,9 +276,9 @@ uncomment the nodes
         </Mappings>
       </WebPart>      
       <!-- Media web part -->
-      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.MediaWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.MediaWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
-          <Property Name="AutoPlay" Type="bool" Functions="{ServerRelativeMediaSource} = ReturnServerRelativePath({MediaSource}); {FullPath} = Concatenate({Host}, {ServerRelativeMediaSource})" />
+          <Property Name="AutoPlay" Type="bool" Functions="{ServerRelativeMediaSource} = ReturnCrossSiteRelativePath({MediaSource}); {FullPath} = Concatenate({Host}, {ServerRelativeMediaSource})" />
           <Property Name="MediaSource" Type="string" Functions="{FileName} = ReturnFileName({ServerRelativeMediaSource}); DocumentEmbedLookup({ServerRelativeMediaSource}); {EncodedFullPath} = HtmlEncodeForJson({FullPath}); {EncodedAuthor} = HtmlEncodeForJson({DocumentAuthor})" />
           <Property Name="Loop" Type="bool" />
           <Property Name="IsPreviewImageSourceOverridenForVideoSet" Type="bool" />
@@ -299,7 +301,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Silverlight viewer -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.SilverlightWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.SilverlightWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="MinRuntimeVersion" Type="string"/>
           <Property Name="WindowlessMode" Type="bool"/>
@@ -315,7 +317,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>      
       <!-- Getting started web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.GettingStartedWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.GettingStartedWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="BaseViewID" Type="string" Functions=""/>
         </Properties>
@@ -572,7 +574,7 @@ uncomment the nodes
         <Mappings>
           <Mapping Name="default" Default="true">
             <!-- Map Excel web part to document embed. TODO: specific Excel settings mapping (e.g. range, table, ...) -->
-            <ClientSideWebPart Type="DocumentEmbed" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;annotation&quot;&#58;&quot;&quot;,&quot;title&quot;&#58;&quot;{FileName}&quot;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&quot;serverRelativeUrl&quot;&#58;&quot;{ServerRelativeMediaSource}&quot;,&quot;wopiurl&quot;&#58;&quot;{EncodedHost}{Web}/_layouts/15/WopiFrame.aspx?sourcedoc=&#123;{DocumentUniqueId}&#125;&amp;action=interactivepreview&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.1&quot;,&quot;properties&quot;&#58;&#123;&quot;authorName&quot;&#58;&quot;{DocumentAuthorName}&quot;,&quot;chartitem&quot;&#58;&quot;{VisibleItem}&quot;,&quot;endrange&quot;&#58;&quot;&quot;,&quot;excelSettingsType&quot;&#58;&quot;&quot;,&quot;file&quot;&#58;&quot;{EncodedFullPath}&quot;,&quot;listId&quot;&#58;&quot;{DocumentListId}&quot;,&quot;modifiedAt&quot;&#58;&quot;&quot;,&quot;photoUrl&quot;&#58;&quot;/_layouts/15/userphoto.aspx?size=S&amp;accountname={EncodedAuthor}&quot;,&quot;rangeitem&quot;&#58;&quot;&quot;,&quot;siteId&quot;&#58;&quot;{SiteId}&quot;,&quot;startPage&quot;&#58;1,&quot;startrange&quot;&#58;&quot;&quot;,&quot;tableitem&quot;&#58;&quot;&quot;,&quot;uniqueId&quot;&#58;&quot;{DocumentUniqueId}&quot;,&quot;wdallowinteractivity&quot;&#58;true,&quot;wdhidegridlines&quot;&#58;true,&quot;wdhideheaders&quot;&#58;true,&quot;webId&quot;&#58;&quot;{WebId}&quot;&#125;&#125;"/>
+            <ClientSideWebPart Type="DocumentEmbed" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;annotation&quot;&#58;&quot;&quot;,&quot;title&quot;&#58;&quot;{FileName}&quot;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&quot;serverRelativeUrl&quot;&#58;&quot;{ServerRelativeMediaSource}&quot;,&quot;wopiurl&quot;&#58;&quot;{EncodedHost}{DocumentWeb}/_layouts/15/WopiFrame.aspx?sourcedoc=&#123;{DocumentUniqueId}&#125;&amp;action=interactivepreview&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.1&quot;,&quot;properties&quot;&#58;&#123;&quot;authorName&quot;&#58;&quot;{DocumentAuthorName}&quot;,&quot;chartitem&quot;&#58;&quot;{VisibleItem}&quot;,&quot;endrange&quot;&#58;&quot;&quot;,&quot;excelSettingsType&quot;&#58;&quot;&quot;,&quot;file&quot;&#58;&quot;{EncodedFullPath}&quot;,&quot;listId&quot;&#58;&quot;{DocumentListId}&quot;,&quot;modifiedAt&quot;&#58;&quot;&quot;,&quot;photoUrl&quot;&#58;&quot;/_layouts/15/userphoto.aspx?size=S&amp;accountname={EncodedAuthor}&quot;,&quot;rangeitem&quot;&#58;&quot;&quot;,&quot;siteId&quot;&#58;&quot;{SiteId}&quot;,&quot;startPage&quot;&#58;1,&quot;startrange&quot;&#58;&quot;&quot;,&quot;tableitem&quot;&#58;&quot;&quot;,&quot;uniqueId&quot;&#58;&quot;{DocumentUniqueId}&quot;,&quot;wdallowinteractivity&quot;&#58;true,&quot;wdhidegridlines&quot;&#58;true,&quot;wdhideheaders&quot;&#58;true,&quot;webId&quot;&#58;&quot;{WebId}&quot;&#125;&#125;"/>
           </Mapping>
         </Mappings>
       </WebPart>      
@@ -599,12 +601,12 @@ uncomment the nodes
         </Properties>
         <Mappings>
           <Mapping Name="default" Default="true">
-            <ClientSideWebPart Type="DocumentEmbed" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;annotation&quot;&#58;&quot;&quot;,&quot;title&quot;&#58;&quot;{FileName}&quot;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&quot;serverRelativeUrl&quot;&#58;&quot;{ServerRelativeMediaSource}&quot;,&quot;wopiurl&quot;&#58;&quot;{EncodedHost}{Web}/_layouts/15/WopiFrame.aspx?sourcedoc=&#123;{DocumentUniqueId}&#125;&amp;action=interactivepreview&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.1&quot;,&quot;properties&quot;&#58;&#123;&quot;authorName&quot;&#58;&quot;{DocumentAuthorName}&quot;,&quot;chartitem&quot;&#58;&quot;&quot;,&quot;endrange&quot;&#58;&quot;&quot;,&quot;excelSettingsType&quot;&#58;&quot;&quot;,&quot;file&quot;&#58;&quot;{EncodedFullPath}&quot;,&quot;listId&quot;&#58;&quot;{DocumentListId}&quot;,&quot;modifiedAt&quot;&#58;&quot;&quot;,&quot;photoUrl&quot;&#58;&quot;/_layouts/15/userphoto.aspx?size=S&amp;accountname={EncodedAuthor}&quot;,&quot;rangeitem&quot;&#58;&quot;&quot;,&quot;siteId&quot;&#58;&quot;{SiteId}&quot;,&quot;startPage&quot;&#58;1,&quot;startrange&quot;&#58;&quot;&quot;,&quot;tableitem&quot;&#58;&quot;&quot;,&quot;uniqueId&quot;&#58;&quot;{DocumentUniqueId}&quot;,&quot;wdallowinteractivity&quot;&#58;true,&quot;wdhidegridlines&quot;&#58;true,&quot;wdhideheaders&quot;&#58;true,&quot;webId&quot;&#58;&quot;{WebId}&quot;&#125;&#125;"/>
+            <ClientSideWebPart Type="DocumentEmbed" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;annotation&quot;&#58;&quot;&quot;,&quot;title&quot;&#58;&quot;{FileName}&quot;&#125;,&quot;imageSources&quot;&#58;&#123;&#125;,&quot;links&quot;&#58;&#123;&quot;serverRelativeUrl&quot;&#58;&quot;{ServerRelativeMediaSource}&quot;,&quot;wopiurl&quot;&#58;&quot;{EncodedHost}{DocumentWeb}/_layouts/15/WopiFrame.aspx?sourcedoc=&#123;{DocumentUniqueId}&#125;&amp;action=interactivepreview&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;1.1&quot;,&quot;properties&quot;&#58;&#123;&quot;authorName&quot;&#58;&quot;{DocumentAuthorName}&quot;,&quot;chartitem&quot;&#58;&quot;&quot;,&quot;endrange&quot;&#58;&quot;&quot;,&quot;excelSettingsType&quot;&#58;&quot;&quot;,&quot;file&quot;&#58;&quot;{EncodedFullPath}&quot;,&quot;listId&quot;&#58;&quot;{DocumentListId}&quot;,&quot;modifiedAt&quot;&#58;&quot;&quot;,&quot;photoUrl&quot;&#58;&quot;/_layouts/15/userphoto.aspx?size=S&amp;accountname={EncodedAuthor}&quot;,&quot;rangeitem&quot;&#58;&quot;&quot;,&quot;siteId&quot;&#58;&quot;{SiteId}&quot;,&quot;startPage&quot;&#58;1,&quot;startrange&quot;&#58;&quot;&quot;,&quot;tableitem&quot;&#58;&quot;&quot;,&quot;uniqueId&quot;&#58;&quot;{DocumentUniqueId}&quot;,&quot;wdallowinteractivity&quot;&#58;true,&quot;wdhidegridlines&quot;&#58;true,&quot;wdhideheaders&quot;&#58;true,&quot;webId&quot;&#58;&quot;{WebId}&quot;&#125;&#125;"/>
           </Mapping>
         </Mappings>
       </WebPart>
       <!-- Page viewer web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.PageViewerWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.PageViewerWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="IsIncluded" Type="bool"/>
           <Property Name="Dir" Type="string"/>
@@ -626,9 +628,11 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Picture library web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.PictureLibrarySlideshowWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.PictureLibrarySlideshowWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
+        <!-- For now transformation only goes cross site if there's a picture library with the same name existing.
+             TODO: since we can't create picture libraries on modern sites update this to copy the found images to a folder in site assets and then update the mapping to have a mapping that adds these images individually -->
         <Properties>
-          <Property Name="LibraryGuid" Type="guid"/>
+          <Property Name="LibraryGuid" Type="guid" Functions="{LibraryGuid} = ListCrossSiteCheck({LibraryGuid});"/>
           <Property Name="Layout" Type="string"/>
           <Property Name="Speed" Type="integer"/>
           <Property Name="ShowToolbar" Type="bool"/>
@@ -642,7 +646,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Html form web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.SimpleFormWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.SimpleFormWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="IsIncluded" Type="bool"/>
           <Property Name="Dir" Type="string"/>
@@ -661,7 +665,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- InfoPath web part -->
-      <WebPart Type="Microsoft.Office.InfoPath.Server.Controls.WebUI.BrowserFormWebPart, Microsoft.Office.InfoPath.Server, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">        
+      <WebPart Type="Microsoft.Office.InfoPath.Server.Controls.WebUI.BrowserFormWebPart, Microsoft.Office.InfoPath.Server, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">        
         <!-- Still to investigate: why don't I see the needed properties? -->
         <Mappings>
           <!-- TODO: dropping for now, possible alternative is adding a link to the form library assuming we can get that information from the web part -->
@@ -669,7 +673,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Xml Web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.XmlWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.XmlWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="IsIncluded" Type="bool"/>
           <Property Name="Dir" Type="string"/>
@@ -729,7 +733,7 @@ uncomment the nodes
         </Mappings> 
       </WebPart>
       <!-- Data Form Web part: SP 2007/2010 way of displaying list edit/view forms -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.DataFormWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.DataFormWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="ListName " Type="string"/>
           <Property Name="ListId" Type="guid"/>
@@ -750,7 +754,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Table of Contents web part -->
-      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.TableOfContentsWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.TableOfContentsWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="ListId" Type="guid"/>
           <Property Name="ListName" Type="string"/>
@@ -780,25 +784,25 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Summary Link web part -->
-      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <!-- Contains the html representation of the links -->
-          <Property Name="SummaryLinkStore" Type="string" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath});{CleanedText} = TextCleanUpSummaryLinks({SummaryLinkStore});SummaryLinksToQuickLinksProperties({SummaryLinkStore})"/>
+          <Property Name="SummaryLinkStore" Type="string" Functions="{FullPath} = Concatenate({Host}, {Web});{EncodedWeb} = HtmlEncodeForJson({FullPath});"/>
           <Property Name="Xsl" Type="string"/>
         </Properties>
         <Mappings Selector="SummaryLinkSelector({SummaryLinksToQuickLinks})">
-          <Mapping Name="UseText" Default="true">
+          <Mapping Name="UseText" Default="true" Functions="{CleanedText} = TextCleanUpSummaryLinks({SummaryLinkStore})">
             <!-- Summary links html is tranformed to html that be presented using the text editor -->
             <ClientSideText Order="10" Text="{CleanedText}"/>
           </Mapping>
-          <Mapping Name="UseQuickLinks" Default="false">
+          <Mapping Name="UseQuickLinks" Default="false" Functions="SummaryLinksToQuickLinksProperties({SummaryLinkStore})">
             <!-- Summary links html is tranformed to the quicklinks web part -->
             <ClientSideWebPart Type="QuickLinks" Order="10" JsonControlData="&#123;&quot;serverProcessedContent&quot;&#58;&#123;&quot;htmlStrings&quot;&#58;&#123;&#125;,&quot;searchablePlainTexts&quot;&#58;&#123;&quot;title&quot;&#58;&quot;{Title}&quot;{SearchablePlainTexts}&#125;,&quot;imageSources&quot;&#58;&#123;{ImageSources}&#125;,&quot;links&quot;&#58;&#123;&quot;baseUrl&quot;&#58;&quot;{EncodedWeb}&quot;{Links}&#125;,&quot;componentDependencies&quot;&#58;&#123;&quot;layoutComponentId&quot;&#58;&quot;706e33c8-af37-4e7b-9d22-6e5694d92a6f&quot;&#125;&#125;,&quot;dataVersion&quot;&#58;&quot;2.1&quot;,&quot;properties&quot;&#58;{JsonProperties}&#125;"/>
           </Mapping>          
         </Mappings>
       </WebPart>
       <!-- Wiki Content web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.WikiContentWebpart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.WikiContentWebpart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <!-- We're not able to see the actual web part content in the web part properties -->
           <Property Name="Content" Type="string"/>
@@ -812,7 +816,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- UserCode web part (sandbox web part)-->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.SPUserCodeWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.SPUserCodeWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="AssemblyFullName" Type="string" />
           <Property Name="SolutionId" Type="string" />
@@ -824,7 +828,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>      
       <!-- PageTitle web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.TitleBarWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.TitleBarWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="HeaderTitle" Type="string" />
           <Property Name="HeaderCaption" Type="string" />
@@ -837,7 +841,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Members or Site Users web part -->
-      <WebPart Type="Microsoft.SharePoint.WebPartPages.MembersWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.WebPartPages.MembersWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="IsIncluded" Type="bool"/>
           <Property Name="Dir" Type="string"/>
@@ -856,7 +860,7 @@ uncomment the nodes
         </Mappings>
       </WebPart>
       <!-- Contact web part -->
-      <WebPart Type="Microsoft.SharePoint.Portal.WebControls.ContactFieldControl, Microsoft.SharePoint.Portal, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <WebPart Type="Microsoft.SharePoint.Portal.WebControls.ContactFieldControl, Microsoft.SharePoint.Portal, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="IsIncluded" Type="bool"/>
           <Property Name="Dir" Type="string"/>

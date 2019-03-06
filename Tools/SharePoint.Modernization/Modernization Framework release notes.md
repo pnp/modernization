@@ -25,6 +25,7 @@
 - ExcelWebRenderer transformation: take over the configured named item (table, chart, range)
 - SummaryLinks transformation: new default is transform to QuickLinks, optionally you still transform to text by setting the SummaryLinksToQuickLinks mapping property to false
 - ContactFieldControl transformation support: this web part transforms to the People web part
+- Support for defining functions on a mapping: this allows to execute code only when a specific mapping was chosen
 
 ### Changed
 
