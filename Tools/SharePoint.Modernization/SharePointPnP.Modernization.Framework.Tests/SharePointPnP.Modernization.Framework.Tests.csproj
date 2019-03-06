@@ -200,6 +200,7 @@
     <Compile Include="Transform\CrossSiteTests.cs" />
     <Compile Include="Transform\Tests.cs" />
     <Compile Include="Transform\Text.cs" />
+    <Compile Include="Transform\FixPageProperty.cs" />
     <Compile Include="Transform\Wp\WpTests.cs" />
   </ItemGroup>
   <ItemGroup>
