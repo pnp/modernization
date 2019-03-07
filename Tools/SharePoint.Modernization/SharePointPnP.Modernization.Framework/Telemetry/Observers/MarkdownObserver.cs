@@ -110,26 +110,26 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             report.AppendLine($"{Heading2} Transformation Details");
             report.AppendLine($"Report date: {reportDate}");
-            var heading = "";
+            //TODO Add Summary PTI Data here
+
+            report.AppendLine($"{Heading2} Transformation Operation Summary");
+
+            report.AppendLine($" Date {TableColumnSeperator} Operation {TableColumnSeperator} Actions Performed ");
+            report.AppendLine($" {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
 
             foreach (var log in Logs.Where(l => l.Item1 == LogLevel.Information || l.Item1 == LogLevel.Information).OrderBy(l => l.Item2.EntryTime))
             {
-
-                if (heading != log.Item2.Heading && !string.IsNullOrEmpty(log.Item2.Heading))
-                {
-                    report.AppendLine($"{Heading3} {log.Item2.Heading}");
-                    heading = log.Item2.Heading;
-                }
-
-                // Can add 3rd level heading here
-                report.AppendLine($"{UnorderedListItem} [{log.Item2.EntryTime}]: {log.Item2.Message}");
+                report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
             }
 
-            report.AppendLine($"{Heading2} Errors occurred during transformation");
+            report.AppendLine($"{Heading3} Errors occurred during transformation");
+
+            report.AppendLine($" Date {TableColumnSeperator} Operation {TableColumnSeperator} Error Message ");
+            report.AppendLine($" {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
 
             foreach (var log in Logs.Where(l => l.Item1 == LogLevel.Error).OrderBy(l => l.Item2.EntryTime))
             {
-                report.AppendLine($"{UnorderedListItem} [{log.Item2.EntryTime}]: Action: {log.Item2.Heading} - {log.Item2.Message}");
+                report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
             }
 
             return report.ToString();

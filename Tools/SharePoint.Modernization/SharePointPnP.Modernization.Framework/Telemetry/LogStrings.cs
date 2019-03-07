@@ -13,7 +13,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
 
         public const string PTIValueSeperator = ";#;";
 
+        // Page Transformation
 
+        // Content Transformator
+        public const string Heading_ContentTransform = "Content Transform";
+        public const string Heading_MappingWebParts = "Web Part Mapping";
+        public const string Heading_AddingWebPartsToPage = "Adding Web Parts to Target Page";
 
     }
 }

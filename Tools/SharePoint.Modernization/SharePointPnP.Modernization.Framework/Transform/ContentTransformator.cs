@@ -62,9 +62,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="webParts">List of web parts that need to be transformed</param>
         public void Transform(List<WebPartEntity> webParts)
         {
+            LogInfo("Transforming web parts", LogStrings.Heading_ContentTransform);
+
             if (webParts == null || webParts.Count == 0)
             {
                 // nothing to transform
+                LogWarning("There is nothing to transform - no web parts found", LogStrings.Heading_ContentTransform);
                 return;
             }
 
@@ -73,7 +76,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (defaultMapping == null)
             {
                 var message = "No default mapping was found int the provided mapping file";
-                LogError(message);
+                LogError(message, LogStrings.Heading_ContentTransform);
                 throw new Exception(message);
             }
 
@@ -97,12 +100,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Iterate over the web parts, important to order them by row, column and zoneindex
             foreach (var webPart in webParts.OrderBy(p => p.Row).ThenBy(p => p.Column).ThenBy(p => p.Order))
             {
-                LogInfo($"{webPart.Title ?? "<WebPart with no title>"} of type {webPart.Type} is being transformed", "Content Transform");
+                LogInfo($"Web Part:'{webPart.Title}' of type '{webPart.TypeShort()}' is being transformed", LogStrings.Heading_MappingWebParts);
 
                 // Title bar will never be migrated
                 if (webPart.Type == WebParts.TitleBar)
                 {
-                    LogInfo("Not transforming Title Bar - this is not necessary for modern");
+                    LogInfo("Not transforming Title Bar - this is not used in modern pages", LogStrings.Heading_MappingWebParts);
                     continue;
                 }
                 
@@ -116,7 +119,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     if (!webPartData.CrossSiteTransformationSupported)
                     {
-                        LogInfo("Skipping this web part's transformation - cross site not supported");
+                        LogWarning("Skipping this web part's transformation - cross site not supported", LogStrings.Heading_MappingWebParts);
                         continue;
                     }
                 }
@@ -130,6 +133,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     try
                     {
                         // The mapping can have a selector function defined, is so it will be executed. If a selector was executed the selectorResult will contain the name of the mapping to use
+                        LogDebug("Processing selector functions", LogStrings.Heading_MappingWebParts);
                         selectorResult = functionProcessor.Process(ref webPartData, webPart);
                     }
                     catch(Exception ex)
@@ -137,9 +141,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // NotAvailableAtTargetException is used to "skip" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)
                         if (ex.InnerException is NotAvailableAtTargetException)
                         {
+                            LogError("NotAvailableAtTargetException is used to \"skip\" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)",LogStrings.Heading_MappingWebParts, ex, true);
                             continue;
                         }
 
+                        LogError($"An error occurred processing functions - {ex.Message}", LogStrings.Heading_MappingWebParts, ex);
                         throw;                          
                     }
 
@@ -169,12 +175,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         mapping = webPartMapping;
                     }
+                    else
+                    {
+                        LogWarning("Web Part Mapping not found", LogStrings.Heading_MappingWebParts);
+                    }
 
                     // Process mapping specific functions (if any)
                     if (!String.IsNullOrEmpty(mapping.Functions))
                     {
                         try
                         {
+                            LogInfo("Processing mapping functions", LogStrings.Heading_MappingWebParts);
                             functionProcessor.ProcessMappingFunctions(ref webPartData, webPart, mapping);
                         }
                         catch (Exception ex)
@@ -182,15 +193,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             // NotAvailableAtTargetException is used to "skip" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)
                             if (ex.InnerException is NotAvailableAtTargetException)
                             {
+                                LogError("NotAvailableAtTargetException is used to \"skip\" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)", LogStrings.Heading_MappingWebParts, ex, true);
                                 continue;
                             }
 
+                            LogError($"An error occurred processing functions - {ex.Message}", LogStrings.Heading_MappingWebParts, ex);
                             throw;
                         }
                     }
                 }
 
                 // Use the mapping data => make one list of Text and WebParts to allow for correct ordering
+                LogDebug("Combining mapping data", LogStrings.Heading_MappingWebParts);
                 combinedMappinglist = new List<CombinedMapping>();
                 if (mapping.ClientSideText != null)
                 {
@@ -233,6 +247,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         };
 
                         page.AddControl(text, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
+                        LogInfo("Added 'Client Side Text Web Part' to target page", LogStrings.Heading_AddingWebPartsToPage);
+                        
                     }
                     else if (map.ClientSideWebPart != null)
                     {
@@ -245,6 +261,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             map.ClientSideWebPart.ControlId = TokenParser.ReplaceTokens(map.ClientSideWebPart.ControlId, webPart);
                             // Check if this web part belongs to the list of "usable" web parts for this site
                             baseControl = componentsToAdd.FirstOrDefault(p => p.Id.Equals($"{{{map.ClientSideWebPart.ControlId}}}", StringComparison.InvariantCultureIgnoreCase));
+                            LogInfo($"Using 'custom' modern web part ", LogStrings.Heading_AddingWebPartsToPage);
                         }
                         else
                         {
@@ -457,6 +474,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                                         // Override the JSON data we read from the model as this is fully dynamic due to the nature of the add-in client part
                                         map.ClientSideWebPart.JsonControlData = jsonProperties.ToString(Newtonsoft.Json.Formatting.None);
+
+                                        LogInfo($"Using add-in web part '{baseControl.Name}' ", LogStrings.Heading_AddingWebPartsToPage);
                                         break;
                                     }
                                 }
@@ -464,6 +483,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             else
                             {
                                 baseControl = componentsToAdd.FirstOrDefault(p => p.Name.Equals(webPartName, StringComparison.InvariantCultureIgnoreCase));
+                                LogInfo($"Using '{ map.ClientSideWebPart.Type.ToString() }' modern web part", LogStrings.Heading_AddingWebPartsToPage);
                             }
                         }
 
@@ -478,15 +498,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             };
 
                             page.AddControl(myWebPart, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
+                            LogInfo($"Added '{ myWebPart.Title }' Client Side Web Part to target page", LogStrings.Heading_AddingWebPartsToPage);
                         }
                         else
                         {
-                            //TODO: Log warning as web part was not found
+                            LogWarning("Modern web part not found", LogStrings.Heading_AddingWebPartsToPage);
                         }
 
                     }
                 }
             }
+
+            LogInfo("Transforming web parts complete", LogStrings.Heading_ContentTransform);
         }
 
         #region Helper methods
