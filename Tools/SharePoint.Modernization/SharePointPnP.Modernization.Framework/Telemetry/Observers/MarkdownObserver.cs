@@ -14,11 +14,37 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
         // Cache the logs between calls
         private static readonly Lazy<List<Tuple<LogLevel,LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
+        private bool _includeDebugEntries;
 
+        /// <summary>
+        /// Constructor for specifying to include debug entries
+        /// </summary>
+        /// <param name="includeDebugEntries">Include Debug Log Entries</param>
+        public MarkdownObserver(bool includeDebugEntries = false)
+        {
+            _includeDebugEntries = includeDebugEntries;
+
+#if DEBUG && MEASURE && MEASURE
+                _includeDebugEntries = true; //Override for debugging locally
+#endif
+        }
+
+
+        #region Markdown Tokens
         private const string Heading1 = "#";
         private const string Heading2 = "##";
         private const string Heading3 = "###";
+        private const string Heading4 = "####";
+        private const string Heading5 = "#####";
+        private const string Heading6 = "######";
         private const string UnorderedListItem = "-";
+        private const string Italic = "_{0}_";
+        private const string Bold = "__{0}__";
+        private const string BlockQuotes = "> ";
+        private const string TableHeaderColumn = "-------------";
+        private const string TableColumnSeperator = " | ";
+        private const string Link = "[{0}]({1})";
+        #endregion
 
         /// <summary>
         /// Get the single List<LogEntry> instance, singleton pattern
@@ -37,9 +63,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <param name="entry"></param>
         public void Debug(LogEntry entry)
         {
-            #if DEBUG && MEASURE && MEASURE
+            if (_includeDebugEntries)
+            {
                 Logs.Add(new Tuple<LogLevel, LogEntry>(LogLevel.Error, entry));
-            #endif
+            }
         }
 
         /// <summary>
@@ -70,36 +97,53 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         }
 
         /// <summary>
-        /// Output the report when flush is called
+        /// Generates a markdown based report based on the logs
         /// </summary>
-        public void Flush()
+        /// <returns></returns>
+        protected virtual string GenerateReport()
         {
             StringBuilder report = new StringBuilder();
             report.AppendLine($"{Heading1} Modernisation Report");
 
             // This could display something cool here e.g. Time taken to transform and transformation options e.g. PageTransformationInformation details
+            var reportDate = DateTime.Now;
 
             report.AppendLine($"{Heading2} Transformation Details");
-
+            report.AppendLine($"Report date: {reportDate}");
             var heading = "";
 
-            foreach(var log in Logs.Where(l=>l.Item1 == LogLevel.Information).OrderBy(l=>l.Item2.EntryTime))
+            foreach (var log in Logs.Where(l => l.Item1 == LogLevel.Information || l.Item1 == LogLevel.Information).OrderBy(l => l.Item2.EntryTime))
             {
 
-                if(heading != log.Item2.Heading)
+                if (heading != log.Item2.Heading && !string.IsNullOrEmpty(log.Item2.Heading))
                 {
                     report.AppendLine($"{Heading3} {log.Item2.Heading}");
                     heading = log.Item2.Heading;
                 }
-                
+
                 // Can add 3rd level heading here
                 report.AppendLine($"{UnorderedListItem} [{log.Item2.EntryTime}]: {log.Item2.Message}");
             }
 
             report.AppendLine($"{Heading2} Errors occurred during transformation");
 
+            foreach (var log in Logs.Where(l => l.Item1 == LogLevel.Error).OrderBy(l => l.Item2.EntryTime))
+            {
+                report.AppendLine($"{UnorderedListItem} [{log.Item2.EntryTime}]: Action: {log.Item2.Heading} - {log.Item2.Message}");
+            }
+
+            return report.ToString();
+        }
+
+        /// <summary>
+        /// Output the report when flush is called
+        /// </summary>
+        public virtual void Flush()
+        {
+            var report = GenerateReport();
+
             // Output for now will be a Console Log
-            Console.WriteLine(report.ToString());
+            Console.WriteLine(report);
 
         }
     }

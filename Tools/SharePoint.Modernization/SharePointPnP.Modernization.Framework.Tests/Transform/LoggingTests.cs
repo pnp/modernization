@@ -7,6 +7,7 @@ using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
 using System.Linq;
+using SharePointPnP.Modernization.Framework.Telemetry;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform
 {
@@ -15,7 +16,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
     {
 
         [TestMethod]
-        public void Error_LoggingTest()
+        public void Logging_ErrorTest()
         {
 
             // Deliberate Error
@@ -33,7 +34,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         }
 
         [TestMethod]
-        public void NormalOperation_LoggingTest()
+        public void Logging_NormalOperationTest()
         {
 
             using (var sourceClientContext = TestCommon.CreateClientContext())
@@ -70,6 +71,24 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     pageTransformator.Transform(pti);
                 }
             }
+        }
+
+
+        [TestMethod]
+        public void Logging_HelperFriendlyStringTest()
+        {
+            var result = LogHelpers.FormatAsFriendlyTitle("ThisIsATestString");
+            var expected = "This Is A Test String";
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void Logging_PageTransInfoReflectionTest()
+        {
+            PageTransformationInformation pti = new PageTransformationInformation(null);
+            List<LogEntry> result = pti.DetailSettingsAsLogEntries();
+
+            Assert.IsTrue(result.Count > 0);
         }
     }
 }

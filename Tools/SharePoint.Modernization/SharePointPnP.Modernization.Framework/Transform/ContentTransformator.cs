@@ -4,6 +4,7 @@ using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Functions;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Transforms content from "classic" page to modern client side page
     /// </summary>
-    public class ContentTransformator: IContentTransformator
+    public class ContentTransformator: BaseTransform, IContentTransformator
     {
         private ClientSidePage page;
         private PageTransformation pageTransformation;
@@ -37,7 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="page">Client side page that will be updates</param>
         /// <param name="pageTransformation">Transformation information</param>
-        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, Dictionary<string, string> mappingProperties)
+        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, Dictionary<string, string> mappingProperties, IList<ILogObserver> logObservers = null) : base()
         {
             this.page = page ?? throw new ArgumentException("Page cannot be null");
             this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
@@ -45,6 +46,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
             this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation);
             this.sourceClientContext = sourceClientContext;
             this.isCrossSiteTransfer = IsCrossSiteTransfer();
+
+            if (logObservers != null) {
+                foreach(var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
         }
         #endregion
 
@@ -64,7 +72,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var defaultMapping = pageTransformation.BaseWebPart.Mappings.Mapping.Where(p => p.Default == true).FirstOrDefault();
             if (defaultMapping == null)
             {
-                throw new Exception("No default mapping was found int the provided mapping file");
+                var message = "No default mapping was found int the provided mapping file";
+                LogError(message);
+                throw new Exception(message);
             }
 
             // Load existing available controls
@@ -87,9 +97,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Iterate over the web parts, important to order them by row, column and zoneindex
             foreach (var webPart in webParts.OrderBy(p => p.Row).ThenBy(p => p.Column).ThenBy(p => p.Order))
             {
+                LogInfo($"{webPart.Title ?? "<WebPart with no title>"} of type {webPart.Type} is being transformed", "Content Transform");
+
                 // Title bar will never be migrated
                 if (webPart.Type == WebParts.TitleBar)
                 {
+                    LogInfo("Not transforming Title Bar - this is not necessary for modern");
                     continue;
                 }
                 
@@ -103,6 +116,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     if (!webPartData.CrossSiteTransformationSupported)
                     {
+                        LogInfo("Skipping this web part's transformation - cross site not supported");
                         continue;
                     }
                 }

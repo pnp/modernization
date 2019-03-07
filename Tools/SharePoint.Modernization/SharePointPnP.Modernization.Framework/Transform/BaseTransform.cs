@@ -14,6 +14,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private Guid _correlationId;
 
         /// <summary>
+        /// List of registered log observers
+        /// </summary>
+        public IList<ILogObserver> RegisteredLogObservers {
+            get{
+                return _logObservers;
+            }
+        }
+
+        /// <summary>
         /// Instantiation of base transform class
         /// </summary>
         public BaseTransform()

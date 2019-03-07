@@ -556,7 +556,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif            
                 // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation.MappingProperties);
+                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation.MappingProperties, base.RegisteredLogObservers);
+                
 
                 // Do we have an override?
                 if (pageTransformationInformation.ContentTransformatorOverride != null)
@@ -697,6 +698,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this.pageTelemetry.LogTransformationDone(duration);
                 this.pageTelemetry.Flush();
             }
+
+            LogInfo("Transformation Complete", "Transform");
+
             #endregion
 
             #region Return final page url
@@ -722,6 +726,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #endregion
+
+
         }
 
         /// <summary>

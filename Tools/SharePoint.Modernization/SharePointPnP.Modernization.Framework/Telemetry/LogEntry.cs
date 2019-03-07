@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public string Heading { get; set; }
 
         /// <summary>
-        /// For those areas where we swallow errors or they are non-criticai to report
+        /// For those areas where we swallow errors or they are non-critical to report
         /// </summary>
         public bool IgnoreException { get; set; }
 

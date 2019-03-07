@@ -189,8 +189,10 @@
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Functions\NotAvailableAtTargetException.cs" />
+    <Compile Include="Telemetry\LogStrings.cs" />
     <Compile Include="Telemetry\ILogObserver.cs" />
     <Compile Include="Telemetry\LogEntry.cs" />
+    <Compile Include="Telemetry\LogHelpers.cs" />
     <Compile Include="Telemetry\LogLevel.cs" />
     <Compile Include="Telemetry\Observers\MarkdownObserver.cs" />
     <Compile Include="Telemetry\PageTelemetry.cs" />
