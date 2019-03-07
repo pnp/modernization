@@ -53,7 +53,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 { "UseCommunityScriptEditor", "false" },
                 { "SummaryLinksToQuickLinks", "true" }
             };
-            CopyReferencedAssets = false; // Default to false for now until out of experimental phase
         }
         #endregion
 
@@ -107,11 +106,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Configuration driven by the presence of a modernization center
         /// </summary>
         public ModernizationCenterInformation ModernizationCenterInformation { get; set; }
-
-        /// <summary>
-        /// Copies referenced assets to the target site collection. Only applies to transformations where source and target site collection are different.
-        /// </summary>
-        public bool CopyReferencedAssets { get; set; }
 
         /// <summary>
         /// Removes empty sections and columns to optimize screen real estate
