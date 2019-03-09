@@ -1,16 +1,17 @@
 ﻿<PublishingPageTransformation xmlns="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema">
   <PageLayouts>
-    <!-- Allow for choice of content type and header -->
-    <PageLayout Name="ArticleLeft" ContentType="" PageHeader="Custom">
-      <!-- TBC...is there a need for advanced header mapping? -->
+    <!-- Allow for choice of content type, layout and header -->
+    <PageLayout Name="ArticleLeft" ContentType="" PageLayoutTemplate="Header2Columns" PageHeader="Custom">
+      <!-- Page header construction: will override value defined in PageTransformationInformation settings -->
       <Header Type="FullWidthImage">
         <Field Name="PublishingRollupImage" Type="Image" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <Field Name="ArticleByLine" Type="string" HeaderProperty="TopicHeader" Functions=""/>
       </Header>
-      <!-- Some fields become metadata. Use function to "rewrite" field content when needed -->
+      <!-- Some fields become metadata. Use functions to "rewrite" field content when needed -->
       <MetaData>
         <Field Name="Title" Type="string" TargetFieldName="Title" Functions=""/>
-        <Field Name="MyCustomField" Type="bool" TargetFieldName="MyCustomField" Functions="ConsolidateCustomField({MyCustomField})" />
+        <!-- Functions allow to 'add' new fields to the metadata collection -->
+        <Field Name="MyCustomField" Type="bool" TargetFieldName="MyCustomField" Functions="ConsolidateCustomField({MyCustomField}); {ExtraField}=SplitCustomField({MyCustomField})" />
       </MetaData>
       <!-- Some fields will be represented by content on the page (=web parts) -->
       <WebParts>
@@ -26,6 +27,7 @@
           <Property Name="Text" Type="string" Functions="" />
         </Field>
         <Field Name="SummaryLinks" Type="SummaryLinks" TargetWebPart="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart" Row="1" Column="3">
+          <!-- No function specified, means the content of the PublishingPageContent field will be assigned to the value of the first listed web part property -->
           <Property Name="SummaryLinkStore" Type="string" />
         </Field>
       </WebParts>
