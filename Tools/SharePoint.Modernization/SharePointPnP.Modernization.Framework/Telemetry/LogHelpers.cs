@@ -59,15 +59,17 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                 var properties = pti.GetType().GetProperties();
                 foreach (var property in properties)
                 {
-                    if (property.PropertyType == typeof(String))
+                    if (property.PropertyType == typeof(String) ||
+                        property.PropertyType == typeof(bool))
                     {
-                        logs.Add(new LogEntry() { Heading = "Page Transformation Information", Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.PTIValueSeperator} {property.GetValue(pti)}" });
+                        logs.Add(new LogEntry() { Heading = LogStrings.Heading_PageTransformationInfomation,
+                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {property.GetValue(pti)}" });
                     }
                 }
             }
             catch (Exception ex)
             {
-                logs.Add(new LogEntry() { Message = "Failed to convert object properties for reporting", Exception = ex, Heading = "Page Transformation Information" });
+                logs.Add(new LogEntry() { Message = "Failed to convert object properties for reporting", Exception = ex, Heading = LogStrings.Heading_PageTransformationInfomation });
             }
             
             return logs;

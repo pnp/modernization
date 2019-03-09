@@ -11,9 +11,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         // Ensure the string variables are meaningful and readable from a developer point of view.
         // Eventually this needs to localised to create multi-lingual outputs.
 
-        public const string PTIValueSeperator = ";#;";
+        public const string KeyValueSeperatorToken = ";#;";
 
         // Page Transformation
+        public const string Heading_PageTransformationInfomation = "Page Transformation Information";
+        public const string Heading_Summary = "Summary";
 
         // Content Transformator
         public const string Heading_ContentTransform = "Content Transform";

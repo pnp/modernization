@@ -107,30 +107,64 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             // This could display something cool here e.g. Time taken to transform and transformation options e.g. PageTransformationInformation details
             var reportDate = DateTime.Now;
+            var allLogs = Logs.OrderBy(l => l.Item2.EntryTime);
 
             report.AppendLine($"{Heading2} Transformation Details");
             report.AppendLine($"Report date: {reportDate}");
-            //TODO Add Summary PTI Data here
+            var logStart = allLogs.First();
+            var logEnd = allLogs.Last();
+            TimeSpan span = logEnd.Item2.EntryTime.Subtract(logStart.Item2.EntryTime);
 
+            report.AppendLine($"Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+
+            #region Summary Page Transformation Information Settings
+
+            report.AppendLine($"{Heading3} Page Transformation Settings");
+            report.AppendLine($"Property {TableColumnSeperator} Setting");
+            report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+
+            var transformationSettings = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_PageTransformationInfomation);
+            foreach (var log in transformationSettings)
+            {
+                var keyValue = log.Item2.Message.Split(new string[] { LogStrings.KeyValueSeperatorToken }, StringSplitOptions.None);
+                if (keyValue.Length == 2) //Protect output
+                {
+                    report.AppendLine($" {keyValue[0] ?? ""} {TableColumnSeperator} {keyValue[1] ?? ""} ");
+                }
+            }
+
+            #endregion
+            
             report.AppendLine($"{Heading2} Transformation Operation Summary");
+
+            #region Transformation Summary
 
             report.AppendLine($" Date {TableColumnSeperator} Operation {TableColumnSeperator} Actions Performed ");
             report.AppendLine($" {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
 
-            foreach (var log in Logs.Where(l => l.Item1 == LogLevel.Information || l.Item1 == LogLevel.Information).OrderBy(l => l.Item2.EntryTime))
+            var logDetails = allLogs.Where(l => l.Item2.Heading != LogStrings.Heading_PageTransformationInfomation &&
+                                            l.Item2.Heading != LogStrings.Heading_Summary);
+            
+            foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Information || l.Item1 == LogLevel.Warning))
             {
                 report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
             }
 
+            #endregion
+
             report.AppendLine($"{Heading3} Errors occurred during transformation");
+
+            #region Report on Errors
 
             report.AppendLine($" Date {TableColumnSeperator} Operation {TableColumnSeperator} Error Message ");
             report.AppendLine($" {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
 
-            foreach (var log in Logs.Where(l => l.Item1 == LogLevel.Error).OrderBy(l => l.Item2.EntryTime))
+            foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Error))
             {
                 report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
             }
+
+            #endregion
 
             return report.ToString();
         }

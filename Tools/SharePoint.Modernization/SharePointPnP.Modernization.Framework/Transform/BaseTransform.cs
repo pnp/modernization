@@ -72,10 +72,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 IgnoreException = ignoreException
             };
 
-            foreach (ILogObserver observer in _logObservers)
-            {
-                observer.Error(logEntry);
-            }
+            Log(logEntry, LogLevel.Error);
         }
 
         /// <summary>
@@ -87,10 +84,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             StackTrace stackTrace = new StackTrace();
             var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
 
-            foreach (ILogObserver observer in _logObservers)
-            {
-                observer.Info(logEntry);
-            }
+            Log(logEntry, LogLevel.Information);
         }
 
         /// <summary>
@@ -102,10 +96,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             StackTrace stackTrace = new StackTrace();
             var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
 
-            foreach (ILogObserver observer in _logObservers)
-            {
-                observer.Warning(logEntry);
-            }
+            Log(logEntry, LogLevel.Warning);
         }
 
         /// <summary>
@@ -117,9 +108,36 @@ namespace SharePointPnP.Modernization.Framework.Transform
             StackTrace stackTrace = new StackTrace();
             var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
 
+            Log(logEntry, LogLevel.Debug);
+        }
+
+        /// <summary>
+        /// Log entries into the observers
+        /// </summary>
+        /// <param name="entry"></param>
+        public void Log(LogEntry entry, LogLevel level)
+        {
             foreach (ILogObserver observer in _logObservers)
             {
-                observer.Debug(logEntry);
+                switch (level)
+                {
+                    case LogLevel.Debug:
+                        observer.Debug(entry);
+                        break;
+                    case LogLevel.Error:
+                        observer.Error(entry);
+                        break;
+                    case LogLevel.Warning:
+                        observer.Warning(entry);
+                        break;
+                    case LogLevel.Information:
+                        observer.Info(entry);
+                        break;
+                    default:
+                        observer.Info(entry);
+                        break;
+                }
+                
             }
         }
     }

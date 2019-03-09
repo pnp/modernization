@@ -132,6 +132,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns>The path to created modern page</returns>
         public string Transform(PageTransformationInformation pageTransformationInformation)
         {
+            var logsForSettings = pageTransformationInformation.DetailSettingsAsLogEntries();
+            logsForSettings?.ForEach(o => Log(o, LogLevel.Information));
             
             #region Check for Target Site Context
             var hasTargetContext = targetClientContext != null;
