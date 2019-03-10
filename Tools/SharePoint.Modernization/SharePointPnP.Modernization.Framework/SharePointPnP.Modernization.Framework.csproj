@@ -292,7 +292,7 @@
     <Content Include="Nuget\webpartmapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Publishing\pagelayoutmapping.xml" />
+    <Content Include="Publishing\pagelayoutmapping_sample.xml" />
     <Content Include="webpartmapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

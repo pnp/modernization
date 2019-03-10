@@ -109,7 +109,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
-        private string typeField;
+        private WebPartProperyType typeField;
         
         private string valueField;
         
@@ -126,7 +126,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Type {
+        public WebPartProperyType Type {
             get {
                 return this.typeField;
             }
@@ -145,6 +145,28 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
                 this.valueField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public enum WebPartProperyType {
+        
+        /// <remarks/>
+        @string,
+        
+        /// <remarks/>
+        @bool,
+        
+        /// <remarks/>
+        guid,
+        
+        /// <remarks/>
+        integer,
+        
+        /// <remarks/>
+        datetime,
     }
     
     /// <remarks/>
@@ -292,7 +314,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
-        private string typeField;
+        private WebPartProperyType typeField;
         
         private string functionsField;
         
@@ -309,7 +331,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Type {
+        public WebPartProperyType Type {
             get {
                 return this.typeField;
             }
@@ -342,8 +364,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
-        private string typeField;
-        
         private string targetWebPartField;
         
         private string rowField;
@@ -369,17 +389,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
             }
         }
         
@@ -427,8 +436,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
-        private string typeField;
-        
         private string targetFieldNameField;
         
         private string functionsField;
@@ -441,17 +448,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
             }
         }
         
@@ -488,8 +484,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
-        private string typeField;
-        
         private string headerPropertyField;
         
         private string functionsField;
@@ -502,17 +496,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
             }
         }
         
@@ -549,7 +532,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private HeaderField[] fieldField;
         
-        private string typeField;
+        private HeaderType typeField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Field")]
@@ -564,7 +547,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Type {
+        public HeaderType Type {
             get {
                 return this.typeField;
             }
@@ -572,6 +555,25 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
                 this.typeField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public enum HeaderType {
+        
+        /// <remarks/>
+        FullWidthImage,
+        
+        /// <remarks/>
+        NoImage,
+        
+        /// <remarks/>
+        ColorBlock,
+        
+        /// <remarks/>
+        CutInShape,
     }
     
     /// <remarks/>
@@ -596,9 +598,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string contentTypeField;
         
-        private string pageLayoutTemplateField;
+        private PageLayoutPageLayoutTemplate pageLayoutTemplateField;
         
-        private string pageHeaderField;
+        private PageLayoutPageHeader pageHeaderField;
         
         /// <remarks/>
         public Header Header {
@@ -678,7 +680,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string PageLayoutTemplate {
+        public PageLayoutPageLayoutTemplate PageLayoutTemplate {
             get {
                 return this.pageLayoutTemplateField;
             }
@@ -689,7 +691,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string PageHeader {
+        public PageLayoutPageHeader PageHeader {
             get {
                 return this.pageHeaderField;
             }
@@ -697,5 +699,55 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
                 this.pageHeaderField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public enum PageLayoutPageLayoutTemplate {
+        
+        /// <remarks/>
+        OneColumn,
+        
+        /// <remarks/>
+        TwoColumns,
+        
+        /// <remarks/>
+        TwoColumnsWithSidebarLeft,
+        
+        /// <remarks/>
+        TwoColumnsWithSidebarRight,
+        
+        /// <remarks/>
+        TwoColumnsWithHeader,
+        
+        /// <remarks/>
+        TwoColumnsWithHeaderAndFooter,
+        
+        /// <remarks/>
+        ThreeColumns,
+        
+        /// <remarks/>
+        ThreeColumnsWithHeader,
+        
+        /// <remarks/>
+        ThreeColumnsWithHeaderAndFooter,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public enum PageLayoutPageHeader {
+        
+        /// <remarks/>
+        None,
+        
+        /// <remarks/>
+        Default,
+        
+        /// <remarks/>
+        Custom,
     }
 }

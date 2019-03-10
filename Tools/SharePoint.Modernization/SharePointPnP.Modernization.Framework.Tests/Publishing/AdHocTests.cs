@@ -16,10 +16,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Publishing
         [TestMethod]
         public void TestMethod1()
         {
-            using (ClientContext cc = /*TestCommon.CreateClientContext()*/ null)
+            using (ClientContext cc = TestCommon.CreateClientContext())
             {
-                PageLayoutManager m = new PageLayoutManager(cc);
-                var result = m.ReadPageLayoutMappingFile(@"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework\Publishing\pagelayoutmapping.xml");
+                PageLayoutManager m = new PageLayoutManager(cc, null);
+                var result = m.LoadPageLayoutMappingFile(@"..\..\..\SharePointPnP.Modernization.Framework\Publishing\pagelayoutmapping_sample.xml");
             }
         }
 
