@@ -40,19 +40,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="pageTransformation">Transformation information</param>
         public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, Dictionary<string, string> mappingProperties, IList<ILogObserver> logObservers = null) : base()
         {
-            this.page = page ?? throw new ArgumentException("Page cannot be null");
-            this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
-            this.globalTokens = CreateGlobalTokenList(page.Context, mappingProperties);
-            this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation);
-            this.sourceClientContext = sourceClientContext;
-            this.isCrossSiteTransfer = IsCrossSiteTransfer();
-
-            if (logObservers != null) {
-                foreach(var observer in logObservers)
+            
+            //Register any existing observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
                 {
                     base.RegisterObserver(observer);
                 }
             }
+
+            this.page = page ?? throw new ArgumentException("Page cannot be null");
+            this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
+            this.globalTokens = CreateGlobalTokenList(page.Context, mappingProperties);
+            this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation, base.RegisteredLogObservers);
+
+            this.sourceClientContext = sourceClientContext;
+            this.isCrossSiteTransfer = IsCrossSiteTransfer();
+
+            
         }
         #endregion
 

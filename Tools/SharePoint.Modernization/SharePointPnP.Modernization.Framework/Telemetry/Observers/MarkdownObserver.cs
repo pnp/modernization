@@ -115,7 +115,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var logEnd = allLogs.Last();
             TimeSpan span = logEnd.Item2.EntryTime.Subtract(logStart.Item2.EntryTime);
 
-            report.AppendLine($"{UnorderedListItem}Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+            report.AppendLine($"{UnorderedListItem} Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
 
             var transformationSummary = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_Summary);
 

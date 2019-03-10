@@ -30,6 +30,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Heading_CopyingPageMetadata = "Copying page metadata";
         public const string Heading_ApplyItemLevelPermissions = "Item level permissions";
         public const string Heading_SwappingPages = "Swapping Pages";
+        public const string Heading_GetPrincipal = "Get Principal";
 
         // Error Messages
         public const string Error_SourcePageNotFound = "Source page cannot be null";
@@ -45,6 +46,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_MissingSitePagesLibrary = "Site does not have a sitepages library and therefore this page can't be a client side page.";
         public const string Error_PageDoesNotExistInWeb = "Page does not exist in current web";
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
+        public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
 
         // Status Messages
         public const string ValidationChecksComplete = "Validation checks complete";
@@ -98,12 +100,36 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformSwappingPagesApplyItemPermissions = "Apply the item level permissions on the final page (if any)";
         public const string TransformSwappingPagesStep4 = "Step 4 - Finish with restoring the page navigation: update the navigation links to point back the original page name";
         public const string TransformSwappingPagesStep5 = "Step 5 - Conclude with deleting the originally created modern page as we did copy that already in step 3";
+        
 
         // Content Transformator
         public const string Heading_ContentTransform = "Content Transform";
         public const string Heading_MappingWebParts = "Web Part Mapping";
         public const string Heading_AddingWebPartsToPage = "Adding Web Parts to Target Page";
 
+
+        // Asset Transfer
+        public const string Heading_AssetTransfer = "Asset Transfer";
+        public const string Error_AssetTransferClientContextNull = "One or more client context is null";
+
+        public const string AssetTransferredToUrl = "An referenced asset was found and copied to";
+        public const string AssetTransferFailedFallback = "An issue occurred in transferring an asset, falling back to orignal reference.";
+
+        public const string Error_AssetTransferCheckingIfAssetExists = "An error occurred checking if a referenced asset exists";
+
+
+        // Function Processor
+        public const string Heading_FunctionProcessor = "Function Processor";
+        public const string Error_FailedToInitiateCustomFunctionClasses = "Failed to instantiate custom function classes";
+
+        // BuiltIn
+        public const string Heading_BuiltInFunctions = "Built-in Function";
+        public const string Error_ReturnCrossSiteRelativePath = "An error occurred in ReturnCrossSiteRelativePath function";
+        public const string Error_DocumentEmbedLookup = "An error occurred in DocumentEmbedLookup function";
+        public const string Error_DocumentEmbedLookupFileNotRetrievable = "An error occurred in DocumentEmbedLookup function - file not retrievable";
+        public const string Error_LoadContentFromFile = "An error occurred in LoadContentFromFile function";
+
+        public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
 
     }
 }

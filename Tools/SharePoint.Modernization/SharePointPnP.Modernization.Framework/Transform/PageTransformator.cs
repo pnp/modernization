@@ -1163,6 +1163,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     catch (Exception ex)
                     {
                         //Failed to EnsureUser
+                        LogError(LogStrings.Error_GetPrincipalFailedEnsureUser, LogStrings.Heading_GetPrincipal, ex);
                     }
                 }
             }

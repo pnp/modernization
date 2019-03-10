@@ -1,11 +1,12 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Transform;
 
 namespace SharePointPnP.Modernization.Framework.Functions
 {
     /// <summary>
     /// Base class for all function libraries
     /// </summary>
-    public abstract class FunctionsBase
+    public abstract class FunctionsBase: BaseTransform
     {
         protected ClientContext clientContext;
 

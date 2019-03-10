@@ -2,6 +2,7 @@
 using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
@@ -26,11 +27,19 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// <param name="pageClientContext">ClientContext object for the site holding the page being transformed</param>
         /// <param name="sourceClientContext">The ClientContext for the source </param>
         /// <param name="clientSidePage">Reference to the client side page</param>
-        public BuiltIn(ClientContext pageClientContext, ClientContext sourceClientContext = null, ClientSidePage clientSidePage = null) : base(pageClientContext)
+        public BuiltIn(ClientContext pageClientContext, ClientContext sourceClientContext = null, ClientSidePage clientSidePage = null, IList<ILogObserver> logObservers = null) : base(pageClientContext)
         {
             // This is an optional property, in cross site transfer the two contexts would be different.
             this.sourceClientContext = sourceClientContext;
             this.clientSidePage = clientSidePage;
+
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
         }
         #endregion
 
@@ -618,7 +627,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
             {
                 var clientSidePage = this.clientSidePage.PageTitle;
 
-                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext);
+                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext, base.RegisteredLogObservers);
+
                 var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
 
                 return newAssetLocation;
@@ -626,7 +636,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             }
             catch (Exception ex)
             {
-                // Swallow until reporting feature is implemented
+                LogError(LogStrings.Error_ReturnCrossSiteRelativePath, LogStrings.Heading_BuiltInFunctions, ex);
             }
                        
             return serverRelativeAssetFileName;
@@ -698,7 +708,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
                 catch (Exception ex)
                 {
-                    // TODO: add logging
+                    LogError(LogStrings.Error_DocumentEmbedLookup, LogStrings.Heading_BuiltInFunctions, ex);
+
                     results.Add("DocumentWeb", "");
                     results.Add("DocumentListId", "");
                     results.Add("DocumentUniqueId", "");
@@ -730,11 +741,12 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
                 {
                     // provided file is not retrievable...we're eating the exception this file not be used in the target web part
-                    //TODO: log error
+                    LogError(LogStrings.Error_DocumentEmbedLookupFileNotRetrievable, LogStrings.Heading_BuiltInFunctions, ex);
                     return null;
                 }
                 else
                 {
+                    LogError(LogStrings.Error_DocumentEmbedLookup, LogStrings.Heading_BuiltInFunctions, ex);
                     throw;
                 }
             }
@@ -882,7 +894,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
                 catch (Exception ex)
                 {
-                    // TODO: add logging
+                    LogError(LogStrings.Error_LoadContentFromFile, LogStrings.Heading_BuiltInFunctions, ex);
                     return "";
                 }
             }
@@ -897,10 +909,12 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
                     {
                         // Provided html was not found, should not happen but if it happens we're not stopping the transformation
+                        LogError(LogStrings.Error_LoadContentFromFileContentLink, LogStrings.Heading_BuiltInFunctions, ex);
                         return "";
                     }
                     else
                     {
+                        LogError(LogStrings.Error_LoadContentFromFileContentLink, LogStrings.Heading_BuiltInFunctions, ex);
                         throw;
                     }
                 }
@@ -1161,7 +1175,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             if (IsCrossSiteTransfer())
             {
                 var clientSidePage = this.clientSidePage.PageTitle;
-                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext);
+                AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext, base.RegisteredLogObservers);
 
                 foreach (var link in links)
                 {
