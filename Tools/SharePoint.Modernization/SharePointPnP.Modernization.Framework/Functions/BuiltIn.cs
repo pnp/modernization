@@ -910,6 +910,36 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
         #region HighlightedContent functions
         /// <summary>
+        /// Maps the user documents web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part
+        /// </summary>
+        /// <param name="dataProviderJson"></param>
+        /// <param name="selectedPropertiesJson"></param>
+        /// <param name="resultsPerPage"></param>
+        /// <param name="renderTemplateId"></param>
+        /// <returns>A properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part</returns>
+        [FunctionDocumentation(Description = "Maps the user documents web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part",
+                                   Example = "SiteDocumentsToHighlightedContentProperties()")]
+        [OutputDocumentation(Name = "JsonProperties", Description = "Properties collection for the contentrollup (= Highlighted Content) web part")]
+        [OutputDocumentation(Name = "SearchablePlainTexts", Description = "SearchablePlainTexts nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "Links", Description = "Links nodes to be added in the serverProcessedContent node")]
+        [OutputDocumentation(Name = "ImageSources", Description = "ImageSources nodes to be added in the serverProcessedContent node")]
+        public Dictionary<string, string> UserDocumentsToHighlightedContentProperties()
+        {
+            Dictionary<string, string> results = new Dictionary<string, string>();
+
+            ContentByQuerySearchTransformator cqs = new ContentByQuerySearchTransformator(this.clientContext);
+            var res = cqs.TransformUserDocuments();
+
+            // Output the calculated properties so then can be used in the mapping
+            results.Add("JsonProperties", res.Properties);
+            results.Add("SearchablePlainTexts", res.SearchablePlainTexts);
+            results.Add("Links", res.Links);
+            results.Add("ImageSources", res.ImageSources);
+
+            return results;
+        }
+
+        /// <summary>
         /// Maps content by search web part data into a properties collection and supporting serverProcessedContent nodes for the content rollup (= Highlighted Content) web part
         /// </summary>
         /// <param name="dataProviderJson"></param>
