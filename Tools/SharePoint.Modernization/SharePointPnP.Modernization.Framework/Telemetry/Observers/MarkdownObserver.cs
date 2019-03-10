@@ -38,8 +38,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         private const string Heading5 = "#####";
         private const string Heading6 = "######";
         private const string UnorderedListItem = "-";
-        private const string Italic = "_{0}_";
-        private const string Bold = "__{0}__";
+        private const string Italic = "*";
+        private const string Bold = "__";
         private const string BlockQuotes = "> ";
         private const string TableHeaderColumn = "-------------";
         private const string TableColumnSeperator = " | ";
@@ -110,12 +110,19 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var allLogs = Logs.OrderBy(l => l.Item2.EntryTime);
 
             report.AppendLine($"{Heading2} Transformation Details");
-            report.AppendLine($"Report date: {reportDate}");
+            report.AppendLine($"{UnorderedListItem} Report date: {reportDate}");
             var logStart = allLogs.First();
             var logEnd = allLogs.Last();
             TimeSpan span = logEnd.Item2.EntryTime.Subtract(logStart.Item2.EntryTime);
 
-            report.AppendLine($"Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+            report.AppendLine($"{UnorderedListItem}Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+
+            var transformationSummary = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_Summary);
+
+            foreach (var log in transformationSummary)
+            {
+                report.AppendLine($"{UnorderedListItem} {log.Item2.Message}");
+            }
 
             #region Summary Page Transformation Information Settings
 
@@ -147,7 +154,14 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             
             foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Information || l.Item1 == LogLevel.Warning))
             {
-                report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
+                if (log.Item1 == LogLevel.Information)
+                {
+                    report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
+                }
+                else
+                {
+                    report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {Bold}{log.Item2.Heading}{Bold} {TableColumnSeperator} {Bold}{Italic}{log.Item2.Message}{Italic}{Bold} ");
+                }
             }
 
             #endregion
