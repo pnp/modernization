@@ -32,9 +32,21 @@
         </Field>
       </WebParts>
       <!-- Web parts live in a web part zone...define which column will hold the web parts in a given zone -->
-      <WebPartZones>
+      <WebPartZones>        
         <WebPartZone ZoneIndex="0" Name="mywebpartzone" Row="2" Column="1"/>
       </WebPartZones>
+      <!-- Web parts might also be "fixed", meaning embedded in the page layout. These web parts e-->
+      <FixedWebParts>
+        <WebPart Row="2" Column="1" Order="1" Type="Microsoft.SharePoint.WebPartPages.ImageWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+          <Properties>
+            <Property Name="ImageLink" Type="string" Value=""/>
+            <Property Name="AlternativeText" Type="string" Value=""/>
+            <Property Name="VerticalAlignment" Type="string" Value=""/>
+            <Property Name="HorizontalAlignment" Type="string" Value=""/>
+            <Property Name="BackgroundColor" Type="string" Value=""/>
+          </Properties>
+        </WebPart>        
+      </FixedWebParts>
     </PageLayout>
   </PageLayouts>
 </PublishingPageTransformation>
