@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -30,8 +31,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             _logObservers = new List<ILogObserver>();
             _correlationId = Guid.NewGuid();
         }
-        
-
+       
         /// <summary>
         /// Registers the observer
         /// </summary>
@@ -52,6 +52,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
             foreach (ILogObserver observer in _logObservers)
             {
                 observer.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Flush Specific Observer of a type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void FlushSpecificObserver<T>()
+        {
+            var observerType = typeof(T);
+
+            foreach (ILogObserver observer in _logObservers)
+            {
+                if (observer.GetType() == observerType)
+                {
+                    observer.Flush();
+                }
             }
         }
         

@@ -75,9 +75,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
             InitMeasurement();
 #endif
 
-            // Register a default set of observers here
-            RegisterObserver(new MarkdownObserver()); //Report only at this point
-
             this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
 
@@ -720,6 +717,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Return final page url
+            var returUrl = "";
             if (hasTargetContext)
             {
                 string originalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
@@ -728,7 +726,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 string fullPath = $"{path}/SitePages/{originalSourcePageName}";
                 LogInfo($"Transformed Page: {fullPath}", LogStrings.Heading_Summary);
 
-                return fullPath;
+                returUrl = fullPath;
             }
             else
             {
@@ -738,15 +736,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
 
                     LogInfo($"Transformed Page: {targetPageUrl}", LogStrings.Heading_Summary);
-                    return targetPageUrl;
+
+                    returUrl = targetPageUrl;
                 }
                 else
                 {
                     var fullPath = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
                     LogInfo($"Transformed Page: {fullPath}", LogStrings.Heading_Summary);
-                    return fullPath;
+                    returUrl = fullPath;
                 }
             }
+            
+            return returUrl;
             #endregion
 
             #endregion

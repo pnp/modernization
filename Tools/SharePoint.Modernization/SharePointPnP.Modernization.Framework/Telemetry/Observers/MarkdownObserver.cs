@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,14 +16,18 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         // Cache the logs between calls
         private static readonly Lazy<List<Tuple<LogLevel,LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
         private bool _includeDebugEntries;
+        private DateTime _reportDate;
+        private string _reportFileName = "";
 
         /// <summary>
         /// Constructor for specifying to include debug entries
         /// </summary>
         /// <param name="includeDebugEntries">Include Debug Log Entries</param>
-        public MarkdownObserver(bool includeDebugEntries = false)
+        public MarkdownObserver(string fileName = "", bool includeDebugEntries = false)
         {
             _includeDebugEntries = includeDebugEntries;
+            _reportDate = DateTime.Now;
+            _reportFileName = fileName;
 
 #if DEBUG && MEASURE && MEASURE
                 _includeDebugEntries = true; //Override for debugging locally
@@ -106,16 +111,19 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             report.AppendLine($"{Heading1} Modernisation Report");
 
             // This could display something cool here e.g. Time taken to transform and transformation options e.g. PageTransformationInformation details
-            var reportDate = DateTime.Now;
+            var reportDate = _reportDate;
             var allLogs = Logs.OrderBy(l => l.Item2.EntryTime);
 
             report.AppendLine($"{Heading2} Transformation Details");
             report.AppendLine($"{UnorderedListItem} Report date: {reportDate}");
-            var logStart = allLogs.First();
-            var logEnd = allLogs.Last();
-            TimeSpan span = logEnd.Item2.EntryTime.Subtract(logStart.Item2.EntryTime);
+            var logStart = allLogs.FirstOrDefault();
+            var logEnd = allLogs.LastOrDefault();
 
-            report.AppendLine($"{UnorderedListItem} Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+            if (logStart != default(Tuple<LogLevel,LogEntry>) && logEnd != default(Tuple<LogLevel, LogEntry>))
+            {
+                TimeSpan span = logEnd.Item2.EntryTime.Subtract(logStart.Item2.EntryTime);
+                report.AppendLine($"{UnorderedListItem} Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+            }
 
             var transformationSummary = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_Summary);
 
@@ -188,10 +196,34 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// </summary>
         public virtual void Flush()
         {
-            var report = GenerateReport();
+            try
+            {
+                var report = GenerateReport();
 
-            // Output for now will be a Console Log
-            Console.WriteLine(report);
+                // Dont want to assume locality here
+                string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "").Replace(' ', ' ').Replace("  ", " ");
+
+                string logFileName = string.Format("Transform Report {0} {1}", _reportFileName,
+                    logRunTime);
+
+                logFileName = logFileName + ".md";
+
+                using (StreamWriter sw = new StreamWriter(logFileName, true))
+                {
+                    sw.WriteLine(report);
+                }
+
+                // Cleardown all logs
+                var logs = _lazyLogInstance.Value;
+                logs.RemoveRange(0, logs.Count);
+
+                Console.WriteLine($"Report saved as: {Environment.CurrentDirectory}\\{logFileName}");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error writing to log file: {0} {1}", ex.Message, ex.StackTrace);
+            }
 
         }
     }

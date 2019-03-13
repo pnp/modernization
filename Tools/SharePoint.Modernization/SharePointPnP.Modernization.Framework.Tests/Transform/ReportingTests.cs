@@ -1,5 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
@@ -109,7 +110,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 using (var sourceClientContext = TestCommon.CreateClientContext())
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
-                    // This test will use only the default observer
+                    pageTransformator.RegisterObserver(new MarkdownObserver());
 
                     var pages = sourceClientContext.Web.GetPages("wpp").Take(1);
 
@@ -132,7 +133,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                         };
 
                         pageTransformator.Transform(pti);
-                        pageTransformator.FlushObservers();
+                        pageTransformator.FlushSpecificObserver<MarkdownObserver>();
                     }
 
                 }
