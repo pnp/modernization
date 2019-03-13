@@ -103,7 +103,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         }
 
         [TestMethod]
-        public void Reporting_CrossSite_WebPartPage_SingleObserverTest()
+        public void Reporting_CrossSite_WebPartPage_MarkdownObserverTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
@@ -134,6 +134,47 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
                         pageTransformator.Transform(pti);
                         pageTransformator.FlushSpecificObserver<MarkdownObserver>();
+                    }
+
+                }
+            }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
+
+        }
+
+        [TestMethod]
+        public void Reporting_CrossSite_WebPartPage_ConsoleObserverTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext())
+                {
+                    var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+                    pageTransformator.RegisterObserver(new ConsoleObserver());
+
+                    var pages = sourceClientContext.Web.GetPages("wpp").Take(1);
+
+                    foreach (var page in pages)
+                    {
+                        PageTransformationInformation pti = new PageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                            // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
+                            HandleWikiImagesAndVideos = false,
+
+                            //Include the assets within the file transfer
+                            CopyReferencedAssets = true
+
+                        };
+
+                        pageTransformator.Transform(pti);
+                        pageTransformator.FlushObservers();
                     }
 
                 }
