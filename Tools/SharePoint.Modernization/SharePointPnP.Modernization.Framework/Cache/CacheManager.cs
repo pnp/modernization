@@ -58,7 +58,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns></returns>
         public List<ClientSideComponent> GetClientSideComponents(ClientSidePage page)
         {
-            Guid webId = page.Context.Web.Id;
+            Guid webId = page.Context.Web.EnsureProperty(o=>o.Id);
 
             if (siteToComponentMapping.ContainsKey(webId))
             {
