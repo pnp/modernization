@@ -10,12 +10,17 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
     {
         // Ensure the string variables are meaningful and readable from a developer point of view.
         // Eventually this needs to localised to create multi-lingual outputs.
+        // Prefixes
+        //      Heading_ for headings
+        //      Error_ for error messages
+        //      No Prefix - output messages to user
 
         public const string KeyValueSeperatorToken = ";#;";
 
-        // Page Transformation
+        #region Page Transformation
 
-        // Headings
+        #region Headings
+
         public const string Heading_PageTransformationInfomation = "Page Transformation Information";
         public const string Heading_Summary = "Summary";
         public const string Heading_InputValidation = "Input Validation";
@@ -32,7 +37,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Heading_SwappingPages = "Swapping Pages";
         public const string Heading_GetPrincipal = "Get Principal";
 
-        // Error Messages
+        #endregion
+        
+        #region Error Messages
+
         public const string Error_SourcePageNotFound = "Source page cannot be null";
         public const string Error_SourcePageIsModern = "Source page is already a modern page";
         public const string Error_PageNotValidMissingFileRef = "Page is not valid due to missing FileRef or FileLeafRef value";
@@ -48,7 +56,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
 
-        // Status Messages
+        #endregion
+
+        #region Status Messages
+
         public const string ValidationChecksComplete = "Validation checks complete";
         public const string LoadingTargetClientContext = "Loading target client context object";
         public const string LoadingClientContextObjects = "Loading client context objects";
@@ -100,15 +111,47 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformSwappingPagesApplyItemPermissions = "Apply the item level permissions on the final page (if any)";
         public const string TransformSwappingPagesStep4 = "Step 4 - Finish with restoring the page navigation: update the navigation links to point back the original page name";
         public const string TransformSwappingPagesStep5 = "Step 5 - Conclude with deleting the originally created modern page as we did copy that already in step 3";
-        
+        public const string TransformedPage = "Transformed Page";
+        public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
 
-        // Content Transformator
+        #endregion
+
+        #endregion
+
+        #region Content Transformator
+
         public const string Heading_ContentTransform = "Content Transform";
         public const string Heading_MappingWebParts = "Web Part Mapping";
         public const string Heading_AddingWebPartsToPage = "Adding Web Parts to Target Page";
 
+        public const string ContentUsingAddinWebPart = "Using add-in web part";
+        public const string ContentUsing = "Using";
+        public const string ContentAdded = "Added";
+        public const string ContentModernWebPart = "modern web part";
+        public const string ContentWarnModernNotFound = "Modern web part not found";
+        public const string ContentTransformationComplete = "Transforming web parts complete";
+        public const string ContentClientToTargetPage = "Client Side Web Part to target page";
+        public const string ContentTransformingWebParts = "Transforming web parts";
+        public const string NothingToTransform = "There is nothing to transform - no web parts found";
+        public const string NotTransformingTitleBar = "Not transforming Title Bar - this is not used in modern pages";
+        public const string CrossSiteNotSupported = "Skipping this web part's transformation - cross site not supported";
+        public const string ContentWebPartBeingTransformed = "Web Part:'{0}' of type '{1}' is being transformed";
+        public const string ProcessingSelectorFunctions = "Processing selector functions";
+        public const string ProcessingMappingFunctions = "Processing mapping functions";
+        public const string ContentWebPartMappingNotFound = "Web Part Mapping not found";
+        public const string AddedClientSideTextWebPart = "Added 'Client Side Text Web Part' to target page";
+        public const string UsingCustomModernWebPart = "Using 'custom' modern web part ";
 
-        // Asset Transfer
+
+        public const string Error_NotValidForTargetSiteCollection = "NotAvailableAtTargetException is used to \"skip\" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)";
+        public const string Error_NoDefaultMappingFound = "No default mapping was found int the provided mapping file";
+        public const string Error_AnErrorOccurredFunctions = "An error occurred processing functions";
+        
+
+        #endregion
+
+        #region Asset Transfer
+
         public const string Heading_AssetTransfer = "Asset Transfer";
         public const string Error_AssetTransferClientContextNull = "One or more client context is null";
 
@@ -117,12 +160,17 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
 
         public const string Error_AssetTransferCheckingIfAssetExists = "An error occurred checking if a referenced asset exists";
 
+        #endregion
 
-        // Function Processor
+        #region Function Processor
+
         public const string Heading_FunctionProcessor = "Function Processor";
         public const string Error_FailedToInitiateCustomFunctionClasses = "Failed to instantiate custom function classes";
 
-        // BuiltIn
+        #endregion
+
+        #region Built In Functions
+
         public const string Heading_BuiltInFunctions = "Built-in Function";
         public const string Error_ReturnCrossSiteRelativePath = "An error occurred in ReturnCrossSiteRelativePath function";
         public const string Error_DocumentEmbedLookup = "An error occurred in DocumentEmbedLookup function";
@@ -130,6 +178,6 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_LoadContentFromFile = "An error occurred in LoadContentFromFile function";
 
         public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
-
+        #endregion
     }
 }

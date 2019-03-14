@@ -336,7 +336,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #if DEBUG && MEASURE
             Start();
 #endif
-            LogDebug($"Check if the transformed page is the web's home page", LogStrings.Heading_HomePageHandling);
+            LogDebug(LogStrings.TransformCheckIfPageIsHomePage, LogStrings.Heading_HomePageHandling);
 
             bool replacedByOOBHomePage = false;
             // Check if the transformed page is the web's home page
@@ -721,10 +721,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (hasTargetContext)
             {
                 string originalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
-                string path = this.targetClientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
+                string path = this.targetClientContext.Web.EnsureProperty(p => p.Url);
 
                 string fullPath = $"{path}/SitePages/{originalSourcePageName}";
-                LogInfo($"Transformed Page: {fullPath}", LogStrings.Heading_Summary);
+                LogInfo($"{LogStrings.TransformedPage}: {fullPath}", LogStrings.Heading_Summary);
 
                 returUrl = fullPath;
             }
@@ -735,14 +735,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
                     var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
 
-                    LogInfo($"Transformed Page: {targetPageUrl}", LogStrings.Heading_Summary);
+                    LogInfo($"{LogStrings.TransformedPage}: {targetPageUrl}", LogStrings.Heading_Summary);
 
                     returUrl = targetPageUrl;
                 }
                 else
                 {
                     var fullPath = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
-                    LogInfo($"Transformed Page: {fullPath}", LogStrings.Heading_Summary);
+                    LogInfo($"{LogStrings.TransformedPage}: {fullPath}", LogStrings.Heading_Summary);
                     returUrl = fullPath;
                 }
             }

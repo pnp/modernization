@@ -18,7 +18,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         private List<LogEntry> GetExampleInfoLogs()
         {
             List<LogEntry> logs = new List<LogEntry>();
- 
+
             //Example Logs
             logs.Add(new LogEntry() { Heading = "SharePoint Connection", Message = "EXAMPLE:Overriding 'TargetPageTakesSourcePageName' to ensure that the newly created page in the other site collection gets the same name as the source page" });
 
@@ -82,7 +82,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
                         // Give the migrated page a specific prefix, default is Migrated_
                         TargetPagePrefix = "Converted_",
-    
+
                         // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
                         HandleWikiImagesAndVideos = false,
 
@@ -232,7 +232,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 List<LogEntry> infoLogs = GetExampleInfoLogs();
                 List<LogEntry> warnLogs = GetExampleWarnLogs();
                 List<LogEntry> errorLogs = GetExampleErrorLogs();
-               
+
                 var markdownObserver = new MarkdownToSharePointObserver(targetClientContext);
                 infoLogs.ForEach(o => { markdownObserver.Info(o); });
                 warnLogs.ForEach(o => { markdownObserver.Info(o); });
@@ -240,6 +240,48 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
                 markdownObserver.Flush();
             }
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
+
+        }
+
+        [TestMethod]
+        public void Reporting_MarkDownObserverTest()
+        {
+
+            List<LogEntry> infoLogs = GetExampleInfoLogs();
+            List<LogEntry> warnLogs = GetExampleWarnLogs();
+            List<LogEntry> errorLogs = GetExampleErrorLogs();
+
+            var markdownObserver = new MarkdownObserver();
+            infoLogs.ForEach(o => { markdownObserver.Info(o); });
+            warnLogs.ForEach(o => { markdownObserver.Info(o); });
+            errorLogs.ForEach(o => { markdownObserver.Info(o); });
+
+            markdownObserver.Flush();
+
+            //Note: This generates a file at the location of the assembly bin/debug folder
+
+            Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
+
+        }
+
+        [TestMethod]
+        public void Reporting_ConsoleObserverTest()
+        {
+
+            List<LogEntry> infoLogs = GetExampleInfoLogs();
+            List<LogEntry> warnLogs = GetExampleWarnLogs();
+            List<LogEntry> errorLogs = GetExampleErrorLogs();
+
+            var observer = new ConsoleObserver();
+            infoLogs.ForEach(o => { observer.Info(o); });
+            warnLogs.ForEach(o => { observer.Info(o); });
+            errorLogs.ForEach(o => { observer.Info(o); });
+
+            observer.Flush(); //Does nothing
+
+            //Note: Look for the Output link on the unit test
 
             Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
