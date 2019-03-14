@@ -15,9 +15,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
         // Cache the logs between calls
         private static readonly Lazy<List<Tuple<LogLevel,LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
-        private bool _includeDebugEntries;
-        private DateTime _reportDate;
-        private string _reportFileName = "";
+        protected bool _includeDebugEntries;
+        protected DateTime _reportDate;
+        protected string _reportFileName = "";
 
         /// <summary>
         /// Constructor for specifying to include debug entries
@@ -105,16 +105,21 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// Generates a markdown based report based on the logs
         /// </summary>
         /// <returns></returns>
-        protected virtual string GenerateReport()
+        protected virtual string GenerateReport(bool includeHeading = true)
         {
             StringBuilder report = new StringBuilder();
-            report.AppendLine($"{Heading1} Modernisation Report");
+            if (includeHeading)
+            {
+                report.AppendLine($"{Heading1} Modernisation Report");
+                report.AppendLine();
+            }
 
             // This could display something cool here e.g. Time taken to transform and transformation options e.g. PageTransformationInformation details
             var reportDate = _reportDate;
             var allLogs = Logs.OrderBy(l => l.Item2.EntryTime);
 
             report.AppendLine($"{Heading2} Transformation Details");
+            report.AppendLine();
             report.AppendLine($"{UnorderedListItem} Report date: {reportDate}");
             var logStart = allLogs.FirstOrDefault();
             var logEnd = allLogs.LastOrDefault();
@@ -134,7 +139,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             #region Summary Page Transformation Information Settings
 
+            report.AppendLine();
             report.AppendLine($"{Heading3} Page Transformation Settings");
+            report.AppendLine();
             report.AppendLine($"Property {TableColumnSeperator} Setting");
             report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
 
@@ -144,13 +151,14 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var keyValue = log.Item2.Message.Split(new string[] { LogStrings.KeyValueSeperatorToken }, StringSplitOptions.None);
                 if (keyValue.Length == 2) //Protect output
                 {
-                    report.AppendLine($" {keyValue[0] ?? ""} {TableColumnSeperator} {keyValue[1] ?? ""} ");
+                    report.AppendLine($" {keyValue[0] ?? ""} {TableColumnSeperator} {keyValue[1] ?? "<Not Set>"} ");
                 }
             }
 
             #endregion
-            
+
             report.AppendLine($"{Heading2} Transformation Operation Summary");
+            report.AppendLine();
 
             #region Transformation Summary
 
@@ -174,19 +182,24 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             #endregion
 
-            report.AppendLine($"{Heading3} Errors occurred during transformation");
-
-            #region Report on Errors
-
-            report.AppendLine($" Date {TableColumnSeperator} Operation {TableColumnSeperator} Error Message ");
-            report.AppendLine($" {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
-
-            foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Error))
+            if (logDetails.Any(l => l.Item1 == LogLevel.Error))
             {
-                report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
-            }
+                #region Report on Errors
 
-            #endregion
+                report.AppendLine($"{Heading3} Errors occurred during transformation");
+                report.AppendLine();
+
+                report.AppendLine($" Date {TableColumnSeperator} Operation {TableColumnSeperator} Error Message ");
+                report.AppendLine($" {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
+
+                foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Error))
+                {
+                    report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
+                }
+
+                #endregion
+
+            }
 
             return report.ToString();
         }

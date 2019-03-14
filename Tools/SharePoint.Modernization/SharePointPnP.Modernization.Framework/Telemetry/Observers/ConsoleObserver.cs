@@ -52,6 +52,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             Write($"Error: [{entry.Heading}] {entry.Message} Error: { error }");
         }
 
+        /// <summary>
+        /// Output a summary to the console
+        /// </summary>
         public void Flush()
         {
             //Output transform duration
@@ -63,6 +66,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             });
 
             Console.WriteLine("-----------------------------------------------");
+
+            var logs = _lazyLogInstance.Value;
+            logs.RemoveRange(0, logs.Count);
+
         }
 
         /// <summary>

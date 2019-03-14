@@ -196,6 +196,7 @@
     <Compile Include="Telemetry\LogLevel.cs" />
     <Compile Include="Telemetry\Observers\ConsoleObserver.cs" />
     <Compile Include="Telemetry\Observers\MarkdownObserver.cs" />
+    <Compile Include="Telemetry\Observers\MarkdownToSharePoint.cs" />
     <Compile Include="Telemetry\PageTelemetry.cs" />
     <Compile Include="Transform\AssetTransfer.cs" />
     <Compile Include="Cache\CacheManager.cs" />
