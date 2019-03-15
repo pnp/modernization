@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Web;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -540,6 +541,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     link.Url = "";
                 }
+
+                link.Title = JsonEncode(link.Title);
+                link.Description = JsonEncode(link.Description);
+                link.ImageAltText = JsonEncode(link.ImageAltText);
             }
 
             int i = 0;
@@ -641,6 +646,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private string JsonEncode(string input)
+        {
+            return HttpUtility.JavaScriptStringEncode(input);
+        }
+
         private Dictionary<string, string> FileLookup(string serverRelativeFilePath)
         {
 

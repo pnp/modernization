@@ -446,6 +446,53 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
         #endregion
 
+        /// <summary>
+        /// Generate contentrollup (=highlighted content) web part properties coming from a content by search web part
+        /// </summary>
+        /// <param name="cbs">Properties coming from the content by search web part</param>
+        /// <returns>Properties for highlighted content web part</returns>
+        public ContentByQuerySearchTransformatorResult TransformUserDocuments()
+        {
+            ContentByQuerySearchTransformatorResult result = new ContentByQuerySearchTransformatorResult()
+            {
+                Properties = "",
+                ImageSources = "",
+                SearchablePlainTexts = "",
+                Links = ""
+            };
+
+            // Set basic site properties
+            this.properties.DataProviderId = "Search";
+            this.properties.MaxItemsPerPage = 8;
+            this.properties.TemplateId = ContentRollupLayout.Card;
+
+            // construct query
+            SearchQuery query = new SearchQuery
+            {
+                ContentLocation = MapToContentLocation(this.clientContext.Web.EnsureProperty(p => p.Url)),
+            };
+
+            query.ContentTypes.Add(ContentType.Page);
+            query.DocumentTypes.Add(DocumentType.Any);
+
+            // scope to pages modified by the current user
+            query.Filters.Add(new SearchQueryFilter()
+            {
+                FilterType = FilterType.ModifiedBy,
+                UserType = UserType.CurrentUser,
+            });
+
+            query.AdvancedQueryText = "";
+
+            // assign query
+            this.properties.Query = query;
+
+            // Prep output
+            result.Properties = HighlightedContentProperties();
+
+            // Return the json properties for the converted web part
+            return result;
+        }
 
         /// <summary>
         /// Generate contentrollup (=highlighted content) web part properties coming from a content by search web part

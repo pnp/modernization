@@ -1,5 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using SharePointPnP.Modernization.Framework.Transform;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
@@ -38,8 +39,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
             using (var cc = TestCommon.CreateClientContext())
             {
                 var pageTransformator = new PageTransformator(cc);
+                pageTransformator.RegisterObserver(new MarkdownObserver());
+                pageTransformator.RegisterObserver(new ConsoleObserver());
 
-                var pages = cc.Web.GetPages("wp_summarylinks_1");
+                var pages = cc.Web.GetPages("wp_summarylinks_");
                 foreach (var page in pages)
                 {
                     PageTransformationInformation pti = new PageTransformationInformation(page)
@@ -87,6 +90,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
                     pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
                     pageTransformator.Transform(pti);
+                    pageTransformator.FlushObservers();
                 }
 
             }

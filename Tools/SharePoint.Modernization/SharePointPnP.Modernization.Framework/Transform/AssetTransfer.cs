@@ -1,6 +1,8 @@
 ﻿using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,7 +11,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Class for operations for transferring the assets over to the target site collection
     /// </summary>
-    public class AssetTransfer
+    public class AssetTransfer : BaseTransform
     {
         //Plan:
         //  Detect for referenced assets within the web parts
@@ -31,15 +33,32 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="source">Source connection to SharePoint</param>
         /// <param name="target">Target connection to SharePoint</param>
-        public AssetTransfer(ClientContext source, ClientContext target)
+        public AssetTransfer(ClientContext source, ClientContext target, IList<ILogObserver> logObservers = null)
         {
-            if (source == null || target == null)
+            if (logObservers != null)
             {
-                throw new ArgumentNullException("One or more client context is null");
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
             }
 
             _sourceClientContext = source;
             _targetClientContext = target;
+
+            Validate(); // Perform validation
+        }
+
+        /// <summary>
+        /// Perform validation
+        /// </summary>
+        public void Validate()
+        {
+            if (_sourceClientContext == null || _targetClientContext == null)
+            {
+                LogError(LogStrings.Error_AssetTransferClientContextNull, LogStrings.Heading_AssetTransfer);
+                throw new ArgumentNullException(LogStrings.Error_AssetTransferClientContextNull);
+            }
         }
 
         /// <summary>
@@ -74,11 +93,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     
                 }
 
-                return assetDetails.TargetAssetTransferredUrl;
+                var finalPath = assetDetails.TargetAssetTransferredUrl;
+                LogInfo($"{LogStrings.AssetTransferredToUrl}: {finalPath}", LogStrings.Heading_Summary);
+                return finalPath;
 
             }
-            
+
             // Fall back to send back the same link
+            LogWarning(LogStrings.AssetTransferFailedFallback, LogStrings.Heading_AssetTransfer);
             return sourceAssetRelativeUrl;
         }
                
@@ -179,8 +201,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             // This copies the latest version of the asset to the target site collection
             // Going to need to add a bunch of checks to ensure the target file exists
-            // TODO: Need to add a ton of error and logging here
-
+            
             // Each sliced upload requires a unique ID.
             Guid uploadId = Guid.NewGuid();
             // Calculate block size in bytes.
@@ -362,7 +383,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch (Exception ex)
             {
-                //swallow until reporting
+                LogError(LogStrings.Error_AssetTransferCheckingIfAssetExists, LogStrings.Heading_AssetTransfer, ex);
             }
 
             // Fallback in case of error - this will trigger a transfer of the asset

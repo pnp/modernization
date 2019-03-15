@@ -189,6 +189,19 @@
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Functions\NotAvailableAtTargetException.cs" />
+    <Compile Include="Telemetry\LogStrings.cs" />
+    <Compile Include="Telemetry\ILogObserver.cs" />
+    <Compile Include="Telemetry\LogEntry.cs" />
+    <Compile Include="Telemetry\LogHelpers.cs" />
+    <Compile Include="Telemetry\LogLevel.cs" />
+    <Compile Include="Telemetry\Observers\ConsoleObserver.cs" />
+    <Compile Include="Telemetry\Observers\MarkdownObserver.cs" />
+    <Compile Include="Telemetry\Observers\MarkdownToSharePoint.cs" />
+    <Compile Include="Telemetry\PageTelemetry.cs" />
+    <Compile Include="Publishing\PageLayoutManager.cs" />
+    <Compile Include="Publishing\pagelayoutmapping.cs">
+      <DependentUpon>pagelayoutmapping.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Transform\AssetTransfer.cs" />
     <Compile Include="Cache\CacheManager.cs" />
     <Compile Include="Caml\FieldReference.cs" />
@@ -239,7 +252,7 @@
     <Compile Include="Pages\WikiPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Cache\FieldData.cs" />
-    <Compile Include="Telemetry\PageTelemetry.cs" />
+    <Compile Include="Transform\BaseTransform.cs" />
     <Compile Include="Transform\ContentByQuerySearchTransformator.cs" />
     <Compile Include="Transform\ContentTransformator.cs" />
     <Compile Include="Transform\IContentTransformator.cs" />
@@ -267,6 +280,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Publishing\pagelayoutmapping.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="webpartmapping.xsc">
       <DependentUpon>webpartmapping.xsd</DependentUpon>
     </None>
@@ -285,6 +301,7 @@
     <Content Include="Nuget\webpartmapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Publishing\pagelayoutmapping_sample.xml" />
     <Content Include="webpartmapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

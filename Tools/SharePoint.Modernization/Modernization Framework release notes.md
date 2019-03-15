@@ -12,7 +12,18 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [March release (prod) - unreleased]
+## [Unreleased]
+
+### Added
+
+- Transformation Reporting. Get (verbose) logging as md file, page in SharePoint, console or a combination of these #82 [pkbullock]
+- UserDocsWebPart transformation support: this web part is transformed to the highlighted content web part showing the current user's active pages
+
+### Changed
+
+- Transforming Summary Links to Quick Links json encoding Bug #74
+
+## [March release (prod) - version 1.0.1903.0]
 
 ### Added
 

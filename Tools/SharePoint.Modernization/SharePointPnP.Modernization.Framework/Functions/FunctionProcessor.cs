@@ -5,13 +5,15 @@ using System.Reflection;
 using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Transform;
 
 namespace SharePointPnP.Modernization.Framework.Functions
 {
     /// <summary>
     /// Class that executes functions and selectors defined in the mapping 
     /// </summary>
-    public class FunctionProcessor
+    public class FunctionProcessor : BaseTransform
     {
         /// <summary>
         /// Allowed function parameter types
@@ -101,14 +103,23 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// </summary>
         /// <param name="page">Client side page for which we're executing the functions/selectors as part of the mapping</param>
         /// <param name="pageTransformation">Webpart mapping information</param>
-        public FunctionProcessor(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation)
+        public FunctionProcessor(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null)
         {
             this.page = page;
             this.pageTransformation = pageTransformation;
 
+            //Register any existing observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
             // instantiate default built in functions class
             this.addOnTypes = new List<AddOnType>();
-            this.builtInFunctions = Activator.CreateInstance(typeof(BuiltIn), this.page.Context, sourceClientContext, this.page);
+            this.builtInFunctions = Activator.CreateInstance(typeof(BuiltIn), this.page.Context, sourceClientContext, this.page, base.RegisteredLogObservers);
 
             // instantiate the custom function classes (if there are)
             foreach (var addOn in this.pageTransformation.AddOns)
@@ -139,7 +150,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
                 catch(Exception ex)
                 {
-                    // TODO: Add logging
+                    LogError(LogStrings.Error_FailedToInitiateCustomFunctionClasses, LogStrings.Heading_FunctionProcessor, ex);
                     throw;
                 }
             }

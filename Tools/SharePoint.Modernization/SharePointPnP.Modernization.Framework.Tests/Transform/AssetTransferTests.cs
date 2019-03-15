@@ -98,10 +98,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             SkipTelemetry = true,
 
                             // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
-                            HandleWikiImagesAndVideos = false,
-
-                            //Include the assets within the file transfer
-                            CopyReferencedAssets = true
+                            //HandleWikiImagesAndVideos = false,
                         };
 
                         pageTransformator.Transform(pti);
@@ -276,10 +273,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             SkipTelemetry = true,
 
                             // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
-                            HandleWikiImagesAndVideos = false,
-
-                            //Include the assets within the file transfer
-                            CopyReferencedAssets = true
+                            //HandleWikiImagesAndVideos = false,
                         };
 
                         pageTransformator.Transform(pti);
@@ -317,10 +311,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             SkipTelemetry = true,
 
                             // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
-                            HandleWikiImagesAndVideos = false,
-
-                            //Include the assets within the file transfer
-                            CopyReferencedAssets = true
+                            //HandleWikiImagesAndVideos = false,
                         };
 
                         pageTransformator.Transform(pti);
@@ -358,10 +349,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             SkipTelemetry = true,
 
                             // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
-                            HandleWikiImagesAndVideos = false,
-
-                            //Include the assets within the file transfer
-                            CopyReferencedAssets = true
+                            //HandleWikiImagesAndVideos = false,
                         };
 
                         pageTransformator.Transform(pti);

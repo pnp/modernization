@@ -1,0 +1,177 @@
+﻿namespace SharePointPnP.Modernization.Framework.Telemetry
+{
+    public static class LogStrings
+    {
+        // Ensure the string variables are meaningful and readable from a developer point of view.
+        // Eventually this needs to localised to create multi-lingual outputs.
+        // Prefixes
+        //      Heading_ for headings
+        //      Error_ for error messages
+        //      No Prefix - output messages to user
+
+        public const string KeyValueSeperatorToken = ";#;";
+
+        #region Page Transformation
+
+        #region Headings
+
+        public const string Heading_PageTransformationInfomation = "Page Transformation Information";
+        public const string Heading_Summary = "Summary";
+        public const string Heading_InputValidation = "Input Validation";
+        public const string Heading_SharePointConnection = "SharePoint Connection";
+        public const string Heading_PageCreation = "Page Creation";
+        public const string Heading_HomePageHandling = "Home page handling";
+        public const string Heading_ArticlePageHandling = "Article page handling";
+        public const string Heading_SetPageTitle = "Set Page Title";
+        public const string Heading_GetVersion = "Get Version";
+        public const string Heading_Load = "Load";
+        public const string Heading_RemoveEmptyTextParts = "Remove Empty Text Parts";
+        public const string Heading_CopyingPageMetadata = "Copying page metadata";
+        public const string Heading_ApplyItemLevelPermissions = "Item level permissions";
+        public const string Heading_SwappingPages = "Swapping Pages";
+        public const string Heading_GetPrincipal = "Get Principal";
+
+        #endregion
+        
+        #region Error Messages
+
+        public const string Error_SourcePageNotFound = "Source page cannot be null";
+        public const string Error_SourcePageIsModern = "Source page is already a modern page";
+        public const string Error_PageNotValidMissingFileRef = "Page is not valid due to missing FileRef or FileLeafRef value";
+        public const string Error_BasicASPXPageCannotTransform = "Page is an basic aspx page...can't currently transform that one, sorry!";
+        public const string Error_PublishingPagesNotYetSupported = "Page transformation for publishing pages is currently not supported.";
+        public const string Error_CannotUsePageAcceptBannerCrossSite = "Page transformation towards a different site collection cannot use the page accept banner.";
+        public const string Error_OverridingTagePageTakesSourcePageName = "Overriding 'TargetPageTakesSourcePageName' to ensure that the newly created page in the other site collection gets the same name as the source page";
+        public const string Error_FallBackToSameSiteTransfer = "Oops, seems source and target point to the same site collection...switch back the 'source only' mode";
+        public const string Error_CrossSiteTransferTargetsNonModernSite = "Page transformation for targeting non-modern sites is currently not supported.";
+        public const string Error_GetVersionError = "Setting version stamp error";
+        public const string Error_MissingSitePagesLibrary = "Site does not have a sitepages library and therefore this page can't be a client side page.";
+        public const string Error_PageDoesNotExistInWeb = "Page does not exist in current web";
+        public const string Error_SettingVersionStampError = "Setting version stamp on page error";
+        public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
+
+        #endregion
+
+        #region Status Messages
+
+        public const string ValidationChecksComplete = "Validation checks complete";
+        public const string LoadingTargetClientContext = "Loading target client context object";
+        public const string LoadingClientContextObjects = "Loading client context objects";
+        public const string TransformingSite = "Transforming site:";
+        public const string CrossSiteTransferToSite = "Cross-Site transfer mode to site:";
+        public const string PageIsLocatedInFolder = "The transform page is located in a folder";
+        public const string DetectIfPageIsInFolder = "Detect if the page is living inside a folder";
+        public const string NoTargetNameUsingDefaultPrefix = "No target name specified - using a default prefix";
+        public const string CrossSiteInUseUsingOriginalFileName = "In Cross-Site transform mode the original source file name is used";
+        public const string UsingSuppliedPrefix = "Using the supplied prefix";
+        public const string LoadingExistingPageIfExists = "Just try to load the page in the fastest possible manner, we only want to see if the page exists or not";
+        public const string CheckPageExistsError = "Checking Page Exists";
+        public const string PageAlreadyExistsInTargetLocation = "The page already exists in target location";
+        public const string PageNotOverwriteIfExists = "Not overwriting - there already exists a page with name ";
+        public const string ModernPageCreated = "Modern page created";
+        public const string WelcomePageSettingsIsPresent = "Welcome page setting does exist, checking if the transform page is a home page";
+        public const string TransformSourcePageIsHomePage = "The current page is used as a home page - settings modern page to 'Home' layout";
+        public const string TransformSourcePageHomePageUsingStock = "Using a stock homepage layout as the new homepage - not transforming page.";
+        public const string TransformSourcePageIsNotHomePage = "The current page is not used as the site home page";
+        public const string PreparingContentTransformation = "Preparing content transformation";
+        public const string TransformSourcePageAsArticlePage = "Transforming source page as Article page";
+        public const string TransformArticleSetHeaderToNone = "Page Header Set to None. Removing the page header";
+        public const string TransformArticleSetHeaderToDefault = "Page Header Set to Default. Using page header default settings.";
+        public const string TransformArticleSetHeaderToCustom = "Page Header Set to Custom. Using page header settings:";
+        public const string TransformArticleHeaderImageUrl = "Image Url: ";
+        public const string TransformSourcePageIsWikiPage = "Recognised source page as a Wiki Page.";
+        public const string TransformSourcePageAnalysing = "Analyzing web parts and page layouts";
+        public const string WikiTextContainsImagesVideosReferences = "Splitting images and videos from wiki text - as modern text web part does not support embedded images and videos";
+        public const string TransformSourcePageIsWebPartPage = "Recognised source page as a Web Part Page.";
+        public const string TransformPageModernTitle = "Setting the modern page title:";
+        public const string TransformPageTitleOverride = "Using specified page title override";
+        public const string TransformLayoutTransformatorOverride = "Using layout override for target page";
+        public const string TransformAddedPageAcceptBanner = "Added Page Accept Banner web part to be added to the target page";
+        public const string TransformUsingContentTransformerOverride = "Using content transformator override";
+        public const string TransformingContentStart = "Transforming content";
+        public const string TransformingContentEnd = "Transforming content complete";
+        public const string TransformRemovingEmptyWebPart = "Removing empty text web part";
+        public const string TransformSavedPageInCrossSiteCollection = "Saved page in cross-site collection";
+        public const string TransformSavedPage = "Saved page";
+        public const string TransformCopyingMetaDataField = "Copying field: ";
+        public const string TransformCopiedItemPermissions = "Item level permissions copied";
+        public const string TransformComplete = "Transformation Complete";
+        public const string TransformSwappingPageStep1 = "Step 1 - First copy the source page to a new name";
+        public const string TransformSwappingPageRestorePermissions = "Restore the item level permissions on the copied page (if any)";
+        public const string TransformSwappingPageStep2 = "Step 2 - Fix possible navigation entries to point to the \"copied\" source page first";
+        public const string TransformSwappingPageUpdateNavigation = "Navigation references found, these have been updated";
+        public const string TransformSwappingPageStep3 = "Step 3 - Now copy the created modern page over the original source page, at this point the new page has the same name as the original page had before transformation";
+        public const string TransformSwappingPageStep3Path = "Copying page to";
+        public const string TransformSwappingPagesApplyItemPermissions = "Apply the item level permissions on the final page (if any)";
+        public const string TransformSwappingPagesStep4 = "Step 4 - Finish with restoring the page navigation: update the navigation links to point back the original page name";
+        public const string TransformSwappingPagesStep5 = "Step 5 - Conclude with deleting the originally created modern page as we did copy that already in step 3";
+        public const string TransformedPage = "Transformed Page";
+        public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
+
+        #endregion
+
+        #endregion
+
+        #region Content Transformator
+
+        public const string Heading_ContentTransform = "Content Transform";
+        public const string Heading_MappingWebParts = "Web Part Mapping";
+        public const string Heading_AddingWebPartsToPage = "Adding Web Parts to Target Page";
+
+        public const string ContentUsingAddinWebPart = "Using add-in web part";
+        public const string ContentUsing = "Using";
+        public const string ContentAdded = "Added";
+        public const string ContentModernWebPart = "modern web part";
+        public const string ContentWarnModernNotFound = "Modern web part not found";
+        public const string ContentTransformationComplete = "Transforming web parts complete";
+        public const string ContentClientToTargetPage = "Client Side Web Part to target page";
+        public const string ContentTransformingWebParts = "Transforming web parts";
+        public const string NothingToTransform = "There is nothing to transform - no web parts found";
+        public const string NotTransformingTitleBar = "Not transforming Title Bar - this is not used in modern pages";
+        public const string CrossSiteNotSupported = "Skipping this web part's transformation - cross site not supported";
+        public const string ContentWebPartBeingTransformed = "Web Part:'{0}' of type '{1}' is being transformed";
+        public const string ProcessingSelectorFunctions = "Processing selector functions";
+        public const string ProcessingMappingFunctions = "Processing mapping functions";
+        public const string ContentWebPartMappingNotFound = "Web Part Mapping not found";
+        public const string AddedClientSideTextWebPart = "Added 'Client Side Text Web Part' to target page";
+        public const string UsingCustomModernWebPart = "Using 'custom' modern web part ";
+
+
+        public const string Error_NotValidForTargetSiteCollection = "NotAvailableAtTargetException is used to \"skip\" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)";
+        public const string Error_NoDefaultMappingFound = "No default mapping was found int the provided mapping file";
+        public const string Error_AnErrorOccurredFunctions = "An error occurred processing functions";
+        
+
+        #endregion
+
+        #region Asset Transfer
+
+        public const string Heading_AssetTransfer = "Asset Transfer";
+        public const string Error_AssetTransferClientContextNull = "One or more client context is null";
+
+        public const string AssetTransferredToUrl = "An referenced asset was found and copied to";
+        public const string AssetTransferFailedFallback = "An issue occurred in transferring an asset, falling back to orignal reference.";
+
+        public const string Error_AssetTransferCheckingIfAssetExists = "An error occurred checking if a referenced asset exists";
+
+        #endregion
+
+        #region Function Processor
+
+        public const string Heading_FunctionProcessor = "Function Processor";
+        public const string Error_FailedToInitiateCustomFunctionClasses = "Failed to instantiate custom function classes";
+
+        #endregion
+
+        #region Built In Functions
+
+        public const string Heading_BuiltInFunctions = "Built-in Function";
+        public const string Error_ReturnCrossSiteRelativePath = "An error occurred in ReturnCrossSiteRelativePath function";
+        public const string Error_DocumentEmbedLookup = "An error occurred in DocumentEmbedLookup function";
+        public const string Error_DocumentEmbedLookupFileNotRetrievable = "An error occurred in DocumentEmbedLookup function - file not retrievable";
+        public const string Error_LoadContentFromFile = "An error occurred in LoadContentFromFile function";
+
+        public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
+        #endregion
+    }
+}

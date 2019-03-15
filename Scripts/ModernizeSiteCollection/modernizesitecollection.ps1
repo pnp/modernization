@@ -170,7 +170,7 @@ function ModernizeSite
         #region Checking for "blockers"
         # Grab the web template and verify if it's a modernization blocker
         $web = Get-PnPWeb -Connection $siteContext -Includes WebTemplate,Configuration,Description
-        $webTemplate = $web.WebTemplate + $web.Configuration
+        $webTemplate = $web.WebTemplate + "#" + $web.Configuration
 
         if ($webTemplate -eq "BICENTERSITE#0" -or 
             $webTemplate -eq "BLANKINTERNET#0" -or
