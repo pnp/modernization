@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="pagelayoutmapping"
+    targetNamespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema"
+    elementFormDefault="qualified"
+    xmlns="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- The main element -->
+  <xs:element name="PublishingPageTransformation" type="PublishingPageTransformation">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        This is the base element of a page pagelayout transformation file.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="HeaderField">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="HeaderProperty" type="xs:string" use="required" />
+    <xs:attribute name="Functions" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="MetaDataField">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="TargetFieldName" type="xs:string" use="required" />
+    <xs:attribute name="Functions" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="WebPartZone">
+    <xs:attribute name="ZoneIndex" type="xs:integer" use="required" />
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Row" type="xs:integer" use="optional" />
+    <xs:attribute name="Column" type="xs:integer" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="FixedWebPart">
+    <xs:sequence>
+      <xs:element name="Property" type="FixedWebPartProperty" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="Type" type="xs:string" use="required" />
+    <xs:attribute name="Row" type="xs:integer" use="optional" />
+    <xs:attribute name="Column" type="xs:integer" use="optional" />
+    <xs:attribute name="Order" type="xs:integer" use="optional" />
+  </xs:complexType>
+
+  <xs:simpleType name="WebPartProperyType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="string" />
+      <xs:enumeration value="bool" />
+      <xs:enumeration value="guid" />
+      <xs:enumeration value="integer" />
+      <xs:enumeration value="datetime" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="FixedWebPartProperty">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Type" type="WebPartProperyType" use="required" />
+    <xs:attribute name="Value" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="WebPartProperty">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Type" type="WebPartProperyType" use="required" />
+    <xs:attribute name="Functions" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="WebPartField">
+    <xs:sequence>
+      <xs:element name="Property" type="WebPartProperty" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="TargetWebPart" type="xs:string" use="required" />
+    <xs:attribute name="Row" type="xs:integer" use="optional" />
+    <xs:attribute name="Column" type="xs:integer" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="Header">
+    <xs:sequence>
+      <xs:element name="Field" type="HeaderField" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="Type" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="FullWidthImage" />
+          <xs:enumeration value="NoImage" />
+          <xs:enumeration value="ColorBlock" />
+          <xs:enumeration value="CutInShape" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="MetaData">
+    <xs:sequence>
+      <xs:element name="Field" type="MetaDataField" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WebParts">
+    <xs:sequence>
+      <xs:element name="Field" type="WebPartField" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WebPartZones">
+    <xs:sequence>
+      <xs:element name="WebPartZone" type="WebPartZone" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FixedWebParts">
+    <xs:sequence>
+      <xs:element name="WebPart" type="FixedWebPart" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PageLayout">
+    <xs:sequence>
+      <xs:element name="Header" type="Header" minOccurs="0" maxOccurs="1" />
+      <xs:element name="MetaData" type="MetaData" minOccurs="0" maxOccurs="1" />
+      <xs:element name="WebParts" type="WebParts" minOccurs="0" maxOccurs="1" />
+      <xs:element name="WebPartZones" type="WebPartZones" minOccurs="0" maxOccurs="1" />
+      <xs:element name="FixedWebParts" type="FixedWebParts" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="ContentType" type="xs:string" use="optional" />
+    <xs:attribute name="PageLayoutTemplate" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="OneColumn" />
+          <xs:enumeration value="TwoColumns" />
+          <xs:enumeration value="TwoColumnsWithSidebarLeft" />
+          <xs:enumeration value="TwoColumnsWithSidebarRight" />
+          <xs:enumeration value="TwoColumnsWithHeader" />
+          <xs:enumeration value="TwoColumnsWithHeaderAndFooter" />
+          <xs:enumeration value="ThreeColumns" />
+          <xs:enumeration value="ThreeColumnsWithHeader" />
+          <xs:enumeration value="ThreeColumnsWithHeaderAndFooter" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="PageHeader" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="None" />
+          <xs:enumeration value="Default" />
+          <xs:enumeration value="Custom" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="PageLayouts">
+    <xs:sequence>
+      <xs:element name="PageLayout" type="PageLayout" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AddOn">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Type" type="xs:string" use="required" />
+    <xs:attribute name="Assembly" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="AddOns">
+    <xs:sequence>
+      <xs:element name="AddOn" type="AddOn" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PublishingPageTransformation">
+    <xs:sequence>
+      <xs:element name="AddOns" type="AddOns" minOccurs="0" maxOccurs="1" />
+      <xs:element name="PageLayouts" type="PageLayouts" minOccurs="1" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
