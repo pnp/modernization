@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharePointPnP.Modernization.Framework.Telemetry
+﻿namespace SharePointPnP.Modernization.Framework.Telemetry
 {
     public static class LogStrings
     {

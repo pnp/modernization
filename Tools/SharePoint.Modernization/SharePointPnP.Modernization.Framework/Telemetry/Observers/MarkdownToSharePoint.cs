@@ -1,14 +1,8 @@
 ﻿using Microsoft.SharePoint.Client;
-using Newtonsoft.Json.Linq;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Cache;
-using SharePointPnP.Modernization.Framework.Transform;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 {

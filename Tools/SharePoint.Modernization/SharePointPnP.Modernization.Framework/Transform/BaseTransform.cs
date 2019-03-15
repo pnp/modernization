@@ -1,11 +1,7 @@
 ﻿using SharePointPnP.Modernization.Framework.Telemetry;
-using System.Diagnostics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SharePointPnP.Modernization.Framework.Telemetry.Observers;
+using System.Diagnostics;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {

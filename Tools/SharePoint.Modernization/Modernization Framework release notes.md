@@ -16,6 +16,7 @@
 
 ### Added
 
+- Transformation Reporting. Get (verbose) logging as md file, page in SharePoint, console or a combination of these #82 [pkbullock]
 - UserDocsWebPart transformation support: this web part is transformed to the highlighted content web part showing the current user's active pages
 
 ### Changed
