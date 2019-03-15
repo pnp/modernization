@@ -20,6 +20,8 @@
 
 ### Changed
 
+- Transforming Summary Links to Quick Links json encoding Bug #74
+
 ## [March release (prod) - version 1.0.1903.0]
 
 ### Added
