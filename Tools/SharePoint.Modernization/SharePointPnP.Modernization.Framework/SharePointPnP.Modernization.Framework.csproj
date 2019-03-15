@@ -189,6 +189,7 @@
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Functions\NotAvailableAtTargetException.cs" />
+    <Compile Include="Publishing\PageLayoutAnalyser.cs" />
     <Compile Include="Telemetry\LogStrings.cs" />
     <Compile Include="Telemetry\ILogObserver.cs" />
     <Compile Include="Telemetry\LogEntry.cs" />
