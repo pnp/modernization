@@ -3,9 +3,11 @@ using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -24,9 +26,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
          *  - Generate a layout mapping based on analysis
          *  - Validate the Xml prior to output
          *  - Split into molecules of operation for unit testing
+         *  - Detect grid system, table or fabric for layout options - consider...
          */
 
         private ClientContext _context;
+        private PublishingPageTransformation _mapping;
+        private string _defaultFileName = "PageLayoutMapping.xml";
 
         /// <summary>
         /// Analyse Page Layouts class constructor
@@ -43,6 +48,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             _context = sourceContext;
+
+            _mapping = new PublishingPageTransformation();
         }
 
 
@@ -63,10 +70,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         /// <summary>
+        /// Gets the page layout for analysis
+        /// </summary>
+        public void GetPageLayout()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Determine the page layout from a publishing page
         /// </summary>
         public void GetPageLayoutFromPublishingPage()
         {
+            //Note: ListItemExtensions class contains this logic - reuse.
             throw new NotImplementedException();
         }
 
@@ -105,9 +121,32 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Generate the mapping file to output from the analysis
         /// </summary>
-        public void GenerateMappingFile()
+        public string GenerateMappingFile()
         {
-            throw new NotImplementedException();
+            try
+            {
+                XmlSerializer xmlMapping = new XmlSerializer(typeof(PublishingPageTransformation));
+
+                var mappingFileName = _defaultFileName;
+
+                using (StreamWriter sw = new StreamWriter(mappingFileName, false))
+                {
+                    xmlMapping.Serialize(sw, _mapping);
+                }
+
+                var xmlMappingFileLocation = $"{ Environment.CurrentDirectory }\\{ mappingFileName}";
+                LogInfo($"{LogStrings.XmlMappingSavedAs}: {xmlMappingFileLocation}");
+
+                return xmlMappingFileLocation;
+
+            }catch(Exception ex)
+            {
+                var message = string.Format(LogStrings.Error_CannotWriteToXmlFile, ex.Message, ex.StackTrace);
+                Console.WriteLine(message);
+                LogError(message, LogStrings.Heading_PageLayoutAnalyser, ex);
+            }
+
+            return string.Empty;
         }
     }
 }

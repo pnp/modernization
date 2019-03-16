@@ -173,5 +173,15 @@
 
         public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
         #endregion
+
+        #region PageLayoutAnalyser
+
+        public const string Heading_PageLayoutAnalyser = "Page Layout Analyser";
+
+        public const string Error_CannotWriteToXmlFile = "Error writing to mapping file: {0} {1}";
+
+        public const string XmlMappingSavedAs = "Xml Mapping saved as";
+
+        #endregion
     }
 }
