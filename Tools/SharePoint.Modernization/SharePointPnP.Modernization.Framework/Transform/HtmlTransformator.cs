@@ -1438,12 +1438,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd) &&
                                 !string.IsNullOrEmpty(rowSpan) && rowSpan != "1" && int.TryParse(rowSpan, out int rowCellsToAdd))
                             {
-                                int tempColPos = colPos - 1;
                                 int tempRowPos = rowPos;
-
                                 for (int j = 0; j < rowCellsToAdd; j++)
                                 {
-                                    tempColPos = colPos - 1;
+                                    int tempColPos = colPos - 1;
                                     for (int i = 0; i < columnCellsToAdd; i++)
                                     {
                                         if (cells[tempColPos, tempRowPos] == null)
@@ -1509,6 +1507,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
             }
+
             return normalizedTable;
         }
 
