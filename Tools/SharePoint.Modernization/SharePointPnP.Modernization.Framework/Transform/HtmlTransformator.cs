@@ -40,7 +40,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     return false;
                 }
             }
-
         }
 
         internal class IElementCell
@@ -1380,8 +1379,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 ClassName = table.ClassName,
             };
 
-            // Create a 2 dimensional array to hold the normalized cells
+            // A 2 dimensional array to hold the normalized table cells
             IElementCell[,] cells = new IElementCell[tableDimension.Item2, tableDimension.Item1];
+            // An array to hold the header cells (if any)
             IElementCell[] headerCells = new IElementCell[tableDimension.Item1];
 
             var tableBodyElement = (table as IHtmlTableElement).Bodies[0];
@@ -1487,6 +1487,28 @@ namespace SharePointPnP.Modernization.Framework.Transform
             normalizedTable.Header = headerCells;
             normalizedTable.Cells = cells;
 
+            // Let's assume there's badly shaped tables as well...fill the empty cells with an empty cell value so they're correctly replaced
+            for (int rowPos = 0; rowPos < normalizedTable.Cells.GetLength(0); rowPos += 1)
+            {
+                for (int colPos = 0; colPos < normalizedTable.Cells.GetLength(1); colPos += 1)
+                {
+                    if (normalizedTable.Cells[rowPos, colPos] == null)
+                    {
+                        normalizedTable.Cells[rowPos, colPos] = new IElementCell(null);
+                    }
+                }
+            }
+
+            if (normalizedTable.HasHeader)
+            {
+                for (int colPos = 0; colPos < normalizedTable.Header.GetLength(0); colPos += 1)
+                {
+                    if (normalizedTable.Header[colPos] == null)
+                    {
+                        normalizedTable.Header[colPos] = new IElementCell(null);
+                    }
+                }
+            }
             return normalizedTable;
         }
 
