@@ -26,18 +26,28 @@ namespace SharePointPnP.Modernization.Framework.Publishing
          *  - Generate a layout mapping based on analysis
          *  - Validate the Xml prior to output
          *  - Split into molecules of operation for unit testing
-         *  - Detect grid system, table or fabric for layout options - consider...
+         *  - Detect grid system, table or fabric for layout options, needs to be extensible - consider...
+         *  
          */
 
-        private ClientContext _context;
+        
+        private ClientContext _siteCollContext;
+        private ClientContext _sourceContext;
+        
         private PublishingPageTransformation _mapping;
         private string _defaultFileName = "PageLayoutMapping.xml";
+
+        const string AvailablePageLayouts = "__PageLayouts";
+        const string DefaultPageLayout = "__DefaultPageLayout";
+        const string FileRefField = "FileRef";
+        const string FileLeafRefField = "FileLeafRef";
+        const string PublishingPageLayoutField = "PublishingPageLayout";
 
         /// <summary>
         /// Analyse Page Layouts class constructor
         /// </summary>
         /// <param name="sourceContext">This should be the context of the source web</param>
-        /// <param name="logObservers"></param>
+        /// <param name="logObservers">List of log observers</param>
         public PageLayoutAnalyser(ClientContext sourceContext, IList<ILogObserver> logObservers = null)
         {
             // Register observers
@@ -47,9 +57,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 }
             }
 
-            _context = sourceContext;
-
             _mapping = new PublishingPageTransformation();
+
+            _sourceContext = sourceContext;
+            EnsureSiteCollectionContext(sourceContext);
         }
 
 
@@ -58,7 +69,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// </summary>
         public void Analyse()
         {
-            throw new NotImplementedException();
+            // Determine if ‘default’ layouts for the OOB page layouts
+            // When there’s no layout we “generate” a best effort one and store it in cache.Generation can 
+            //  be done by looking at the field types and inspecting the layout aspx file. This same generation 
+            //  part can be used in point 2 for customers to generate a starting layout mapping file which they then can edit
+            // Don't assume that you are in a top level site, you maybe in a sub site
+
+
+
+           throw new NotImplementedException();
         }
 
         /// <summary>
@@ -66,7 +85,75 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// </summary>
         public void Validate()
         {
+            //_sourceContext.Web.IsPublishingWeb()
+
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Ensures that we have context of the source site collection
+        /// </summary>
+        /// <param name="context"></param>
+        public void EnsureSiteCollectionContext(ClientContext context)
+        {
+            try
+            {
+                if (context.Web.IsSubSite())
+                {
+                    string siteCollectionUrl = context.Site.EnsureProperty(o => o.Url);
+                    _siteCollContext = context.Clone(siteCollectionUrl);
+                }
+                else
+                {
+                    _siteCollContext = context;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_PageLayoutAnalyser, ex);
+            }
+        }
+
+        /// <summary>
+        /// Determines the page layouts in the current web
+        /// </summary>
+        public ListItemCollection GetPageLayouts()
+        {
+            var availablePageLayouts = GetPropertyBagValue<string>(_siteCollContext.Web, AvailablePageLayouts, "");
+            // If empty then gather all
+
+            var masterPageGallery = _siteCollContext.Web.GetCatalog((int)ListTemplateType.MasterPageCatalog);
+            _siteCollContext.Load(masterPageGallery, x => x.RootFolder.ServerRelativeUrl);
+            _siteCollContext.ExecuteQueryRetry();
+
+            var pageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1";
+
+            var query = new CamlQuery();
+            // Use query Scope='RecursiveAll' to iterate through sub folders of Master page library because we might have file in folder hierarchy
+            // Ensure that we are getting layouts with at least one published version
+            query.ViewXml =
+                $"<View Scope='RecursiveAll'>" +
+                    $"<Query>" +
+                        $"<Where>" +
+                            $"<And>" +
+                                $"<Geq>" +
+                                    $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
+                                $"</Geq>" +
+                                $"<BeginsWith>" +
+                                    $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{pageLayoutBaseContentTypeId}</Value>" +
+                                $"</BeginsWith>" +
+                            $"</And>" +
+                         $"</Where>" +
+                    $"</Query>" +
+                  $"</View>";
+
+            var galleryItems = masterPageGallery.GetItems(query);
+            _siteCollContext.Load(masterPageGallery);
+            _siteCollContext.Load(galleryItems);
+            _siteCollContext.ExecuteQueryRetry();
+
+            return galleryItems.Count > 0 ? galleryItems : null;
+
         }
 
         /// <summary>
@@ -74,6 +161,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// </summary>
         public void GetPageLayout()
         {
+            // There is a extension method GetPageLayoutByListItem - use that to quickly retrieve a layout
+            //_sourceContext.Web.GetPageLayoutListItemByName()
             throw new NotImplementedException();
         }
 
@@ -111,10 +200,27 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         /// <summary>
+        /// This method analyses the Html strcuture to determine layout
+        /// </summary>
+        public void ExtractLayoutFromHtmlStructure()
+        {
+            /*Plan
+             * Scan through the file to plot the 
+             * - Determine if a grid system, classic, fabric or Html structure is in use
+             * - Work out the location of the web part in relation to the grid system
+            */
+        }
+
+        /// <summary>
         /// Extract the web parts from the page layout HTML outside of web part zones
         /// </summary>
         public void ExtractWebPartsFromPageLayoutHtml()
         {
+            /*Plan
+             * Scan through the file to find the web parts by the tags
+             * Extract and convert to definition 
+            */
+
             throw new NotImplementedException();
         }
 
@@ -147,6 +253,30 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets property bag value
+        /// </summary>
+        /// <typeparam name="T">Cast to type of</typeparam>
+        /// <param name="web">Current Web</param>
+        /// <param name="key">KeyValue Pair - Key</param>
+        /// <param name="defaultValue">Default Value</param>
+        /// <returns></returns>
+        private static T GetPropertyBagValue<T>(Web web, string key, T defaultValue)
+        {
+            //TODO: Add to helpers class - source from Publishing Analyser
+
+            web.EnsureProperties(p => p.AllProperties);
+
+            if (web.AllProperties.FieldValues.ContainsKey(key))
+            {
+                return (T)web.AllProperties.FieldValues[key];
+            }
+            else
+            {
+                return defaultValue;
+            }
         }
     }
 }
