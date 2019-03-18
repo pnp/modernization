@@ -275,12 +275,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var tableBody = document.CreateElement("tbody");
                 tableElement.AppendChild(tableBody);
 
+                // Table cell width
+                var cellWidth = GetDefaultCellTableCellWidths(normalizedTable.Cells.GetLength(1));
+
                 // Table headers
                 if (normalizedTable.HasHeader)
                 {
                     // Header is transformed into  a row with bold formatted headers
                     var newRow = document.CreateElement("tr");
-                    var headerWidth = GetDefaultCellTableCellWidths(normalizedTable.Header.Length);
                     int headerCounter = 0;
 
                     for (int colPos = 0; colPos < normalizedTable.Header.Length; colPos += 1)
@@ -292,7 +294,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         }
 
                         var tableHeaderCell = document.CreateElement("td");
-                        tableHeaderCell.Style.Width = $"{headerWidth[headerCounter]}px";
+                        tableHeaderCell.Style.Width = $"{cellWidth[headerCounter]}px";
                         headerCounter++;
 
                         tableHeaderCell.AppendChild(tableHeaderValue);
@@ -307,8 +309,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 for (int rowPos = 0; rowPos < normalizedTable.Cells.GetLength(0); rowPos += 1)
                 {
                     var newRow = document.CreateElement("tr");
-                    // Table cells
-                    var cellWidth = GetDefaultCellTableCellWidths(normalizedTable.Cells.GetLength(1));
                     int cellCounter = 0;
 
                     for (int colPos = 0; colPos < normalizedTable.Cells.GetLength(1); colPos += 1)
