@@ -92,10 +92,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     string assocContentType = layout[PublishingAssociatedContentType].ToString();
                     var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
 
+                    var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
+                    var webParts = GetPageLayoutFileWebParts(layout);
+
                     pageLayoutMappings.Add(new PageLayout()
                     {
                         Name = layout.DisplayName,
-                        ContentType = assocContentTypeParts?[0]
+                        ContentType = assocContentTypeParts?[0],
+                        MetaData = metadata,
+                        WebParts = webParts
 
                     });
 
@@ -206,18 +211,45 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Gets the page layout for analysis
         /// </summary>
-        public File GetPageLayoutFile(ListItem pageLayout)
+        public WebPartField[] GetPageLayoutFileWebParts(ListItem pageLayout)
         {
 
+            List<WebPartField> wpFields = new List<WebPartField>();
+            
             File file = pageLayout.File;
-            ContentType cType = pageLayout.ContentType;
-
-
+            var webPartManager = file.GetLimitedWebPartManager(Microsoft.SharePoint.Client.WebParts.PersonalizationScope.Shared);
+            
+            _siteCollContext.Load(webPartManager);
+            _siteCollContext.Load(webPartManager.WebParts);
+            _siteCollContext.Load(webPartManager.WebParts, 
+                i=>i.Include(o=>o.WebPart.Title),
+                i => i.Include(o => o.ZoneId),
+                i => i.Include(o => o.WebPart));
             _siteCollContext.Load(file);
-            _siteCollContext.Load(cType);
             _siteCollContext.ExecuteQueryRetry();
 
-            return file;
+            var wps = webPartManager.WebParts;
+
+            foreach(var part in wps){
+
+                var props = part.WebPart.Properties.FieldValues;
+                List<WebPartProperty> partProperties = new List<WebPartProperty>();
+
+                foreach(var prop in props)
+                {
+                    partProperties.Add(new WebPartProperty() { Name = prop.Key, Type = WebPartProperyType.@string });
+                }
+                
+                wpFields.Add(new WebPartField()
+                {
+                    Name = part.WebPart.Title,
+                    Property = partProperties.ToArray()
+
+                });
+
+            }
+
+            return wpFields.ToArray();
         }
 
 
@@ -233,9 +265,37 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Get Metadata mapping from the page layout associated content type
         /// </summary>
-        public void GetAssociatedMetadatafromPageLayoutContentType(ContentType contentType)
+        /// <param name="contentTypeId">Id of the content type</param>
+        public MetaDataField[] GetMetadatafromPageLayoutAssociatedContentType(string contentTypeId)
         {
-            throw new NotImplementedException();
+            List<MetaDataField> fields = new List<MetaDataField>();
+
+            try
+            {
+
+                if (_siteCollContext.Web.ContentTypeExistsById(contentTypeId, true))
+                {
+                    var cType = _siteCollContext.Web.ContentTypes.GetById(contentTypeId);
+
+                    var spFields = cType.EnsureProperty(o => o.Fields);
+
+                    foreach (var fld in spFields.Where(o => o.Hidden == false))
+                    {
+                        fields.Add(new MetaDataField()
+                        {
+                            Name = fld.InternalName,
+                            Functions = "",
+                            TargetFieldName = ""
+                        });
+                    }
+                }
+
+            }catch(Exception ex)
+            {
+                LogError(LogStrings.Error_CannotMapMetadataFields, LogStrings.Heading_PageLayoutAnalyser, ex);
+            }
+
+            return fields.ToArray();
         }
 
         /// <summary>
