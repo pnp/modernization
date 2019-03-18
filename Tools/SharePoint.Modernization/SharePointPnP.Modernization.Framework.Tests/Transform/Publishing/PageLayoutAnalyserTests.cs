@@ -41,5 +41,23 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
             }
         }
+
+        [TestMethod]
+        public void PageLayoutAnalyse_AnalyseWithOutput()
+        {
+            using (var sourceClientContext = TestCommon.CreateClientContext())
+            {
+                var pageLayoutAnalyser = new PageLayoutAnalyser(sourceClientContext);
+                pageLayoutAnalyser.RegisterObserver(new UnitTestLogObserver());
+
+                pageLayoutAnalyser.Analyse();
+                var result = pageLayoutAnalyser.GenerateMappingFile();
+
+                //This will need option for target output location
+                Assert.IsNotNull(result);
+                
+            }
+        }
+
     }
 }

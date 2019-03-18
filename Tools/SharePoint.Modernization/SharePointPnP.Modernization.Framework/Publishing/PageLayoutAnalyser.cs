@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -8,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using ContentType = Microsoft.SharePoint.Client.ContentType;
+using File = Microsoft.SharePoint.Client.File;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -41,7 +44,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         const string DefaultPageLayout = "__DefaultPageLayout";
         const string FileRefField = "FileRef";
         const string FileLeafRefField = "FileLeafRef";
+        const string PublishingAssociatedContentType = "PublishingAssociatedContentType";
         const string PublishingPageLayoutField = "PublishingPageLayout";
+        const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
 
         /// <summary>
         /// Analyse Page Layouts class constructor
@@ -75,19 +80,46 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             //  part can be used in point 2 for customers to generate a starting layout mapping file which they then can edit
             // Don't assume that you are in a top level site, you maybe in a sub site
 
+            if (Validate())
+            {
+                var spPageLayouts = GetPageLayouts();
+                List<PageLayout> pageLayoutMappings = new List<PageLayout>();
+
+                foreach(var layout in spPageLayouts)
+                {
+                    
+
+                    string assocContentType = layout[PublishingAssociatedContentType].ToString();
+                    var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
+
+                    pageLayoutMappings.Add(new PageLayout()
+                    {
+                        Name = layout.DisplayName,
+                        ContentType = assocContentTypeParts?[0]
+
+                    });
+
+                }
+
+                //Add to mapping
+                _mapping.PageLayouts = pageLayoutMappings.ToArray();
+
+            }
 
 
-           throw new NotImplementedException();
         }
 
         /// <summary>
         /// Perform validation to ensure the source site contains page layouts
         /// </summary>
-        public void Validate()
+        public bool Validate()
         {
-            //_sourceContext.Web.IsPublishingWeb()
+            if (_sourceContext.Web.IsPublishingWeb())
+            {
+                return true;
+            }
 
-            throw new NotImplementedException();
+            return false;
         }
 
         /// <summary>
@@ -126,31 +158,46 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             _siteCollContext.Load(masterPageGallery, x => x.RootFolder.ServerRelativeUrl);
             _siteCollContext.ExecuteQueryRetry();
 
-            var pageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1";
-
             var query = new CamlQuery();
             // Use query Scope='RecursiveAll' to iterate through sub folders of Master page library because we might have file in folder hierarchy
-            // Ensure that we are getting layouts with at least one published version
+            // Ensure that we are getting layouts with at least one published version, not hidden layouts
             query.ViewXml =
                 $"<View Scope='RecursiveAll'>" +
                     $"<Query>" +
                         $"<Where>" +
                             $"<And>" +
-                                $"<Geq>" +
-                                    $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
-                                $"</Geq>" +
-                                $"<BeginsWith>" +
-                                    $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{pageLayoutBaseContentTypeId}</Value>" +
-                                $"</BeginsWith>" +
+                                $"<And>" +
+                                    $"<Geq>" +
+                                        $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
+                                    $"</Geq>" +
+                                    $"<BeginsWith>" +
+                                        $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{PageLayoutBaseContentTypeId}</Value>" +
+                                    $"</BeginsWith>" +
+                                $"</And>" +
+                                $"<Or>"+
+                                    $"<Eq>" +
+                                        $"<FieldRef Name='PublishingHidden'/><Value Type='Boolean'>0</Value>" +
+                                    $"</Eq>" +
+                                    $"<IsNull>" +
+                                        $"<FieldRef Name='PublishingHidden'/>" +
+                                    $"</IsNull>" +
+                                $"</Or>" +
                             $"</And>" +
                          $"</Where>" +
                     $"</Query>" +
+                    $"<ViewFields>" +
+                        $"<FieldRef Name='"+ PublishingAssociatedContentType + $"' />" +
+                        $"<FieldRef Name='PublishingHidden' />" +
+                        $"<FieldRef Name='Title' />" +
+                    $"</ViewFields>" +
                   $"</View>";
 
             var galleryItems = masterPageGallery.GetItems(query);
             _siteCollContext.Load(masterPageGallery);
             _siteCollContext.Load(galleryItems);
+            _siteCollContext.Load(galleryItems, i => i.Include(o=>o.DisplayName));
             _siteCollContext.ExecuteQueryRetry();
+
 
             return galleryItems.Count > 0 ? galleryItems : null;
 
@@ -159,12 +206,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Gets the page layout for analysis
         /// </summary>
-        public void GetPageLayout()
+        public File GetPageLayoutFile(ListItem pageLayout)
         {
-            // There is a extension method GetPageLayoutByListItem - use that to quickly retrieve a layout
-            //_sourceContext.Web.GetPageLayoutListItemByName()
-            throw new NotImplementedException();
+
+            File file = pageLayout.File;
+            ContentType cType = pageLayout.ContentType;
+
+
+            _siteCollContext.Load(file);
+            _siteCollContext.Load(cType);
+            _siteCollContext.ExecuteQueryRetry();
+
+            return file;
         }
+
 
         /// <summary>
         /// Determine the page layout from a publishing page
@@ -178,7 +233,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Get Metadata mapping from the page layout associated content type
         /// </summary>
-        public void GetAssociatedMetadatafromPageLayoutContentType()
+        public void GetAssociatedMetadatafromPageLayoutContentType(ContentType contentType)
         {
             throw new NotImplementedException();
         }
@@ -232,7 +287,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             try
             {
                 XmlSerializer xmlMapping = new XmlSerializer(typeof(PublishingPageTransformation));
-
+                
                 var mappingFileName = _defaultFileName;
 
                 using (StreamWriter sw = new StreamWriter(mappingFileName, false))
