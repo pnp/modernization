@@ -17,6 +17,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal class Table
         {
             internal string ClassName { get; set; }
+            internal IElement InsertionPoint { get; set; }
             internal IElementCell[] Header { get; set; }
             internal IElementCell[,] Cells { get; set; }
 
@@ -230,6 +231,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         protected virtual void TransformTables(IHtmlCollection<IElement> tables, IHtmlDocument document)
         {
 
+            List<Tuple<IElement, IElement, IElement>> tableReplaceList = new List<Tuple<IElement, IElement, IElement>>();
+
             foreach (var table in tables)
             {
                 // Normalize table by removing the col and row spans and returning a Table object containing matrix of cells, header cells and table information
@@ -328,8 +331,44 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     tableBody.AppendChild(newRow);
                 }
 
+                // Add table to list for doing actual replacements once we're done analyzing all tables
+                tableReplaceList.Add(new Tuple<IElement, IElement, IElement>(table, newTableElement, normalizedTable.InsertionPoint));
+            }
+
+            foreach (var tableToReplace in tableReplaceList.Where(p => p.Item3 != null))
+            {
+                // Insert the new table at the insertion point. Add a br to work around an RTE bug that you can't separate tables
+                tableToReplace.Item3.AppendChild(document.CreateElement("br"));
+                tableToReplace.Item3.AppendChild(tableToReplace.Item2);
+
+                // Remove the old table
+                tableToReplace.Item1.Parent.RemoveChild(tableToReplace.Item1);                
+            }
+
+            foreach (var tableToReplace in tableReplaceList.Where(p => p.Item3 == null))
+            {
                 // Swap old table with new table
-                table.Parent.ReplaceChild(newTableElement, table);
+                tableToReplace.Item1.Parent.ReplaceChild(tableToReplace.Item2, tableToReplace.Item1);
+            }
+
+            // Drop any nested table
+            foreach(var tableToCheck in tableReplaceList)
+            {
+                var nestedTables = tableToCheck.Item2.QuerySelectorAll("table");
+                if (nestedTables.Any())
+                {
+                    foreach(var nestedTable in nestedTables.ToList())
+                    {
+                        // the new Table element has a DIV as top node, an inner DIV and then the table as child
+                        if (tableToCheck.Item2.FirstElementChild != null && tableToCheck.Item2.FirstElementChild.FirstElementChild != null)
+                        {
+                            if (nestedTable != tableToCheck.Item2.FirstElementChild.FirstElementChild)
+                            {
+                                nestedTable.ParentElement.RemoveChild(nestedTable);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -1506,6 +1545,30 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         normalizedTable.Header[colPos] = new IElementCell(null);
                     }
                 }
+            }
+
+            // Determine insertion point
+            if (table.ParentElement != null)
+            {
+                var startNode = table.ParentElement;
+                IElement lastTableElement = null;
+
+                // walk up the parent tree
+                while (startNode != null)
+                {
+                    if (startNode.TagName.Equals("table", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        lastTableElement = startNode;
+                    }
+                    startNode = startNode.ParentElement;
+                }
+                
+                if (lastTableElement != null)
+                {
+                    // This table was nested, let's take the parent element of the 'highest' table as insertion point
+                    normalizedTable.InsertionPoint = lastTableElement.ParentElement;
+                }
+
             }
 
             return normalizedTable;

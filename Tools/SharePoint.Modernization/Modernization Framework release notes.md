@@ -23,6 +23,7 @@
 
 - Transforming Summary Links to Quick Links json encoding Bug #74
 - Tables with col/row spans: split cells and put the content in the first cell of the split #77
+- Transform nested tables as individual tables #75
 
 ## [March release (prod) - version 1.0.1903.0]
 
