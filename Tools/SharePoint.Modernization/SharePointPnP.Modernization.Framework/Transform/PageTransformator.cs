@@ -239,7 +239,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
             {
                 var fileRefFieldValue = pageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
-                pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+
+                if (fileRefFieldValue.ToLower().Contains("/sitepages"))
+                {
+                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+                }
+                else
+                {
+                    // Page was living in another list, leave the list name as that will be the folder hosting the modern file in SitePages.
+                    // This convention is used to avoid naming conflicts
+                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}", "").Trim();
+                }
 
                 if (pageFolder.Length > 0)
                 {
@@ -765,7 +775,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
             var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
             
-            string path = sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+            string sourcePath = sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+            string targetPath = sourcePath;
+
+            if (!sourcePath.ToLower().Contains("/sitepages"))
+            {
+                // Source file was living outside of the site pages library
+                targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl, "");
+                targetPath = $"{sourceClientContext.Web.ServerRelativeUrl}/SitePages{targetPath}";
+            }
 
             var sourcePage = this.sourceClientContext.Web.GetFileByServerRelativeUrl(sourcePageUrl);
             this.sourceClientContext.Load(sourcePage);
@@ -782,7 +800,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Rename source page using the sourcepageprefix
             // STEP1: First copy the source page to a new name. We on purpose use CopyTo as we want to avoid that "linked" url's get 
             //        patched up during a MoveTo operation as that would also patch the url's in our new modern page
-            var step1Path = $"{path}{newSourcePageUrl}";
+            var step1Path = $"{sourcePath}{newSourcePageUrl}";
             sourcePage.CopyTo(step1Path, true);
             this.sourceClientContext.ExecuteQueryRetry();
             LogInfo($"{LogStrings.TransformSwappingPageStep1}: {step1Path}", LogStrings.Heading_SwappingPages);
@@ -793,7 +811,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogInfo(LogStrings.TransformSwappingPageRestorePermissions, LogStrings.Heading_SwappingPages);
 
                 // load the copied target file
-                var newSource = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{path}{newSourcePageUrl}");
+                var newSource = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{sourcePath}{newSourcePageUrl}");
                 this.sourceClientContext.Load(newSource);
                 this.sourceClientContext.Load(newSource.ListItemAllFields, p => p.RoleAssignments);
                 this.sourceClientContext.ExecuteQueryRetry();
@@ -803,7 +821,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             //Load the created target page
-            var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
+            var targetPageUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}";
             var targetPageFile = this.sourceClientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
             this.sourceClientContext.Load(targetPageFile);
             this.sourceClientContext.ExecuteQueryRetry();
@@ -832,12 +850,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 navWasFixed = true;
                 foreach (var node in currentNavNodes)
                 {
-                    node.Url = $"{path}{newSourcePageUrl}";
+                    node.Url = $"{sourcePath}{newSourcePageUrl}";
                     node.Update();
                 }
                 foreach (var node in globalNavNodes)
                 {
-                    node.Url = $"{path}{newSourcePageUrl}";
+                    node.Url = $"{sourcePath}{newSourcePageUrl}";
                     node.Update();
                 }
                 this.sourceClientContext.ExecuteQueryRetry();
@@ -847,7 +865,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             LogInfo(LogStrings.TransformSwappingPageStep3, LogStrings.Heading_SwappingPages);
 
             // STEP3: Now copy the created modern page over the original source page, at this point the new page has the same name as the original page had before transformation
-            var step3Path = $"{path}{orginalSourcePageName}";
+            var step3Path = $"{targetPath}{orginalSourcePageName}";
             targetPageFile.CopyTo(step3Path, true);
             this.sourceClientContext.ExecuteQueryRetry();
             LogInfo($"{LogStrings.TransformSwappingPageStep3Path} :{step3Path}", LogStrings.Heading_SwappingPages);
@@ -858,7 +876,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogInfo(LogStrings.TransformSwappingPagesApplyItemPermissions, LogStrings.Heading_SwappingPages);
 
                 // load the copied target file
-                var newTarget = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{path}{orginalSourcePageName}");
+                var newTarget = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{targetPath}{orginalSourcePageName}");
                 this.sourceClientContext.Load(newTarget);
                 this.sourceClientContext.Load(newTarget.ListItemAllFields, p => p.RoleAssignments);
                 this.sourceClientContext.ExecuteQueryRetry();
@@ -878,10 +896,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 currentNavigation = this.sourceClientContext.Web.Navigation.QuickLaunch;
                 globalNavigation = this.sourceClientContext.Web.Navigation.TopNavigationBar;
-                if (!string.IsNullOrEmpty($"{path}{newSourcePageUrl}"))
+                if (!string.IsNullOrEmpty($"{sourcePath}{newSourcePageUrl}"))
                 {
-                    currentNavNodes = currentNavigation.Where(n => n.Url.Equals($"{path}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
-                    globalNavNodes = globalNavigation.Where(n => n.Url.Equals($"{path}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
+                    currentNavNodes = currentNavigation.Where(n => n.Url.Equals($"{sourcePath}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
+                    globalNavNodes = globalNavigation.Where(n => n.Url.Equals($"{sourcePath}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
                 }
 
                 foreach (var node in currentNavNodes)
@@ -901,6 +919,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             LogInfo(LogStrings.TransformSwappingPagesStep5, LogStrings.Heading_SwappingPages);
             targetPageFile.DeleteObject();
             this.sourceClientContext.ExecuteQueryRetry();
+
+            //STEP6: if the source page lived outside of the site pages library then we also need to delete the original page from that spot
+            if (sourcePath != targetPath)
+            {
+                LogInfo(LogStrings.TransformSwappingPagesStep6, LogStrings.Heading_SwappingPages);
+                sourcePage.DeleteObject();
+                this.sourceClientContext.ExecuteQueryRetry();
+            }
         }
 
         /// <summary>

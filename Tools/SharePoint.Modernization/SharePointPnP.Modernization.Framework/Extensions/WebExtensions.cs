@@ -59,6 +59,70 @@ namespace Microsoft.SharePoint.Client
         }
 
         /// <summary>
+        /// Returns the site pages from a web, optionally filtered on pagename
+        /// </summary>
+        /// <param name="web">Web to get the pages from</param>
+        /// <param name="pageNameStartsWith">Filter to get all pages starting with</param>
+        /// <param name="folder"></param>
+        /// <returns>A list of pages (ListItem intances)</returns>
+        public static ListItemCollection GetPagesFromList(this Web web, string serverRelativeListUrl, string pageNameStartsWith = null, string folder = null)
+        {
+            // Load selected list
+            List listHoldingPages = null;
+            try
+            {
+                web.EnsureProperty(p => p.ServerRelativeUrl);
+                listHoldingPages = web.GetList($"{web.ServerRelativeUrl}/{serverRelativeListUrl}");
+                web.Context.Load(listHoldingPages, p => p.RootFolder);
+                web.Context.ExecuteQueryRetry();
+            }
+            catch (ServerException ex)
+            {
+                if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                {
+                    listHoldingPages = null;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (listHoldingPages != null)
+            {
+                CamlQuery query = null;
+                if (!string.IsNullOrEmpty(pageNameStartsWith))
+                {
+                    query = new CamlQuery
+                    {
+                        ViewXml = string.Format(Constants.CAMLQueryByExtensionAndName, pageNameStartsWith)
+                    };
+                }
+                else
+                {
+                    query = new CamlQuery
+                    {
+                        ViewXml = Constants.CAMLQueryByExtension
+                    };
+                }
+
+                if (!string.IsNullOrEmpty(folder))
+                {
+                    web.EnsureProperty(p => p.ServerRelativeUrl);
+                    query.FolderServerRelativeUrl = $"{listHoldingPages.RootFolder.ServerRelativeUrl}/{folder}";
+                }
+
+                var pages = listHoldingPages.GetItems(query);
+                web.Context.Load(pages);
+                web.Context.ExecuteQueryRetry();
+
+                return pages;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Returns the admins of this site
         /// </summary>
         /// <param name="web">Site to scan</param>

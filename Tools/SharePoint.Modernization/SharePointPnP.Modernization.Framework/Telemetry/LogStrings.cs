@@ -105,6 +105,7 @@
         public const string TransformSwappingPagesApplyItemPermissions = "Apply the item level permissions on the final page (if any)";
         public const string TransformSwappingPagesStep4 = "Step 4 - Finish with restoring the page navigation: update the navigation links to point back the original page name";
         public const string TransformSwappingPagesStep5 = "Step 5 - Conclude with deleting the originally created modern page as we did copy that already in step 3";
+        public const string TransformSwappingPagesStep6 = "STEP6: if the source page lived outside of the site pages library then we also need to delete the original page from that spot";
         public const string TransformedPage = "Transformed Page";
         public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
 
