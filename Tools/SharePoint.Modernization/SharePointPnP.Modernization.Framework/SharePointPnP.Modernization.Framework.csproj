@@ -189,6 +189,8 @@
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Functions\NotAvailableAtTargetException.cs" />
+    <Compile Include="Publishing\PublishingPageTransformationInformation.cs" />
+    <Compile Include="Publishing\PublishingPageTransformator.cs" />
     <Compile Include="Telemetry\LogStrings.cs" />
     <Compile Include="Telemetry\ILogObserver.cs" />
     <Compile Include="Telemetry\LogEntry.cs" />
@@ -252,7 +254,9 @@
     <Compile Include="Pages\WikiPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Cache\FieldData.cs" />
+    <Compile Include="Transform\BasePageTransformator.cs" />
     <Compile Include="Transform\BaseTransform.cs" />
+    <Compile Include="Transform\BaseTransformationInformation.cs" />
     <Compile Include="Transform\ContentByQuerySearchTransformator.cs" />
     <Compile Include="Transform\ContentTransformator.cs" />
     <Compile Include="Transform\IContentTransformator.cs" />
