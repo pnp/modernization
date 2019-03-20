@@ -107,7 +107,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     pageLayoutMappings.Add(new PageLayout()
                     {
                         Name = layout.DisplayName,
-                        ContentType = assocContentTypeParts?[0],
+                        AssociatedContentType = assocContentTypeParts?[0],
                         MetaData = metadata,
                         WebParts = webParts,
                         WebPartZones = zones
@@ -407,7 +407,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 {
                     zones.Add(new WebPartZone()
                     {
-                        Name = webPartZone.Id,
+                        ZoneId = webPartZone.Id,
                         Column = "",
                         Row = "",
                         ZoneIndex = ""
