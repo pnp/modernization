@@ -5,6 +5,9 @@ using System.Diagnostics;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
+    /// <summary>
+    /// Base logging implementation
+    /// </summary>
     public class BaseTransform
     {
         private IList<ILogObserver> _logObservers;
@@ -151,6 +154,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         break;
                 }
                 
+            }
+        }
+
+        /// <summary>
+        /// Sets the page name of the page being transformed
+        /// </summary>
+        /// <param name="pageId">Name of the page being transformed</param>
+        public void SetPageId(string pageId)
+        {
+            foreach (ILogObserver observer in _logObservers)
+            {
+                observer.SetPageId(pageId);
             }
         }
     }

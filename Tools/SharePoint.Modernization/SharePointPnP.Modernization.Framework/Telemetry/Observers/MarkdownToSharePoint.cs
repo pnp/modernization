@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 {
+    /// <summary>
+    /// Writes an MD log file to a folder (default = Transformation-Reports) inside the sitepages library
+    /// </summary>
     public class MarkdownToSharePointObserver: MarkdownObserver
     {
 
@@ -20,8 +23,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <param name="context"></param>
         /// <param name="libraryName"></param>
         /// <param name="folderName"></param>
-        public MarkdownToSharePointObserver(ClientContext context,  
-            string folderName = "Transformation-Reports", string fileName = "", bool includeDebugEntries = false) : base(fileName, includeDebugEntries)
+        public MarkdownToSharePointObserver(ClientContext context, string folderName = "Transformation-Reports", string fileName = "", bool includeDebugEntries = false) : base(fileName, null, includeDebugEntries)
         {
             _clientContext = context;
             _folderName = folderName;
@@ -51,9 +53,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             }
             
             return sitePagesFolder;
-
         }
-
 
         /// <summary>
         /// Write the report to SharePoint
@@ -70,9 +70,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var report = GenerateReport(includeHeading:false);
 
                 // Dont want to assume locality here
-                string logRunTime = base._reportDate.ToString().Replace('/', '-').Replace(":", "-").Replace(' ', ' ').Replace(" ", "");
-
-                string logFileName = $"Transform-Report-{logRunTime}{_reportFileName}";
+                string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "-").Replace(" ", "-");
+                string logFileName = $"Page-Transformation-Report-{logRunTime}{_reportFileName}";
 
                 logFileName = logFileName + ".aspx";
                 var targetFolder = this.EnsureDestination();
@@ -102,8 +101,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 // Cleardown all logs
                 Logs.RemoveRange(0, Logs.Count);
 
-                Console.WriteLine($"Report saved as: ");
-
+                Console.WriteLine($"Report saved as: {pageName}");
             }
             catch (Exception ex)
             {

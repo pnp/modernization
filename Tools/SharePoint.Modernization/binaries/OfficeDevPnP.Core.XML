@@ -247,6 +247,34 @@
             <param name="scope">Specifies the app catalog to work with. Defaults to Tenant</param>
             <returns></returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeamsAsync(System.Guid)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="id">The unique id of the app. Notice that this is not the product id as listen in the app catalog</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeamsAsync(OfficeDevPnP.Core.ALM.AppMetadata)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="appMetadata">The app metadata object of the app to remove.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeams(System.Guid)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="id">The unique id of the app. Notice that this is not the product id as listen in the app catalog</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeams(OfficeDevPnP.Core.ALM.AppMetadata)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="appMetadata">The app metadata object of the app to remove.</param>
+            <returns></returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.ALM.AppManager.GetAvailable(OfficeDevPnP.Core.Enums.AppCatalogScope)">
             <summary>
             Returns all available apps.

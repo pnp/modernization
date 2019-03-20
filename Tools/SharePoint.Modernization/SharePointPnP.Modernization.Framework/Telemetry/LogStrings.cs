@@ -52,12 +52,19 @@
 
         #endregion
 
+        #region Warning messages
+
+        public const string Warning_NonCriticalErrorDuringVersionStampAndPublish = "Page could not be published as versioning is not enabled or version stamp could not be set.";
+
+        #endregion
+
         #region Status Messages
 
         public const string ValidationChecksComplete = "Validation checks complete";
         public const string LoadingTargetClientContext = "Loading target client context object";
         public const string LoadingClientContextObjects = "Loading client context objects";
         public const string TransformingSite = "Transforming site:";
+        public const string TransformingPage = "Transforming page:";
         public const string CrossSiteTransferToSite = "Cross-Site transfer mode to site:";
         public const string PageIsLocatedInFolder = "The transform page is located in a folder";
         public const string DetectIfPageIsInFolder = "Detect if the page is living inside a folder";
@@ -79,10 +86,10 @@
         public const string TransformArticleSetHeaderToDefault = "Page Header Set to Default. Using page header default settings.";
         public const string TransformArticleSetHeaderToCustom = "Page Header Set to Custom. Using page header settings:";
         public const string TransformArticleHeaderImageUrl = "Image Url: ";
-        public const string TransformSourcePageIsWikiPage = "Recognised source page as a Wiki Page.";
+        public const string TransformSourcePageIsWikiPage = "Recognized source page as a Wiki Page.";
         public const string TransformSourcePageAnalysing = "Analyzing web parts and page layouts";
         public const string WikiTextContainsImagesVideosReferences = "Splitting images and videos from wiki text - as modern text web part does not support embedded images and videos";
-        public const string TransformSourcePageIsWebPartPage = "Recognised source page as a Web Part Page.";
+        public const string TransformSourcePageIsWebPartPage = "Recognized source page as a Web Part Page.";
         public const string TransformPageModernTitle = "Setting the modern page title:";
         public const string TransformPageTitleOverride = "Using specified page title override";
         public const string TransformLayoutTransformatorOverride = "Using layout override for target page";

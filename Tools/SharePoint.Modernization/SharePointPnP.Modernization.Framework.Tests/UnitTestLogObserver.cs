@@ -34,5 +34,10 @@ namespace SharePointPnP.Modernization.Framework.Tests
         {
             Console.WriteLine($"WARNING: HEADING: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Id: {entry.CorrelationId}");
         }
+
+        public void SetPageId(string pageId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

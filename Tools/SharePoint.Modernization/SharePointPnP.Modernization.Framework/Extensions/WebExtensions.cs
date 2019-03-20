@@ -62,17 +62,18 @@ namespace Microsoft.SharePoint.Client
         /// Returns the site pages from a web, optionally filtered on pagename
         /// </summary>
         /// <param name="web">Web to get the pages from</param>
+        /// <param name="webRelativeListName">Web relative URL of the list (e.g. SiteAssets)</param>
         /// <param name="pageNameStartsWith">Filter to get all pages starting with</param>
-        /// <param name="folder"></param>
+        /// <param name="folder">Folder to search in</param>
         /// <returns>A list of pages (ListItem intances)</returns>
-        public static ListItemCollection GetPagesFromList(this Web web, string serverRelativeListUrl, string pageNameStartsWith = null, string folder = null)
+        public static ListItemCollection GetPagesFromList(this Web web, string webRelativeListName, string pageNameStartsWith = null, string folder = null)
         {
             // Load selected list
             List listHoldingPages = null;
             try
             {
                 web.EnsureProperty(p => p.ServerRelativeUrl);
-                listHoldingPages = web.GetList($"{web.ServerRelativeUrl}/{serverRelativeListUrl}");
+                listHoldingPages = web.GetList($"{web.ServerRelativeUrl}/{webRelativeListName}");
                 web.Context.Load(listHoldingPages, p => p.RootFolder);
                 web.Context.ExecuteQueryRetry();
             }
