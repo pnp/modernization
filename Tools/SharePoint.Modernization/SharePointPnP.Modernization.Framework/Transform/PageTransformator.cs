@@ -115,6 +115,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns>The path to the created modern page</returns>
         public string Transform(PageTransformationInformation pageTransformationInformation)
         {
+            if (pageTransformationInformation.SourcePage != null)
+            {
+                SetPage(pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower());
+            }
+            else
+            {
+                SetPage("Unknown page");
+            }
+
             var logsForSettings = pageTransformationInformation.DetailSettingsAsLogEntries();
             logsForSettings?.ForEach(o => Log(o, LogLevel.Information));
 

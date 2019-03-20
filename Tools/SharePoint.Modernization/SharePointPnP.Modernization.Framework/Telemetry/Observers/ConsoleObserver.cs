@@ -7,6 +7,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
     {
         private static readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
         private bool _includeDebugEntries;
+        private string _pageBeingTransformed;
 
         /// <summary>
         /// Get the single List<LogEntry> instance, singleton pattern
@@ -94,6 +95,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         {
             
             Write($"Warning: [{entry.Heading}] {entry.Message}");
+        }
+
+        /// <summary>
+        /// Sets the name of the page that's being transformed
+        /// </summary>
+        /// <param name="pageName">Name of the page</param>
+        public void SetPage(string pageName)
+        {
+            this._pageBeingTransformed = pageName;
         }
 
         /// <summary>

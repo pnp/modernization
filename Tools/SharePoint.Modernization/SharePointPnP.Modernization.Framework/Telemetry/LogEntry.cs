@@ -2,6 +2,9 @@
 
 namespace SharePointPnP.Modernization.Framework.Telemetry
 {
+    /// <summary>
+    /// Defines an entry to log
+    /// </summary>
     public class LogEntry
     {
         /// <summary>
@@ -16,14 +19,17 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Gets or sets Log message
         /// </summary>
         public string Message { get; set; }
+        
         /// <summary>
         /// Gets or sets CorrelationId of type Guid
         /// </summary>
         public Guid CorrelationId { get; set; }
+        
         /// <summary>
         /// Gets or sets Log source
         /// </summary>
         public string Source { get; set; }
+        
         /// <summary>
         /// Gets or sets Log Exception
         /// </summary>
@@ -43,5 +49,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Time in which the log entry was made
         /// </summary>
         public DateTime EntryTime { get; private set; }
+
+        /// <summary>
+        /// Page that's being transformed
+        /// </summary>
+        public string PageName { get; set; }
     }
 }

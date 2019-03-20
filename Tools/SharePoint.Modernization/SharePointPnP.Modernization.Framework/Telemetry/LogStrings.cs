@@ -86,10 +86,10 @@
         public const string TransformArticleSetHeaderToDefault = "Page Header Set to Default. Using page header default settings.";
         public const string TransformArticleSetHeaderToCustom = "Page Header Set to Custom. Using page header settings:";
         public const string TransformArticleHeaderImageUrl = "Image Url: ";
-        public const string TransformSourcePageIsWikiPage = "Recognised source page as a Wiki Page.";
+        public const string TransformSourcePageIsWikiPage = "Recognized source page as a Wiki Page.";
         public const string TransformSourcePageAnalysing = "Analyzing web parts and page layouts";
         public const string WikiTextContainsImagesVideosReferences = "Splitting images and videos from wiki text - as modern text web part does not support embedded images and videos";
-        public const string TransformSourcePageIsWebPartPage = "Recognised source page as a Web Part Page.";
+        public const string TransformSourcePageIsWebPartPage = "Recognized source page as a Web Part Page.";
         public const string TransformPageModernTitle = "Setting the modern page title:";
         public const string TransformPageTitleOverride = "Using specified page title override";
         public const string TransformLayoutTransformatorOverride = "Using layout override for target page";
