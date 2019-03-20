@@ -98,12 +98,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         }
 
         /// <summary>
-        /// Sets the name of the page that's being transformed
+        /// Sets the id of the page that's being transformed
         /// </summary>
-        /// <param name="pageName">Name of the page</param>
-        public void SetPage(string pageName)
+        /// <param name="pageName">Id of the page</param>
+        public void SetPageId(string pageId)
         {
-            this._pageBeingTransformed = pageName;
+            this._pageBeingTransformed = pageId;
         }
 
         /// <summary>

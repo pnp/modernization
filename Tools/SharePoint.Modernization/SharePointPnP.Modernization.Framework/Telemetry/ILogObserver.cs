@@ -35,9 +35,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         void Flush();
 
         /// <summary>
-        /// Sets the name of the page that's being transformed
+        /// Sets the id of the page that's being transformed
         /// </summary>
-        /// <param name="pageName">Name of the page</param>
-        void SetPage(string pageName);
+        /// <param name="pageId">id of the page</param>
+        void SetPageId(string pageId);
     }
 }

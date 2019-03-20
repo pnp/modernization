@@ -53,6 +53,6 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// <summary>
         /// Page that's being transformed
         /// </summary>
-        public string PageName { get; set; }
+        public string PageId { get; set; }
     }
 }

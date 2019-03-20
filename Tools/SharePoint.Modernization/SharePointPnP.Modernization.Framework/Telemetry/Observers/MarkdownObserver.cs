@@ -81,7 +81,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         {
             if (_includeDebugEntries)
             {
-                entry.PageName = this._pageBeingTransformed;
+                entry.PageId = this._pageBeingTransformed;
                 Logs.Add(new Tuple<LogLevel, LogEntry>(LogLevel.Debug, entry));
             }
         }
@@ -92,7 +92,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <param name="entry"></param>
         public void Error(LogEntry entry)
         {
-            entry.PageName = this._pageBeingTransformed;
+            entry.PageId = this._pageBeingTransformed;
             Logs.Add(new Tuple<LogLevel, LogEntry>(LogLevel.Error, entry));
         }
 
@@ -102,7 +102,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <param name="entry"></param>
         public void Info(LogEntry entry)
         {
-            entry.PageName = this._pageBeingTransformed;
+            entry.PageId = this._pageBeingTransformed;
             Logs.Add(new Tuple<LogLevel, LogEntry>(LogLevel.Information, entry));
         }
 
@@ -112,17 +112,17 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <param name="entry"></param>
         public void Warning(LogEntry entry)
         {
-            entry.PageName = this._pageBeingTransformed;
+            entry.PageId = this._pageBeingTransformed;
             Logs.Add(new Tuple<LogLevel, LogEntry>(LogLevel.Warning, entry));
         }
 
         /// <summary>
-        /// Sets the name of the page that's being transformed
+        /// Sets the id of the page that's being transformed
         /// </summary>
-        /// <param name="pageName">Name of the page</param>
-        public void SetPage(string pageName)
+        /// <param name="pageId">Id of the page</param>
+        public void SetPageId(string pageId)
         {
-            this._pageBeingTransformed = pageName;
+            this._pageBeingTransformed = pageId;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             bool first = true;
             foreach(var distinctLogEntry in distinctLogs)
             {
-                var logEntriesToProcess = Logs.Where(p => p.Item2.PageName == distinctLogEntry.Item2.PageName);
+                var logEntriesToProcess = Logs.Where(p => p.Item2.PageId == distinctLogEntry.Item2.PageId);
                 GenerateReportForPage(report, logEntriesToProcess, first);
                 first = false;
             }
