@@ -174,5 +174,17 @@
 
         public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
         #endregion
+
+        #region PageLayoutAnalyser
+
+        public const string Heading_PageLayoutAnalyser = "Page Layout Analyser";
+
+        public const string Error_CannotWriteToXmlFile = "Error writing to mapping file: {0} {1}";
+        public const string Error_CannotGetSiteCollContext = "Cannot get site collection context";
+        public const string Error_CannotMapMetadataFields = "Cannot map the metadata fields from the content types";
+
+        public const string XmlMappingSavedAs = "Xml Mapping saved as";
+
+        #endregion
     }
 }
