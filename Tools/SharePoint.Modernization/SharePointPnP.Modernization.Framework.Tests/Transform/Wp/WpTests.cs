@@ -39,10 +39,12 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
             using (var cc = TestCommon.CreateClientContext())
             {
                 var pageTransformator = new PageTransformator(cc);
-                pageTransformator.RegisterObserver(new MarkdownObserver());
+                pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp"));
                 pageTransformator.RegisterObserver(new ConsoleObserver());
 
-                var pages = cc.Web.GetPages("wp_summarylinks_");
+                var pages = cc.Web.GetPages("wp_summarylinks_1");
+                //var pages = cc.Web.GetPages("pagein", "folder1/sub1");
+                //var pages = cc.Web.GetPagesFromList("SiteAssets", "loc_", "Folder1");
                 foreach (var page in pages)
                 {
                     PageTransformationInformation pti = new PageTransformationInformation(page)
@@ -53,7 +55,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
                         // Don't log test runs
                         SkipTelemetry = true,
 
-                        RemoveEmptySectionsAndColumns = false,
+                        //RemoveEmptySectionsAndColumns = false,
 
                         // ModernizationCenter options
                         //ModernizationCenterInformation = new ModernizationCenterInformation()

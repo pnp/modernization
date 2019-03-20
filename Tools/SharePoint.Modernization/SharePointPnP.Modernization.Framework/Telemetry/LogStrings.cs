@@ -52,12 +52,19 @@
 
         #endregion
 
+        #region Warning messages
+
+        public const string Warning_NonCriticalErrorDuringVersionStampAndPublish = "Page could not be published as versioning is not enabled or version stamp could not be set.";
+
+        #endregion
+
         #region Status Messages
 
         public const string ValidationChecksComplete = "Validation checks complete";
         public const string LoadingTargetClientContext = "Loading target client context object";
         public const string LoadingClientContextObjects = "Loading client context objects";
         public const string TransformingSite = "Transforming site:";
+        public const string TransformingPage = "Transforming page:";
         public const string CrossSiteTransferToSite = "Cross-Site transfer mode to site:";
         public const string PageIsLocatedInFolder = "The transform page is located in a folder";
         public const string DetectIfPageIsInFolder = "Detect if the page is living inside a folder";

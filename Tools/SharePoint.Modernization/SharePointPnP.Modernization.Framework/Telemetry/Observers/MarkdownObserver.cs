@@ -17,22 +17,33 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         protected bool _includeDebugEntries;
         protected DateTime _reportDate;
         protected string _reportFileName = "";
+        protected string _reportFolder = Environment.CurrentDirectory;
 
+        #region Construction
         /// <summary>
         /// Constructor for specifying to include debug entries
         /// </summary>
+        /// <param name="fileName">Name used to construct the log file name</param>
+        /// <param name="folder">Folder that will hold the log file</param>
         /// <param name="includeDebugEntries">Include Debug Log Entries</param>
-        public MarkdownObserver(string fileName = "", bool includeDebugEntries = false)
+        public MarkdownObserver(string fileName = "", string folder = "", bool includeDebugEntries = false)
         {
             _includeDebugEntries = includeDebugEntries;
             _reportDate = DateTime.Now;
-            _reportFileName = fileName;
+
+            if (!string.IsNullOrEmpty(folder))
+            {
+                _reportFolder = folder;
+            }
+
+            // Drop possible file extension as we want to ensure we have a .md extension
+            _reportFileName = System.IO.Path.GetFileNameWithoutExtension(fileName);
 
 #if DEBUG && MEASURE && MEASURE
-                _includeDebugEntries = true; //Override for debugging locally
+           _includeDebugEntries = true; //Override for debugging locally
 #endif
         }
-
+        #endregion
 
         #region Markdown Tokens
         private const string Heading1 = "#";
@@ -42,8 +53,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         private const string Heading5 = "#####";
         private const string Heading6 = "######";
         private const string UnorderedListItem = "-";
-        private const string Italic = "*";
-        private const string Bold = "__";
+        private const string Italic = "_";
+        private const string Bold = "**";
         private const string BlockQuotes = "> ";
         private const string TableHeaderColumn = "-------------";
         private const string TableColumnSeperator = " | ";
@@ -69,7 +80,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         {
             if (_includeDebugEntries)
             {
-                Logs.Add(new Tuple<LogLevel, LogEntry>(LogLevel.Error, entry));
+                Logs.Add(new Tuple<LogLevel, LogEntry>(LogLevel.Debug, entry));
             }
         }
 
@@ -165,17 +176,34 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             report.AppendLine($" {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
 
             var logDetails = allLogs.Where(l => l.Item2.Heading != LogStrings.Heading_PageTransformationInfomation &&
-                                            l.Item2.Heading != LogStrings.Heading_Summary);
-            
-            foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Information || l.Item1 == LogLevel.Warning))
+                                                l.Item2.Heading != LogStrings.Heading_Summary);
+
+            IEnumerable<Tuple<LogLevel, LogEntry>> filteredLogDetails = null;
+            if (_includeDebugEntries)
             {
-                if (log.Item1 == LogLevel.Information)
+                filteredLogDetails = logDetails.Where(l => l.Item1 == LogLevel.Debug ||
+                                                           l.Item1 == LogLevel.Information ||
+                                                           l.Item1 == LogLevel.Warning);
+            }
+            else
+            {
+                filteredLogDetails = logDetails.Where(l => l.Item1 == LogLevel.Information ||
+                                                           l.Item1 == LogLevel.Warning);
+            }
+
+            foreach (var log in filteredLogDetails)
+            {
+                switch(log.Item1)
                 {
-                    report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
-                }
-                else
-                {
-                    report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {Bold}{log.Item2.Heading}{Bold} {TableColumnSeperator} {Bold}{Italic}{log.Item2.Message}{Italic}{Bold} ");
+                    case LogLevel.Information:
+                        report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} ");
+                        break;
+                    case LogLevel.Warning:
+                        report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {Bold}{log.Item2.Heading}{Bold} {TableColumnSeperator} {Bold}{log.Item2.Message}{Bold} ");
+                        break;
+                    case LogLevel.Debug:
+                        report.AppendLine($" {log.Item2.EntryTime} {TableColumnSeperator} {Italic}{log.Item2.Heading}{Italic} {TableColumnSeperator} {Italic}{log.Item2.Message}{Italic} ");
+                        break;
                 }
             }
 
@@ -214,11 +242,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
                 // Dont want to assume locality here
                 string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "").Replace(' ', ' ').Replace("  ", " ");
+                string logFileName = string.Format("Page Transformation Report {0} {1}", _reportFileName, logRunTime);
 
-                string logFileName = string.Format("Transform Report {0} {1}", _reportFileName,
-                    logRunTime);
-
-                logFileName = logFileName + ".md";
+                logFileName = $"{_reportFolder}\\{logFileName}.md";
 
                 using (StreamWriter sw = new StreamWriter(logFileName, true))
                 {
@@ -229,7 +255,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var logs = _lazyLogInstance.Value;
                 logs.RemoveRange(0, logs.Count);
 
-                Console.WriteLine($"Report saved as: {Environment.CurrentDirectory}\\{logFileName}");
+                Console.WriteLine($"Report saved as: {logFileName}");
 
             }
             catch (Exception ex)

@@ -213,6 +213,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
             }
 
+            LogInfo($"{LogStrings.TransformingPage} {pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary);
+
 #if DEBUG && MEASURE
             Stop("Telemetry");
 #endif
@@ -619,28 +621,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             // Tag the file with a page modernization version stamp
+            string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
             try
             {
-                string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
-                var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
-                var targetPageFile = this.sourceClientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
-                this.sourceClientContext.Load(targetPageFile, p => p.Properties);
+                var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
+                context.Load(targetPageFile, p => p.Properties);
                 targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                 targetPageFile.Update();
 
                 // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
                 targetPageFile.Publish("Page modernization initial publish");
-
-                this.sourceClientContext.ExecuteQueryRetry();
-                if (hasTargetContext)
-                {
-                    this.targetClientContext.ExecuteQueryRetry();
-                }
+                
+                // Send both the property update and publish as a single operation to SharePoint
+                context.ExecuteQueryRetry();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 // Eat exceptions as this is not critical for the generated page
-                LogError(LogStrings.Error_SettingVersionStampError, LogStrings.Heading_ArticlePageHandling, ex, true);
+                LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
             }
 
 #if DEBUG && MEASURE
@@ -710,16 +708,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             LogInfo(LogStrings.TransformComplete, LogStrings.Heading_PageCreation);
-
             #endregion
 
-            #region Return final page url
-            return ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext); ;
+            return serverRelativePathForModernPage;
             #endregion
-
-            #endregion
-
-
         }
 
         /// <summary>
