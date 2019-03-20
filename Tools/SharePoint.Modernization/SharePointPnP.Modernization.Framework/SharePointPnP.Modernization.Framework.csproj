@@ -189,6 +189,7 @@
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Functions\NotAvailableAtTargetException.cs" />
+    <Compile Include="Publishing\PublishingDefaults.cs" />
     <Compile Include="Publishing\PublishingPageTransformationInformation.cs" />
     <Compile Include="Publishing\PublishingPageTransformator.cs" />
     <Compile Include="Publishing\PageLayoutAnalyser.cs" />
