@@ -70,8 +70,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var report = GenerateReport(includeHeading:false);
 
                 // Dont want to assume locality here
-                string logRunTime = base._reportDate.ToString().Replace('/', '-').Replace(":", "-").Replace(' ', ' ').Replace(" ", "");
-
+                string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "-").Replace(" ", "-");
                 string logFileName = $"Page-Transformation-Report-{logRunTime}{_reportFileName}";
 
                 logFileName = logFileName + ".aspx";

@@ -241,8 +241,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var report = GenerateReport();
 
                 // Dont want to assume locality here
-                string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "").Replace(' ', ' ').Replace("  ", " ");
-                string logFileName = string.Format("Page Transformation Report {0} {1}", _reportFileName, logRunTime);
+                string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "-").Replace(" ", "-");
+                string logFileName = $"Page-Transformation-Report-{logRunTime}{_reportFileName}";
 
                 logFileName = $"{_reportFolder}\\{logFileName}.md";
 
