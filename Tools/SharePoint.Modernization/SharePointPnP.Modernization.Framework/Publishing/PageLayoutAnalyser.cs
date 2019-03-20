@@ -9,6 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using AngleSharp;
+using AngleSharp.Dom;
+using AngleSharp.Dom.Html;
+using AngleSharp.Parser.Html;
+
 using ContentType = Microsoft.SharePoint.Client.ContentType;
 using File = Microsoft.SharePoint.Client.File;
 
@@ -48,6 +53,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         const string PublishingPageLayoutField = "PublishingPageLayout";
         const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
 
+        private HtmlParser parser;
+
         /// <summary>
         /// Analyse Page Layouts class constructor
         /// </summary>
@@ -66,6 +73,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             _sourceContext = sourceContext;
             EnsureSiteCollectionContext(sourceContext);
+            parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true }, Configuration.Default.WithDefaultLoader().WithCss());
         }
 
 
@@ -93,14 +101,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
 
                     var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
-                    var webParts = GetPageLayoutFileWebParts(layout);
+                    var webParts = ExtractFieldControlsFromPageLayoutHtml(layout);
+                    var zones = ExtractWebPartZonesFromPageLayoutHtml(layout);
 
                     pageLayoutMappings.Add(new PageLayout()
                     {
                         Name = layout.DisplayName,
                         ContentType = assocContentTypeParts?[0],
                         MetaData = metadata,
-                        WebParts = webParts
+                        WebParts = webParts,
+                        WebPartZones = zones
 
                     });
 
@@ -200,10 +210,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             var galleryItems = masterPageGallery.GetItems(query);
             _siteCollContext.Load(masterPageGallery);
             _siteCollContext.Load(galleryItems);
-            _siteCollContext.Load(galleryItems, i => i.Include(o=>o.DisplayName));
+            _siteCollContext.Load(galleryItems, i => i.Include(o=>o.DisplayName), 
+                i => i.Include(o => o.File),
+                i => i.Include(o => o.File.ServerRelativeUrl));
+
             _siteCollContext.ExecuteQueryRetry();
-
-
+            
             return galleryItems.Count > 0 ? galleryItems : null;
 
         }
@@ -298,13 +310,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return fields.ToArray();
         }
 
-        /// <summary>
-        /// Get web part zones defined in the page layout
-        /// </summary>
-        public void GetWebPartZones()
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Get fixed web parts defined in the page layout
@@ -326,17 +331,93 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             */
         }
 
+
         /// <summary>
         /// Extract the web parts from the page layout HTML outside of web part zones
         /// </summary>
-        public void ExtractWebPartsFromPageLayoutHtml()
+        public WebPartField[] ExtractFieldControlsFromPageLayoutHtml(ListItem pageLayout)
         {
             /*Plan
              * Scan through the file to find the web parts by the tags
              * Extract and convert to definition 
             */
 
-            throw new NotImplementedException();
+            List<WebPartField> webParts = new List<WebPartField>();
+
+            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
+            var fileUrl = pageLayout.File.ServerRelativeUrl;
+
+            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
+
+            using (var document = this.parser.Parse(fileHtml))
+            {
+                //TODO: Add further processing to find if the tags are in a grid system
+                //TODO: Remove unnecessary controls
+                //TODO: DeDup - Some controls can be inside an edit panel
+
+                var fieldControls = document.All.Where(o => o.TagName.Contains("SHAREPOINTWEBCONTROLS"));
+
+                foreach (var control in fieldControls)
+                {
+                    var attributes = control.Attributes;
+                    var fieldName = "";
+                    if (attributes.Any(o => o.Name == "fieldname")) {
+
+                        fieldName = attributes["fieldname"].Value;
+                    }
+
+                    webParts.Add(new WebPartField()
+                    {
+                        Name = fieldName,
+                        TargetWebPart = "",
+                        Row = "",
+                        Column = ""
+                    });
+                }
+
+            }
+
+            return webParts.ToArray();
+
+        }
+
+        /// <summary>
+        /// Extract the web parts from the page layout HTML outside of web part zones
+        /// </summary>
+        public WebPartZone[] ExtractWebPartZonesFromPageLayoutHtml(ListItem pageLayout)
+        {
+            /*Plan
+             * Scan through the file to find the web parts by the tags
+             * Extract and convert to definition 
+            */
+            List<WebPartZone> zones = new List<WebPartZone>();
+
+            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
+            var fileUrl = pageLayout.File.ServerRelativeUrl;
+
+            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
+
+            using (var document = this.parser.Parse(fileHtml))
+            {
+                //TODO: Add further processing to find if the tags are in a grid system
+
+                var webPartZones = document.All.Where(o => o.TagName.Contains("WEBPARTZONE"));
+
+                foreach(var webPartZone in webPartZones)
+                {
+                    zones.Add(new WebPartZone()
+                    {
+                        Name = webPartZone.Id,
+                        Column = "",
+                        Row = "",
+                        ZoneIndex = ""
+                    });
+                }
+
+            }
+
+            return zones.ToArray();
+
         }
 
         /// <summary>
