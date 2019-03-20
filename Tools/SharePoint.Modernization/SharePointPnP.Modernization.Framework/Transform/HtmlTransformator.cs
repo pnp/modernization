@@ -13,6 +13,54 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// </summary>
     public class HtmlTransformator : IHtmlTransformator
     {
+        #region Internal table classes
+        internal class Table
+        {
+            internal string ClassName { get; set; }
+            internal IElement InsertionPoint { get; set; }
+            internal IElementCell[] Header { get; set; }
+            internal IElementCell[,] Cells { get; set; }
+
+            internal bool HasHeader
+            {
+                get
+                {
+                    if (this.Header == null)
+                    {
+                        return false;
+                    }
+
+                    for (int colPos = 0; colPos < this.Header.Length; colPos += 1)
+                    {
+                        if (this.Header[colPos] != null)
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+            }
+        }
+
+        internal class IElementCell
+        {
+            internal bool HasValue
+            {
+                get
+                {
+                    return Element != null;
+                }
+            }
+            internal IElement Element { get; set; }
+
+            internal IElementCell(IElement element)
+            {
+                this.Element = element;
+            }
+        }
+        #endregion
+
         private const int DefaultTableWidth = 800;
         private HtmlParser parser;
 
@@ -182,9 +230,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         protected virtual void TransformTables(IHtmlCollection<IElement> tables, IHtmlDocument document)
         {
-            // TODO: what about nested tables?
-            foreach(var table in tables)
+
+            List<Tuple<IElement, IElement, IElement>> tableReplaceList = new List<Tuple<IElement, IElement, IElement>>();
+
+            foreach (var table in tables)
             {
+                // Normalize table by removing the col and row spans and returning a Table object containing matrix of cells, header cells and table information
+                var normalizedTable = NormalizeTable(table);
+
                 // <div class="canvasRteResponsiveTable">
                 var newTableElement = document.CreateElement($"div");
                 newTableElement.ClassName = "canvasRteResponsiveTable";
@@ -199,15 +252,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var tableElement = document.CreateElement("table");
                 //ms-rteTable-default: basic grid lines
                 string tableClassName = "borderHeaderTableStyleNeutral";
-                if (!string.IsNullOrEmpty(table.ClassName))
+                if (!string.IsNullOrEmpty(normalizedTable.ClassName))
                 {
-                    if (table.ClassName.Equals("ms-rteTable-default", StringComparison.InvariantCultureIgnoreCase))
+                    if (normalizedTable.ClassName.Equals("ms-rteTable-default", StringComparison.InvariantCultureIgnoreCase))
                     {
                         tableClassName = "borderHeaderTableStyleNeutral";
                     }
                     else
                     {
-                        if (int.TryParse(table.ClassName.ToLower().Replace("ms-rtetable-", ""), out int tableStyleCode))
+                        if (int.TryParse(normalizedTable.ClassName.ToLower().Replace("ms-rtetable-", ""), out int tableStyleCode))
                         {
                             tableClassName = TableStyleCodeToName(tableStyleCode);
                         }
@@ -222,87 +275,100 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var tableBody = document.CreateElement("tbody");
                 tableElement.AppendChild(tableBody);
 
-                // Iterate the table rows
-                var tableBodyElement = (table as IHtmlTableElement).Bodies[0];
-                var rows = tableBodyElement.Children.Where(p => p.TagName.Equals("tr", StringComparison.InvariantCultureIgnoreCase));
-                if (rows != null && rows.Count() > 0)
+                // Table cell width
+                var cellWidth = GetDefaultCellTableCellWidths(normalizedTable.Cells.GetLength(1));
+
+                // Table headers
+                if (normalizedTable.HasHeader)
                 {
-                    // TODO: col and row spans are not yet supported in RTE but do seem to work...verify
-                    foreach(var row in rows)
+                    // Header is transformed into  a row with bold formatted headers
+                    var newRow = document.CreateElement("tr");
+                    int headerCounter = 0;
+
+                    for (int colPos = 0; colPos < normalizedTable.Header.Length; colPos += 1)
                     {
-                        var newRow = document.CreateElement("tr");
-
-                        // check for table headers
-                        var tableHeaders = row.Children.Where(p => p.TagName.Equals("th", StringComparison.InvariantCultureIgnoreCase));
-                        if (tableHeaders != null && tableHeaders.Count() > 0)
+                        var tableHeaderValue = document.CreateElement("strong");
+                        if (normalizedTable.Header[colPos].HasValue)
                         {
-                            var headerWidth = GetDefaultCellTableCellWidths(tableHeaders.Count());
-                            int headerCounter = 0;
-
-                            foreach(var tableHeader in tableHeaders)
-                            {
-                                var tableHeaderValue = document.CreateElement("strong");
-                                tableHeaderValue.TextContent = tableHeader.TextContent;
-
-                                var tableHeaderCell = document.CreateElement("td");
-                                tableHeaderCell.Style.Width = $"{headerWidth[headerCounter]}px";
-                                headerCounter++;
-                                tableHeaderCell.AppendChild(tableHeaderValue);
-
-                                // take over row and col spans
-                                var rowSpan = tableHeader.GetAttribute("rowspan");
-                                if (!string.IsNullOrEmpty(rowSpan) && rowSpan != "1")
-                                {
-                                    tableHeaderCell.SetAttribute("rowspan", rowSpan);
-                                }
-                                var colSpan = tableHeader.GetAttribute("colspan");
-                                if (!string.IsNullOrEmpty(colSpan) && colSpan != "1")
-                                {
-                                    tableHeaderCell.SetAttribute("colspan", colSpan);
-                                }
-
-                                newRow.AppendChild(tableHeaderCell);
-                            }
+                            tableHeaderValue.TextContent = normalizedTable.Header[colPos].Element.TextContent;
                         }
 
-                        // check for table cells
-                        var tableCells = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase));
-                        if (tableCells != null && tableCells.Count() > 0)
-                        {
-                            var cellWidth = GetDefaultCellTableCellWidths(tableCells.Count());
-                            int cellCounter = 0;
+                        var tableHeaderCell = document.CreateElement("td");
+                        tableHeaderCell.Style.Width = $"{cellWidth[headerCounter]}px";
+                        headerCounter++;
 
-                            foreach (var tableCell in tableCells)
-                            {
-                                var newTableCell = document.CreateElement("td");
-                                newTableCell.Style.Width = $"{cellWidth[cellCounter]}px";
-                                cellCounter++;
-
-                                // Copy over the content, take over html content as cell can have formatting inside
-                                // Formatting of the table cell content was already done in previous steps, so we simply copy what we have
-                                newTableCell.InnerHtml = tableCell.InnerHtml;
-
-                                // take over row and col spans
-                                var rowSpan = tableCell.GetAttribute("rowspan");
-                                if (!string.IsNullOrEmpty(rowSpan) && rowSpan != "1")
-                                {
-                                    newTableCell.SetAttribute("rowspan", rowSpan);
-                                }
-                                var colSpan = tableCell.GetAttribute("colspan");
-                                if (!string.IsNullOrEmpty(colSpan) && colSpan != "1")
-                                {
-                                    newTableCell.SetAttribute("colspan", colSpan);
-                                }
-
-                                newRow.AppendChild(newTableCell);
-                            }
-                        }
-                        tableBody.AppendChild(newRow);
+                        tableHeaderCell.AppendChild(tableHeaderValue);
+                        newRow.AppendChild(tableHeaderCell);
                     }
+
+                    // Append the new header as table row
+                    tableBody.AppendChild(newRow);
                 }
 
+                // Iterate the table rows
+                for (int rowPos = 0; rowPos < normalizedTable.Cells.GetLength(0); rowPos += 1)
+                {
+                    var newRow = document.CreateElement("tr");
+                    int cellCounter = 0;
+
+                    for (int colPos = 0; colPos < normalizedTable.Cells.GetLength(1); colPos += 1)
+                    {
+                        var newTableCell = document.CreateElement("td");
+                        newTableCell.Style.Width = $"{cellWidth[cellCounter]}px";
+                        cellCounter++;
+
+                        // Did we put a "real" cell?
+                        if (normalizedTable.Cells[rowPos, colPos].HasValue)
+                        {
+                            // Copy over the content, take over html content as cell can have formatting inside
+                            // Formatting of the table cell content was already done in previous steps, so we simply copy what we have
+                            newTableCell.InnerHtml = normalizedTable.Cells[rowPos, colPos].Element.InnerHtml;
+                        }
+                        newRow.AppendChild(newTableCell);
+                    }
+
+                    // Append the new row
+                    tableBody.AppendChild(newRow);
+                }
+
+                // Add table to list for doing actual replacements once we're done analyzing all tables
+                tableReplaceList.Add(new Tuple<IElement, IElement, IElement>(table, newTableElement, normalizedTable.InsertionPoint));
+            }
+
+            foreach (var tableToReplace in tableReplaceList.Where(p => p.Item3 != null))
+            {
+                // Insert the new table at the insertion point. Add a br to work around an RTE bug that you can't separate tables
+                tableToReplace.Item3.AppendChild(document.CreateElement("br"));
+                tableToReplace.Item3.AppendChild(tableToReplace.Item2);
+
+                // Remove the old table
+                tableToReplace.Item1.Parent.RemoveChild(tableToReplace.Item1);                
+            }
+
+            foreach (var tableToReplace in tableReplaceList.Where(p => p.Item3 == null))
+            {
                 // Swap old table with new table
-                table.Parent.ReplaceChild(newTableElement, table);
+                tableToReplace.Item1.Parent.ReplaceChild(tableToReplace.Item2, tableToReplace.Item1);
+            }
+
+            // Drop any nested table
+            foreach(var tableToCheck in tableReplaceList)
+            {
+                var nestedTables = tableToCheck.Item2.QuerySelectorAll("table");
+                if (nestedTables.Any())
+                {
+                    foreach(var nestedTable in nestedTables.ToList())
+                    {
+                        // the new Table element has a DIV as top node, an inner DIV and then the table as child
+                        if (tableToCheck.Item2.FirstElementChild != null && tableToCheck.Item2.FirstElementChild.FirstElementChild != null)
+                        {
+                            if (nestedTable != tableToCheck.Item2.FirstElementChild.FirstElementChild)
+                            {
+                                nestedTable.ParentElement.RemoveChild(nestedTable);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -1334,6 +1400,246 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 return false;
             }
         }
+
+
+        /// <summary>
+        /// Returns the table as a normalized table object. Includes replacing row and col spans by actual empty cells
+        /// </summary>
+        /// <param name="table">Table to normalize</param>
+        /// <returns>Normalized table</returns>
+        private Table NormalizeTable(IElement table)
+        {
+            // Determine the table dimension, item1 = max cols / item 2 = max rows
+            var tableDimension = GetTableDimensions(table);
+
+            // Create table object
+            Table normalizedTable = new Table()
+            {
+                ClassName = table.ClassName,
+            };
+
+            // A 2 dimensional array to hold the normalized table cells
+            IElementCell[,] cells = new IElementCell[tableDimension.Item2, tableDimension.Item1];
+            // An array to hold the header cells (if any)
+            IElementCell[] headerCells = new IElementCell[tableDimension.Item1];
+
+            var tableBodyElement = (table as IHtmlTableElement).Bodies[0];
+            var rows = tableBodyElement.Children.Where(p => p.TagName.Equals("tr", StringComparison.InvariantCultureIgnoreCase));
+            if (rows != null && rows.Count() > 0)
+            {
+                int rowPos = 0;
+                foreach (var row in rows)
+                {
+                    var tableHeaders = row.Children.Where(p => p.TagName.Equals("th", StringComparison.InvariantCultureIgnoreCase));
+                    if (tableHeaders != null && tableHeaders.Count() > 0)
+                    {
+                        int colPos = 0;
+                        foreach (var tableHeader in tableHeaders)
+                        {
+                            headerCells[colPos] = new IElementCell(tableHeader);
+                            colPos++;
+
+                            var colSpan = tableHeader.GetAttribute("colspan");
+                            if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd))
+                            {
+                                for (int i = 0; i < columnCellsToAdd - 1; i++)
+                                {
+                                    headerCells[colPos] = new IElementCell(null);
+                                    colPos++;
+                                }
+                            }
+                        }
+                    }
+
+                    var tableCells = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase));
+                    if (tableCells != null && tableCells.Count() > 0)
+                    {
+                        int colPos = 0;
+                        foreach (var tableCell in tableCells)
+                        {
+
+                            if (cells[rowPos, colPos] != null)
+                            {
+                                // cells was already filled due to previous row span expansion. Find next free cell on this row
+                                while ((cells[rowPos, colPos] != null) && colPos < tableDimension.Item1)
+                                {
+                                    colPos++;
+                                }
+                            }
+
+                            cells[rowPos, colPos] = new IElementCell(tableCell);
+                            colPos++;
+
+                            var colSpan = tableCell.GetAttribute("colspan");
+                            var rowSpan = tableCell.GetAttribute("rowspan");
+
+                            // We do have both col and row span set
+                            if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd) &&
+                                !string.IsNullOrEmpty(rowSpan) && rowSpan != "1" && int.TryParse(rowSpan, out int rowCellsToAdd))
+                            {
+                                int tempRowPos = rowPos;
+                                for (int j = 0; j < rowCellsToAdd; j++)
+                                {
+                                    int tempColPos = colPos - 1;
+                                    for (int i = 0; i < columnCellsToAdd; i++)
+                                    {
+                                        if (cells[tempColPos, tempRowPos] == null)
+                                        {
+                                            cells[tempColPos, tempRowPos] = new IElementCell(null);
+                                        }
+                                        tempColPos++;
+                                    }
+                                    tempRowPos++;
+                                }
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd2))
+                                {
+                                    for (int i = 0; i < columnCellsToAdd2 - 1; i++)
+                                    {
+                                        cells[rowPos, colPos] = new IElementCell(null);
+                                        colPos++;
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(rowSpan) && rowSpan != "1" && int.TryParse(rowSpan, out int rowCellsToAdd2))
+                                {
+                                    int tempRowPos = rowPos + 1;
+                                    for (int i = 0; i < rowCellsToAdd2 - 1; i++)
+                                    {
+                                        cells[tempRowPos, colPos - 1] = new IElementCell(null);
+                                        tempRowPos++;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Only increase row pos for actual rows as header is handled differently
+                        rowPos++;
+                    }                    
+                }
+            }
+
+            normalizedTable.Header = headerCells;
+            normalizedTable.Cells = cells;
+
+            // Let's assume there's badly shaped tables as well...fill the empty cells with an empty cell value so they're correctly replaced
+            for (int rowPos = 0; rowPos < normalizedTable.Cells.GetLength(0); rowPos += 1)
+            {
+                for (int colPos = 0; colPos < normalizedTable.Cells.GetLength(1); colPos += 1)
+                {
+                    if (normalizedTable.Cells[rowPos, colPos] == null)
+                    {
+                        normalizedTable.Cells[rowPos, colPos] = new IElementCell(null);
+                    }
+                }
+            }
+
+            if (normalizedTable.HasHeader)
+            {
+                for (int colPos = 0; colPos < normalizedTable.Header.GetLength(0); colPos += 1)
+                {
+                    if (normalizedTable.Header[colPos] == null)
+                    {
+                        normalizedTable.Header[colPos] = new IElementCell(null);
+                    }
+                }
+            }
+
+            // Determine insertion point
+            if (table.ParentElement != null)
+            {
+                var startNode = table.ParentElement;
+                IElement lastTableElement = null;
+
+                // walk up the parent tree
+                while (startNode != null)
+                {
+                    if (startNode.TagName.Equals("table", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        lastTableElement = startNode;
+                    }
+                    startNode = startNode.ParentElement;
+                }
+                
+                if (lastTableElement != null)
+                {
+                    // This table was nested, let's take the parent element of the 'highest' table as insertion point
+                    normalizedTable.InsertionPoint = lastTableElement.ParentElement;
+                }
+
+            }
+
+            return normalizedTable;
+        }
+
+        /// <summary>
+        /// Gets the dimensions of a table, excluding the header
+        /// </summary>
+        /// <param name="table">Table to investigate</param>
+        /// <returns>Tuple containing the columns and rows</returns>
+        private Tuple<int,int> GetTableDimensions(IElement table)
+        {
+            int maxCols = 0;
+            int maxRows = 0;
+            bool hasHeader = false;
+
+            var tableBodyElement = (table as IHtmlTableElement).Bodies[0];
+            var rows = tableBodyElement.Children.Where(p => p.TagName.Equals("tr", StringComparison.InvariantCultureIgnoreCase));
+            if (rows != null && rows.Count() > 0)
+            {
+                maxRows = rows.Count();
+                foreach (var row in rows)
+                {
+                    // Do we have a header
+                    var tableHeaders = row.Children.Where(p => p.TagName.Equals("th", StringComparison.InvariantCultureIgnoreCase));
+                    if (tableHeaders != null && tableHeaders.Count() > 0)
+                    {
+                        hasHeader = true;
+                    }
+
+                    var tableCells = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase));
+                    if (tableCells != null && tableCells.Count() > 0)
+                    {
+                        int colCount = 0;
+                        foreach (var tableCell in tableCells)
+                        {
+                            var colSpan = tableCell.GetAttribute("colspan");
+                            if (!string.IsNullOrEmpty(colSpan) && colSpan != "1")
+                            {
+                                if (int.TryParse(colSpan, out int columnCellsToAdd))
+                                {
+                                    colCount = colCount + columnCellsToAdd;
+                                }
+                                else
+                                {
+                                    colCount++;
+                                }
+                            }
+                            else
+                            {
+                                colCount++;
+                            }
+                        }
+
+                        if (colCount > maxCols)
+                        {
+                            maxCols = colCount;
+                        }
+                    }
+                }
+            }
+
+            if (hasHeader)
+            {
+                // remove one row as header is handled separately
+                maxRows--;
+            }
+
+            return new Tuple<int, int>(maxCols,maxRows);
+        }
+
         #endregion
     }
 }

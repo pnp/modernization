@@ -253,7 +253,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string zoneIndexField;
         
-        private string nameField;
+        private string zoneIdField;
         
         private string rowField;
         
@@ -272,12 +272,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Name {
+        public string ZoneId {
             get {
-                return this.nameField;
+                return this.zoneIdField;
             }
             set {
-                this.nameField = value;
+                this.zoneIdField = value;
             }
         }
         
@@ -596,7 +596,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
-        private string contentTypeField;
+        private string associatedContentTypeField;
         
         private PageLayoutPageLayoutTemplate pageLayoutTemplateField;
         
@@ -669,12 +669,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string ContentType {
+        public string AssociatedContentType {
             get {
-                return this.contentTypeField;
+                return this.associatedContentTypeField;
             }
             set {
-                this.contentTypeField = value;
+                this.associatedContentTypeField = value;
             }
         }
         

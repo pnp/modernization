@@ -1,19 +1,13 @@
-﻿using AngleSharp.Parser.Html;
-using Microsoft.SharePoint.Client;
-using Microsoft.SharePoint.Client.Taxonomy;
+﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
-using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
-using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Serialization;
 
 namespace SharePointPnP.Modernization.Framework.Transform
@@ -22,18 +16,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Transforms a classic wiki/webpart page into a modern client side page
     /// </summary>
-    public class PageTransformator : BaseTransform
+    public class PageTransformator : BasePageTransformator
     {
-        private ClientContext sourceClientContext;
-        private ClientContext targetClientContext;
-        private PageTransformation pageTransformation;
-        private string version = "undefined";
-        private PageTelemetry pageTelemetry;
-        private Stopwatch watch;
-        private const string ExecutionLog = "execution.csv";
 
         #region Construction
-
         /// <summary>
         /// Creates a page transformator instance with a target destination of a target web e.g. Modern/Communication Site
         /// </summary>
@@ -126,7 +112,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Transform the page
         /// </summary>
         /// <param name="pageTransformationInformation">Information about the page to transform</param>
-        /// <returns>The path to created modern page</returns>
+        /// <returns>The path to the created modern page</returns>
         public string Transform(PageTransformationInformation pageTransformationInformation)
         {
             var logsForSettings = pageTransformationInformation.DetailSettingsAsLogEntries();
@@ -239,7 +225,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
             {
                 var fileRefFieldValue = pageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
-                pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+
+                if (fileRefFieldValue.ToLower().Contains("/sitepages"))
+                {
+                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+                }
+                else
+                {
+                    // Page was living in another list, leave the list name as that will be the folder hosting the modern file in SitePages.
+                    // This convention is used to avoid naming conflicts
+                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}", "").Trim();
+                }
 
                 if (pageFolder.Length > 0)
                 {
@@ -765,7 +761,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
             var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
             
-            string path = sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+            string sourcePath = sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+            string targetPath = sourcePath;
+
+            if (!sourcePath.ToLower().Contains("/sitepages"))
+            {
+                // Source file was living outside of the site pages library
+                targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl, "");
+                targetPath = $"{sourceClientContext.Web.ServerRelativeUrl}/SitePages{targetPath}";
+            }
 
             var sourcePage = this.sourceClientContext.Web.GetFileByServerRelativeUrl(sourcePageUrl);
             this.sourceClientContext.Load(sourcePage);
@@ -782,7 +786,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Rename source page using the sourcepageprefix
             // STEP1: First copy the source page to a new name. We on purpose use CopyTo as we want to avoid that "linked" url's get 
             //        patched up during a MoveTo operation as that would also patch the url's in our new modern page
-            var step1Path = $"{path}{newSourcePageUrl}";
+            var step1Path = $"{sourcePath}{newSourcePageUrl}";
             sourcePage.CopyTo(step1Path, true);
             this.sourceClientContext.ExecuteQueryRetry();
             LogInfo($"{LogStrings.TransformSwappingPageStep1}: {step1Path}", LogStrings.Heading_SwappingPages);
@@ -793,7 +797,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogInfo(LogStrings.TransformSwappingPageRestorePermissions, LogStrings.Heading_SwappingPages);
 
                 // load the copied target file
-                var newSource = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{path}{newSourcePageUrl}");
+                var newSource = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{sourcePath}{newSourcePageUrl}");
                 this.sourceClientContext.Load(newSource);
                 this.sourceClientContext.Load(newSource.ListItemAllFields, p => p.RoleAssignments);
                 this.sourceClientContext.ExecuteQueryRetry();
@@ -803,7 +807,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             //Load the created target page
-            var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
+            var targetPageUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}";
             var targetPageFile = this.sourceClientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
             this.sourceClientContext.Load(targetPageFile);
             this.sourceClientContext.ExecuteQueryRetry();
@@ -832,12 +836,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 navWasFixed = true;
                 foreach (var node in currentNavNodes)
                 {
-                    node.Url = $"{path}{newSourcePageUrl}";
+                    node.Url = $"{sourcePath}{newSourcePageUrl}";
                     node.Update();
                 }
                 foreach (var node in globalNavNodes)
                 {
-                    node.Url = $"{path}{newSourcePageUrl}";
+                    node.Url = $"{sourcePath}{newSourcePageUrl}";
                     node.Update();
                 }
                 this.sourceClientContext.ExecuteQueryRetry();
@@ -847,7 +851,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             LogInfo(LogStrings.TransformSwappingPageStep3, LogStrings.Heading_SwappingPages);
 
             // STEP3: Now copy the created modern page over the original source page, at this point the new page has the same name as the original page had before transformation
-            var step3Path = $"{path}{orginalSourcePageName}";
+            var step3Path = $"{targetPath}{orginalSourcePageName}";
             targetPageFile.CopyTo(step3Path, true);
             this.sourceClientContext.ExecuteQueryRetry();
             LogInfo($"{LogStrings.TransformSwappingPageStep3Path} :{step3Path}", LogStrings.Heading_SwappingPages);
@@ -858,7 +862,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogInfo(LogStrings.TransformSwappingPagesApplyItemPermissions, LogStrings.Heading_SwappingPages);
 
                 // load the copied target file
-                var newTarget = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{path}{orginalSourcePageName}");
+                var newTarget = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{targetPath}{orginalSourcePageName}");
                 this.sourceClientContext.Load(newTarget);
                 this.sourceClientContext.Load(newTarget.ListItemAllFields, p => p.RoleAssignments);
                 this.sourceClientContext.ExecuteQueryRetry();
@@ -878,10 +882,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 currentNavigation = this.sourceClientContext.Web.Navigation.QuickLaunch;
                 globalNavigation = this.sourceClientContext.Web.Navigation.TopNavigationBar;
-                if (!string.IsNullOrEmpty($"{path}{newSourcePageUrl}"))
+                if (!string.IsNullOrEmpty($"{sourcePath}{newSourcePageUrl}"))
                 {
-                    currentNavNodes = currentNavigation.Where(n => n.Url.Equals($"{path}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
-                    globalNavNodes = globalNavigation.Where(n => n.Url.Equals($"{path}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
+                    currentNavNodes = currentNavigation.Where(n => n.Url.Equals($"{sourcePath}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
+                    globalNavNodes = globalNavigation.Where(n => n.Url.Equals($"{sourcePath}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
                 }
 
                 foreach (var node in currentNavNodes)
@@ -901,6 +905,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             LogInfo(LogStrings.TransformSwappingPagesStep5, LogStrings.Heading_SwappingPages);
             targetPageFile.DeleteObject();
             this.sourceClientContext.ExecuteQueryRetry();
+
+            //STEP6: if the source page lived outside of the site pages library then we also need to delete the original page from that spot
+            if (sourcePath != targetPath)
+            {
+                LogInfo(LogStrings.TransformSwappingPagesStep6, LogStrings.Heading_SwappingPages);
+                sourcePage.DeleteObject();
+                this.sourceClientContext.ExecuteQueryRetry();
+            }
         }
 
         /// <summary>
@@ -919,373 +931,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
-        private void RemoveEmptyTextParts(ClientSidePage targetPage)
-        {
-            var textParts = targetPage.Controls.Where(p => p.Type == typeof(OfficeDevPnP.Core.Pages.ClientSideText));
-            if (textParts != null && textParts.Any())
-            {
-                HtmlParser parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true });
-
-                foreach(var textPart in textParts.ToList())
-                {
-                    using (var document = parser.Parse(((OfficeDevPnP.Core.Pages.ClientSideText)textPart).Text))
-                    {
-                        if (document.FirstChild != null && string.IsNullOrEmpty(document.FirstChild.TextContent))
-                        {
-                            LogInfo(LogStrings.TransformRemovingEmptyWebPart, LogStrings.Heading_RemoveEmptyTextParts); 
-                            // Drop text part
-                            targetPage.Controls.Remove(textPart);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void RemoveEmptySectionsAndColumns(ClientSidePage targetPage)
-        {
-            foreach (var section in targetPage.Sections.ToList())
-            {
-                // First remove all empty sections
-                if (section.Controls.Count == 0)
-                {
-                    targetPage.Sections.Remove(section);
-                }
-            }
-
-            // Remove empty columns
-            foreach (var section in targetPage.Sections)
-            {
-                if (section.Type == CanvasSectionTemplate.TwoColumn ||
-                    section.Type == CanvasSectionTemplate.TwoColumnLeft ||
-                    section.Type == CanvasSectionTemplate.TwoColumnRight)
-                {
-                    var emptyColumn = section.Columns.Where(p => p.Controls.Count == 0).FirstOrDefault();
-                    if (emptyColumn != null)
-                    {
-                        // drop the empty column and change to single column section
-                        section.Columns.Remove(emptyColumn);
-                        section.Type = CanvasSectionTemplate.OneColumn;
-                        section.Columns.First().ResetColumn(0, 12);
-                    }
-                }
-                else if (section.Type == CanvasSectionTemplate.ThreeColumn)
-                {
-                    var emptyColumns = section.Columns.Where(p => p.Controls.Count == 0);
-                    if (emptyColumns != null)
-                    {
-                        if (emptyColumns.Any() && emptyColumns.Count() == 2)
-                        {
-                            // drop the two empty columns and change to single column section
-                            foreach (var emptyColumn in emptyColumns.ToList())
-                            {
-                                section.Columns.Remove(emptyColumn);
-                            }
-                            section.Type = CanvasSectionTemplate.OneColumn;
-                            section.Columns.First().ResetColumn(0, 12);
-                        }
-                        else if (emptyColumns.Any() && emptyColumns.Count() == 1)
-                        {
-                            // Remove the empty column and change to two column section
-                            section.Columns.Remove(emptyColumns.First());
-                            section.Type = CanvasSectionTemplate.TwoColumn;
-                            int i = 0;
-                            foreach (var column in section.Columns)
-                            {
-                                column.ResetColumn(i, 6);
-                                i++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ApplyItemLevelPermissions(bool hasTargetContext, ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
-        {
-            if (lip == null || item == null)
-            {
-                return;
-            }
-
-            // Break permission inheritance on the item if not done yet
-            if (alwaysBreakItemLevelPermissions || !item.HasUniqueRoleAssignments)
-            {
-                item.BreakRoleInheritance(false, false);
-                //this.sourceClientContext.ExecuteQueryRetry();
-                item.Context.ExecuteQueryRetry();
-            }
-
-            if (hasTargetContext)
-            {
-                // Ensure principals are available in the target site
-                Dictionary<string, Principal> targetPrincipals = new Dictionary<string, Principal>(lip.Principals.Count);
-                foreach (var principal in lip.Principals)
-                {
-                    var targetPrincipal = GetPrincipal(this.targetClientContext.Web, principal.Key);
-                    if (targetPrincipal != null)
-                    {
-                        if (!targetPrincipals.ContainsKey(principal.Key))
-                        {
-                            targetPrincipals.Add(principal.Key, targetPrincipal);
-                        }
-                    }
-                }
-
-                // Assign item level permissions          
-                foreach (var roleAssignment in lip.RoleAssignments)
-                {
-                    if (targetPrincipals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
-                    {
-                        var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.targetClientContext);
-                        foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
-                        {
-                            var targetRoleDef = this.targetClientContext.Web.RoleDefinitions.GetByName(roleDef.Name);
-                            if (targetRoleDef != null)
-                            {
-                                roleDefinitionBindingCollection.Add(targetRoleDef);
-                            }
-                        }
-                        item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
-                    }
-                }
-
-                this.targetClientContext.ExecuteQueryRetry();
-            }
-            else
-            {
-                // Assign item level permissions
-                foreach (var roleAssignment in lip.RoleAssignments)
-                {
-                    if (lip.Principals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
-                    {
-                        var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.sourceClientContext);
-                        foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
-                        {
-                            roleDefinitionBindingCollection.Add(roleDef);
-                        }
-
-                        item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
-                    }
-                }
-
-                this.sourceClientContext.ExecuteQueryRetry();
-            }
-
-            LogInfo(LogStrings.TransformCopiedItemPermissions, LogStrings.Heading_ApplyItemLevelPermissions);
-        }
-
-
-        private ListItemPermission GetItemLevelPermissions(bool hasTargetContext, List pagesLibrary, ListItem source, ListItem target)
-        {
-            ListItemPermission lip = null;
-
-            if (source.HasUniqueRoleAssignments)
-            {
-                // You need to have the ManagePermissions permission before item level permissions can be copied
-                if (pagesLibrary.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
-                {
-                    // Copy the unique permissions from source to target
-                    // Get the unique permissions
-                    this.sourceClientContext.Load(source, a => a.EffectiveBasePermissions, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
-                        roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
-                    this.sourceClientContext.ExecuteQueryRetry();
-
-                    if (source.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
-                    {
-                        // Load the site groups
-                        this.sourceClientContext.Load(this.sourceClientContext.Web.SiteGroups, p => p.Include(g => g.LoginName));
-
-                        // Get target page information
-                        if (hasTargetContext)
-                        {
-                            this.targetClientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
-                            this.targetClientContext.Load(this.targetClientContext.Web, p => p.RoleDefinitions);
-                        }
-                        else
-                        {
-                            this.sourceClientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
-                        }
-
-                        this.sourceClientContext.ExecuteQueryRetry();
-
-                        if (hasTargetContext)
-                        {
-                            this.targetClientContext.ExecuteQueryRetry();
-                        }
-
-                        Dictionary<string, Principal> principals = new Dictionary<string, Principal>(10);
-                        lip = new ListItemPermission()
-                        {
-                            RoleAssignments = source.RoleAssignments,
-                            Principals = principals
-                        };
-
-                        // Apply new permissions
-                        foreach (var roleAssignment in source.RoleAssignments)
-                        {
-                            var principal = GetPrincipal(this.sourceClientContext.Web, roleAssignment.Member.LoginName);
-                            if (principal != null)
-                            {
-                                if (!lip.Principals.ContainsKey(roleAssignment.Member.LoginName))
-                                {
-                                    lip.Principals.Add(roleAssignment.Member.LoginName, principal);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return lip;
-        }
-
-        private Principal GetPrincipal(Web web, string principalInput)
-        {
-            Principal principal = this.sourceClientContext.Web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
-
-            if (principal == null)
-            {
-                if (principalInput.Contains("#ext#"))
-                {
-                    principal = web.SiteUsers.FirstOrDefault(u => u.LoginName.Equals(principalInput));
-
-                    if (principal == null)
-                    {
-                        //Skipping external user...
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        principal = web.EnsureUser(principalInput);
-                        web.Context.ExecuteQueryRetry();
-                    }
-                    catch (Exception ex)
-                    {
-                        //Failed to EnsureUser
-                        LogError(LogStrings.Error_GetPrincipalFailedEnsureUser, LogStrings.Heading_GetPrincipal, ex);
-                    }
-                }
-            }
-
-            return principal;
-        }
-
-        private void CopyPageMetadata(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage, List pagesLibrary)
-        {
-            var fieldsToCopy = CacheManager.Instance.GetFieldsToCopy(this.sourceClientContext.Web, pagesLibrary);
-            if (fieldsToCopy.Count > 0)
-            {
-                // Load the target page list item
-                this.sourceClientContext.Load(targetPage.PageListItem);
-                this.sourceClientContext.ExecuteQueryRetry();
-
-                // regular fields
-                bool isDirty = false;
-                foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType != "TaxonomyFieldTypeMulti" && p.FieldType != "TaxonomyFieldType"))
-                {
-                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
-                    {
-                        targetPage.PageListItem[fieldToCopy.FieldName] = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
-                        isDirty = true;
-
-                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                    }
-                }
-
-                if (isDirty)
-                {
-                    targetPage.PageListItem.Update();
-                    this.sourceClientContext.Load(targetPage.PageListItem);
-                    this.sourceClientContext.ExecuteQueryRetry();
-                    isDirty = false;
-                }
-
-                // taxonomy fields
-                foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType == "TaxonomyFieldTypeMulti" || p.FieldType == "TaxonomyFieldType"))
-                {
-                    switch (fieldToCopy.FieldType)
-                    {
-                        case "TaxonomyFieldTypeMulti":
-                            {
-                                var taxFieldBeforeCast = pagesLibrary.Fields.Where(p => p.Id.Equals(fieldToCopy.FieldId)).FirstOrDefault();
-                                if (taxFieldBeforeCast != null)
-                                {
-                                    var taxField = this.sourceClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
-
-                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
-                                    {
-                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValueCollection)
-                                        {
-                                            var valueCollectionToCopy = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValueCollection);
-                                            var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
-                                            var valueCollection = new TaxonomyFieldValueCollection(this.sourceClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                            taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
-                                        }
-                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
-                                        {
-                                            var taxDictionaryList = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
-                                            var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
-
-                                            List<string> taxonomyFieldValueArray = new List<string>();
-                                            for (int i = 0; i < valueCollectionToCopy.Length; i++)
-                                            {
-                                                var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
-                                                taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
-                                            }
-                                            var valueCollection = new TaxonomyFieldValueCollection(this.sourceClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                            taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
-                                        }
-
-                                        isDirty = true;
-                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                    }
-                                }
-                                break;
-                            }
-                        case "TaxonomyFieldType":
-                            {
-                                var taxFieldBeforeCast = pagesLibrary.Fields.Where(p => p.Id.Equals(fieldToCopy.FieldId)).FirstOrDefault();
-                                if (taxFieldBeforeCast != null)
-                                {
-                                    var taxField = this.sourceClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
-                                    var taxValue = new TaxonomyFieldValue();
-                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
-                                    {
-                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValue)
-                                        {
-
-                                            taxValue.Label = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).Label;
-                                            taxValue.TermGuid = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).TermGuid;
-                                            taxValue.WssId = -1;
-                                        }
-                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
-                                        {
-                                            var taxDictionary = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
-                                            taxValue.Label = taxDictionary["Label"].ToString();
-                                            taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
-                                            taxValue.WssId = -1;
-                                        }
-                                        taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
-                                        isDirty = true;
-                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                    }
-                                }
-                                break;
-                            }
-                    }
-                }
-
-                if (isDirty)
-                {
-                    targetPage.PageListItem.Update();
-                    this.sourceClientContext.Load(targetPage.PageListItem);
-                    this.sourceClientContext.ExecuteQueryRetry();
-                }
-            }
-        }
-
         private void SetPageTitle(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage)
         {
             if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileLeafRefField))
@@ -1298,25 +943,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo($"{LogStrings.TransformPageModernTitle} {pageTitle}", LogStrings.Heading_SetPageTitle);
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the version of the assembly
-        /// </summary>
-        /// <returns></returns>
-        private string GetVersion()
-        {
-            try
-            {
-                var coreAssembly = Assembly.GetExecutingAssembly();
-                return ((AssemblyFileVersionAttribute)coreAssembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version.ToString();
-            }
-            catch(Exception ex)
-            {
-                LogError(LogStrings.Error_GetVersionError, LogStrings.Heading_GetVersion, ex, true);
-            }
-
-            return "undefined";
         }
 
         private Microsoft.SharePoint.Client.File Load(ClientContext cc, PageTransformationInformation pageTransformationInformation, out List pagesLibrary)
@@ -1376,47 +1002,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             return file;
-        }
-
-        private void InitMeasurement()
-        {
-            try
-            {
-                if (System.IO.File.Exists(ExecutionLog))
-                {
-                    System.IO.File.Delete(ExecutionLog);
-                }
-            }
-            catch { }
-        }
-
-        private void Start()
-        {
-            watch = Stopwatch.StartNew();
-        }
-
-        private void Stop(string method)
-        {
-            watch.Stop();
-            var elapsedTime = watch.ElapsedMilliseconds;
-            System.IO.File.AppendAllText(ExecutionLog, $"{method};{elapsedTime}{Environment.NewLine}");
-        }
-
-        /// <summary>
-        /// Loads the telemetry and properties for the client object
-        /// </summary>
-        /// <param name="clientContext"></param>
-        private void LoadClientObject(ClientContext clientContext)
-        {
-            if (clientContext != null)
-            {
-                clientContext.ClientTag = $"SPDev:PageTransformator";
-                // Load all web properties needed further one
-                clientContext.Load(clientContext.Web, p => p.Id, p => p.ServerRelativeUrl, p => p.RootFolder.WelcomePage, p => p.Url, p => p.WebTemplate);
-                clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id);
-                // Use regular ExecuteQuery as we want to send this custom clienttag
-                clientContext.ExecuteQuery();
-            }
         }
         #endregion
 

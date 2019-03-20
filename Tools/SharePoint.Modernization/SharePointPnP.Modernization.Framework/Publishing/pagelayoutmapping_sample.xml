@@ -5,7 +5,7 @@
   </AddOns>
   <PageLayouts>
     <!-- Allow for choice of content type, layout and header -->
-    <PageLayout Name="ArticleLeft" ContentType="" PageLayoutTemplate="TwoColumnsWithHeader" PageHeader="Custom">
+    <PageLayout Name="ArticleLeft" AssociatedContentType="" PageLayoutTemplate="TwoColumnsWithHeader" PageHeader="Custom">
       <!-- Page header construction: will override value defined in PageTransformationInformation settings -->
       <Header Type="FullWidthImage">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
@@ -37,7 +37,7 @@
       </WebParts>
       <!-- Web parts live in a web part zone...define which column will hold the web parts in a given zone -->
       <WebPartZones>
-        <WebPartZone ZoneIndex="0" Name="mywebpartzone" Row="2" Column="1"/>
+        <WebPartZone ZoneIndex="0" ZoneId="mywebpartzone" Row="2" Column="1"/>
       </WebPartZones>
       <!-- Web parts might also be "fixed", meaning embedded in the page layout. These web parts need to be 
            defined with their respective properties as they're not discoverable by API's -->

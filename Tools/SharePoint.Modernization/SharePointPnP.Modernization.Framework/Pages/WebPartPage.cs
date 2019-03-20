@@ -133,54 +133,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties, foundWebPart.WebPartType, foundWebPart.WebPartXml==null ? "" : foundWebPart.WebPartXml.Value),
                     });
                 }
-
-                #region Old approach
-                /*
-                foreach (var foundWebPart in webParts)
-                {
-                    // Skip Microsoft.SharePoint.WebPartPages.TitleBarWebPart webpart in TitleBar zone
-                    if (foundWebPart.ZoneId.Equals("TitleBar", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        if (!includeTitleBarWebPart)
-                        {
-                            continue;
-                        }
-                    }
-
-                    string webPartXml = "";
-                    string webPartType = "";
-                    var exportMode = foundWebPart.WebPart.ExportMode;
-                    if (foundWebPart.WebPart.ExportMode != WebPartExportMode.All)
-                    {
-                        // Use different approach to determine type as we can't export the web part XML without indroducing a change
-                        webPartType = GetTypeFromProperties(foundWebPart.WebPart.Properties);
-                    }
-                    else
-                    {
-                        var result = limitedWPManager.ExportWebPart(foundWebPart.Id);
-                        cc.ExecuteQueryRetry();
-                        webPartXml = result.Value;
-                        webPartType = GetType(webPartXml);
-                    }
-
-                    webparts.Add(new WebPartEntity()
-                    {
-                        Title = foundWebPart.WebPart.Title,
-                        Type = webPartType,
-                        Id = foundWebPart.Id,
-                        ServerControlId = foundWebPart.Id.ToString(),
-                        Row = GetRow(foundWebPart.ZoneId, layout),
-                        Column = GetColumn(foundWebPart.ZoneId, layout),
-                        Order = foundWebPart.WebPart.ZoneIndex,
-                        ZoneId = foundWebPart.ZoneId,
-                        ZoneIndex = (uint)foundWebPart.WebPart.ZoneIndex,
-                        IsClosed = foundWebPart.WebPart.IsClosed,
-                        Hidden = foundWebPart.WebPart.Hidden,
-                        Properties = Properties(foundWebPart.WebPart.Properties, webPartType, webPartXml),
-                    });
-                }
-                */
-                #endregion
             }
 
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
