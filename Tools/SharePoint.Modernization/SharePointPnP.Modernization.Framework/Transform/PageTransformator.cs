@@ -117,7 +117,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             var logsForSettings = pageTransformationInformation.DetailSettingsAsLogEntries();
             logsForSettings?.ForEach(o => Log(o, LogLevel.Information));
-            
+
             #region Check for Target Site Context
             var hasTargetContext = targetClientContext != null;
             #endregion
@@ -208,7 +208,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (hasTargetContext &&
                (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP"))
             {
-                
+
                 LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);
                 throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
             }
@@ -302,7 +302,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary);
                 pageExists = true;
             }
-            catch (ArgumentException ex) {
+            catch (ArgumentException ex)
+            {
 
                 LogError(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation, ex, true);
             }
@@ -410,7 +411,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (pageType.Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
                 {
                     LogInfo($"{LogStrings.TransformSourcePageIsWikiPage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
-                                        
+
                     pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze();
 
                     // Wiki pages can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
@@ -421,7 +422,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 else if (pageType.Equals("WebPartPage", StringComparison.InvariantCultureIgnoreCase))
                 {
                     LogInfo($"{LogStrings.TransformSourcePageIsWebPartPage} {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
-                                       
+
                     pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(true);
                 }
 #if DEBUG && MEASURE
@@ -496,10 +497,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 #region Page Banner creation
                 if (!pageTransformationInformation.TargetPageTakesSourcePageName)
                 {
-                    
+
                     if (pageTransformationInformation.ModernizationCenterInformation != null && pageTransformationInformation.ModernizationCenterInformation.AddPageAcceptBanner)
                     {
-                       
+
 #if DEBUG && MEASURE
                         Start();
 #endif
@@ -561,7 +562,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif            
                 // Use the default content transformator
                 IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation.MappingProperties, base.RegisteredLogObservers);
-                
+
                 // Do we have an override?
                 if (pageTransformationInformation.ContentTransformatorOverride != null)
                 {
@@ -713,37 +714,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Return final page url
-            var returUrl = "";
-            if (hasTargetContext)
-            {
-                string originalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
-                string path = this.targetClientContext.Web.EnsureProperty(p => p.Url);
-
-                string fullPath = $"{path}/SitePages/{originalSourcePageName}";
-                LogInfo($"{LogStrings.TransformedPage}: {fullPath}", LogStrings.Heading_Summary);
-
-                returUrl = fullPath;
-            }
-            else
-            {
-                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
-                {
-                    string path = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
-                    var targetPageUrl = $"{path}{pageTransformationInformation.TargetPageName}";
-
-                    LogInfo($"{LogStrings.TransformedPage}: {targetPageUrl}", LogStrings.Heading_Summary);
-
-                    returUrl = targetPageUrl;
-                }
-                else
-                {
-                    var fullPath = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
-                    LogInfo($"{LogStrings.TransformedPage}: {fullPath}", LogStrings.Heading_Summary);
-                    returUrl = fullPath;
-                }
-            }
-            
-            return returUrl;
+            return ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext); ;
             #endregion
 
             #endregion
@@ -931,6 +902,58 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private string ReturnModernPageServerRelativeUrl(PageTransformationInformation pageTransformationInformation, bool hasTargetContext)
+        {
+            string returnUrl = null;
+
+            string originalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString().ToLower();
+            string sourcePath = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower().Replace(originalSourcePageName, "");
+            string targetPath = sourcePath;
+
+            if (hasTargetContext)
+            {
+                // Cross site collection transfer, new page always takes the name of the old page
+                if (!sourcePath.Contains("/sitepages"))
+                {
+                    // Source file was living outside of the site pages library
+                    targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
+                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                }
+                else
+                {
+                    // Page was living inside the sitepages library
+                    targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/sitepages".ToLower(), "");
+                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                }
+
+                returnUrl = $"{targetPath}{originalSourcePageName}";
+            }
+            else
+            {
+                // In-place modernization
+                if (!sourcePath.Contains("/sitepages"))
+                {
+                    // Source file was living outside of the site pages library
+                    targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
+                    targetPath = $"{sourceClientContext.Web.ServerRelativeUrl}/sitepages{targetPath}".ToLower();
+                }
+
+                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
+                {
+                    // New page uses a different name (e.g. Migrated_xxx.aspx)
+                    returnUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}".ToLower();
+                }
+                else
+                {
+                    // New page takes the name of the old page
+                    returnUrl = $"{targetPath}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}".ToLower();
+                }
+            }
+
+            LogInfo($"{LogStrings.TransformedPage}: {returnUrl}", LogStrings.Heading_Summary);
+            return returnUrl;
+        }
+
         private void SetPageTitle(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage)
         {
             if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileLeafRefField))
