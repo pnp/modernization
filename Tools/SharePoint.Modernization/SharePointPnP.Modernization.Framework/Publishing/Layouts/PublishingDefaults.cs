@@ -16,15 +16,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
        /// </summary>
         public static List<PageLayoutOOBEntity> OOBPageLayouts = new List<PageLayoutOOBEntity>()
         {
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleLeft, Name = "ArticleLeft", PageLayoutTemplate = "TwoColumnsWithHeader", PageHeader = "Custom" },
+            new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleLeft, Name = "ArticleLeft", PageLayoutTemplate = "TwoColumnsWithHeaderAndFooter", PageHeader = "Custom", PageHeaderType = "FullWidthImage"  },
             new PageLayoutOOBEntity(){ Layout = OOBLayout.WelcomeLinks, Name = "WelcomeLinks", PageLayoutTemplate = "", PageHeader = "" },
             new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleLinks, Name = "ArticleLinks", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleRight, Name = "ArticleRight", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.PageFromDocLayout, Name = "PageFromDocLayout", PageLayoutTemplate = "", PageHeader = "" },
+            new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleRight, Name = "ArticleRight", PageLayoutTemplate = "TwoColumnsWithHeaderAndFooter", PageHeader = "None" },
+            new PageLayoutOOBEntity(){ Layout = OOBLayout.PageFromDocLayout, Name = "PageFromDocLayout", PageLayoutTemplate = "OneColumn", PageHeader = "None" },
             new PageLayoutOOBEntity(){ Layout = OOBLayout.WelcomeSplash, Name = "WelcomeSplash", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.RedirectPageLayout, Name = "RedirectPageLayout", PageLayoutTemplate = "", PageHeader = "" },
+            new PageLayoutOOBEntity(){ Layout = OOBLayout.RedirectPageLayout, Name = "RedirectPageLayout", PageLayoutTemplate = "OneColumn", PageHeader = "None" },
             new PageLayoutOOBEntity(){ Layout = OOBLayout.BlankWebPartPage, Name = "BlankWebPartPage", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ErrorLayout, Name = "ErrorLayout", PageLayoutTemplate = "", PageHeader = "" },
+            new PageLayoutOOBEntity(){ Layout = OOBLayout.ErrorLayout, Name = "ErrorLayout", PageLayoutTemplate = "OneColumn", PageHeader = "None" },
             new PageLayoutOOBEntity(){ Layout = OOBLayout.CatalogArticle, Name = "CatalogArticle", PageLayoutTemplate = "", PageHeader = "" },
             new PageLayoutOOBEntity(){ Layout = OOBLayout.CatalogWelcome, Name = "CatalogWelcome", PageLayoutTemplate = "", PageHeader = "" },
             new PageLayoutOOBEntity(){ Layout = OOBLayout.EnterpriseWiki, Name = "EnterpriseWiki", PageLayoutTemplate = "", PageHeader = "" },
@@ -89,6 +89,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
             "PublishingPageLayout"
         };
 
-        
+        /// <summary>
+        /// List of field controls in page to ignore in mappings
+        /// </summary>
+        public static List<string> IgnoreWebPartFieldControls = new List<string>()
+        {
+            "HeaderStyleDefinitions",
+            "Title",
+            "ArticleStartDate",
+            "ArticleByLine"
+        };
     }
 }

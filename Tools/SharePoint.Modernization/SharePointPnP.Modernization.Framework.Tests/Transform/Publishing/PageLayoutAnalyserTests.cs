@@ -32,7 +32,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                 var pageLayoutAnalyser = new PageLayoutAnalyser(sourceClientContext);
                 pageLayoutAnalyser.RegisterObserver(new UnitTestLogObserver());
 
-                var result = pageLayoutAnalyser.GetPageLayouts();
+                var result = pageLayoutAnalyser.GetAllPageLayouts();
 
 
                 //This will need option for target output location

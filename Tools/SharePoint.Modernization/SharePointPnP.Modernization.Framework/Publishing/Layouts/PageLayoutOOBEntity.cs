@@ -20,7 +20,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
         public string Name { get; set; }
         public string PageLayoutTemplate { get; set; }
         public string PageHeader { get; set; }
-
+        public string PageHeaderType { get; set; }
         public bool IgnoreMapping { get; set; }
     }
 }

@@ -16,6 +16,7 @@ using AngleSharp.Parser.Html;
 
 using ContentType = Microsoft.SharePoint.Client.ContentType;
 using File = Microsoft.SharePoint.Client.File;
+using SharePointPnP.Modernization.Framework.Publishing.Layouts;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -38,13 +39,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
          *  
          */
 
-        
         private ClientContext _siteCollContext;
         private ClientContext _sourceContext;
         
         private PublishingPageTransformation _mapping;
         private string _defaultFileName = "PageLayoutMapping.xml";
 
+        //TODO: Move to constants class
         const string AvailablePageLayouts = "__PageLayouts";
         const string DefaultPageLayout = "__DefaultPageLayout";
         const string FileRefField = "FileRef";
@@ -90,12 +91,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             if (Validate())
             {
-                var spPageLayouts = GetPageLayouts();
+                var spPageLayouts = GetAllPageLayouts();
                 List<PageLayout> pageLayoutMappings = new List<PageLayout>();
 
-                foreach(var layout in spPageLayouts)
+                foreach(ListItem layout in spPageLayouts)
                 {
-                    
 
                     string assocContentType = layout[PublishingAssociatedContentType].ToString();
                     var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
@@ -104,15 +104,22 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     var webParts = ExtractFieldControlsFromPageLayoutHtml(layout);
                     var zones = ExtractWebPartZonesFromPageLayoutHtml(layout);
 
-                    pageLayoutMappings.Add(new PageLayout()
+                    var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == layout.DisplayName);
+
+                    var layoutMapping = new PageLayout()
                     {
                         Name = layout.DisplayName,
+                        PageHeader = this.CastToEnum<PageLayoutPageHeader>(oobPageLayoutDefaults?.PageHeader),
+                        PageLayoutTemplate = this.CastToEnum<PageLayoutPageLayoutTemplate>(oobPageLayoutDefaults?.PageLayoutTemplate),
                         AssociatedContentType = assocContentTypeParts?[0],
                         MetaData = metadata,
                         WebParts = webParts,
                         WebPartZones = zones
+                    };
 
-                    });
+                    SetPageLayoutHeaderFieldDefaults(oobPageLayoutDefaults, layoutMapping);
+
+                    pageLayoutMappings.Add(layoutMapping);
 
                     //break; //TODO: TEMP - Stop loading all layouts
 
@@ -124,6 +131,33 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
 
+        }
+
+        /// <summary>
+        /// Sets the page layout header field defaults
+        /// </summary>
+        /// <param name="oobPageLayoutDefaults"></param>
+        /// <param name="layoutMapping"></param>
+        private void SetPageLayoutHeaderFieldDefaults(PageLayoutOOBEntity oobPageLayoutDefaults, PageLayout layoutMapping)
+        {
+            if (layoutMapping.PageHeader == PageLayoutPageHeader.Custom)
+            {
+                var pageLayoutHeaderFields = PublishingDefaults.PageLayoutHeaderMetadata.Where(o => o.HeaderType == oobPageLayoutDefaults?.PageHeaderType);
+                layoutMapping.Header = new Header() { Type = this.CastToEnum<HeaderType>(oobPageLayoutDefaults?.PageHeaderType) };
+
+                List<HeaderField> headerFields = new List<HeaderField>();
+                foreach (var field in pageLayoutHeaderFields)
+                {
+                    headerFields.Add(new HeaderField()
+                    {
+                        Name = field.FieldName,
+                        HeaderProperty = field.FieldHeaderProperty,
+                        Functions = field.FieldFunctions
+                    });
+                }
+
+                layoutMapping.Header.Field = headerFields.ToArray();
+            }
         }
 
         /// <summary>
@@ -139,34 +173,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return false;
         }
 
-        /// <summary>
-        /// Ensures that we have context of the source site collection
-        /// </summary>
-        /// <param name="context"></param>
-        public void EnsureSiteCollectionContext(ClientContext context)
-        {
-            try
-            {
-                if (context.Web.IsSubSite())
-                {
-                    string siteCollectionUrl = context.Site.EnsureProperty(o => o.Url);
-                    _siteCollContext = context.Clone(siteCollectionUrl);
-                }
-                else
-                {
-                    _siteCollContext = context;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_PageLayoutAnalyser, ex);
-            }
-        }
+       
 
         /// <summary>
         /// Determines the page layouts in the current web
         /// </summary>
-        public ListItemCollection GetPageLayouts()
+        public ListItemCollection GetAllPageLayouts()
         {
             var availablePageLayouts = GetPropertyBagValue<string>(_siteCollContext.Web, AvailablePageLayouts, "");
             // If empty then gather all
@@ -270,10 +282,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Determine the page layout from a publishing page
         /// </summary>
-        public void GetPageLayoutFromPublishingPage()
+        public void GetPageLayoutFromPublishingPage(ListItem page)
         {
             //Note: ListItemExtensions class contains this logic - reuse.
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            
         }
 
         /// <summary>
@@ -295,11 +309,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                     foreach (var fld in spFields.Where(o => o.Hidden == false))
                     {
+                        var ignoreField = PublishingDefaults.IgnoreMetadataFields.Any(o => o == fld.InternalName);
+                        var defaultMapping = PublishingDefaults.MetaDataFieldToTargetMappings.FirstOrDefault(o => o.FieldName == fld.InternalName);
+
                         fields.Add(new MetaDataField()
                         {
                             Name = fld.InternalName,
-                            Functions = "",
-                            TargetFieldName = ""
+                            Functions = defaultMapping?.Functions ?? "",
+                            TargetFieldName = defaultMapping?.TargetFieldName ?? "",
+                            Ignore = ignoreField,
+                            IgnoreSpecified = ignoreField
                         });
                     }
                 }
@@ -316,9 +335,44 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Get fixed web parts defined in the page layout
         /// </summary>
-        public void GetFixedWebPartsFromZones()
+        public FixedWebPart[] GetFixedWebPartsFromZones(ListItem pageLayout)
         {
-            throw new NotImplementedException();
+            /*Plan
+             * Scan through the file to find the web parts by the tags
+             * Extract and convert to definition
+             * Check the TagPrefix and find all the web parts e.g. Register Tagprefix="WebPartPages" Namespace="Microsoft.SharePoint.WebPartPages"
+             * Get a list of all the API recognised web parts and perform a delta
+             * List of types can be found in the WebParts class in root of project
+            */
+                       
+            List<FixedWebPart> fixedWebParts = new List<FixedWebPart>();
+            const string TagPrefix = "WebPartPages";
+
+            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
+            var fileUrl = pageLayout.File.ServerRelativeUrl;
+
+            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
+
+            using (var document = this.parser.Parse(fileHtml))
+            {
+                
+                var webParts = document.All.Where(o => o.TagName.Contains(TagPrefix)).ToArray();
+
+                for (var i = 0; i < webParts.Count(); i++)
+                {
+                    fixedWebParts.Add(new FixedWebPart()
+                    {
+                        Type = "",
+                        Column = "",
+                        Row = "",
+                        Order = ""
+                    });
+                }
+
+            }
+
+            return fixedWebParts.ToArray();
+
         }
 
         /// <summary>
@@ -409,16 +463,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 //TODO: Add further processing to find if the tags are in a grid system
 
-                var webPartZones = document.All.Where(o => o.TagName.Contains("WEBPARTZONE"));
+                var webPartZones = document.All.Where(o => o.TagName.Contains("WEBPARTZONE")).ToArray();
 
-                foreach(var webPartZone in webPartZones)
+                for(var i = 0; i < webPartZones.Count(); i++)
                 {
                     zones.Add(new WebPartZone()
                     {
-                        ZoneId = webPartZone.Id,
+                        ZoneId = webPartZones[i].Id,
                         Column = "",
                         Row = "",
-                        ZoneIndex = ""
+                        ZoneIndex = $"{i}" // TODO: Is this used?
                     });
                 }
 
@@ -459,6 +513,33 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return string.Empty;
         }
 
+
+        #region Helpers
+
+        /// <summary>
+        /// Ensures that we have context of the source site collection
+        /// </summary>
+        /// <param name="context"></param>
+        public void EnsureSiteCollectionContext(ClientContext context)
+        {
+            try
+            {
+                if (context.Web.IsSubSite())
+                {
+                    string siteCollectionUrl = context.Site.EnsureProperty(o => o.Url);
+                    _siteCollContext = context.Clone(siteCollectionUrl);
+                }
+                else
+                {
+                    _siteCollContext = context;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_PageLayoutAnalyser, ex);
+            }
+        }
+
         /// <summary>
         /// Gets property bag value
         /// </summary>
@@ -482,5 +563,33 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 return defaultValue;
             }
         }
+
+
+        /// <summary>
+        /// Cast a string to enum value
+        /// </summary>
+        /// <typeparam name="T">Enum Type</typeparam>
+        /// <param name="enumString">string value</param>
+        /// <returns></returns>
+        private T CastToEnum<T>(string enumString)
+        {
+            if (!string.IsNullOrEmpty(enumString))
+            {
+                try
+                {
+
+                    return (T)Enum.Parse(typeof(T), enumString, true);
+
+                }
+                catch (Exception ex)
+                {
+                    LogError(LogStrings.Error_CannotCastToEnum, LogStrings.Heading_PageLayoutAnalyser, ex);
+                }
+            }
+
+            return default(T);
+        }
+
+        #endregion
     }
 }
