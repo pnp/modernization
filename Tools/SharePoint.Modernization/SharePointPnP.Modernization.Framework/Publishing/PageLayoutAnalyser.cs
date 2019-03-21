@@ -114,6 +114,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                     });
 
+                    //break; //TODO: TEMP - Stop loading all layouts
+
                 }
 
                 //Add to mapping
@@ -353,26 +355,32 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 //TODO: Add further processing to find if the tags are in a grid system
                 //TODO: Remove unnecessary controls
-                //TODO: DeDup - Some controls can be inside an edit panel
+                
 
                 var fieldControls = document.All.Where(o => o.TagName.Contains("SHAREPOINTWEBCONTROLS"));
 
                 foreach (var control in fieldControls)
                 {
                     var attributes = control.Attributes;
-                    var fieldName = "";
+                    
                     if (attributes.Any(o => o.Name == "fieldname")) {
 
-                        fieldName = attributes["fieldname"].Value;
+                        var fieldName = attributes["fieldname"].Value;
+                        
+                        //DeDup - Some controls can be inside an edit panel
+                        if (!webParts.Any(o => o.Name == fieldName))
+                        {
+                            webParts.Add(new WebPartField()
+                            {
+                                Name = fieldName,
+                                TargetWebPart = "",
+                                Row = "",
+                                Column = ""
+
+                            });
+                        }
                     }
 
-                    webParts.Add(new WebPartField()
-                    {
-                        Name = fieldName,
-                        TargetWebPart = "",
-                        Row = "",
-                        Column = ""
-                    });
                 }
 
             }

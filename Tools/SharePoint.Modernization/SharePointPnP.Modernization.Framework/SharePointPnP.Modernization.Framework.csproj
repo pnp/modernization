@@ -188,8 +188,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
+    <Compile Include="Publishing\Layouts\PageLayoutHeaderFieldEntity.cs" />
+    <Compile Include="Publishing\Layouts\PageLayoutMetadataEntity.cs" />
+    <Compile Include="Publishing\Layouts\PageLayoutOOBEntity.cs" />
+    <Compile Include="Publishing\Layouts\PageLayoutFieldControlEntity.cs" />
     <Compile Include="Functions\NotAvailableAtTargetException.cs" />
-    <Compile Include="Publishing\PublishingDefaults.cs" />
+    <Compile Include="Publishing\Layouts\OOBLayoutEnum.cs" />
+    <Compile Include="Publishing\Layouts\PublishingDefaults.cs" />
     <Compile Include="Publishing\PublishingPageTransformationInformation.cs" />
     <Compile Include="Publishing\PublishingPageTransformator.cs" />
     <Compile Include="Publishing\PageLayoutAnalyser.cs" />
