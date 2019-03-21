@@ -440,6 +440,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string functionsField;
         
+        private bool ignoreField;
+        
+        private bool ignoreFieldSpecified;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string Name {
@@ -470,6 +474,28 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.functionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool Ignore {
+            get {
+                return this.ignoreField;
+            }
+            set {
+                this.ignoreField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool IgnoreSpecified {
+            get {
+                return this.ignoreFieldSpecified;
+            }
+            set {
+                this.ignoreFieldSpecified = value;
             }
         }
     }
@@ -733,6 +759,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         ThreeColumnsWithHeaderAndFooter,
+        
+        /// <remarks/>
+        Custom,
     }
     
     /// <remarks/>
