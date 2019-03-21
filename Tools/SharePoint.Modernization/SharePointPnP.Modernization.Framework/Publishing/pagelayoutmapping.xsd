@@ -137,6 +137,7 @@
           <xs:enumeration value="ThreeColumns" />
           <xs:enumeration value="ThreeColumnsWithHeader" />
           <xs:enumeration value="ThreeColumnsWithHeaderAndFooter" />
+          <xs:enumeration value="Custom" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
