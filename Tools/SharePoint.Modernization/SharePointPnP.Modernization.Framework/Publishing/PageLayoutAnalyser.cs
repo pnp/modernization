@@ -81,7 +81,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Main entry point into the class to analyse the page layouts
         /// </summary>
-        public void Analyse()
+        public void AnalyseAll()
         {
             // Determine if ‘default’ layouts for the OOB page layouts
             // When there’s no layout we “generate” a best effort one and store it in cache.Generation can 
@@ -92,45 +92,54 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (Validate())
             {
                 var spPageLayouts = GetAllPageLayouts();
-                List<PageLayout> pageLayoutMappings = new List<PageLayout>();
 
                 foreach(ListItem layout in spPageLayouts)
                 {
-
-                    string assocContentType = layout[PublishingAssociatedContentType].ToString();
-                    var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
-
-                    var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
-                    var webParts = ExtractFieldControlsFromPageLayoutHtml(layout);
-                    var zones = ExtractWebPartZonesFromPageLayoutHtml(layout);
-
-                    var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == layout.DisplayName);
-
-                    var layoutMapping = new PageLayout()
-                    {
-                        Name = layout.DisplayName,
-                        PageHeader = this.CastToEnum<PageLayoutPageHeader>(oobPageLayoutDefaults?.PageHeader),
-                        PageLayoutTemplate = this.CastToEnum<PageLayoutPageLayoutTemplate>(oobPageLayoutDefaults?.PageLayoutTemplate),
-                        AssociatedContentType = assocContentTypeParts?[0],
-                        MetaData = metadata,
-                        WebParts = webParts,
-                        WebPartZones = zones
-                    };
-
-                    SetPageLayoutHeaderFieldDefaults(oobPageLayoutDefaults, layoutMapping);
-
-                    pageLayoutMappings.Add(layoutMapping);
-
-                    //break; //TODO: TEMP - Stop loading all layouts
-
+                   AnalysePageLayout(layout);
                 }
-
-                //Add to mapping
-                _mapping.PageLayouts = pageLayoutMappings.ToArray();
-
             }
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageLayoutMappings"></param>
+        /// <param name="pageLayoutItem"></param>
+        public void AnalysePageLayout(ListItem pageLayoutItem)
+        {
 
+            string assocContentType = pageLayoutItem[PublishingAssociatedContentType].ToString();
+            var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
+
+            var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
+            var webParts = ExtractFieldControlsFromPageLayoutHtml(pageLayoutItem);
+            var zones = ExtractWebPartZonesFromPageLayoutHtml(pageLayoutItem);
+
+            var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == pageLayoutItem.EnsureProperty(i => i.DisplayName));
+
+            var layoutMapping = new PageLayout()
+            {
+                Name = pageLayoutItem.DisplayName,
+                PageHeader = this.CastToEnum<PageLayoutPageHeader>(oobPageLayoutDefaults?.PageHeader),
+                PageLayoutTemplate = this.CastToEnum<PageLayoutPageLayoutTemplate>(oobPageLayoutDefaults?.PageLayoutTemplate),
+                AssociatedContentType = assocContentTypeParts?[0],
+                MetaData = metadata,
+                WebParts = webParts,
+                WebPartZones = zones
+            };
+
+            SetPageLayoutHeaderFieldDefaults(oobPageLayoutDefaults, layoutMapping);
+
+            // Add to mappings list
+            if (_mapping.PageLayouts != null) {
+                var expandMappings = _mapping.PageLayouts.ToList();
+                expandMappings.Add(layoutMapping);
+                _mapping.PageLayouts = expandMappings.ToArray();
+            }
+            else
+            {
+                _mapping.PageLayouts = new[] { layoutMapping };
+            }
         }
 
         /// <summary>
