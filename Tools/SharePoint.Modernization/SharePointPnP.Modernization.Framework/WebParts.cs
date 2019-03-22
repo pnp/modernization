@@ -1,4 +1,6 @@
-﻿namespace SharePointPnP.Modernization.Framework
+﻿using System.Collections.Generic;
+
+namespace SharePointPnP.Modernization.Framework
 {
     /// <summary>
     /// Web part type constants
@@ -96,5 +98,35 @@
         public const string SPUserCode = "Microsoft.SharePoint.WebPartPages.SPUserCodeWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c";
         public const string ClientSide = "Microsoft.SharePoint.WebPartPages.ClientSideWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c";
         public const string Client = "Microsoft.SharePoint.WebPartPages.ClientWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c";
+
+
+        /// <summary>
+        /// Use reflection to read the object fields in a list of strings
+        /// </summary>
+        public static List<string> GetListOfWebParts()
+        {
+            List<string> webPartsList = new List<string>();
+
+            try
+            {
+
+                var fields = typeof(WebParts).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+                foreach (var field in fields)
+                {
+                    if (field.FieldType == typeof(string))
+                    {
+                        webPartsList.Add(field.GetValue(null) as string);
+                    }
+                }
+            }
+            catch
+            {
+                // Swallow
+            }
+
+            return webPartsList;
+
+        }
     }
 }
