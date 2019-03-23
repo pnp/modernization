@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Publishing;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
     public class PublishingPage : BasePage
     {
         private PublishingPageTransformation publishingPageTransformation;
+        private PublishingFunctionProcessor functionProcessor;
 
         #region Construction
         /// <summary>
@@ -25,6 +27,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(cc).LoadDefaultPageLayoutMappingFile();
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);
         }
 
         /// <summary>
@@ -35,6 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation) : base(page, pageTransformation)
         {
             this.publishingPageTransformation = publishingPageTransformation;
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);
         }
         #endregion
 
@@ -64,20 +68,21 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 throw new Exception($"No valid page transformation model could be retrieved for publishing page layout {usedPageLayout}");
             }
 
-            #region Publishing Html column processing
+            #region Process fields that become web parts 
             if (publishingPageTransformationModel.WebParts != null)
             {
+                #region Publishing Html column processing
+                // Converting to WikiTextPart is a special case as we'll need to process the html
                 var wikiTextWebParts = publishingPageTransformationModel.WebParts.Where(p => p.TargetWebPart.Equals("SharePointPnP.Modernization.WikiTextPart", StringComparison.InvariantCultureIgnoreCase));
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
                 foreach (var wikiTextPart in wikiTextWebParts)
                 {
                     var pageContents = page.FieldValues[wikiTextPart.Name].ToString();
                     var htmlDoc = parser.Parse(pageContents);
-                    // TODO: fix content host
-                    var contentHost = htmlDoc.FirstElementChild;
+
 
                     // Analyze the html block (which is a wiki block)
-                    var content = contentHost.LastElementChild;
+                    var content = htmlDoc.FirstElementChild.LastElementChild;
                     AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, 1, 1, content);
                 }
 
@@ -86,7 +91,47 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     LoadWebPartsInWikiContentFromServer(webparts, publishingPage, webPartsToRetrieve);
                 }
+                #endregion
+
+                #region Generic processing of the other 'webpart' fields
+                var fieldWebParts = publishingPageTransformationModel.WebParts.Where(p => !p.TargetWebPart.Equals("SharePointPnP.Modernization.WikiTextPart", StringComparison.InvariantCultureIgnoreCase));
+                foreach(var fieldWebPart in fieldWebParts)
+                {
+                    Dictionary<string, string> properties = new Dictionary<string, string>();
+
+                    foreach(var fieldWebPartProperty in fieldWebPart.Property)
+                    {
+                        if (!string.IsNullOrEmpty(fieldWebPartProperty.Functions))
+                        {
+                            // execute function
+                            var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty);
+                            if (!string.IsNullOrEmpty(evaluatedField.Item1) && !properties.ContainsKey(evaluatedField.Item1))
+                            {
+                                properties.Add(evaluatedField.Item1, evaluatedField.Item2);
+                            }
+                        }
+                        else
+                        {
+                            properties.Add(fieldWebPartProperty.Name, page.FieldValues[fieldWebPart.Name].ToString().Trim());
+                        }
+                    }
+
+                    var wpEntity = new WebPartEntity()
+                    {
+                        Title = fieldWebPart.Name,
+                        Type = fieldWebPart.TargetWebPart,
+                        Id = Guid.Empty,
+                        Row = 1,
+                        Column = 1,
+                        Order = 1,
+                        Properties = properties,
+                    };
+
+                    webparts.Add(wpEntity);
+
+                }
             }
+            #endregion
             #endregion
 
             #region Web Parts in webpart zone handling
