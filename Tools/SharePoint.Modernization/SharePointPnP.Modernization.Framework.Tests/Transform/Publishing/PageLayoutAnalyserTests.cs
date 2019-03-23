@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointPnP.Modernization.Framework.Publishing;
@@ -94,6 +95,44 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                 Assert.IsTrue(result != string.Empty);
 
+            }
+        }
+
+        [TestMethod]
+        public void PageLayoutAnalyse_AspxHeaderAndNameSpaces()
+        {
+            using (var sourceClientContext = TestCommon.CreateClientContext())
+            {
+                // Source Context could be a site collection
+                ClientContext contextToUse;
+                if (sourceClientContext.Web.IsSubSite())
+                {
+                    string siteCollectionUrl = sourceClientContext.Site.EnsureProperty(o => o.Url);
+                    contextToUse = sourceClientContext.Clone(siteCollectionUrl);
+                }
+                else
+                {
+                    contextToUse = sourceClientContext;
+                }
+
+                var pageLayoutAnalyser = new PageLayoutAnalyser(sourceClientContext);
+                pageLayoutAnalyser.RegisterObserver(new UnitTestLogObserver());
+
+                var layout = contextToUse.Web.GetFileByServerRelativeUrl($"{contextToUse.Web.EnsureProperty(o => o.ServerRelativeUrl)}/_catalogs/masterpage/ArticleCustom.aspx");
+
+                var results = new List<string>();
+                if (layout != null)
+                {
+                    ListItem item = layout.EnsureProperty(o => o.ListItemAllFields);
+
+                    results.AddRange(pageLayoutAnalyser.ExtractWebPartPrefixesFromNamespaces(item));
+                }
+                else
+                {
+                    Assert.Fail("Layout file is missing, upload ArticleCustom.aspx as a page layout and publish the file");
+                }
+
+                Assert.IsTrue(results.Count > 0);
             }
         }
 

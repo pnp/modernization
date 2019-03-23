@@ -17,6 +17,7 @@ using AngleSharp.Parser.Html;
 using ContentType = Microsoft.SharePoint.Client.ContentType;
 using File = Microsoft.SharePoint.Client.File;
 using SharePointPnP.Modernization.Framework.Publishing.Layouts;
+using System.Text.RegularExpressions;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -396,6 +397,51 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             */
         }
 
+        /// <summary>
+        /// Scan through the file to find the TagPrefixes in ASPX Header
+        /// </summary>
+        /// <param name="pageLayout"></param>
+        /// <returns></returns>
+        public List<string> ExtractWebPartPrefixesFromNamespaces(ListItem pageLayout)
+        {
+            
+            var tagPrefixes = new List<string>();
+
+            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
+            var fileUrl = pageLayout.File.ServerRelativeUrl;
+
+            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
+
+            using (var document = this.parser.Parse(fileHtml))
+            {
+                Regex regex = new Regex("&lt;%@(.*?)%&gt;", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                var aspxHeader = document.All.Where(o => o.TagName == "HTML").FirstOrDefault();
+                var results = regex.Matches(aspxHeader?.InnerHtml);
+
+                StringBuilder blockHtml = new StringBuilder();
+                foreach(var match in results)
+                {
+                    var matchString = match.ToString().Replace("&lt;%@ ", "<").Replace("%&gt;", " />");
+                    blockHtml.AppendLine(matchString);
+                }
+                
+                var fullBlock = blockHtml.ToString();
+                using(var subDocument = this.parser.Parse(fullBlock))
+                {
+                    var registers = subDocument.All.Where(o => o.TagName == "REGISTER");
+
+                    foreach (var register in registers) {
+
+                       var prefix = register.GetAttribute("Tagprefix");
+                       tagPrefixes.Add(prefix);
+                    }
+                    
+                }
+
+            }
+
+            return tagPrefixes;
+        }
 
         /// <summary>
         /// Extract the web parts from the page layout HTML outside of web part zones
