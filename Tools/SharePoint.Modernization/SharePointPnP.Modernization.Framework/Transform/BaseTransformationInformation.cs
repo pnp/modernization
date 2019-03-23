@@ -28,6 +28,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public bool Overwrite { get; set; }
 
         /// <summary>
+        /// Name for the transformed page
+        /// </summary>
+        public string TargetPageName { get; set; }
+
+        /// <summary>
         /// Configuration of the page header to apply
         /// </summary>
         public ClientSidePageHeader PageHeader { get; set; }

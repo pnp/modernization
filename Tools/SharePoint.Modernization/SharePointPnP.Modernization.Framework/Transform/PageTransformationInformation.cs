@@ -54,12 +54,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
         #endregion
 
-        #region Page Properties
-        /// <summary>
-        /// Name for the transformed page
-        /// </summary>
-        public string TargetPageName { get; set; }
-        
+        #region Page Properties        
         /// <summary>
         /// Target page will get the source page name, source page will be renamed. Used in conjunction with SourcePagePrefix
         /// </summary>

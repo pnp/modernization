@@ -155,9 +155,12 @@ namespace Microsoft.SharePoint.Client
                 string pageLayoutName = ((FieldUrlValue)item[Constants.PublishingPageLayoutField]).Description;
                 if (string.IsNullOrEmpty(pageLayoutName))
                 {
-                    pageLayoutName = "";
+                    return "";
                 }
-                return pageLayoutName;
+                else
+                {
+                    return pageLayoutName;
+                }                
             }
 
             return "";

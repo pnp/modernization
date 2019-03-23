@@ -12,12 +12,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
     /// </summary>
     public class WebPartPage: BasePage
     {
-        private class WebPartPlaceHolder
-        {
-            public WebPartDefinition WebPartDefinition { get; set; }
-            public ClientResult<string> WebPartXml { get; set; }
-            public string WebPartType { get; set; }
-        }
 
         #region construction
         /// <summary>

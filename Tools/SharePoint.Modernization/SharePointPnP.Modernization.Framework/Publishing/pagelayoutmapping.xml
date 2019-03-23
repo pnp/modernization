@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PublishingPageTransformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema">
+  <PageLayouts>
+    <PageLayout Name="ArticleLeft" AssociatedContentType="Article Page" PageLayoutTemplate="OneColumn" PageHeader="Custom">
+      <Header Type="FullWidthImage">
+        <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
+        <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
+      </Header>
+      <MetaData>
+        <Field Name="Title" TargetFieldName="Title" Functions="" />
+        <Field Name="ArticleStartDate" TargetFieldName="" Functions="" />
+        <!--<Field Name="ContentType" TargetFieldName="" Functions="" />
+        <Field Name="FileLeafRef" TargetFieldName="" Functions="" />
+        <Field Name="Title" TargetFieldName="" Functions="" />
+        <Field Name="Modified_x0020_By" TargetFieldName="" Functions="" />
+        <Field Name="Created_x0020_By" TargetFieldName="" Functions="" />
+        <Field Name="Comments" TargetFieldName="" Functions="" />
+        <Field Name="PublishingStartDate" TargetFieldName="" Functions="" />
+        <Field Name="PublishingExpirationDate" TargetFieldName="" Functions="" />
+        <Field Name="PublishingContact" TargetFieldName="" Functions="" />
+        <Field Name="PublishingContactEmail" TargetFieldName="" Functions="" />
+        <Field Name="PublishingContactName" TargetFieldName="" Functions="" />
+        <Field Name="PublishingContactPicture" TargetFieldName="" Functions="" />
+        <Field Name="PublishingPageLayout" TargetFieldName="" Functions="" />
+        <Field Name="PublishingRollupImage" TargetFieldName="" Functions="" />
+        <Field Name="Audience" TargetFieldName="" Functions="" />
+        <Field Name="PublishingIsFurlPage" TargetFieldName="" Functions="" />
+        <Field Name="PublishingPageImage" TargetFieldName="" Functions="" />
+        <Field Name="PublishingPageContent" TargetFieldName="" Functions="" />
+        <Field Name="SummaryLinks" TargetFieldName="" Functions="" />
+        <Field Name="ArticleByLine" TargetFieldName="" Functions="" />
+        <Field Name="ArticleStartDate" TargetFieldName="" Functions="" />
+        <Field Name="PublishingImageCaption" TargetFieldName="" Functions="" />
+        <Field Name="SeoBrowserTitle" TargetFieldName="" Functions="" />
+        <Field Name="SeoMetaDescription" TargetFieldName="" Functions="" />
+        <Field Name="SeoKeywords" TargetFieldName="" Functions="" />
+        <Field Name="RobotsNoIndex" TargetFieldName="" Functions="" />-->
+      </MetaData>
+      <WebParts>
+        <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1">
+          <!--Use function to rewrite the provided field content 
+                e.g <img alt="" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; "> to /sites/devportal/PublishingImages/page-travel-instructions.jpg -->
+          <Property Name="ImageUrl" Type="string" Functions="ToImageUrl({PublishingPageImage})"/>
+          <Property Name="AlternativeText" Type="string" Functions="ToImageAltText({PublishingPageImage})" />
+        </Field>
+        <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
+          <!-- No function specified, means the content of the PublishingPageContent field will be assigned to the value of the first listed web part property -->
+          <Property Name="Text" Type="string" Functions="" />
+        </Field>
+        <!--<Field Name="" TargetWebPart="" Row="" Column="" />
+        <Field Name="" TargetWebPart="" Row="" Column="" />
+        <Field Name="HeaderStyleDefinitions" TargetWebPart="" Row="" Column="" />
+        <Field Name="Title" TargetWebPart="" Row="" Column="" />
+        <Field Name="Title" TargetWebPart="" Row="" Column="" />
+        <Field Name="" TargetWebPart="" Row="" Column="" />
+        <Field Name="Title" TargetWebPart="" Row="" Column="" />
+        <Field Name="ArticleStartDate" TargetWebPart="" Row="" Column="" />
+        <Field Name="ArticleByLine" TargetWebPart="" Row="" Column="" />-->
+      </WebParts>
+    </PageLayout>
+  </PageLayouts>
+</PublishingPageTransformation>

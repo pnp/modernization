@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Publishing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +13,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
     /// </summary>
     public class PublishingPage : BasePage
     {
-        private class WebPartPlaceHolder
-        {
-            public WebPartDefinition WebPartDefinition { get; set; }
-            public ClientResult<string> WebPartXml { get; set; }
-            public string WebPartType { get; set; }
-        }
+        private PublishingPageTransformation publishingPageTransformation;
 
         #region Construction
         /// <summary>
@@ -27,6 +23,18 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="pageTransformation">Page transformation information</param>
         public PublishingPage(ListItem page, PageTransformation pageTransformation) : base(page, pageTransformation)
         {
+            // no PublishingPageTransformation specified, fall back to default
+            this.publishingPageTransformation = new PageLayoutManager(cc).LoadDefaultPageLayoutMappingFile();
+        }
+
+        /// <summary>
+        /// Instantiates a publishing page object
+        /// </summary>
+        /// <param name="page">ListItem holding the page to analyze</param>
+        /// <param name="pageTransformation">Page transformation information</param>
+        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation) : base(page, pageTransformation)
+        {
+            this.publishingPageTransformation = publishingPageTransformation;
         }
         #endregion
 
@@ -37,31 +45,71 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public Tuple<PageLayout, List<WebPartEntity>> Analyze()
         {
             List<WebPartEntity> webparts = new List<WebPartEntity>();
-            PageLayout layout = PageLayout.PublishingPage_Custom;
+            PageLayout layout = PageLayout.Wiki_OneColumn;
 
             //Load the page
-            var webPartPageUrl = page[Constants.FileRefField].ToString();
-            var webPartPage = cc.Web.GetFileByServerRelativeUrl(webPartPageUrl);
+            var publishingPageUrl = page[Constants.FileRefField].ToString();
+            var publishingPage = cc.Web.GetFileByServerRelativeUrl(publishingPageUrl);
 
             // Load page properties
-            var pageProperties = webPartPage.Properties;
-            cc.Load(pageProperties);
+            //var pageProperties = publishingPage.Properties;
+            //cc.Load(pageProperties);
 
-            // Load web parts on web part page
-            // Note: Web parts placed outside of a web part zone using SPD are not picked up by the web part manager. There's no API that will return those,
-            //       only possible option to add parsing of the raw page aspx file.
-            var limitedWPManager = webPartPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
+            // Load relevant model data for the used page layout
+            string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(page.PageLayoutFile());
+            var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).First();
+
+            if (publishingPageTransformationModel == null)
+            {
+                throw new Exception($"No valid page transformation model could be retrieved for publishing page layout {usedPageLayout}");
+            }
+
+            #region Publishing Html column processing
+            if (publishingPageTransformationModel.WebParts != null)
+            {
+                var wikiTextWebParts = publishingPageTransformationModel.WebParts.Where(p => p.TargetWebPart.Equals("SharePointPnP.Modernization.WikiTextPart", StringComparison.InvariantCultureIgnoreCase));
+                List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
+                foreach (var wikiTextPart in wikiTextWebParts)
+                {
+                    var pageContents = page.FieldValues[wikiTextPart.Name].ToString();
+                    var htmlDoc = parser.Parse(pageContents);
+                    // TODO: fix content host
+                    var contentHost = htmlDoc.FirstElementChild;
+
+                    // Analyze the html block (which is a wiki block)
+                    var content = contentHost.LastElementChild;
+                    AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, 1, 1, content);
+                }
+
+                // Bulk load the needed web part information
+                if (webPartsToRetrieve.Count > 0)
+                {
+                    LoadWebPartsInWikiContentFromServer(webparts, publishingPage, webPartsToRetrieve);
+                }
+            }
+            #endregion
+
+            #region Web Parts in webpart zone handling
+            // Load web parts put in web part zones on the publishing page
+            // Note: Web parts placed outside of a web part zone using SPD are not picked up by the web part manager. 
+            var limitedWPManager = publishingPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
             cc.Load(limitedWPManager);
 
-            IEnumerable<WebPartDefinition> webParts = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.ZoneId, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties));
+            IEnumerable<WebPartDefinition> webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.ZoneId, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties));
             cc.ExecuteQueryRetry();
 
-            if (webParts.Count() > 0)
+            if (webPartsViaManager.Count() > 0)
             {
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
 
-                foreach (var foundWebPart in webParts)
+                foreach (var foundWebPart in webPartsViaManager)
                 {
+                    // Remove the web parts which we've already picked up by analyzing the wiki content block
+                    if (webparts.Where(p => p.Id.Equals(foundWebPart.Id)).First() != null)
+                    {
+                        continue;
+                    }
+
                     webPartsToRetrieve.Add(new WebPartPlaceHolder()
                     {
                         WebPartDefinition = foundWebPart,
@@ -112,46 +160,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value),
                     });
                 }
-
-                #region Old Approach
-                /*
-                foreach (var foundWebPart in webParts)
-                {
-                    string webPartXml = "";
-                    string webPartType = "";
-                    var exportMode = foundWebPart.WebPart.ExportMode;
-                    if (foundWebPart.WebPart.ExportMode != WebPartExportMode.All)
-                    {
-                        // Use different approach to determine type as we can't export the web part XML without indroducing a change
-                        webPartType = GetTypeFromProperties(foundWebPart.WebPart.Properties);
-                    }
-                    else
-                    {
-                        var result = limitedWPManager.ExportWebPart(foundWebPart.Id);
-                        cc.ExecuteQueryRetry();
-                        webPartXml = result.Value;
-                        webPartType = GetType(webPartXml);
-                    }
-
-                    webparts.Add(new WebPartEntity()
-                    {
-                        Title = foundWebPart.WebPart.Title,
-                        Type = webPartType,
-                        Id = foundWebPart.Id,
-                        ServerControlId = foundWebPart.Id.ToString(),
-                        Row = 1,
-                        Column = 1,
-                        Order = foundWebPart.WebPart.ZoneIndex,
-                        ZoneId = foundWebPart.ZoneId,
-                        ZoneIndex = (uint)foundWebPart.WebPart.ZoneIndex,
-                        IsClosed = foundWebPart.WebPart.IsClosed,
-                        Hidden = foundWebPart.WebPart.Hidden,
-                        Properties = Properties(foundWebPart.WebPart.Properties, webPartType, webPartXml),
-                    });
-                }
-                */
-                #endregion
             }
+            #endregion
 
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
         }

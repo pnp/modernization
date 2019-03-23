@@ -190,6 +190,7 @@
   <ItemGroup>
     <Compile Include="Publishing\AdHocTests.cs" />
     <Compile Include="Transform\Publishing\PageLayoutAnalyserTests.cs" />
+    <Compile Include="Transform\Publishing\PublishingPageTests.cs" />
     <Compile Include="Transform\ReportingTests.cs" />
     <Compile Include="UnitTestLogObserver.cs" />
     <Compile Include="Transform\LoggingTests.cs" />
