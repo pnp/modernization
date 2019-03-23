@@ -55,6 +55,10 @@
 						If you are in need of professional help, please consult a professional. This site is not intended for children under the age of 18.]]></Content>
 				</WebPart>
 			</WebPartPages:ContentEditorWebPart>
+			<WebPartPages:WebPartZone id="x00001a" runat="server" title="Main 100 1"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+			<WebPartPages:WebPartZone id="x00002b" runat="server" title="Main 100 2"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+			<WebPartPages:WebPartZone id="x00003c" runat="server" title="Main 100 3"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+			<WebPartPages:WebPartZone id="x00004d" runat="server" title="Main 100 4"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
 		</div>
 		<PublishingWebControls:EditModePanel runat="server" CssClass="edit-mode-panel roll-up">
 			<PublishingWebControls:RichImageField FieldName="PublishingRollupImage" AllowHyperLinks="false" runat="server" />

@@ -120,7 +120,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                 var layout = contextToUse.Web.GetFileByServerRelativeUrl($"{contextToUse.Web.EnsureProperty(o => o.ServerRelativeUrl)}/_catalogs/masterpage/ArticleCustom.aspx");
 
-                var results = new List<string>();
+                var results = new List<Tuple<string,string>>();
                 if (layout != null)
                 {
                     ListItem item = layout.EnsureProperty(o => o.ListItemAllFields);
@@ -140,6 +140,20 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         public void PageLayoutAnalyse_GetListOfWebPartsAssemblyReference()
         {
             var result = WebParts.GetListOfWebParts();
+
+            result.ForEach(o =>
+            {
+                Console.WriteLine(o);
+            });
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Count > 0);
+        }
+
+        [TestMethod]
+        public void PageLayoutAnalyse_GetListOfWebPartsAssemblyReferenceWithNameSpace()
+        {
+            var result = WebParts.GetListOfWebParts("Microsoft.SharePoint.WebPartPages");
 
             result.ForEach(o =>
             {

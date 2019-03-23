@@ -103,7 +103,7 @@ namespace SharePointPnP.Modernization.Framework
         /// <summary>
         /// Use reflection to read the object fields in a list of strings
         /// </summary>
-        public static List<string> GetListOfWebParts()
+        public static List<string> GetListOfWebParts(string InNameSpace = "")
         {
             List<string> webPartsList = new List<string>();
 
@@ -116,7 +116,19 @@ namespace SharePointPnP.Modernization.Framework
                 {
                     if (field.FieldType == typeof(string))
                     {
-                        webPartsList.Add(field.GetValue(null) as string);
+                        var value = field.GetValue(null) as string;
+
+                        if (!string.IsNullOrEmpty(InNameSpace))
+                        {
+                            if (value.Contains(InNameSpace))
+                            {
+                                webPartsList.Add(value);
+                            }
+                        }
+                        else
+                        {
+                            webPartsList.Add(value);
+                        }
                     }
                 }
             }
@@ -128,5 +140,6 @@ namespace SharePointPnP.Modernization.Framework
             return webPartsList;
 
         }
+
     }
 }

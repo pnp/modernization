@@ -42,7 +42,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         private ClientContext _siteCollContext;
         private ClientContext _sourceContext;
-        
+
         private PublishingPageTransformation _mapping;
         private string _defaultFileName = "PageLayoutMapping.xml";
 
@@ -65,8 +65,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         public PageLayoutAnalyser(ClientContext sourceContext, IList<ILogObserver> logObservers = null)
         {
             // Register observers
-            if (logObservers != null){
-                foreach (var observer in logObservers){
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
                     base.RegisterObserver(observer);
                 }
             }
@@ -94,9 +96,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 var spPageLayouts = GetAllPageLayouts();
 
-                foreach(ListItem layout in spPageLayouts)
+                foreach (ListItem layout in spPageLayouts)
                 {
-                   AnalysePageLayout(layout);
+                    AnalysePageLayout(layout);
                 }
             }
         }
@@ -113,8 +115,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
 
             var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
-            var webParts = ExtractFieldControlsFromPageLayoutHtml(pageLayoutItem);
-            var zones = ExtractWebPartZonesFromPageLayoutHtml(pageLayoutItem);
+            var extractedHtmlBlocks = ExtractControlsFromPageLayoutHtml(pageLayoutItem);
+            
 
             var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == pageLayoutItem.EnsureProperty(i => i.DisplayName));
 
@@ -125,14 +127,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 PageLayoutTemplate = this.CastToEnum<PageLayoutPageLayoutTemplate>(oobPageLayoutDefaults?.PageLayoutTemplate),
                 AssociatedContentType = assocContentTypeParts?[0],
                 MetaData = metadata,
-                WebParts = webParts,
-                WebPartZones = zones
+
+                WebParts = extractedHtmlBlocks.WebPartFields.ToArray(),
+                WebPartZones = extractedHtmlBlocks.WebPartZones.ToArray(),
+                FixedWebParts = extractedHtmlBlocks.FixedWebParts.ToArray()
             };
 
             SetPageLayoutHeaderFieldDefaults(oobPageLayoutDefaults, layoutMapping);
 
             // Add to mappings list
-            if (_mapping.PageLayouts != null) {
+            if (_mapping.PageLayouts != null)
+            {
                 var expandMappings = _mapping.PageLayouts.ToList();
                 expandMappings.Add(layoutMapping);
                 _mapping.PageLayouts = expandMappings.ToArray();
@@ -183,7 +188,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return false;
         }
 
-       
+
 
         /// <summary>
         /// Determines the page layouts in the current web
@@ -213,7 +218,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{PageLayoutBaseContentTypeId}</Value>" +
                                     $"</BeginsWith>" +
                                 $"</And>" +
-                                $"<Or>"+
+                                $"<Or>" +
                                     $"<Eq>" +
                                         $"<FieldRef Name='PublishingHidden'/><Value Type='Boolean'>0</Value>" +
                                     $"</Eq>" +
@@ -225,7 +230,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                          $"</Where>" +
                     $"</Query>" +
                     $"<ViewFields>" +
-                        $"<FieldRef Name='"+ PublishingAssociatedContentType + $"' />" +
+                        $"<FieldRef Name='" + PublishingAssociatedContentType + $"' />" +
                         $"<FieldRef Name='PublishingHidden' />" +
                         $"<FieldRef Name='Title' />" +
                     $"</ViewFields>" +
@@ -234,12 +239,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             var galleryItems = masterPageGallery.GetItems(query);
             _siteCollContext.Load(masterPageGallery);
             _siteCollContext.Load(galleryItems);
-            _siteCollContext.Load(galleryItems, i => i.Include(o=>o.DisplayName), 
+            _siteCollContext.Load(galleryItems, i => i.Include(o => o.DisplayName),
                 i => i.Include(o => o.File),
                 i => i.Include(o => o.File.ServerRelativeUrl));
 
             _siteCollContext.ExecuteQueryRetry();
-            
+
             return galleryItems.Count > 0 ? galleryItems : null;
 
         }
@@ -251,14 +256,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
 
             List<WebPartField> wpFields = new List<WebPartField>();
-            
+
             File file = pageLayout.File;
             var webPartManager = file.GetLimitedWebPartManager(Microsoft.SharePoint.Client.WebParts.PersonalizationScope.Shared);
-            
+
             _siteCollContext.Load(webPartManager);
             _siteCollContext.Load(webPartManager.WebParts);
-            _siteCollContext.Load(webPartManager.WebParts, 
-                i=>i.Include(o=>o.WebPart.Title),
+            _siteCollContext.Load(webPartManager.WebParts,
+                i => i.Include(o => o.WebPart.Title),
                 i => i.Include(o => o.ZoneId),
                 i => i.Include(o => o.WebPart));
             _siteCollContext.Load(file);
@@ -266,16 +271,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             var wps = webPartManager.WebParts;
 
-            foreach(var part in wps){
+            foreach (var part in wps)
+            {
 
                 var props = part.WebPart.Properties.FieldValues;
                 List<WebPartProperty> partProperties = new List<WebPartProperty>();
 
-                foreach(var prop in props)
+                foreach (var prop in props)
                 {
                     partProperties.Add(new WebPartProperty() { Name = prop.Key, Type = WebPartProperyType.@string });
                 }
-                
+
                 wpFields.Add(new WebPartField()
                 {
                     Name = part.WebPart.Title,
@@ -297,7 +303,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             //Note: ListItemExtensions class contains this logic - reuse.
             //throw new NotImplementedException();
 
-            
+
         }
 
         /// <summary>
@@ -333,7 +339,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     }
                 }
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 LogError(LogStrings.Error_CannotMapMetadataFields, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
@@ -354,7 +361,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
              * Get a list of all the API recognised web parts and perform a delta
              * List of types can be found in the WebParts class in root of project
             */
-                       
+
             List<FixedWebPart> fixedWebParts = new List<FixedWebPart>();
             const string TagPrefix = "WebPartPages";
 
@@ -365,7 +372,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             using (var document = this.parser.Parse(fileHtml))
             {
-                
+
                 var webParts = document.All.Where(o => o.TagName.Contains(TagPrefix)).ToArray();
 
                 for (var i = 0; i < webParts.Count(); i++)
@@ -401,11 +408,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// Scan through the file to find the TagPrefixes in ASPX Header
         /// </summary>
         /// <param name="pageLayout"></param>
-        /// <returns></returns>
-        public List<string> ExtractWebPartPrefixesFromNamespaces(ListItem pageLayout)
+        /// <returns>
+        ///     List<Tuple<string, string>>
+        ///     Item1 = tagprefix
+        ///     Item2 = Namespace
+        /// </returns>
+        public List<Tuple<string, string>> ExtractWebPartPrefixesFromNamespaces(ListItem pageLayout)
         {
-            
-            var tagPrefixes = new List<string>();
+            var tagPrefixes = new List<Tuple<string, string>>();
 
             pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
             var fileUrl = pageLayout.File.ServerRelativeUrl;
@@ -419,23 +429,24 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 var results = regex.Matches(aspxHeader?.InnerHtml);
 
                 StringBuilder blockHtml = new StringBuilder();
-                foreach(var match in results)
+                foreach (var match in results)
                 {
                     var matchString = match.ToString().Replace("&lt;%@ ", "<").Replace("%&gt;", " />");
                     blockHtml.AppendLine(matchString);
                 }
-                
+
                 var fullBlock = blockHtml.ToString();
-                using(var subDocument = this.parser.Parse(fullBlock))
+                using (var subDocument = this.parser.Parse(fullBlock))
                 {
                     var registers = subDocument.All.Where(o => o.TagName == "REGISTER");
 
-                    foreach (var register in registers) {
-
-                       var prefix = register.GetAttribute("Tagprefix");
-                       tagPrefixes.Add(prefix);
+                    foreach (var register in registers)
+                    {
+                        var prefix = register.GetAttribute("Tagprefix");
+                        var nameSpace = register.GetAttribute("Namespace");
+                        tagPrefixes.Add(new Tuple<string, string>(prefix, nameSpace));
                     }
-                    
+
                 }
 
             }
@@ -446,55 +457,94 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Extract the web parts from the page layout HTML outside of web part zones
         /// </summary>
-        public WebPartField[] ExtractFieldControlsFromPageLayoutHtml(ListItem pageLayout)
+        public ExtractedHtmlBlocksEntity ExtractControlsFromPageLayoutHtml(ListItem pageLayout)
         {
             /*Plan
              * Scan through the file to find the web parts by the tags
              * Extract and convert to definition 
             */
 
-            List<WebPartField> webParts = new List<WebPartField>();
-
+            ExtractedHtmlBlocksEntity extractedHtmlBlocks = new ExtractedHtmlBlocksEntity();
+            
+            // Data from SharePoint
             pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
             var fileUrl = pageLayout.File.ServerRelativeUrl;
-
             var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
 
             using (var document = this.parser.Parse(fileHtml))
             {
-                //TODO: Add further processing to find if the tags are in a grid system
-                //TODO: Remove unnecessary controls
-                
+                //List of all the assembly references and prefixes in the page
+                List<Tuple<string,string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(pageLayout); 
+                List<IEnumerable<IElement>> multipleTagFinds = new List<IEnumerable<IElement>>();
 
-                var fieldControls = document.All.Where(o => o.TagName.Contains("SHAREPOINTWEBCONTROLS"));
+                // Item 1 - WebPart Name, Item 2 - Full assembly reference
+                List<Tuple<string,string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
 
-                foreach (var control in fieldControls)
+                foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
                 {
-                    var attributes = control.Attributes;
-                    
-                    if (attributes.Any(o => o.Name == "fieldname")) {
+                    multipleTagFinds.Add(document.All.Where(o => o.TagName.Contains(prefixAndNameSpace.Item1.ToUpper())));
 
-                        var fieldName = attributes["fieldname"].Value;
+                    // Determine the possible web parts from the page from the namespaces used in the aspx header
+                    var possibleParts = WebParts.GetListOfWebParts(prefixAndNameSpace.Item2);
+                    foreach(var part in possibleParts)
+                    {
+                        var webPartName = part.Substring(0, part.IndexOf(",")).Replace(prefixAndNameSpace.Item2, "");
+                        possibleWebPartsUsed.Add(new Tuple<string, string>(webPartName, part));
+                    }
+                }
+
+                // Bit of a bad name, just getting it working, this refers to all sharepoint controls including web parts, zones and field controls.
+                foreach (var tagFind in multipleTagFinds)
+                {
+                    // Expand, as this may contain many elements
+                    foreach (var control in tagFind)
+                    {
+
+                        var attributes = control.Attributes;
                         
-                        //DeDup - Some controls can be inside an edit panel
-                        if (!webParts.Any(o => o.Name == fieldName))
-                        {
-                            webParts.Add(new WebPartField()
-                            {
-                                Name = fieldName,
-                                TargetWebPart = "",
-                                Row = "",
-                                Column = ""
 
+                        if (attributes.Any(o => o.Name == "fieldname"))
+                        {
+
+                            var fieldName = attributes["fieldname"].Value;
+
+                            //DeDup - Some controls can be inside an edit panel
+                            if (!extractedHtmlBlocks.WebPartFields.Any(o => o.Name == fieldName))
+                            {
+                                extractedHtmlBlocks.WebPartFields.Add(new WebPartField()
+                                {
+                                    Name = fieldName,
+                                    TargetWebPart = "",
+                                    Row = "",
+                                    Column = ""
+
+                                });
+                            }
+                        }
+
+                        if (control.TagName.Contains("WEBPARTZONE")) {
+
+                            extractedHtmlBlocks.WebPartZones.Add(new WebPartZone()
+                            {
+                                ZoneId = control.Id,
+                                Column = "",
+                                Row = ""
+                                //ZoneIndex = control. // TODO: Is this used?
                             });
                         }
+
+                        //Fixed web part zone
+                        //if(possibleWebPartsUsed.Any(o.Item1.)
+                        
+                        
+
                     }
 
                 }
 
             }
 
-            return webParts.ToArray();
+            return extractedHtmlBlocks;
 
         }
 
@@ -520,7 +570,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 var webPartZones = document.All.Where(o => o.TagName.Contains("WEBPARTZONE")).ToArray();
 
-                for(var i = 0; i < webPartZones.Count(); i++)
+                for (var i = 0; i < webPartZones.Count(); i++)
                 {
                     zones.Add(new WebPartZone()
                     {
@@ -545,7 +595,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             try
             {
                 XmlSerializer xmlMapping = new XmlSerializer(typeof(PublishingPageTransformation));
-                
+
                 var mappingFileName = _defaultFileName;
 
                 using (StreamWriter sw = new StreamWriter(mappingFileName, false))
@@ -558,7 +608,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 return xmlMappingFileLocation;
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 var message = string.Format(LogStrings.Error_CannotWriteToXmlFile, ex.Message, ex.StackTrace);
                 Console.WriteLine(message);
@@ -646,5 +697,22 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Simple entity for the extracted blocks of data
+    /// </summary>
+    public class ExtractedHtmlBlocksEntity
+    {
+        public ExtractedHtmlBlocksEntity()
+        {
+            WebPartFields = new List<WebPartField>();
+            WebPartZones = new List<WebPartZone>();
+            FixedWebParts = new List<FixedWebPart>();
+        }
+
+        public List<WebPartField> WebPartFields { get; set; }
+        public List<WebPartZone> WebPartZones { get; set; }
+        public List<FixedWebPart> FixedWebParts { get; set; }
     }
 }
