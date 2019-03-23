@@ -81,7 +81,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                 var pageLayoutAnalyser = new PageLayoutAnalyser(sourceClientContext);
                 pageLayoutAnalyser.RegisterObserver(new UnitTestLogObserver());
 
-                var layout = contextToUse.Web.GetFileByServerRelativeUrl("/sites/PnPTransformationSource/_catalogs/masterpage/ArticleCustom.aspx");
+                var layout = contextToUse.Web.GetFileByServerRelativeUrl($"{contextToUse.Web.EnsureProperty(o => o.ServerRelativeUrl)}/_catalogs/masterpage/ArticleCustom.aspx");
 
                 var result = string.Empty;
                 if(layout!= null){
