@@ -116,7 +116,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
             var extractedHtmlBlocks = ExtractControlsFromPageLayoutHtml(pageLayoutItem);
-            
+
 
             var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == pageLayoutItem.EnsureProperty(i => i.DisplayName));
 
@@ -465,7 +465,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             */
 
             ExtractedHtmlBlocksEntity extractedHtmlBlocks = new ExtractedHtmlBlocksEntity();
-            
+
             // Data from SharePoint
             pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
             var fileUrl = pageLayout.File.ServerRelativeUrl;
@@ -473,74 +473,133 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             using (var document = this.parser.Parse(fileHtml))
             {
-                //List of all the assembly references and prefixes in the page
-                List<Tuple<string,string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(pageLayout); 
-                List<IEnumerable<IElement>> multipleTagFinds = new List<IEnumerable<IElement>>();
 
                 // Item 1 - WebPart Name, Item 2 - Full assembly reference
-                List<Tuple<string,string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
+                List<Tuple<string, string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
+                List<IEnumerable<IElement>> multipleTagFinds = new List<IEnumerable<IElement>>();
 
-                foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
+                //List of all the assembly references and prefixes in the page
+                List<Tuple<string, string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(pageLayout);
+
+                // Determine the possible web parts from the page from the namespaces used in the aspx header
+                prefixesAndNameSpaces.ForEach(p =>
                 {
-                    multipleTagFinds.Add(document.All.Where(o => o.TagName.Contains(prefixAndNameSpace.Item1.ToUpper())));
-
-                    // Determine the possible web parts from the page from the namespaces used in the aspx header
-                    var possibleParts = WebParts.GetListOfWebParts(prefixAndNameSpace.Item2);
-                    foreach(var part in possibleParts)
+                    var possibleParts = WebParts.GetListOfWebParts(p.Item2);
+                    foreach (var part in possibleParts)
                     {
-                        var webPartName = part.Substring(0, part.IndexOf(",")).Replace(prefixAndNameSpace.Item2, "");
+                        var webPartName = part.Substring(0, part.IndexOf(",")).Replace($"{p.Item2}.", "");
                         possibleWebPartsUsed.Add(new Tuple<string, string>(webPartName, part));
                     }
-                }
+                });
 
-                // Bit of a bad name, just getting it working, this refers to all sharepoint controls including web parts, zones and field controls.
-                foreach (var tagFind in multipleTagFinds)
+                // Cycle through all the nodes in the document
+                foreach (var docNode in document.All)
                 {
-                    // Expand, as this may contain many elements
-                    foreach (var control in tagFind)
+                    foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
                     {
-
-                        var attributes = control.Attributes;
-                        
-
-                        if (attributes.Any(o => o.Name == "fieldname"))
+                        if (docNode.TagName.Contains(prefixAndNameSpace.Item1.ToUpper()))
                         {
 
-                            var fieldName = attributes["fieldname"].Value;
+                            // Expand, as this may contain many elements
+                            //foreach (var control in tagFind)
+                            //{
 
-                            //DeDup - Some controls can be inside an edit panel
-                            if (!extractedHtmlBlocks.WebPartFields.Any(o => o.Name == fieldName))
+                            var attributes = docNode.Attributes;
+                            
+                            if (attributes.Any(o => o.Name == "fieldname"))
                             {
-                                extractedHtmlBlocks.WebPartFields.Add(new WebPartField()
-                                {
-                                    Name = fieldName,
-                                    TargetWebPart = "",
-                                    Row = "",
-                                    Column = ""
 
+                                var fieldName = attributes["fieldname"].Value;
+
+                                //DeDup - Some controls can be inside an edit panel
+                                if (!extractedHtmlBlocks.WebPartFields.Any(o => o.Name == fieldName))
+                                {
+                                    extractedHtmlBlocks.WebPartFields.Add(new WebPartField()
+                                    {
+                                        Name = fieldName,
+                                        TargetWebPart = "",
+                                        Row = "",
+                                        Column = ""
+
+                                    });
+                                }
+                            }
+
+                            if (docNode.TagName.Contains("WEBPARTZONE"))
+                            {
+
+                                extractedHtmlBlocks.WebPartZones.Add(new WebPartZone()
+                                {
+                                    ZoneId = docNode.Id,
+                                    Column = "",
+                                    Row = ""
+                                    //ZoneIndex = control. // TODO: Is this used?
                                 });
                             }
-                        }
 
-                        if (control.TagName.Contains("WEBPARTZONE")) {
+                            //Fixed web part zone
+                            //This should only find one match
+                            var matchedParts = possibleWebPartsUsed.Where(o => o.Item1.ToUpper() == docNode.TagName.Replace($"{prefixAndNameSpace.Item1.ToUpper()}:", ""));
 
-                            extractedHtmlBlocks.WebPartZones.Add(new WebPartZone()
+                            if (matchedParts.Any())
                             {
-                                ZoneId = control.Id,
-                                Column = "",
-                                Row = ""
-                                //ZoneIndex = control. // TODO: Is this used?
-                            });
+                                var match = matchedParts.FirstOrDefault();
+                                if(match != default(Tuple<string, string>))
+                                {
+                                    //Process Child properties
+                                    List<FixedWebPartProperty> fixedProperties = new List<FixedWebPartProperty>();
+                                    if (docNode.HasChildNodes && docNode.FirstElementChild.HasChildNodes) {
+                                        var childProperties = docNode.FirstElementChild.ChildNodes;
+                                        foreach(var childProp in childProperties) {
+
+                                            if (childProp.NodeName != "#text")
+                                            {
+                                                var stronglyTypedChild = (IElement)childProp;
+                                                var content = !string.IsNullOrEmpty(childProp.TextContent) ? childProp.TextContent : stronglyTypedChild.InnerHtml;
+
+                                                fixedProperties.Add(new FixedWebPartProperty()
+                                                {
+                                                    Name = stronglyTypedChild.NodeName,
+                                                    Type = WebPartProperyType.@string,
+                                                    Value = System.Web.HttpUtility.HtmlEncode(content)
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                    extractedHtmlBlocks.FixedWebParts.Add(new FixedWebPart()
+                                    {
+                                        Column = "",
+                                        Row = "",
+                                        Type = match.Item2,
+                                        Property = fixedProperties.ToArray()
+                                    });
+                                }
+                            }
                         }
-
-                        //Fixed web part zone
-                        //if(possibleWebPartsUsed.Any(o.Item1.)
-                        
-                        
-
                     }
-
                 }
+
+
+                //foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
+                //{
+                //    multipleTagFinds.Add(document.All.Where(o => o.TagName.Contains(prefixAndNameSpace.Item1.ToUpper())));
+
+                //    // Determine the possible web parts from the page from the namespaces used in the aspx header
+                //    var possibleParts = WebParts.GetListOfWebParts(prefixAndNameSpace.Item2);
+                //    foreach(var part in possibleParts)
+                //    {
+                //        var webPartName = part.Substring(0, part.IndexOf(",")).Replace(prefixAndNameSpace.Item2, "");
+                //        possibleWebPartsUsed.Add(new Tuple<string, string>(webPartName, part));
+                //    }
+                //}
+
+                //// Bit of a bad name, just getting it working, this refers to all sharepoint controls including web parts, zones and field controls.
+                //foreach (var tagFind in multipleTagFinds)
+                //{
+
+
+                //}
 
             }
 
