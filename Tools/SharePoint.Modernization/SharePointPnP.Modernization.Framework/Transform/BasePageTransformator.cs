@@ -447,7 +447,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 clientContext.ClientTag = $"SPDev:PageTransformator";
                 // Load all web properties needed further one
-                clientContext.Load(clientContext.Web, p => p.Id, p => p.ServerRelativeUrl, p => p.RootFolder.WelcomePage, p => p.Url, p => p.WebTemplate);
+                clientContext.Load(clientContext.Web, p => p.Id, p => p.ServerRelativeUrl, p => p.RootFolder.WelcomePage, p => p.Url, p => p.WebTemplate, p => p.Language);
                 clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id);
                 // Use regular ExecuteQuery as we want to send this custom clienttag
                 clientContext.ExecuteQuery();

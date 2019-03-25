@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
@@ -20,6 +21,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
     {
         private PublishingPageTransformation publishingPageTransformation;
         private PageLayoutManager pageLayoutManager;
+        private string publishingPagesLibrary = null;
 
         #region Construction
         public PublishingPageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext) : this(sourceClientContext, targetClientContext, "webpartmapping.xml", null)
@@ -87,7 +89,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
         }
         #endregion
-
 
         /// <summary>
         /// Transform the publishing page
@@ -179,14 +180,18 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Detect if the page is living inside a folder
             LogDebug(LogStrings.DetectIfPageIsInFolder, LogStrings.Heading_PageCreation);
             string pageFolder = "";
+
+            // Get the publishing pages library name
+            this.publishingPagesLibrary = CacheManager.Instance.GetPublishingPageName(this.sourceClientContext);
+
             if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
             {
                 var fileRefFieldValue = publishingPageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString().ToLower();
 
                 // TODO: pages folder is translated, ensure to use the correct name!
-                if (fileRefFieldValue.Contains("/pages"))
+                if (fileRefFieldValue.Contains($"/{this.publishingPagesLibrary}"))
                 {
-                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/pages".ToLower(), "").Trim();
+                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibrary}".ToLower(), "").Trim();
                 }
                 else
                 {
@@ -484,7 +489,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             // Cross site collection transfer, new page always takes the name of the old page
             // TODO: pages folder is language specific
-            if (!sourcePath.Contains("/pages"))
+            if (!sourcePath.Contains($"/{this.publishingPagesLibrary}"))
             {
                 // Source file was living outside of the site pages library
                 targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
@@ -493,7 +498,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             else
             {
                 // Page was living inside the sitepages library
-                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/pages".ToLower(), "");
+                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibrary}".ToLower(), "");
                 targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
             }
 
@@ -523,7 +528,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             targetContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
             // Load the pages library and page file (if exists) in one go 
-            var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, "Pages");   
+            var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, this.publishingPagesLibrary);   
             var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
 
             pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl);

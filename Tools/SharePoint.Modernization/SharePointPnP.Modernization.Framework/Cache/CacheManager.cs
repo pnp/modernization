@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SharePointPnP.Modernization.Framework.Cache
 {
@@ -21,6 +22,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<Guid, string> siteToComponentMapping;
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
         private OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate baseTemplate;
+        private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -41,6 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             baseTemplate = null;
             fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>(10, 10);
             AssetsTransfered = new List<AssetTransferredEntity>();
+            publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>(10, 10);
         }
 
         #region Asset Transfer
@@ -214,16 +217,54 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
         #endregion
 
+        #region Publishing Pages library name
+        public string GetPublishingPageName(ClientContext context)
+        {
+            uint lcid = context.Web.EnsureProperty(p => p.Language);
+
+            if (publishingPagesLibraryNames.ContainsKey(lcid))
+            {
+                if (publishingPagesLibraryNames.TryGetValue(lcid, out string name))
+                {
+                    return name;
+                }
+                else
+                {
+                    // let's fallback to the default...we should never get here unless there's some threading issue
+                    return "pages";
+                }
+            }
+            else
+            {
+                var result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:List_Pages_UrlName", "osrvcore", int.Parse(lcid.ToString()));
+                context.ExecuteQueryRetry();
+
+                string pagesLibraryName = new Regex(@"['´`]").Replace(result.Value, "");
+
+                if (string.IsNullOrEmpty(pagesLibraryName))
+                {
+                    return "pages";
+                }
+
+                // add to cache
+                publishingPagesLibraryNames.TryAdd(lcid, pagesLibraryName);
+
+                return pagesLibraryName;
+            }
+        }
+        #endregion  
+
         #region Generic methods
         public void ClearAllCaches()
         {
             this.AssetsTransfered.Clear();
             ClearClientSideComponents();
             ClearBaseTemplate();
-            ClearFieldsToCopy();
+            ClearFieldsToCopy();            
         }
         #endregion
 
+        #region Helper methods
         private static string Sha256(string randomString)
         {
             var crypt = new System.Security.Cryptography.SHA256Managed();
@@ -243,6 +284,6 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 fieldRefs.Add(new OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRef(name) { Id = Id });
             }
         }
-
+        #endregion
     }
 }
