@@ -558,7 +558,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 {
                                     //Process Child properties
                                     List<FixedWebPartProperty> fixedProperties = new List<FixedWebPartProperty>();
-                                    if (docNode.HasChildNodes && docNode.FirstElementChild.HasChildNodes)
+                                    if (docNode.HasChildNodes && docNode.FirstElementChild != null && docNode.FirstElementChild.HasChildNodes)
                                     {
                                         var childProperties = docNode.FirstElementChild.ChildNodes;
                                         foreach (var childProp in childProperties)
