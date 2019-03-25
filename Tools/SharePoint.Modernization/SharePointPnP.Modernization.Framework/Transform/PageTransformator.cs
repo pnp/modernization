@@ -492,7 +492,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 // Apply the layout to the page
-                layoutTransformator.Transform(pageData.Item1);
+                layoutTransformator.Transform(pageData);
 #if DEBUG && MEASURE
                 Stop("Page layout");
 #endif

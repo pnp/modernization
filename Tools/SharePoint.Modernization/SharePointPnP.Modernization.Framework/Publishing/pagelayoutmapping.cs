@@ -181,11 +181,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string typeField;
         
-        private string rowField;
+        private int rowField;
         
-        private string columnField;
+        private bool rowFieldSpecified;
         
-        private string orderField;
+        private int columnField;
+        
+        private bool columnFieldSpecified;
+        
+        private int orderField;
+        
+        private bool orderFieldSpecified;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Property")]
@@ -210,8 +216,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string Row {
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Row {
             get {
                 return this.rowField;
             }
@@ -221,8 +227,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string Column {
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool RowSpecified {
+            get {
+                return this.rowFieldSpecified;
+            }
+            set {
+                this.rowFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Column {
             get {
                 return this.columnField;
             }
@@ -232,13 +249,35 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string Order {
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ColumnSpecified {
+            get {
+                return this.columnFieldSpecified;
+            }
+            set {
+                this.columnFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Order {
             get {
                 return this.orderField;
             }
             set {
                 this.orderField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool OrderSpecified {
+            get {
+                return this.orderFieldSpecified;
+            }
+            set {
+                this.orderFieldSpecified = value;
             }
         }
     }
@@ -251,17 +290,21 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
     public partial class WebPartZone {
         
-        private string zoneIndexField;
+        private int zoneIndexField;
         
         private string zoneIdField;
         
-        private string rowField;
+        private int rowField;
         
-        private string columnField;
+        private bool rowFieldSpecified;
+        
+        private int columnField;
+        
+        private bool columnFieldSpecified;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string ZoneIndex {
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int ZoneIndex {
             get {
                 return this.zoneIndexField;
             }
@@ -282,8 +325,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string Row {
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Row {
             get {
                 return this.rowField;
             }
@@ -293,13 +336,35 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string Column {
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool RowSpecified {
+            get {
+                return this.rowFieldSpecified;
+            }
+            set {
+                this.rowFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Column {
             get {
                 return this.columnField;
             }
             set {
                 this.columnField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ColumnSpecified {
+            get {
+                return this.columnFieldSpecified;
+            }
+            set {
+                this.columnFieldSpecified = value;
             }
         }
     }
@@ -366,9 +431,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string targetWebPartField;
         
-        private string rowField;
+        private int rowField;
         
-        private string columnField;
+        private bool rowFieldSpecified;
+        
+        private int columnField;
+        
+        private bool columnFieldSpecified;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Property")]
@@ -404,8 +473,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string Row {
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Row {
             get {
                 return this.rowField;
             }
@@ -415,13 +484,35 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute(DataType="integer")]
-        public string Column {
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool RowSpecified {
+            get {
+                return this.rowFieldSpecified;
+            }
+            set {
+                this.rowFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Column {
             get {
                 return this.columnField;
             }
             set {
                 this.columnField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ColumnSpecified {
+            get {
+                return this.columnFieldSpecified;
+            }
+            set {
+                this.columnFieldSpecified = value;
             }
         }
     }
@@ -733,6 +824,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         ThreeColumnsWithHeaderAndFooter,
+        
+        /// <remarks/>
+        AutoDetect,
     }
     
     /// <remarks/>

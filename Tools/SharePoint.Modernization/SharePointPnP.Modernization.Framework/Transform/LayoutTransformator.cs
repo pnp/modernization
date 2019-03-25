@@ -1,5 +1,8 @@
 ﻿using OfficeDevPnP.Core.Pages;
+using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Pages;
+using System;
+using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -25,10 +28,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Transforms a classic wiki/webpart page layout into a modern client side page layout
         /// </summary>
-        /// <param name="layout">Source wiki/webpart page layout</param>
-        public virtual void Transform(PageLayout layout)
+        /// <param name="pageData">Information about the analyed page</param>
+        public virtual void Transform(Tuple<Pages.PageLayout, List<WebPartEntity>> pageData)
         {
-            switch (layout)
+            switch (pageData.Item1)
             {
                 // In case of a custom layout let's stick with one column as model
                 case PageLayout.Wiki_OneColumn:

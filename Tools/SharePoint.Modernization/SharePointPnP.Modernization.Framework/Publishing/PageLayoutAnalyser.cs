@@ -370,8 +370,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     {
                         Name = fieldName,
                         TargetWebPart = "",
-                        Row = "",
-                        Column = ""
+                        Row = 0,
+                        Column = 0
                     });
                 }
 
@@ -408,9 +408,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     zones.Add(new WebPartZone()
                     {
                         ZoneId = webPartZone.Id,
-                        Column = "",
-                        Row = "",
-                        ZoneIndex = ""
+                        Column = 0,
+                        Row = 0,
+                        ZoneIndex = 0
                     });
                 }
 

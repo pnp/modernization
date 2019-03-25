@@ -27,10 +27,10 @@
   </xs:complexType>
 
   <xs:complexType name="WebPartZone">
-    <xs:attribute name="ZoneIndex" type="xs:integer" use="required" />
+    <xs:attribute name="ZoneIndex" type="xs:int" use="required" />
     <xs:attribute name="ZoneId" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:integer" use="optional" />
-    <xs:attribute name="Column" type="xs:integer" use="optional" />
+    <xs:attribute name="Row" type="xs:int" use="optional" />
+    <xs:attribute name="Column" type="xs:int" use="optional" />
   </xs:complexType>
 
   <xs:complexType name="FixedWebPart">
@@ -38,9 +38,9 @@
       <xs:element name="Property" type="FixedWebPartProperty" minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="Type" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:integer" use="optional" />
-    <xs:attribute name="Column" type="xs:integer" use="optional" />
-    <xs:attribute name="Order" type="xs:integer" use="optional" />
+    <xs:attribute name="Row" type="xs:int" use="optional" />
+    <xs:attribute name="Column" type="xs:int" use="optional" />
+    <xs:attribute name="Order" type="xs:int" use="optional" />
   </xs:complexType>
 
   <xs:simpleType name="WebPartProperyType">
@@ -71,8 +71,8 @@
     </xs:sequence>
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="TargetWebPart" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:integer" use="optional" />
-    <xs:attribute name="Column" type="xs:integer" use="optional" />
+    <xs:attribute name="Row" type="xs:int" use="optional" />
+    <xs:attribute name="Column" type="xs:int" use="optional" />
   </xs:complexType>
 
   <xs:complexType name="Header">
@@ -137,6 +137,7 @@
           <xs:enumeration value="ThreeColumns" />
           <xs:enumeration value="ThreeColumnsWithHeader" />
           <xs:enumeration value="ThreeColumnsWithHeaderAndFooter" />
+          <xs:enumeration value="AutoDetect" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

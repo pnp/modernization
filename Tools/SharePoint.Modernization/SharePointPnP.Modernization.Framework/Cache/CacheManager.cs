@@ -247,9 +247,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 }
 
                 // add to cache
-                publishingPagesLibraryNames.TryAdd(lcid, pagesLibraryName);
+                publishingPagesLibraryNames.TryAdd(lcid, pagesLibraryName.ToLower());
 
-                return pagesLibraryName;
+                return pagesLibraryName.ToLower();
             }
         }
         #endregion  

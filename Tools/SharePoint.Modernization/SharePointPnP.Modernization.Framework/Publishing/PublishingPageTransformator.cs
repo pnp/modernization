@@ -354,14 +354,25 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             ILayoutTransformator layoutTransformator = new LayoutTransformator(targetPage);
 
             // Do we have an override?
+            bool useCustomLayoutTransformator = false;
             if (publishingPageTransformationInformation.LayoutTransformatorOverride != null)
             {
                 LogInfo(LogStrings.TransformLayoutTransformatorOverride, LogStrings.Heading_ArticlePageHandling);
                 layoutTransformator = publishingPageTransformationInformation.LayoutTransformatorOverride(targetPage);
+                useCustomLayoutTransformator = true;
             }
 
             // Apply the layout to the page
-            layoutTransformator.Transform(pageData.Item1);
+            layoutTransformator.Transform(pageData);
+
+            // If needed call the specific publishing page layout transformator
+            if (pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetect && !useCustomLayoutTransformator)
+            {
+                // Call out the specific publishing layout transformator implementation
+                PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage);
+                publishingLayoutTransformator.Transform(pageData);
+            }
+
 #if DEBUG && MEASURE
                 Stop("Page layout");
 #endif

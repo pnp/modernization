@@ -15,7 +15,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
     {
         class TestLayout : ILayoutTransformator
         {
-            public void Transform(PageLayout layout)
+            public void Transform(Tuple<Pages.PageLayout, List<WebPartEntity>> pageData)
             {
                 throw new NotImplementedException();
             }

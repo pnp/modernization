@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PublishingPageTransformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema">
   <PageLayouts>
-    <PageLayout Name="ArticleLeft" AssociatedContentType="Article Page" PageLayoutTemplate="OneColumn" PageHeader="Custom">
+    <PageLayout Name="ArticleLeft" AssociatedContentType="Article Page" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
       <Header Type="FullWidthImage">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>

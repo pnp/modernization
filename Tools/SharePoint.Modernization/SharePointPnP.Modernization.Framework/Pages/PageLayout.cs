@@ -23,7 +23,7 @@
         WebPart_LeftColumnHeaderFooterTopRow3Columns = 26,
         WebPart_RightColumnHeaderFooterTopRow3Columns = 27,
         WebPart_Custom = 28,
-        PublishingPage_Custom = 40
+        PublishingPage_AutoDetect = 40
 
     }
 }

@@ -48,8 +48,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <returns>Information about the analyzed publishing page</returns>
         public Tuple<PageLayout, List<WebPartEntity>> Analyze()
         {
-            List<WebPartEntity> webparts = new List<WebPartEntity>();
-            PageLayout layout = PageLayout.Wiki_OneColumn;
+            List<WebPartEntity> webparts = new List<WebPartEntity>();            
 
             //Load the page
             var publishingPageUrl = page[Constants.FileRefField].ToString();
@@ -68,22 +67,24 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 throw new Exception($"No valid page transformation model could be retrieved for publishing page layout {usedPageLayout}");
             }
 
+            // Map layout
+            PageLayout layout = MapToLayout(publishingPageTransformationModel.PageLayoutTemplate);
+
             #region Process fields that become web parts 
             if (publishingPageTransformationModel.WebParts != null)
             {
                 #region Publishing Html column processing
                 // Converting to WikiTextPart is a special case as we'll need to process the html
-                var wikiTextWebParts = publishingPageTransformationModel.WebParts.Where(p => p.TargetWebPart.Equals("SharePointPnP.Modernization.WikiTextPart", StringComparison.InvariantCultureIgnoreCase));
+                var wikiTextWebParts = publishingPageTransformationModel.WebParts.Where(p => p.TargetWebPart.Equals(WebParts.WikiText, StringComparison.InvariantCultureIgnoreCase));
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
                 foreach (var wikiTextPart in wikiTextWebParts)
                 {
                     var pageContents = page.FieldValues[wikiTextPart.Name].ToString();
                     var htmlDoc = parser.Parse(pageContents);
 
-
                     // Analyze the html block (which is a wiki block)
                     var content = htmlDoc.FirstElementChild.LastElementChild;
-                    AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, 1, 1, content);
+                    AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, content);
                 }
 
                 // Bulk load the needed web part information
@@ -94,12 +95,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 #endregion
 
                 #region Generic processing of the other 'webpart' fields
-                var fieldWebParts = publishingPageTransformationModel.WebParts.Where(p => !p.TargetWebPart.Equals("SharePointPnP.Modernization.WikiTextPart", StringComparison.InvariantCultureIgnoreCase));
-                foreach(var fieldWebPart in fieldWebParts)
+                var fieldWebParts = publishingPageTransformationModel.WebParts.Where(p => !p.TargetWebPart.Equals(WebParts.WikiText, StringComparison.InvariantCultureIgnoreCase));                
+                foreach (var fieldWebPart in fieldWebParts.OrderBy(p => p.Row).OrderBy(p => p.Column))
                 {
                     Dictionary<string, string> properties = new Dictionary<string, string>();
 
-                    foreach(var fieldWebPartProperty in fieldWebPart.Property)
+                    foreach (var fieldWebPartProperty in fieldWebPart.Property)
                     {
                         if (!string.IsNullOrEmpty(fieldWebPartProperty.Functions))
                         {
@@ -121,14 +122,13 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Title = fieldWebPart.Name,
                         Type = fieldWebPart.TargetWebPart,
                         Id = Guid.Empty,
-                        Row = 1,
-                        Column = 1,
-                        Order = 1,
+                        Row = fieldWebPart.Row,
+                        Column = fieldWebPart.Column,
+                        Order = GetNextOrder(fieldWebPart.Row, fieldWebPart.Column, webparts),
                         Properties = properties,
                     };
 
-                    webparts.Add(wpEntity);
-
+                    webparts.Add(wpEntity);                    
                 }
             }
             #endregion
@@ -189,15 +189,31 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
                     }
 
+                    // Determine location based upon the location given to the web part zone in the mapping
+                    int wpInZoneRow = 1;
+                    int wpInZoneCol = 1;
+                    if (publishingPageTransformationModel.WebPartZones != null)
+                    {
+                        var wpZoneFromTemplate = publishingPageTransformationModel.WebPartZones.Where(p => p.ZoneId.Equals(foundWebPart.WebPartDefinition.ZoneId, StringComparison.InvariantCultureIgnoreCase)).First();
+                        if (wpZoneFromTemplate != null)
+                        {
+                            wpInZoneRow = wpZoneFromTemplate.Row;
+                            wpInZoneCol = wpZoneFromTemplate.Column;
+                        }
+                    }
+
+                    // Determine order already taken
+                    int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, webparts) + 1;
+
                     webparts.Add(new WebPartEntity()
                     {
                         Title = foundWebPart.WebPartDefinition.WebPart.Title,
                         Type = foundWebPart.WebPartType,
                         Id = foundWebPart.WebPartDefinition.Id,
                         ServerControlId = foundWebPart.WebPartDefinition.Id.ToString(),
-                        Row = 1,
-                        Column = 1,
-                        Order = foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
+                        Row = wpInZoneRow,
+                        Column = wpInZoneCol,
+                        Order = wpInZoneOrderUsed + foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         ZoneId = foundWebPart.WebPartDefinition.ZoneId,
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
@@ -208,7 +224,47 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
             #endregion
 
+            #region Fixed webparts mapping
+            // TODO
+            #endregion
+
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
         }
+
+        #region Helper methods
+
+        public int GetNextOrder(int row, int col, List<WebPartEntity> webparts)
+        {
+            // do we already have web parts in the same row and column
+            var wp = webparts.Where(p => p.Row == row && p.Column == col);
+            if (wp != null && wp.Any())
+            {
+                var lastWp = wp.OrderBy(p => p.Order).Last();
+                return lastWp.Order + 1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        private PageLayout MapToLayout(PageLayoutPageLayoutTemplate layoutFromTemplate)
+        {
+            switch (layoutFromTemplate)
+            {
+                case PageLayoutPageLayoutTemplate.OneColumn: return PageLayout.Wiki_OneColumn;
+                case PageLayoutPageLayoutTemplate.TwoColumns: return PageLayout.Wiki_TwoColumns;
+                case PageLayoutPageLayoutTemplate.TwoColumnsWithSidebarLeft:return PageLayout.Wiki_TwoColumnsWithSidebar;
+                case PageLayoutPageLayoutTemplate.TwoColumnsWithSidebarRight: return PageLayout.Wiki_TwoColumnsWithSidebar;
+                case PageLayoutPageLayoutTemplate.TwoColumnsWithHeader: return PageLayout.Wiki_TwoColumnsWithHeader;
+                case PageLayoutPageLayoutTemplate.TwoColumnsWithHeaderAndFooter: return PageLayout.Wiki_TwoColumnsWithHeaderAndFooter;
+                case PageLayoutPageLayoutTemplate.ThreeColumns: return PageLayout.Wiki_ThreeColumns;
+                case PageLayoutPageLayoutTemplate.ThreeColumnsWithHeader: return PageLayout.Wiki_ThreeColumnsWithHeader;
+                case PageLayoutPageLayoutTemplate.ThreeColumnsWithHeaderAndFooter: return PageLayout.Wiki_ThreeColumnsWithHeaderAndFooter;
+                case PageLayoutPageLayoutTemplate.AutoDetect: return PageLayout.PublishingPage_AutoDetect;
+                default: return PageLayout.Wiki_OneColumn;
+            }
+        }
+        #endregion
     }
 }

@@ -58,6 +58,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             // Don't log test runs
                             SkipTelemetry = true,
 
+                            //RemoveEmptySectionsAndColumns = false,
+
                             // Configure the page header, empty value means ClientSidePageHeaderType.None
                             //PageHeader = new ClientSidePageHeader(cc, ClientSidePageHeaderType.None, null),
 
