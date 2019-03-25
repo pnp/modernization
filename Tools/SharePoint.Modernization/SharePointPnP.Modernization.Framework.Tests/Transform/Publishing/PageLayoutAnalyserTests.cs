@@ -99,6 +99,38 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         }
 
         [TestMethod]
+        public void PageLayoutAnalyse_AnalyseByPageWithOutput()
+        {
+            using (var sourceClientContext = TestCommon.CreateClientContext())
+            {
+               
+                var pageLayoutAnalyser = new PageLayoutAnalyser(sourceClientContext);
+                pageLayoutAnalyser.RegisterObserver(new UnitTestLogObserver());
+
+                var pageUrl = $"{sourceClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl)}/pages/Article-Custom.aspx";
+                var publishingPage = sourceClientContext.Web.GetFileByServerRelativeUrl(pageUrl);
+
+                var result = string.Empty;
+                if (publishingPage != null && publishingPage.ServerObjectIsNull != true)
+                {
+                    ListItem item = publishingPage.EnsureProperty(o => o.ListItemAllFields);
+
+                    pageLayoutAnalyser.AnalysePageLayoutFromPublishingPage(item);
+                    result = pageLayoutAnalyser.GenerateMappingFile();
+                }
+                else
+                {
+                    Assert.Fail("Failed to retrieve object for the test");
+                }
+
+
+
+                Assert.IsTrue(result != string.Empty);
+
+            }
+        }
+
+        [TestMethod]
         public void PageLayoutAnalyse_AspxHeaderAndNameSpaces()
         {
             using (var sourceClientContext = TestCommon.CreateClientContext())

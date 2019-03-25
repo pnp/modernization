@@ -110,14 +110,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <param name="pageLayoutItem"></param>
         public void AnalysePageLayout(ListItem pageLayoutItem)
         {
-
+            
             string assocContentType = pageLayoutItem[PublishingAssociatedContentType].ToString();
             var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
 
             var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
             var extractedHtmlBlocks = ExtractControlsFromPageLayoutHtml(pageLayoutItem);
-
-
+            
             var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == pageLayoutItem.EnsureProperty(i => i.DisplayName));
 
             var layoutMapping = new PageLayout()
@@ -154,10 +153,22 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         public void AnalysePageLayoutFromPublishingPage(ListItem page)
         {
             //Note: ListItemExtensions class contains this logic - reuse.
-            //throw new NotImplementedException();
+            //TODO: Make more defensive, this could represent the wrong item 
             var pageLayoutFile = page.PageLayoutFile();
 
+            if (!string.IsNullOrEmpty(pageLayoutFile))
+            {
+                var layoutItem = _siteCollContext.Web.GetListItem(pageLayoutFile);
+                _siteCollContext.Load(layoutItem);
+                _siteCollContext.ExecuteQueryRetry();
 
+                AnalysePageLayout(layoutItem);
+            }
+            else
+            {
+                // Add logging here
+                throw new ArgumentNullException("Page layout could not be determined by the publishing poage");
+            }
         }
 
         /// <summary>
