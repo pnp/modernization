@@ -46,7 +46,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                 {
                     var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext);
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "articleleft_1");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "articleright_1");
 
                     foreach (var page in pages)
                     {

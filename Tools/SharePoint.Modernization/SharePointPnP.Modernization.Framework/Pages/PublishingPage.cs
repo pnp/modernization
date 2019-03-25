@@ -60,7 +60,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             // Load relevant model data for the used page layout
             string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(page.PageLayoutFile());
-            var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).First();
+            var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
             if (publishingPageTransformationModel == null)
             {

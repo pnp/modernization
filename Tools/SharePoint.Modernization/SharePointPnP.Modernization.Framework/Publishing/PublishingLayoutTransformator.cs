@@ -95,33 +95,61 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 var firstImageColumn = imageWebPartsPerColumn.First();
                                 var secondImageColumn = imageWebPartsPerColumn.Last();
 
-                                if (firstImageColumn.Value == 1 || secondImageColumn.Value == 1)
+                                if (firstImageColumn.Key == secondImageColumn.Key)
                                 {
-                                    // does one of the two columns have anything else besides image web parts
+                                    // there was only one column with images
                                     var firstImageColumnOtherWebParts = webpartsInRow.Where(p => p.Column == firstImageColumn.Key && p.Type != WebParts.WikiImage);
-                                    var secondImageColumnOtherWebParts = webpartsInRow.Where(p => p.Column == secondImageColumn.Key && p.Type != WebParts.WikiImage);
+                                    if (firstImageColumnOtherWebParts.Count()==0)
+                                    {
+                                        // no other web parts in this column
+                                        var orderedList = webpartsInRow.OrderBy(p => p.Column).First();
 
-                                    if (firstImageColumnOtherWebParts.Count() == 0 && secondImageColumnOtherWebParts.Count() == 0)
-                                    {
-                                        // two columns with each only one image...
-                                        page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
-                                    }
-                                    else if (firstImageColumnOtherWebParts.Count() == 0 && secondImageColumnOtherWebParts.Count() > 0)
-                                    {
-                                        page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
-                                    }
-                                    else if (firstImageColumnOtherWebParts.Count() > 0 && secondImageColumnOtherWebParts.Count() == 0)
-                                    {
-                                        page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                        if (orderedList.Column == firstImageColumn.Key)
+                                        {
+                                            // image left
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                        }
+                                        else
+                                        {
+                                            // image right
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                        }
                                     }
                                     else
                                     {
                                         page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
-                                    }                                    
+                                    }
                                 }
                                 else
                                 {
-                                    page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                    if (firstImageColumn.Value == 1 || secondImageColumn.Value == 1)
+                                    {
+                                        // does one of the two columns have anything else besides image web parts
+                                        var firstImageColumnOtherWebParts = webpartsInRow.Where(p => p.Column == firstImageColumn.Key && p.Type != WebParts.WikiImage);
+                                        var secondImageColumnOtherWebParts = webpartsInRow.Where(p => p.Column == secondImageColumn.Key && p.Type != WebParts.WikiImage);
+
+                                        if (firstImageColumnOtherWebParts.Count() == 0 && secondImageColumnOtherWebParts.Count() == 0)
+                                        {
+                                            // two columns with each only one image...
+                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                        }
+                                        else if (firstImageColumnOtherWebParts.Count() == 0 && secondImageColumnOtherWebParts.Count() > 0)
+                                        {
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                        }
+                                        else if (firstImageColumnOtherWebParts.Count() > 0 && secondImageColumnOtherWebParts.Count() == 0)
+                                        {
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                        }
+                                        else
+                                        {
+                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                    }
                                 }
                             }
                             else
