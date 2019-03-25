@@ -38,6 +38,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
         #endregion
 
+        #region Text functions
+        /// <summary>
+        /// Returns an empty string
+        /// </summary>
+        /// <returns>Empty string</returns>
+        [FunctionDocumentation(Description = "Returns an empty string",
+                               Example = "EmptyString()")]
+        [OutputDocumentation(Name = "return value", Description = "Empty string")]
+        public string EmptyString()
+        {
+            return "";
+        }
+        #endregion
+
         #region Image functions
         /// <summary>
         /// Returns the server relative image url of a Publishing Image field value
