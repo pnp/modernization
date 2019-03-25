@@ -104,7 +104,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         /// <summary>
-        /// 
+        /// Analyses a single page layout from a provided file
         /// </summary>
         /// <param name="pageLayoutMappings"></param>
         /// <param name="pageLayoutItem"></param>
@@ -149,6 +149,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         /// <summary>
+        /// Determine the page layout from a publishing page
+        /// </summary>
+        public void AnalysePageLayoutFromPublishingPage(ListItem page)
+        {
+            //Note: ListItemExtensions class contains this logic - reuse.
+            //throw new NotImplementedException();
+
+
+        }
+
+        /// <summary>
         /// Sets the page layout header field defaults
         /// </summary>
         /// <param name="oobPageLayoutDefaults"></param>
@@ -187,9 +198,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             return false;
         }
-
-
-
+        
         /// <summary>
         /// Determines the page layouts in the current web
         /// </summary>
@@ -293,18 +302,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             return wpFields.ToArray();
         }
-
-
-        /// <summary>
-        /// Determine the page layout from a publishing page
-        /// </summary>
-        public void GetPageLayoutFromPublishingPage(ListItem page)
-        {
-            //Note: ListItemExtensions class contains this logic - reuse.
-            //throw new NotImplementedException();
-
-
-        }
+                     
 
         /// <summary>
         /// Get Metadata mapping from the page layout associated content type
@@ -548,9 +546,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 {
                                     //Process Child properties
                                     List<FixedWebPartProperty> fixedProperties = new List<FixedWebPartProperty>();
-                                    if (docNode.HasChildNodes && docNode.FirstElementChild.HasChildNodes) {
+                                    if (docNode.HasChildNodes && docNode.FirstElementChild.HasChildNodes)
+                                    {
                                         var childProperties = docNode.FirstElementChild.ChildNodes;
-                                        foreach(var childProp in childProperties) {
+                                        foreach (var childProp in childProperties)
+                                        {
 
                                             if (childProp.NodeName != "#text")
                                             {
@@ -566,6 +566,21 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             }
                                         }
                                     }
+                                    else
+                                    {
+                                        // Another scenario where there are no child nodes, just attributes
+                                        foreach(var attr in attributes)
+                                        {
+                                            // This might need a filter
+
+                                            fixedProperties.Add(new FixedWebPartProperty()
+                                            {
+                                                Name = attr.Name,
+                                                Type = WebPartProperyType.@string,
+                                                Value = attr.Value
+                                            });
+                                        }
+                                    }
 
                                     extractedHtmlBlocks.FixedWebParts.Add(new FixedWebPart()
                                     {
@@ -579,27 +594,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         }
                     }
                 }
-
-
-                //foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
-                //{
-                //    multipleTagFinds.Add(document.All.Where(o => o.TagName.Contains(prefixAndNameSpace.Item1.ToUpper())));
-
-                //    // Determine the possible web parts from the page from the namespaces used in the aspx header
-                //    var possibleParts = WebParts.GetListOfWebParts(prefixAndNameSpace.Item2);
-                //    foreach(var part in possibleParts)
-                //    {
-                //        var webPartName = part.Substring(0, part.IndexOf(",")).Replace(prefixAndNameSpace.Item2, "");
-                //        possibleWebPartsUsed.Add(new Tuple<string, string>(webPartName, part));
-                //    }
-                //}
-
-                //// Bit of a bad name, just getting it working, this refers to all sharepoint controls including web parts, zones and field controls.
-                //foreach (var tagFind in multipleTagFinds)
-                //{
-
-
-                //}
 
             }
 

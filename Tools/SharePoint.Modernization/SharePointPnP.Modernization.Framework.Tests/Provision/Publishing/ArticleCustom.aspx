@@ -49,12 +49,13 @@
                     <FrameType>None</FrameType>
 					<PartImageLarge>/_layouts/15/images/mscontl.gif</PartImageLarge>
 					<ID>g_db666743_4c5b_4a21_a9cf_7a199ce19a60</ID>
-					<Content xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor"><![CDATA[This site is a news and political satire web publication, which may or may not use real names, often in semi-real or mostly fictitious ways. 
-						All news articles contained within this site are fiction, and presumably fake news. 
-						Any resemblance to the truth is purely coincidental. Advice given is NOT to be construed as professional. 
-						If you are in need of professional help, please consult a professional. This site is not intended for children under the age of 18.]]></Content>
+					<Content xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor"><![CDATA[Welcome to the home of all SharePoint modernization tools and solutions. Modernization means transforming current "classic" SharePoint usage into "modern" usage, e.g. using modern site pages instead of classic wiki pages or Office 365 Group connecting of classic sites. In this repository you'll find all the SharePoint PnP open source scripts, tools and solutions that will help you modernize your SharePoint environment.]]></Content>
 				</WebPart>
 			</WebPartPages:ContentEditorWebPart>
+
+            <WebPartPages:ImageWebPart runat="server" ImageLink="/sites/PnPTransformationSource/SiteCollectionImages/hero.jpg" AlternativeText="Drone flying in the air" VerticalAlignment="Middle" HorizontalAlignment="Center" BackgroundColor="transparent" Title="Let's go fly a drone" FrameType="None" SuppressWebPartChrome="False" Description="Lets take to the skies with our new drone" IsIncluded="True" ZoneID="" PartOrder="0" FrameState="Normal" AllowRemove="True" AllowZoneChange="True" AllowMinimize="True" AllowConnect="True" AllowEdit="True" AllowHide="True" IsVisible="True" CatalogIconImageUrl="/_layouts/15/images/msimagel.gif" DetailLink="" HelpLink="" HelpMode="Modeless" Dir="Default" PartImageSmall="" MissingAssembly="Cannot import this Web Part." PartImageLarge="/_layouts/15/images/msimagel.gif" IsIncludedFilter="" ExportControlledProperties="True" ConnectionID="00000000-0000-0000-0000-000000000000" ID="g_4c8dec0d_e920_4c7e_bdfa_6532864b3904" ExportMode="All" __MarkupType="vsattributemarkup" __WebPartId="{4c8dec0d-e920-4c7e-bdfa-6532864b3904}" WebPart="true" Height="" Width=""></WebPartPages:ImageWebPart>
+			
+
 			<WebPartPages:WebPartZone id="x00001a" runat="server" title="Main 100 1"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
 			<WebPartPages:WebPartZone id="x00002b" runat="server" title="Main 100 2"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
 			<WebPartPages:WebPartZone id="x00003c" runat="server" title="Main 100 3"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
