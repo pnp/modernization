@@ -192,6 +192,37 @@ namespace Microsoft.SharePoint.Client
             return null;
         }
 
+        /// <summary>
+        /// Gets the field value (if the field exists and a value is set) in the given type
+        /// </summary>
+        /// <typeparam name="T">Type the get the fieldValue in</typeparam>
+        /// <param name="item">List item to get the field from</param>
+        /// <param name="fieldName">Name of the field to get the value from</param>
+        /// <returns>Value of the field in the requested type</returns>
+        public static T GetFieldValueAs<T>(this ListItem item, string fieldName)
+        {
+            if (item.FieldExistsAndUsed(fieldName))
+            {
+                var fieldValue = item[fieldName].ToString();
+
+                if (fieldValue is T)
+                {
+                    return (T)(object)fieldValue;
+                }
+                try
+                {
+                    return (T)Convert.ChangeType(fieldValue, typeof(T));
+                }
+                catch (InvalidCastException)
+                {
+                    return default(T);
+                }
+            }
+            else
+            {
+                return default(T);
+            }
+        }
         #endregion
 
         #region Transform page

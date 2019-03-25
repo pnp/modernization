@@ -65,6 +65,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // Execute the function
                     object result = ExecuteMethod(functionClassInstance, functionDefinition, methodInfo);
 
+                    // output types support: string or bool
                     if (result is string || result is bool)
                     {
                         propertyKey = webPartProperty.Name;
@@ -142,30 +143,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     Name = functionParameter.Replace("{", "").Replace("}", "").Trim(),
                 };
 
-                // Populate the function parameter with a value coming from the analyzed web part
-                input.Type = MapType("string");
-                input.Value = page[input.Name].ToString();
+                // Populate the function parameter with a value coming from publishing page
+                input.Type = MapType(webPartProperty.Type.ToString());
+                //input.Value = page[input.Name].ToString();
+                input.Value = page.GetFieldValueAs<string>(input.Name);
                 def.Input.Add(input);
-
-                /*
-                var wpProp = webPartData.Properties.Where(p => p.Name.Equals(input.Name, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
-                if (wpProp != null)
-                {
-                    // Map types used in the model to types used in function processor
-                    input.Type = MapType(wpProp.Type.ToString());
-                    var wpInstanceProp = webPart.Properties.Where(p => p.Key.Equals(input.Name, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
-                    input.Value = wpInstanceProp.Value;
-                    def.Input.Add(input);
-                }
-                else
-                {
-                    throw new Exception($"Parameter {input.Name} was used but is not listed as a web part property that can be used.");
-                }
-                */
             }
 
             return def;
         }
+
 
 
         private void RegisterAddons()
