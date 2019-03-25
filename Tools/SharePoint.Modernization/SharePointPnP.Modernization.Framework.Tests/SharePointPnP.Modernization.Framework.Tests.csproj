@@ -301,6 +301,7 @@
     </Content>
     <Content Include="Transform\Bullets\Bullets_1.html" />
     <Content Include="Transform\Headers\header_1.html" />
+    <Content Include="Transform\Publishing\custompagelayoutmapping.xml" />
     <Content Include="Transform\RichText\richtext_1.html" />
     <Content Include="Transform\Wp\wp_1.html" />
   </ItemGroup>

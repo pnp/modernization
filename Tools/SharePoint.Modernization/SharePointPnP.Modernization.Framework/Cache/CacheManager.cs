@@ -23,6 +23,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
         private OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate baseTemplate;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
+        private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -44,6 +45,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>(10, 10);
             AssetsTransfered = new List<AssetTransferredEntity>();
             publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>(10, 10);
+            resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
         }
 
         #region Asset Transfer
@@ -218,6 +220,11 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Publishing Pages library name
+        /// <summary>
+        /// Get translation for the publishing pages library
+        /// </summary>
+        /// <param name="context">Context of the site</param>
+        /// <returns>Translated name of the pages library</returns>
         public string GetPublishingPageName(ClientContext context)
         {
             uint lcid = context.Web.EnsureProperty(p => p.Language);
@@ -236,7 +243,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
             else
             {
-                var result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:List_Pages_UrlName", "osrvcore", int.Parse(lcid.ToString()));
+                ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:List_Pages_UrlName", "osrvcore", int.Parse(lcid.ToString()));
                 context.ExecuteQueryRetry();
 
                 string pagesLibraryName = new Regex(@"['´`]").Replace(result.Value, "");
@@ -252,7 +259,85 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 return pagesLibraryName.ToLower();
             }
         }
-        #endregion  
+        #endregion
+
+        #region Resource strings
+        /// <summary>
+        /// Returns the translated value for a resource string
+        /// </summary>
+        /// <param name="context">Context of the site</param>
+        /// <param name="resource">Key of the resource (e.g. $Resources:core,ScriptEditorWebPartDescription;) </param>
+        /// <returns>Translated string</returns>
+        public string GetResourceString(ClientContext context, string resource)
+        {
+            uint lcid = context.Web.EnsureProperty(p => p.Language);
+
+            if (resourceStrings.ContainsKey(resource))
+            {
+                if (resourceStrings.TryGetValue(resource, out Dictionary<uint, string> resourceValues))
+                {
+                    if (resourceValues.ContainsKey(lcid))
+                    {
+                        if (resourceValues.TryGetValue(lcid, out string resourceValue))
+                        {
+                            return resourceValue;
+                        }
+                    }
+                }
+            }
+
+            // If we got here then we need to still add the resource translation
+            var resourceString = resource.Replace("$Resources:", "").Replace(";", "");
+            var splitResourceString = resourceString.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            string resourceFile = "core";
+            string resourceKey = null;
+            if (splitResourceString.Length == 2)
+            {
+                resourceFile = splitResourceString[0];
+                resourceKey = splitResourceString[1];
+            }
+            else
+            {
+                resourceKey = splitResourceString[0];
+            }
+
+            ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, $"$Resources:{resourceKey}", resourceFile, int.Parse(lcid.ToString()));
+            context.ExecuteQueryRetry();
+
+            if (result == null)
+            {
+                return resource;
+            }
+
+            if (resourceStrings.ContainsKey(resource))
+            {
+                if (resourceStrings.TryGetValue(resource, out Dictionary<uint, string> resourceValues))
+                {
+                    if (!resourceValues.ContainsKey(lcid))
+                    {
+                        // Add translations in existing array
+                        Dictionary<uint, string> newResourceValues = new Dictionary<uint, string>(resourceValues)
+                        {
+                            { lcid, result.Value }
+                        };
+                        resourceStrings.TryUpdate(resource, newResourceValues, resourceValues);
+                    }
+                }
+            }
+            else
+            {
+                // No translations were already retrieved in this language
+                Dictionary<uint, string> translations = new Dictionary<uint, string>
+                {
+                    { lcid, result.Value }
+                };
+
+                resourceStrings.TryAdd(resource, translations);
+            }
+
+            return result.Value;
+        }
+        #endregion
 
         #region Generic methods
         public void ClearAllCaches()
@@ -287,3 +372,4 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
     }
 }
+ 

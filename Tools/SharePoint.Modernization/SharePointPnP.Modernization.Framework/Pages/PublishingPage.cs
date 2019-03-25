@@ -1,5 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Publishing;
@@ -150,7 +151,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 foreach (var foundWebPart in webPartsViaManager)
                 {
                     // Remove the web parts which we've already picked up by analyzing the wiki content block
-                    if (webparts.Where(p => p.Id.Equals(foundWebPart.Id)).First() != null)
+                    if (webparts.Where(p => p.Id.Equals(foundWebPart.Id)).FirstOrDefault() != null)
                     {
                         continue;
                     }
@@ -189,12 +190,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
                     }
 
-                    // Determine location based upon the location given to the web part zone in the mapping
                     int wpInZoneRow = 1;
                     int wpInZoneCol = 1;
+                    // Determine location based upon the location given to the web part zone in the mapping
                     if (publishingPageTransformationModel.WebPartZones != null)
                     {
-                        var wpZoneFromTemplate = publishingPageTransformationModel.WebPartZones.Where(p => p.ZoneId.Equals(foundWebPart.WebPartDefinition.ZoneId, StringComparison.InvariantCultureIgnoreCase)).First();
+                        var wpZoneFromTemplate = publishingPageTransformationModel.WebPartZones.Where(p => p.ZoneId.Equals(foundWebPart.WebPartDefinition.ZoneId, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                         if (wpZoneFromTemplate != null)
                         {
                             wpInZoneRow = wpZoneFromTemplate.Row;
@@ -203,7 +204,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
 
                     // Determine order already taken
-                    int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, webparts) + 1;
+                    int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, webparts);
 
                     webparts.Add(new WebPartEntity()
                     {
@@ -225,15 +226,76 @@ namespace SharePointPnP.Modernization.Framework.Pages
             #endregion
 
             #region Fixed webparts mapping
-            // TODO
+            if (publishingPageTransformationModel.FixedWebParts != null)
+            {
+                foreach(var fixedWebpart in publishingPageTransformationModel.FixedWebParts)
+                {
+                    int wpFixedOrderUsed = GetNextOrder(fixedWebpart.Row, fixedWebpart.Column, webparts);
+
+                    webparts.Add(new WebPartEntity()
+                    {
+                        Title = GetFixedWebPartProperty<string>(fixedWebpart, "Title", ""),
+                        Type = fixedWebpart.Type,
+                        Id = Guid.NewGuid(),
+                        Row = fixedWebpart.Row,
+                        Column = fixedWebpart.Column,
+                        Order = wpFixedOrderUsed,
+                        ZoneId = "",
+                        ZoneIndex = 0,
+                        IsClosed = GetFixedWebPartProperty<bool>(fixedWebpart, "__designer:IsClosed", false),
+                        Hidden = false,
+                        Properties = CastAsPropertiesDictionary(fixedWebpart),
+                    });
+
+                }
+            }
             #endregion
 
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
         }
 
         #region Helper methods
+        private T GetFixedWebPartProperty<T>(FixedWebPart webPart, string name, T defaultValue)
+        {
+            var property = webPart.Property.Where(p => p.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            if (property != null)
+            {
 
-        public int GetNextOrder(int row, int col, List<WebPartEntity> webparts)
+                if (property.Value.StartsWith("$Resources:"))
+                {
+                    property.Value = CacheManager.Instance.GetResourceString(this.cc, property.Value);
+                }
+
+                if (property.Value is T)
+                {
+                    return (T)(object)property.Value;
+                }
+                try
+                {
+                    return (T)Convert.ChangeType(property.Value, typeof(T));
+                }
+                catch (InvalidCastException)
+                {
+                    return defaultValue;
+                }
+            }
+
+            return defaultValue;
+        }
+
+        private Dictionary<string, string> CastAsPropertiesDictionary(FixedWebPart webPart)
+        {
+            Dictionary<string, string> props = new Dictionary<string, string>();
+
+            foreach(var prop in webPart.Property)
+            {
+                props.Add(prop.Name, prop.Value);
+            }
+
+            return props;
+        }
+
+        private int GetNextOrder(int row, int col, List<WebPartEntity> webparts)
         {
             // do we already have web parts in the same row and column
             var wp = webparts.Where(p => p.Row == row && p.Column == col);

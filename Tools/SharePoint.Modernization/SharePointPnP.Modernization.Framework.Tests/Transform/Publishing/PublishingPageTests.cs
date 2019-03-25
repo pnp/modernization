@@ -42,11 +42,12 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestportal"))
+                //https://bertonline.sharepoint.com/sites/modernizationtestportal
+                using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
                 {
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext);
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "summarylinks_1");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
 
                     foreach (var page in pages)
                     {

@@ -1,0 +1,39 @@
+﻿<PublishingPageTransformation xmlns="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema">
+  <AddOns>
+    <!-- Assembly can contain either a fully qualified path or just the dll name. In the latter case we depend on .Net assembly resolving to find the assembly -->
+    <!-- <AddOn Name="Custom" Type="SharePoint.Modernization.Framework.SampleAddOn.MyCustomFunctions" Assembly="C:\github\BertPnPTools\Solutions\SharePoint.Modernization\SharePoint.Modernization.Framework\bin\Debug\SharePoint.Modernization.Framework.SampleAddOn.dll" />-->
+  </AddOns>
+  <PageLayouts>
+    <PageLayout Name="VolvoArticleLeft" AssociatedContentType="Article Page" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
+      <Header Type="FullWidthImage">
+        <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
+        <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
+      </Header>
+      <MetaData>
+        <Field Name="Title" TargetFieldName="Title" Functions="" />
+        <Field Name="ArticleStartDate" TargetFieldName="" Functions="" />
+      </MetaData>
+      <WebParts>
+        <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1">
+          <Property Name="ImageUrl" Type="string" Functions="ToImageUrl({PublishingPageImage})"/>
+          <Property Name="AlternativeText" Type="string" Functions="ToImageAltText({PublishingPageImage})" />
+        </Field>
+        <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
+          <Property Name="Text" Type="string" Functions="" />
+        </Field>
+      </WebParts>
+      <WebPartZones>
+        <WebPartZone Row="2" Column="1" ZoneId="g_0C7F16935FAC4709915E2D77092A90DE" ZoneIndex="0"/>
+      </WebPartZones>
+      <FixedWebParts>
+        <WebPart Row="1" Column="2" Order="1" Type="Microsoft.SharePoint.WebPartPages.ScriptEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+          <Property Name="Description" Type="string" Value="$Resources:core,ScriptEditorWebPartDescription;"/>
+          <Property Name="Title" Type="string" Value="$Resources:core,ScriptEditorWebPartTitle;"/>
+          <Property Name="Title2" Type="string" Value="$Resources:core,ScriptEditorWebPartTitle;"/>
+          <Property Name="Content" Type="string" Value="&lt;script type='text/javascript'&gt;function Hello() {alert('Hello World');}&lt;/script&gt;&lt;input type='button' value='Submit' onclick='Hello();'/&gt;"/>
+          <Property Name="__designer:IsClosed" Type="bool" Value="false"/>
+        </WebPart> 
+      </FixedWebParts>
+    </PageLayout>
+  </PageLayouts>
+</PublishingPageTransformation>
