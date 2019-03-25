@@ -524,13 +524,27 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 //DeDup - Some controls can be inside an edit panel
                                 if (!extractedHtmlBlocks.WebPartFields.Any(o => o.Name == fieldName))
                                 {
+                                    List<WebPartProperty> webPartProperties = new List<WebPartProperty>();
+
+                                    foreach (var attr in attributes)
+                                    {
+                                        // This might need a filter
+
+                                        webPartProperties.Add(new WebPartProperty()
+                                        {
+                                            Name = attr.Name,
+                                            Type = WebPartProperyType.@string,
+                                            Functions = "" // Need defaults here
+                                        });
+                                    }
+
                                     extractedHtmlBlocks.WebPartFields.Add(new WebPartField()
                                     {
                                         Name = fieldName,
                                         TargetWebPart = "",
                                         Row = "",
-                                        Column = ""
-
+                                        Column = "",
+                                        Property = webPartProperties.ToArray()
                                     });
                                 }
                             }
