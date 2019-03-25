@@ -155,6 +155,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             //Note: ListItemExtensions class contains this logic - reuse.
             //throw new NotImplementedException();
+            var pageLayoutFile = page.PageLayoutFile();
 
 
         }
@@ -601,45 +602,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         }
 
-        /// <summary>
-        /// Extract the web parts from the page layout HTML outside of web part zones
-        /// </summary>
-        public WebPartZone[] ExtractWebPartZonesFromPageLayoutHtml(ListItem pageLayout)
-        {
-            /*Plan
-             * Scan through the file to find the web parts by the tags
-             * Extract and convert to definition 
-            */
-            List<WebPartZone> zones = new List<WebPartZone>();
-
-            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
-            var fileUrl = pageLayout.File.ServerRelativeUrl;
-
-            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
-
-            using (var document = this.parser.Parse(fileHtml))
-            {
-                //TODO: Add further processing to find if the tags are in a grid system
-
-                var webPartZones = document.All.Where(o => o.TagName.Contains("WEBPARTZONE")).ToArray();
-
-                for (var i = 0; i < webPartZones.Count(); i++)
-                {
-                    zones.Add(new WebPartZone()
-                    {
-                        ZoneId = webPartZones[i].Id,
-                        Column = "",
-                        Row = "",
-                        ZoneIndex = $"{i}" // TODO: Is this used?
-                    });
-                }
-
-            }
-
-            return zones.ToArray();
-
-        }
-
+        
         /// <summary>
         /// Generate the mapping file to output from the analysis
         /// </summary>
