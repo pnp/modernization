@@ -510,15 +510,21 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         private void SetPageTitle(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientSidePage targetPage)
         {
-            if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileLeafRefField))
+            string titleValue = "";
+            if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.TitleField))
             {
-                string pageTitle = Path.GetFileNameWithoutExtension((publishingPageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()));
-                if (!string.IsNullOrEmpty(pageTitle))
-                {
-                    pageTitle = pageTitle.First().ToString().ToUpper() + pageTitle.Substring(1);
-                    targetPage.PageTitle = pageTitle;
-                    LogInfo($"{LogStrings.TransformPageModernTitle} {pageTitle}", LogStrings.Heading_SetPageTitle);
-                }
+                titleValue = publishingPageTransformationInformation.SourcePage[Constants.TitleField].ToString();
+            }
+            else if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileLeafRefField))
+            {
+                titleValue = Path.GetFileNameWithoutExtension((publishingPageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()));
+            }
+
+            if (!string.IsNullOrEmpty(titleValue))
+            {
+                titleValue = titleValue.First().ToString().ToUpper() + titleValue.Substring(1);
+                targetPage.PageTitle = titleValue;
+                LogInfo($"{LogStrings.TransformPageModernTitle} {titleValue}", LogStrings.Heading_SetPageTitle);
             }
         }
 
