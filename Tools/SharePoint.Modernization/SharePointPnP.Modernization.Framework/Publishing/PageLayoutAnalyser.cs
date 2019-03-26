@@ -59,6 +59,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private string _defaultFileName = "PageLayoutMapping.xml";
         private HtmlParser parser;
         private Dictionary<string, FieldCollection> _contentTypeFieldCache;
+        private Dictionary<string, string> _pageLayoutFileCache;
 
         #region Construction
         /// <summary>
@@ -79,6 +80,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             _mapping = new PublishingPageTransformation();
             _contentTypeFieldCache = new Dictionary<string, FieldCollection>();
+            _pageLayoutFileCache = new Dictionary<string, string>();
             _sourceContext = sourceContext;
 
             EnsureSiteCollectionContext(sourceContext);
@@ -149,11 +151,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Fields that will become metadata fields for the target page
                 MetaData = extractedMetaData,
                 // Fields that will become web parts on the target page
-                WebParts = extractedHtmlBlocks.WebPartFields.ToArray(),
+                WebParts = extractedHtmlBlocks.WebPartFields.Count > 0 ? extractedHtmlBlocks.WebPartFields.ToArray() : null,
                 // Web part zones that can hold zero or more web parts
-                WebPartZones = extractedHtmlBlocks.WebPartZones.ToArray(),
+                WebPartZones = extractedHtmlBlocks.WebPartZones.Count > 0 ? extractedHtmlBlocks.WebPartZones.ToArray() : null,
                 // Fixed web parts, this are web parts which are 'hardcoded' in the pagelayout aspx file
-                FixedWebParts = extractedHtmlBlocks.FixedWebParts.ToArray()
+                FixedWebParts = extractedHtmlBlocks.FixedWebParts.Count > 0 ? extractedHtmlBlocks.FixedWebParts?.ToArray() : null,
             };
 
             // Add to mappings list
@@ -375,8 +377,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
             var fileUrl = pageLayout.File.ServerRelativeUrl;
-
-            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
+            string fileHtml = LoadPageLayoutFile(fileUrl);
 
             using (var document = this.parser.Parse(fileHtml))
             {
@@ -425,7 +426,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Data from SharePoint
             pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
             var fileUrl = pageLayout.File.ServerRelativeUrl;
-            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
+            var fileHtml = LoadPageLayoutFile(fileUrl);
 
             using (var document = this.parser.Parse(fileHtml))
             {
@@ -488,8 +489,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                     {
                                         Name = fieldName,
                                         TargetWebPart = "",
-                                        Row = 0,
-                                        Column = 0,
+                                        Row = 1,
+                                        RowSpecified = true,
+                                        Column = 1,
+                                        ColumnSpecified = true,
                                         Property = webPartProperties.ToArray()
                                     });
                                 }
@@ -501,8 +504,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 extractedHtmlBlocks.WebPartZones.Add(new WebPartZone()
                                 {
                                     ZoneId = docNode.Id,
-                                    Column = 0,
-                                    Row = 0
+                                    Column = 1,
+                                    ColumnSpecified = true,
+                                    Row = 1,
+                                    RowSpecified = true,
                                     //ZoneIndex = control. // TODO: Is this used?
                                 });
                             }
@@ -556,8 +561,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                                     extractedHtmlBlocks.FixedWebParts.Add(new FixedWebPart()
                                     {
-                                        Column = 0,
-                                        Row = 0,
+                                        Column = 1,
+                                        ColumnSpecified = true,
+                                        Row = 1,
+                                        RowSpecified = true,
                                         Type = match.Item2,
                                         Property = fixedProperties.ToArray()
                                     });
@@ -570,11 +577,27 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             return extractedHtmlBlocks;
-
         }
         #endregion
 
         #region Helper methods
+        private string LoadPageLayoutFile(string fileUrl)
+        {
+            // Try to get from cache
+            if (_pageLayoutFileCache.TryGetValue(fileUrl, out string fileContentsFromCache))
+            {
+                return fileContentsFromCache;
+            }
+
+            // Load from SharePoint
+            string fileContents = _siteCollContext.Web.GetFileAsString(fileUrl);
+
+            // Store in cache
+            _pageLayoutFileCache.Add(fileUrl, fileContents);
+
+            return fileContents;
+        }
+
         private FieldCollection LoadContentTypeFields(string contentTypeId)
         {
             try
@@ -624,7 +647,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         {
                             Name = webPartField.Name,
                             Row = webPartField.Row,
+                            RowSpecified = webPartField.RowSpecified,
                             Column = webPartField.Column,
+                            ColumnSpecified = webPartField.ColumnSpecified,
                             TargetWebPart = webPartFieldDefaults.First().TargetWebPart,
                         };
 
