@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Publishing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate baseTemplate;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
+        private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;        
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -46,6 +48,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             AssetsTransfered = new List<AssetTransferredEntity>();
             publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>(10, 10);
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
+            generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
         }
 
         #region Asset Transfer
@@ -337,6 +340,32 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             return result.Value;
         }
+        #endregion
+
+        #region PageLayout mappings
+        public PageLayout GetPageLayoutMapping(ListItem page)
+        {
+            //string key = page[Constants.FileRefField].ToString();
+            string key = page.PageLayoutFile();
+
+            // Try get the page layout from cache
+            if (generatedPageLayoutMappings.TryGetValue(key, out PageLayout pageLayoutFromCache))
+            {
+                return pageLayoutFromCache;
+            }
+
+            PageLayoutAnalyser pageLayoutAnalyzer = new PageLayoutAnalyser(page.Context as ClientContext);
+
+            // Let's try to generate a 'basic' model and use that...not optimal, but better than bailing out.
+            var newPageLayoutMapping = pageLayoutAnalyzer.AnalysePageLayoutFromPublishingPage(page);
+
+            // Add to cache for future reuse
+            generatedPageLayoutMappings.TryAdd(key, newPageLayoutMapping);
+
+            // Return to requestor
+            return newPageLayoutMapping;
+        }
+
         #endregion
 
         #region Generic methods

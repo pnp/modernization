@@ -2,7 +2,6 @@
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
-using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Publishing;
 using System;
 using System.Collections.Generic;
@@ -28,7 +27,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(cc).LoadDefaultPageLayoutMappingFile();
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);            
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation) : base(page, pageTransformation)
         {
             this.publishingPageTransformation = publishingPageTransformation;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);            
         }
         #endregion
 
@@ -55,14 +54,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
             var publishingPageUrl = page[Constants.FileRefField].ToString();
             var publishingPage = cc.Web.GetFileByServerRelativeUrl(publishingPageUrl);
 
-            // Load page properties
-            //var pageProperties = publishingPage.Properties;
-            //cc.Load(pageProperties);
-
             // Load relevant model data for the used page layout
             string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(page.PageLayoutFile());
             var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
+            // No layout provided via either the default mapping or custom mapping file provided
+            if (publishingPageTransformationModel == null)
+            {
+                publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
+            }
+
+            // Still not layout...can't continue...
             if (publishingPageTransformationModel == null)
             {
                 throw new Exception($"No valid page transformation model could be retrieved for publishing page layout {usedPageLayout}");

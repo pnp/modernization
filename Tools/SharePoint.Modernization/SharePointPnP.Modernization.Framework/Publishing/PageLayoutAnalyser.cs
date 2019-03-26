@@ -116,7 +116,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// Analyses a single page layout from a provided file
         /// </summary>
         /// <param name="pageLayoutItem">Page layout list item</param>
-        public void AnalysePageLayout(ListItem pageLayoutItem)
+        public PageLayout AnalysePageLayout(ListItem pageLayoutItem)
         {
             // Get the associated page layout content type
             string assocContentType = pageLayoutItem[Constants.PublishingAssociatedContentTypeField].ToString();
@@ -169,13 +169,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 _mapping.PageLayouts = new[] { layoutMapping };
             }
+
+            return layoutMapping;
         }
 
         /// <summary>
         /// Determine the page layout from a publishing page
         /// </summary>
         /// <param name="publishingPage">Publishing page to analyze the page layout for</param>
-        public void AnalysePageLayoutFromPublishingPage(ListItem publishingPage)
+        public PageLayout AnalysePageLayoutFromPublishingPage(ListItem publishingPage)
         {
             //Note: ListItemExtensions class contains this logic - reuse.
             //TODO: Make more defensive, this could represent the wrong item 
@@ -187,7 +189,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 _siteCollContext.Load(layoutItem);
                 _siteCollContext.ExecuteQueryRetry();
 
-                AnalysePageLayout(layoutItem);
+                return AnalysePageLayout(layoutItem);
             }
             else
             {

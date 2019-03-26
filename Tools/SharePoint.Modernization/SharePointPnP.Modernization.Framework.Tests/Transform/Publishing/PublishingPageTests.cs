@@ -41,7 +41,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                 using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\mappingtest.xml");
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext /*, @"C:\temp\mappingtest.xml"*/);
 
                     var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
 
