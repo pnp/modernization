@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
+﻿namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
 {
-    public class PageLayoutMetadataEntity
+    /// <summary>
+    /// Class that will be used to hold the fields that will be used the field to metadata mapping
+    /// </summary>
+    internal class PageLayoutMetadataEntity
     {
-        public string FieldName { get; set; }
-        public string TargetFieldName { get; set; }
-        public string Functions { get; set; }
+        internal string FieldName { get; set; }
+        internal string TargetFieldName { get; set; }
+        internal string Functions { get; set; }
     }
 }

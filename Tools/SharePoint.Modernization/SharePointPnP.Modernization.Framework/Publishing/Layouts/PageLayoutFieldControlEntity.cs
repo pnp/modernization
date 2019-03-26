@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
+﻿namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
 {
     /// <summary>
-    /// Class for holding data properties for field control entity to the target web part
+    /// Class for holding data properties for field to web part mapping
     /// </summary>
-    public class PageLayoutFieldControlEntity
+    internal class PageLayoutWebPartFieldEntity
     {
-        public string TargetWebPart { get; set; }
-        public string FieldName { get; set; }
-        public string Name { get; set; }
-        public string FieldType { get; set; }
-        public string ProcessFunction { get; set; }
+        internal string TargetWebPart { get; set; }
+        internal string FieldType { get; set; }
+        internal string Name { get; set; }
+        internal string Type { get; set; }
+        internal string Functions { get; set; }
     }
 }

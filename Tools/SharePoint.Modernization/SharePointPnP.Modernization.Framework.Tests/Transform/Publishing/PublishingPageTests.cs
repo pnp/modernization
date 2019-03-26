@@ -1,11 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointPnP.Modernization.Framework.Publishing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
@@ -83,6 +78,38 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                         var result = pageTransformator.Transform(pti);
                     }
                 }
+            }
+        }
+
+        [TestMethod]
+        public void PageLayoutAnalyzerTest()
+        {
+            //https://bertonline.sharepoint.com/sites/modernizationtestportal
+            using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
+            {
+                var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
+                var analyzer = new PageLayoutAnalyser(sourceClientContext);
+
+                foreach (var page in pages)
+                {
+                    analyzer.AnalysePageLayoutFromPublishingPage(page);    
+                }
+
+                analyzer.GenerateMappingFile("c:\\temp", "mappingtest.xml");
+            }
+        }
+
+        [TestMethod]
+        public void PageLayout2AnalyzerTest()
+        {
+            //https://bertonline.sharepoint.com/sites/modernizationtestportal
+            using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
+            {
+                
+                var analyzer = new PageLayoutAnalyser(sourceClientContext);
+                analyzer.AnalyseAll();                
+
+                analyzer.GenerateMappingFile("c:\\temp", "mappingalltest.xml");
             }
         }
 

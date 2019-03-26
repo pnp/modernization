@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
+﻿namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
 {
-    public class PageLayoutHeaderFieldEntity
+    /// <summary>
+    /// Class for holding data properties for the fields that will be used in the page header
+    /// </summary>
+    internal class PageLayoutHeaderFieldEntity
     {
-        public string HeaderType { get; set; }
-        public string FieldName { get; set; }
-        public string FieldHeaderProperty { get; set; }
-        public string FieldFunctions { get; set; }
+        internal string Type { get; set; }
+        internal string Name { get; set; }
+        internal string HeaderProperty { get; set; }
+        internal string Functions { get; set; }
     }
 }

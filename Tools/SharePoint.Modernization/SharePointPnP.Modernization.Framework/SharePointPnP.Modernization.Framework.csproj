@@ -190,11 +190,9 @@
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutHeaderFieldEntity.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutMetadataEntity.cs" />
-    <Compile Include="Publishing\Layouts\PageLayoutOOBEntity.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutFieldControlEntity.cs" />
     <Compile Include="Functions\BaseFunctionProcessor.cs" />
     <Compile Include="Functions\NotAvailableAtTargetException.cs" />
-    <Compile Include="Publishing\Layouts\OOBLayoutEnum.cs" />
     <Compile Include="Publishing\Layouts\PublishingDefaults.cs" />
     <Compile Include="Publishing\PublishingBuiltIn.cs" />
     <Compile Include="Publishing\PublishingFunctionProcessor.cs" />

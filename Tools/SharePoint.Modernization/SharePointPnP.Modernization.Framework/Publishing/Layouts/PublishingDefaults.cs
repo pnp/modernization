@@ -1,103 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
 {
     /// <summary>
     /// Contains a central point for defaults for publishing page processing
     /// </summary>
-    public static class PublishingDefaults
+    internal static class PublishingDefaults
     {
-       /// <summary>
-       /// OOB Page Layout defaults
-       /// </summary>
-        public static List<PageLayoutOOBEntity> OOBPageLayouts = new List<PageLayoutOOBEntity>()
-        {
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleLeft, Name = "ArticleLeft", PageLayoutTemplate = "TwoColumnsWithHeaderAndFooter", PageHeader = "Custom", PageHeaderType = "FullWidthImage"  },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.WelcomeLinks, Name = "WelcomeLinks", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleLinks, Name = "ArticleLinks", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ArticleRight, Name = "ArticleRight", PageLayoutTemplate = "TwoColumnsWithHeaderAndFooter", PageHeader = "None" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.PageFromDocLayout, Name = "PageFromDocLayout", PageLayoutTemplate = "OneColumn", PageHeader = "None" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.WelcomeSplash, Name = "WelcomeSplash", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.RedirectPageLayout, Name = "RedirectPageLayout", PageLayoutTemplate = "OneColumn", PageHeader = "None" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.BlankWebPartPage, Name = "BlankWebPartPage", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ErrorLayout, Name = "ErrorLayout", PageLayoutTemplate = "OneColumn", PageHeader = "None" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.CatalogArticle, Name = "CatalogArticle", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.CatalogWelcome, Name = "CatalogWelcome", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.EnterpriseWiki, Name = "EnterpriseWiki", PageLayoutTemplate = "", PageHeader = "" },
-            new PageLayoutOOBEntity(){ Layout = OOBLayout.ProjectPage, Name = "ProjectPage", PageLayoutTemplate = "", PageHeader = "" }
-        };
-
-
-        /// <summary>
-        /// Web Part Zone Row/Columns for mappings
-        /// </summary>
-        public static Dictionary<string, string> FieldToTargetWebParts = new Dictionary<string, string>()
-        {
-            { "PublishingPageImage", "SharePointPnP.Modernization.WikiImagePart"},
-            { "PublishingPageContent", "SharePointPnP.Modernization.WikiTextPart"},
-            { "SummaryLinks", "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart"}
-        };
-
-        
         /// <summary>
         /// Field Control Defaults for mappings
         /// </summary>
-        public static List<PageLayoutFieldControlEntity> FieldControlProperties = new List<PageLayoutFieldControlEntity>()
+        internal static List<PageLayoutWebPartFieldEntity> WebPartFieldProperties = new List<PageLayoutWebPartFieldEntity>()
         {
-            new PageLayoutFieldControlEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiImagePart", FieldName = "PublishingPageImage",  Name="ImageUrl", FieldType="String", ProcessFunction = "ToImageUrl({PublishingPageImage})" },
-            new PageLayoutFieldControlEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiImagePart", FieldName = "PublishingPageImage",  Name="AlternativeText", FieldType="String", ProcessFunction = "ToImageAltText({PublishingPageImage})" },
+            new PageLayoutWebPartFieldEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiImagePart", FieldType = "Image",  Name="ImageUrl", Type="string", Functions = "ToImageUrl({PublishingPageImage})" },
+            new PageLayoutWebPartFieldEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiImagePart", FieldType = "Image",  Name="AlternativeText", Type="string", Functions = "ToImageAltText({PublishingPageImage})" },
 
-            new PageLayoutFieldControlEntity() { TargetWebPart = "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart", FieldName = "SummaryLinks", Name = "SummaryLinkStore", FieldType="string"},
+            new PageLayoutWebPartFieldEntity() { TargetWebPart = "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c", FieldType = "SummaryLinks", Name = "SummaryLinkStore", Type="string" },
+            new PageLayoutWebPartFieldEntity() { TargetWebPart = "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c", FieldType = "SummaryLinks", Name = "Title", Type="string", Functions="EmptyString()" },
 
-            new PageLayoutFieldControlEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiTextPart", FieldName = "PublishingPageContent", Name="Text", FieldType="string" },
-            
+            new PageLayoutWebPartFieldEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiTextPart", FieldType = "HTML", Name="Text", Type="string" },            
         };
 
         /// <summary>
         /// Metadata field default mappings
         /// </summary>
-        public static List<PageLayoutMetadataEntity> MetaDataFieldToTargetMappings = new List<PageLayoutMetadataEntity>()
+        internal static List<PageLayoutMetadataEntity> MetaDataFieldToTargetMappings = new List<PageLayoutMetadataEntity>()
         {
-            new PageLayoutMetadataEntity(){ FieldName = "Title", TargetFieldName="Title", Functions = "" },
-            
+            new PageLayoutMetadataEntity(){ FieldName = "Title", TargetFieldName="Title", Functions = "" },            
         };
 
         /// <summary>
         /// Field to header mappings
         /// </summary>
-        public static List<PageLayoutHeaderFieldEntity> PageLayoutHeaderMetadata = new List<PageLayoutHeaderFieldEntity>()
+        internal static List<PageLayoutHeaderFieldEntity> PageLayoutHeaderMetadata = new List<PageLayoutHeaderFieldEntity>()
         {
-            new PageLayoutHeaderFieldEntity() { HeaderType = "FullWidthImage", FieldName = "PublishingRollupImage", FieldHeaderProperty = "ImageServerRelativeUrl", FieldFunctions = "ToImageUrl({PublishingRollupImage})" },
-            new PageLayoutHeaderFieldEntity() { HeaderType = "FullWidthImage", FieldName="ArticleByLine", FieldHeaderProperty = "TopicHeader", FieldFunctions = "" },
+            new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Name = "PublishingRollupImage", HeaderProperty = "ImageServerRelativeUrl", Functions = "ToImageUrl({PublishingRollupImage})" },
+            new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Name="ArticleByLine", HeaderProperty = "TopicHeader", Functions = "" },
         };
 
         /// <summary>
         /// List of metadata fields in content types to ignore in mappings
         /// </summary>
-        public static List<string> IgnoreMetadataFields = new List<string>()
+        internal static List<string> IgnoreMetadataFields = new List<string>()
         {
+            // System fields that will get their defaults via the target modern page
             "ContentType",
             "FileLeafRef",
+            "Modified_x0020_By",
+            "Created_x0020_By",
+            // Fields that have no functional meaning anymore in modern publishing
             "RobotsNoIndex",
             "SeoBrowserTitle",
             "SeoMetaDescription",
             "SeoKeywords",
-            "PublishingPageLayout"
+            "PublishingPageLayout",
+            // We're not (yet) mapping audiences, so skip for now
+            "Audience",
         };
 
         /// <summary>
         /// List of field controls in page to ignore in mappings
         /// </summary>
-        public static List<string> IgnoreWebPartFieldControls = new List<string>()
+        internal static List<string> IgnoreWebPartFieldControls = new List<string>()
         {
             "HeaderStyleDefinitions",
-            "Title",
-            "ArticleStartDate",
-            "ArticleByLine"
+            // Should go inside the image web part transformation, excluding for now
+            "PublishingImageCaption",
+            // Will be used in the header...so it will be used as preview image in the modern page...
+            "PublishingRollupImage",
         };
     }
 }

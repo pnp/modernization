@@ -1,13 +1,8 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointPnP.Modernization.Framework.Publishing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SharePointPnP.Modernization.Framework.Tests.Publishing
+namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
     [TestClass]
     public class AdHocTests

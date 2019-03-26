@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -7,14 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using AngleSharp;
 using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Html;
-
-using ContentType = Microsoft.SharePoint.Client.ContentType;
 using File = Microsoft.SharePoint.Client.File;
 using SharePointPnP.Modernization.Framework.Publishing.Layouts;
 using System.Text.RegularExpressions;
@@ -23,6 +18,23 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 {
     public class PageLayoutAnalyser : BaseTransform
     {
+        /// <summary>
+        /// Simple entity for the extracted blocks of data
+        /// </summary>
+        internal class ExtractedHtmlBlocksEntity
+        {
+            internal ExtractedHtmlBlocksEntity()
+            {
+                WebPartFields = new List<WebPartField>();
+                WebPartZones = new List<WebPartZone>();
+                FixedWebParts = new List<FixedWebPart>();
+            }
+
+            internal List<WebPartField> WebPartFields { get; set; }
+            internal List<WebPartZone> WebPartZones { get; set; }
+            internal List<FixedWebPart> FixedWebParts { get; set; }
+        }
+
         /*
          * Plan
          *  Read a publishing page or read all the publishing page layouts - need to consider both options
@@ -45,18 +57,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         private PublishingPageTransformation _mapping;
         private string _defaultFileName = "PageLayoutMapping.xml";
-
-        //TODO: Move to constants class
-        const string AvailablePageLayouts = "__PageLayouts";
-        const string DefaultPageLayout = "__DefaultPageLayout";
-        const string FileRefField = "FileRef";
-        const string FileLeafRefField = "FileLeafRef";
-        const string PublishingAssociatedContentType = "PublishingAssociatedContentType";
-        const string PublishingPageLayoutField = "PublishingPageLayout";
-        const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
-
         private HtmlParser parser;
+        private Dictionary<string, FieldCollection> _contentTypeFieldCache;
 
+        #region Construction
         /// <summary>
         /// Analyse Page Layouts class constructor
         /// </summary>
@@ -74,28 +78,31 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             _mapping = new PublishingPageTransformation();
-
+            _contentTypeFieldCache = new Dictionary<string, FieldCollection>();
             _sourceContext = sourceContext;
+
             EnsureSiteCollectionContext(sourceContext);
+
             parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true }, Configuration.Default.WithDefaultLoader().WithCss());
         }
+        #endregion
 
-
+        #region Public interface
         /// <summary>
         /// Main entry point into the class to analyse the page layouts
         /// </summary>
         public void AnalyseAll()
         {
             // Determine if ‘default’ layouts for the OOB page layouts
-            // When there’s no layout we “generate” a best effort one and store it in cache.Generation can 
-            //  be done by looking at the field types and inspecting the layout aspx file. This same generation 
-            //  part can be used in point 2 for customers to generate a starting layout mapping file which they then can edit
+            // When there’s no layout we “generate” a best effort one and store it in cache. Generation can 
+            // be done by looking at the field types and inspecting the layout aspx file. This same generation 
+            // part can be used in point 2 for customers to generate a starting layout mapping file which they then can edit
             // Don't assume that you are in a top level site, you maybe in a sub site
 
-            if (Validate())
-            {
-                var spPageLayouts = GetAllPageLayouts();
+            var spPageLayouts = GetAllPageLayouts();
 
+            if (spPageLayouts != null)
+            {
                 foreach (ListItem layout in spPageLayouts)
                 {
                     AnalysePageLayout(layout);
@@ -106,33 +113,48 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Analyses a single page layout from a provided file
         /// </summary>
-        /// <param name="pageLayoutMappings"></param>
-        /// <param name="pageLayoutItem"></param>
+        /// <param name="pageLayoutItem">Page layout list item</param>
         public void AnalysePageLayout(ListItem pageLayoutItem)
         {
-
-            string assocContentType = pageLayoutItem[PublishingAssociatedContentType].ToString();
+            // Get the associated page layout content type
+            string assocContentType = pageLayoutItem[Constants.PublishingAssociatedContentTypeField].ToString();
             var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
 
-            var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
+            // Load content type fields in memory once
+            var contentTypeFields = LoadContentTypeFields(assocContentTypeParts[1]);
+
+            // Extact page header
+            var extractedHeader = ExtractPageHeaderFromPageLayoutAssociatedContentType(contentTypeFields);
+
+            // Analyze the pagelayout file content
             var extractedHtmlBlocks = ExtractControlsFromPageLayoutHtml(pageLayoutItem);
+            extractedHtmlBlocks.WebPartFields = CleanExtractedWebPartFields(extractedHtmlBlocks.WebPartFields, contentTypeFields);
 
-            var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == pageLayoutItem.EnsureProperty(i => i.DisplayName));
+            // Detect the fields that will become metadata in the target site
+            var extractedMetaData = ExtractMetaDataFromPageLayoutAssociatedContentType(contentTypeFields, extractedHtmlBlocks.WebPartFields, extractedHeader);
 
+            // Combine all data to a single PageLayout mapping
             var layoutMapping = new PageLayout()
             {
-                Name = pageLayoutItem.DisplayName,
-                PageHeader = this.CastToEnum<PageLayoutPageHeader>(oobPageLayoutDefaults?.PageHeader),
-                PageLayoutTemplate = this.CastToEnum<PageLayoutPageLayoutTemplate>(oobPageLayoutDefaults?.PageLayoutTemplate),
-                AssociatedContentType = assocContentTypeParts?[0],
-                MetaData = metadata,
-
+                // Display name of the page layout
+                Name = Path.GetFileNameWithoutExtension(pageLayoutItem[Constants.FileLeafRefField].ToString()),
+                // Default to no page header for now
+                PageHeader = extractedHeader != null ? PageLayoutPageHeader.Custom : PageLayoutPageHeader.None,
+                // Default to autodetect layout model
+                PageLayoutTemplate = PageLayoutPageLayoutTemplate.AutoDetect,
+                // The content type to be used on the target modern page
+                AssociatedContentType = "",
+                // Set the header details (if any)
+                Header = extractedHeader,
+                // Fields that will become metadata fields for the target page
+                MetaData = extractedMetaData,
+                // Fields that will become web parts on the target page
                 WebParts = extractedHtmlBlocks.WebPartFields.ToArray(),
+                // Web part zones that can hold zero or more web parts
                 WebPartZones = extractedHtmlBlocks.WebPartZones.ToArray(),
+                // Fixed web parts, this are web parts which are 'hardcoded' in the pagelayout aspx file
                 FixedWebParts = extractedHtmlBlocks.FixedWebParts.ToArray()
             };
-
-            SetPageLayoutHeaderFieldDefaults(oobPageLayoutDefaults, layoutMapping);
 
             // Add to mappings list
             if (_mapping.PageLayouts != null)
@@ -150,11 +172,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Determine the page layout from a publishing page
         /// </summary>
-        public void AnalysePageLayoutFromPublishingPage(ListItem page)
+        /// <param name="publishingPage">Publishing page to analyze the page layout for</param>
+        public void AnalysePageLayoutFromPublishingPage(ListItem publishingPage)
         {
             //Note: ListItemExtensions class contains this logic - reuse.
             //TODO: Make more defensive, this could represent the wrong item 
-            var pageLayoutFile = page.PageLayoutFile();
+            var pageLayoutFile = publishingPage.PageLayoutFile();
 
             if (!string.IsNullOrEmpty(pageLayoutFile))
             {
@@ -167,66 +190,75 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             else
             {
                 // Add logging here
-                throw new ArgumentNullException("Page layout could not be determined by the publishing poage");
+                throw new ArgumentNullException("Page layout could not be determined by the publishing page");
             }
         }
 
         /// <summary>
-        /// Sets the page layout header field defaults
+        /// Generate the mapping file to output from the analysis
         /// </summary>
-        /// <param name="oobPageLayoutDefaults"></param>
-        /// <param name="layoutMapping"></param>
-        private void SetPageLayoutHeaderFieldDefaults(PageLayoutOOBEntity oobPageLayoutDefaults, PageLayout layoutMapping)
+        /// <returns>Mapping file fully qualified path</returns>
+        public string GenerateMappingFile()
         {
-            if (layoutMapping.PageHeader == PageLayoutPageHeader.Custom)
-            {
-                var pageLayoutHeaderFields = PublishingDefaults.PageLayoutHeaderMetadata.Where(o => o.HeaderType == oobPageLayoutDefaults?.PageHeaderType);
-                layoutMapping.Header = new Header() { Type = this.CastToEnum<HeaderType>(oobPageLayoutDefaults?.PageHeaderType) };
+            return GenerateMappingFile(Environment.CurrentDirectory, _defaultFileName);
+        }
 
-                List<HeaderField> headerFields = new List<HeaderField>();
-                foreach (var field in pageLayoutHeaderFields)
+        /// <summary>
+        /// Generate the mapping file to output from the analysis
+        /// </summary>
+        /// <param name="folder">Folder to generate the file in</param>
+        /// <returns>Mapping file fully qualified path</returns>
+        public string GenerateMappingFile(string folder)
+        {
+            return GenerateMappingFile(folder, _defaultFileName);
+        }
+
+        /// <summary>
+        /// Generate the mapping file to output from the analysis
+        /// </summary>
+        /// <param name="folder">Folder to generate the file in</param>
+        /// <param name="fileName">name of the mapping file</param>
+        /// <returns>Mapping file fully qualified path</returns>
+        public string GenerateMappingFile(string folder, string fileName)
+        {
+            try
+            {
+                XmlSerializer xmlMapping = new XmlSerializer(typeof(PublishingPageTransformation));
+
+                var mappingFileName = $"{folder}\\{fileName}";
+                using (StreamWriter sw = new StreamWriter(mappingFileName, false))
                 {
-                    headerFields.Add(new HeaderField()
-                    {
-                        Name = field.FieldName,
-                        HeaderProperty = field.FieldHeaderProperty,
-                        Functions = field.FieldFunctions
-                    });
+                    xmlMapping.Serialize(sw, _mapping);
                 }
 
-                layoutMapping.Header.Field = headerFields.ToArray();
+                LogInfo($"{LogStrings.XmlMappingSavedAs}: {mappingFileName}");
+                return mappingFileName;
             }
-        }
-
-        /// <summary>
-        /// Perform validation to ensure the source site contains page layouts
-        /// </summary>
-        public bool Validate()
-        {
-            if (_sourceContext.Web.IsPublishingWeb())
+            catch (Exception ex)
             {
-                return true;
+                var message = string.Format(LogStrings.Error_CannotWriteToXmlFile, ex.Message, ex.StackTrace);
+                Console.WriteLine(message);
+                LogError(message, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
 
-            return false;
+            return string.Empty;
         }
+        #endregion
 
+        #region Internal methods
         /// <summary>
         /// Determines the page layouts in the current web
         /// </summary>
-        public ListItemCollection GetAllPageLayouts()
+        internal ListItemCollection GetAllPageLayouts()
         {
-            var availablePageLayouts = GetPropertyBagValue<string>(_siteCollContext.Web, AvailablePageLayouts, "");
-            // If empty then gather all
-
             var masterPageGallery = _siteCollContext.Web.GetCatalog((int)ListTemplateType.MasterPageCatalog);
             _siteCollContext.Load(masterPageGallery, x => x.RootFolder.ServerRelativeUrl);
-            _siteCollContext.ExecuteQueryRetry();
 
-            var query = new CamlQuery();
-            // Use query Scope='RecursiveAll' to iterate through sub folders of Master page library because we might have file in folder hierarchy
-            // Ensure that we are getting layouts with at least one published version, not hidden layouts
-            query.ViewXml =
+            var query = new CamlQuery
+            {
+                // Use query Scope='RecursiveAll' to iterate through sub folders of Master page library because we might have file in folder hierarchy
+                // Ensure that we are getting layouts with at least one published version, not hidden layouts
+                ViewXml =
                 $"<View Scope='RecursiveAll'>" +
                     $"<Query>" +
                         $"<Where>" +
@@ -236,7 +268,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
                                     $"</Geq>" +
                                     $"<BeginsWith>" +
-                                        $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{PageLayoutBaseContentTypeId}</Value>" +
+                                        $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{Constants.PageLayoutBaseContentTypeId}</Value>" +
                                     $"</BeginsWith>" +
                                 $"</And>" +
                                 $"<Or>" +
@@ -251,11 +283,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                          $"</Where>" +
                     $"</Query>" +
                     $"<ViewFields>" +
-                        $"<FieldRef Name='" + PublishingAssociatedContentType + $"' />" +
+                        $"<FieldRef Name='{Constants.PublishingAssociatedContentTypeField}' />" +
                         $"<FieldRef Name='PublishingHidden' />" +
                         $"<FieldRef Name='Title' />" +
                     $"</ViewFields>" +
-                  $"</View>";
+                  $"</View>"
+            };
 
             var galleryItems = masterPageGallery.GetItems(query);
             _siteCollContext.Load(masterPageGallery);
@@ -267,151 +300,64 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             _siteCollContext.ExecuteQueryRetry();
 
             return galleryItems.Count > 0 ? galleryItems : null;
-
         }
-
-        /// <summary>
-        /// Gets the page layout for analysis
-        /// </summary>
-        public WebPartField[] GetPageLayoutFileWebParts(ListItem pageLayout)
-        {
-
-            List<WebPartField> wpFields = new List<WebPartField>();
-
-            File file = pageLayout.File;
-            var webPartManager = file.GetLimitedWebPartManager(Microsoft.SharePoint.Client.WebParts.PersonalizationScope.Shared);
-
-            _siteCollContext.Load(webPartManager);
-            _siteCollContext.Load(webPartManager.WebParts);
-            _siteCollContext.Load(webPartManager.WebParts,
-                i => i.Include(o => o.WebPart.Title),
-                i => i.Include(o => o.ZoneId),
-                i => i.Include(o => o.WebPart));
-            _siteCollContext.Load(file);
-            _siteCollContext.ExecuteQueryRetry();
-
-            var wps = webPartManager.WebParts;
-
-            foreach (var part in wps)
-            {
-
-                var props = part.WebPart.Properties.FieldValues;
-                List<WebPartProperty> partProperties = new List<WebPartProperty>();
-
-                foreach (var prop in props)
-                {
-                    partProperties.Add(new WebPartProperty() { Name = prop.Key, Type = WebPartProperyType.@string });
-                }
-
-                wpFields.Add(new WebPartField()
-                {
-                    Name = part.WebPart.Title,
-                    Property = partProperties.ToArray()
-
-                });
-
-            }
-
-            return wpFields.ToArray();
-        }
-
 
         /// <summary>
         /// Get Metadata mapping from the page layout associated content type
         /// </summary>
         /// <param name="contentTypeId">Id of the content type</param>
-        public MetaDataField[] GetMetadatafromPageLayoutAssociatedContentType(string contentTypeId)
+        internal MetaDataField[] ExtractMetaDataFromPageLayoutAssociatedContentType(FieldCollection spFields, List<WebPartField> webPartFields, Header extractedHeader)
         {
             List<MetaDataField> fields = new List<MetaDataField>();
 
-            try
+            // Get unique field types for which we've defined web part mapping defaults
+            List<string> fieldTypesToSkip = new List<string>();
+            foreach(var defaultWebPartField in PublishingDefaults.WebPartFieldProperties)
             {
-
-                if (_siteCollContext.Web.ContentTypeExistsById(contentTypeId, true))
+                if (!fieldTypesToSkip.Contains(defaultWebPartField.FieldType))
                 {
-                    var cType = _siteCollContext.Web.ContentTypes.GetById(contentTypeId);
-
-                    var spFields = cType.EnsureProperty(o => o.Fields);
-
-                    foreach (var fld in spFields.Where(o => o.Hidden == false))
-                    {
-                        var ignoreField = PublishingDefaults.IgnoreMetadataFields.Any(o => o == fld.InternalName);
-                        var defaultMapping = PublishingDefaults.MetaDataFieldToTargetMappings.FirstOrDefault(o => o.FieldName == fld.InternalName);
-
-                        fields.Add(new MetaDataField()
-                        {
-                            Name = fld.InternalName,
-                            Functions = defaultMapping?.Functions ?? "",
-                            TargetFieldName = defaultMapping?.TargetFieldName ?? "",
-                            Ignore = ignoreField,
-                            IgnoreSpecified = ignoreField
-                        });
-                    }
+                    fieldTypesToSkip.Add(defaultWebPartField.FieldType);
                 }
-
             }
-            catch (Exception ex)
+
+            // Skip hidden fields by default
+            foreach (var spField in spFields.Where(o => o.Hidden == false))
             {
-                LogError(LogStrings.Error_CannotMapMetadataFields, LogStrings.Heading_PageLayoutAnalyser, ex);
+                if (!PublishingDefaults.IgnoreMetadataFields.Any(o => o.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    // Was this field already defined as a field that will be mapped to a web part? If so it can't be a metadata field
+                    if (webPartFields.Where(p => p.Name.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)).Any())
+                    {
+                        continue;
+                    }
+
+                    // Was this field already defined as a field that will be mapped to a header property? If so it can't be a metadata field
+                    if (extractedHeader != null)
+                    {
+                        if (extractedHeader.Field.Where(p => p.Name.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)).Any())
+                        {
+                            continue;
+                        }
+                    }
+
+                    // Any field of a type that by default has as target a web part typically is not meant as metadata field for users
+                    if (fieldTypesToSkip.Contains(spField.TypeAsString))
+                    {
+                        continue;
+                    }
+
+                    // Load the default mapping information for this field
+                    var defaultMapping = PublishingDefaults.MetaDataFieldToTargetMappings.FirstOrDefault(o => o.FieldName.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase));
+                    fields.Add(new MetaDataField()
+                    {
+                        Name = spField.InternalName,
+                        Functions = defaultMapping?.Functions ?? "",
+                        TargetFieldName = defaultMapping?.TargetFieldName ?? "",
+                    });
+                }
             }
 
             return fields.ToArray();
-        }
-
-
-        /// <summary>
-        /// Get fixed web parts defined in the page layout
-        /// </summary>
-        public FixedWebPart[] GetFixedWebPartsFromZones(ListItem pageLayout)
-        {
-            /*Plan
-             * Scan through the file to find the web parts by the tags
-             * Extract and convert to definition
-             * Check the TagPrefix and find all the web parts e.g. Register Tagprefix="WebPartPages" Namespace="Microsoft.SharePoint.WebPartPages"
-             * Get a list of all the API recognised web parts and perform a delta
-             * List of types can be found in the WebParts class in root of project
-            */
-
-            List<FixedWebPart> fixedWebParts = new List<FixedWebPart>();
-            const string TagPrefix = "WebPartPages";
-
-            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
-            var fileUrl = pageLayout.File.ServerRelativeUrl;
-
-            var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
-
-            using (var document = this.parser.Parse(fileHtml))
-            {
-
-                var webParts = document.All.Where(o => o.TagName.Contains(TagPrefix)).ToArray();
-
-                for (var i = 0; i < webParts.Count(); i++)
-                {
-                    fixedWebParts.Add(new FixedWebPart()
-                    {
-                        Type = "",
-                        Column = 0,
-                        Row = 0,
-                        Order = 0
-                    });
-                }
-
-            }
-
-            return fixedWebParts.ToArray();
-
-        }
-
-        /// <summary>
-        /// This method analyses the Html strcuture to determine layout
-        /// </summary>
-        public void ExtractLayoutFromHtmlStructure()
-        {
-            /*Plan
-             * Scan through the file to plot the 
-             * - Determine if a grid system, classic, fabric or Html structure is in use
-             * - Work out the location of the web part in relation to the grid system
-            */
         }
 
         /// <summary>
@@ -423,7 +369,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         ///     Item1 = tagprefix
         ///     Item2 = Namespace
         /// </returns>
-        public List<Tuple<string, string>> ExtractWebPartPrefixesFromNamespaces(ListItem pageLayout)
+        internal List<Tuple<string, string>> ExtractWebPartPrefixesFromNamespaces(ListItem pageLayout)
         {
             var tagPrefixes = new List<Tuple<string, string>>();
 
@@ -467,7 +413,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Extract the web parts from the page layout HTML outside of web part zones
         /// </summary>
-        public ExtractedHtmlBlocksEntity ExtractControlsFromPageLayoutHtml(ListItem pageLayout)
+        internal ExtractedHtmlBlocksEntity ExtractControlsFromPageLayoutHtml(ListItem pageLayout)
         {
             /*Plan
              * Scan through the file to find the web parts by the tags
@@ -626,48 +572,128 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return extractedHtmlBlocks;
 
         }
+        #endregion
 
-
-        /// <summary>
-        /// Generate the mapping file to output from the analysis
-        /// </summary>
-        public string GenerateMappingFile()
+        #region Helper methods
+        private FieldCollection LoadContentTypeFields(string contentTypeId)
         {
             try
             {
-                XmlSerializer xmlMapping = new XmlSerializer(typeof(PublishingPageTransformation));
-
-                var mappingFileName = _defaultFileName;
-
-                using (StreamWriter sw = new StreamWriter(mappingFileName, false))
+                // Try loading from cache first
+                if (_contentTypeFieldCache.TryGetValue(contentTypeId, out FieldCollection spFieldsFromCache))
                 {
-                    xmlMapping.Serialize(sw, _mapping);
+                    return spFieldsFromCache;
                 }
 
-                var xmlMappingFileLocation = $"{ Environment.CurrentDirectory }\\{ mappingFileName}";
-                LogInfo($"{LogStrings.XmlMappingSavedAs}: {xmlMappingFileLocation}");
+                var cType = _siteCollContext.Web.ContentTypes.GetById(contentTypeId);
+                var spFields = cType.EnsureProperty(o => o.Fields);
 
-                return xmlMappingFileLocation;
+                // Add to cache
+                _contentTypeFieldCache.Add(contentTypeId, spFields);
 
+                return spFields;
             }
             catch (Exception ex)
             {
-                var message = string.Format(LogStrings.Error_CannotWriteToXmlFile, ex.Message, ex.StackTrace);
-                Console.WriteLine(message);
-                LogError(message, LogStrings.Heading_PageLayoutAnalyser, ex);
+                LogError(LogStrings.Error_CannotMapMetadataFields, LogStrings.Heading_PageLayoutAnalyser, ex);
+                throw;
             }
-
-            return string.Empty;
         }
 
+        private List<WebPartField> CleanExtractedWebPartFields(List<WebPartField> webPartFields, FieldCollection spFields)
+        {
+            List<WebPartField> cleanedWebPartFields = new List<WebPartField>();
 
-        #region Helpers
+            foreach (var webPartField in webPartFields)
+            {
+                if (PublishingDefaults.IgnoreWebPartFieldControls.Contains(webPartField.Name))
+                {
+                    // This is field we're ignoring as it's not meant to be translated into a web part on the modern page
+                    continue;
+                }
+
+                // Find the field, we'll use the field's type to get the 'default' transformation behaviour
+                var spField = spFields.Where(p => p.StaticName.Equals(webPartField.Name, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                if (spField != null)
+                {
+                    var webPartFieldDefaults = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));
+                    if (webPartFieldDefaults.Any())
+                    {
+                        // Copy basic fields
+                        WebPartField wpf = new WebPartField()
+                        {
+                            Name = webPartField.Name,
+                            Row = webPartField.Row,
+                            Column = webPartField.Column,
+                            TargetWebPart = webPartFieldDefaults.First().TargetWebPart,
+                        };
+
+                        // Copy the default target web part properties
+                        var properties = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));
+                        if (properties.Any())
+                        {
+                            List<WebPartProperty> webPartProperties = new List<WebPartProperty>();
+                            foreach (var property in properties)
+                            {
+                                webPartProperties.Add(new WebPartProperty()
+                                {
+                                    Name = property.Name,
+                                    Type = this.CastToEnum<WebPartProperyType>(property.Type),
+                                    Functions = property.Functions,
+                                });
+                            }
+
+                            wpf.Property = webPartProperties.ToArray();
+                        }
+
+                        cleanedWebPartFields.Add(wpf);
+                    }
+                }
+            }
+
+            return cleanedWebPartFields;
+        }
+
+        /// <summary>
+        /// Sets the page layout header field defaults
+        /// </summary>
+        /// <param name="oobPageLayoutDefaults"></param>
+        /// <param name="layoutMapping"></param>
+        private Header ExtractPageHeaderFromPageLayoutAssociatedContentType(FieldCollection spFields)
+        {
+            // If we've a publishing rollup image then let's try to use that as page header image...at conversion time we'll still switch back to no header in case there
+            // was no publishing rollup image set at content level
+            if (spFields.Where(p=>p.InternalName.Equals("PublishingRollupImage", StringComparison.InvariantCultureIgnoreCase)).Any())
+            {
+                var pageLayoutHeaderFields = PublishingDefaults.PageLayoutHeaderMetadata.Where(o => o.Type.Equals("FullWidthImage", StringComparison.InvariantCultureIgnoreCase));
+                var header = new Header() { Type = HeaderType.FullWidthImage };
+
+                List<HeaderField> headerFields = new List<HeaderField>();
+                foreach (var field in pageLayoutHeaderFields)
+                {
+                    headerFields.Add(new HeaderField()
+                    {
+                        Name = field.Name,
+                        HeaderProperty = field.HeaderProperty,
+                        Functions = field.Functions
+                    });
+                }
+
+                header.Field = headerFields.ToArray();
+
+                return header;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         /// <summary>
         /// Ensures that we have context of the source site collection
         /// </summary>
         /// <param name="context"></param>
-        public void EnsureSiteCollectionContext(ClientContext context)
+        private void EnsureSiteCollectionContext(ClientContext context)
         {
             try
             {
@@ -738,22 +764,111 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         #endregion
-    }
 
-    /// <summary>
-    /// Simple entity for the extracted blocks of data
-    /// </summary>
-    public class ExtractedHtmlBlocksEntity
+        #region Old code - to be dropped
+        /*
+/// <summary>
+/// Gets the page layout for analysis
+/// </summary>
+internal WebPartField[] GetPageLayoutFileWebParts(ListItem pageLayout)
+{
+    List<WebPartField> wpFields = new List<WebPartField>();
+
+    File file = pageLayout.File;
+    var webPartManager = file.GetLimitedWebPartManager(Microsoft.SharePoint.Client.WebParts.PersonalizationScope.Shared);
+
+    _siteCollContext.Load(webPartManager);
+    _siteCollContext.Load(webPartManager.WebParts);
+    _siteCollContext.Load(webPartManager.WebParts,
+        i => i.Include(o => o.WebPart.Title),
+        i => i.Include(o => o.ZoneId),
+        i => i.Include(o => o.WebPart));
+    _siteCollContext.Load(file);
+    _siteCollContext.ExecuteQueryRetry();
+
+    var wps = webPartManager.WebParts;
+
+    foreach (var part in wps)
     {
-        public ExtractedHtmlBlocksEntity()
+
+        var props = part.WebPart.Properties.FieldValues;
+        List<WebPartProperty> partProperties = new List<WebPartProperty>();
+
+        foreach (var prop in props)
         {
-            WebPartFields = new List<WebPartField>();
-            WebPartZones = new List<WebPartZone>();
-            FixedWebParts = new List<FixedWebPart>();
+            partProperties.Add(new WebPartProperty() { Name = prop.Key, Type = WebPartProperyType.@string });
         }
 
-        public List<WebPartField> WebPartFields { get; set; }
-        public List<WebPartZone> WebPartZones { get; set; }
-        public List<FixedWebPart> FixedWebParts { get; set; }
+        wpFields.Add(new WebPartField()
+        {
+            Name = part.WebPart.Title,
+            Property = partProperties.ToArray()
+
+        });
+
+    }
+
+    return wpFields.ToArray();
+}
+*/
+
+
+        ///// <summary>
+        ///// Get fixed web parts defined in the page layout
+        ///// </summary>
+        //internal FixedWebPart[] GetFixedWebPartsFromZones(ListItem pageLayout)
+        //{
+        //    /*Plan
+        //     * Scan through the file to find the web parts by the tags
+        //     * Extract and convert to definition
+        //     * Check the TagPrefix and find all the web parts e.g. Register Tagprefix="WebPartPages" Namespace="Microsoft.SharePoint.WebPartPages"
+        //     * Get a list of all the API recognised web parts and perform a delta
+        //     * List of types can be found in the WebParts class in root of project
+        //    */
+
+        //    List<FixedWebPart> fixedWebParts = new List<FixedWebPart>();
+        //    const string TagPrefix = "WebPartPages";
+
+        //    pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
+        //    var fileUrl = pageLayout.File.ServerRelativeUrl;
+
+        //    var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
+
+        //    using (var document = this.parser.Parse(fileHtml))
+        //    {
+
+        //        var webParts = document.All.Where(o => o.TagName.Contains(TagPrefix)).ToArray();
+
+        //        for (var i = 0; i < webParts.Count(); i++)
+        //        {
+        //            fixedWebParts.Add(new FixedWebPart()
+        //            {
+        //                Type = "",
+        //                Column = 0,
+        //                Row = 0,
+        //                Order = 0
+        //            });
+        //        }
+
+        //    }
+
+        //    return fixedWebParts.ToArray();
+
+        //}
+
+        ///// <summary>
+        ///// This method analyses the Html strcuture to determine layout
+        ///// </summary>
+        //internal void ExtractLayoutFromHtmlStructure()
+        //{
+        //    /*Plan
+        //     * Scan through the file to plot the 
+        //     * - Determine if a grid system, classic, fabric or Html structure is in use
+        //     * - Work out the location of the web part in relation to the grid system
+        //    */
+        //}
+
+        #endregion
+
     }
 }
