@@ -110,13 +110,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <param name="pageLayoutItem"></param>
         public void AnalysePageLayout(ListItem pageLayoutItem)
         {
-            
+
             string assocContentType = pageLayoutItem[PublishingAssociatedContentType].ToString();
             var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
 
             var metadata = GetMetadatafromPageLayoutAssociatedContentType(assocContentTypeParts[1]);
             var extractedHtmlBlocks = ExtractControlsFromPageLayoutHtml(pageLayoutItem);
-            
+
             var oobPageLayoutDefaults = PublishingDefaults.OOBPageLayouts.FirstOrDefault(o => o.Name == pageLayoutItem.EnsureProperty(i => i.DisplayName));
 
             var layoutMapping = new PageLayout()
@@ -210,7 +210,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             return false;
         }
-        
+
         /// <summary>
         /// Determines the page layouts in the current web
         /// </summary>
@@ -314,7 +314,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             return wpFields.ToArray();
         }
-                     
+
 
         /// <summary>
         /// Get Metadata mapping from the page layout associated content type
@@ -390,9 +390,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     fixedWebParts.Add(new FixedWebPart()
                     {
                         Type = "",
-                        Column = "",
-                        Row = "",
-                        Order = ""
+                        Column = 0,
+                        Row = 0,
+                        Order = 0
                     });
                 }
 
@@ -515,7 +515,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                             //{
 
                             var attributes = docNode.Attributes;
-                            
+
                             if (attributes.Any(o => o.Name == "fieldname"))
                             {
 
@@ -542,8 +542,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                     {
                                         Name = fieldName,
                                         TargetWebPart = "",
-                                        Row = "",
-                                        Column = "",
+                                        Row = 0,
+                                        Column = 0,
                                         Property = webPartProperties.ToArray()
                                     });
                                 }
@@ -555,8 +555,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 extractedHtmlBlocks.WebPartZones.Add(new WebPartZone()
                                 {
                                     ZoneId = docNode.Id,
-                                    Column = "",
-                                    Row = ""
+                                    Column = 0,
+                                    Row = 0
                                     //ZoneIndex = control. // TODO: Is this used?
                                 });
                             }
@@ -568,7 +568,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                             if (matchedParts.Any())
                             {
                                 var match = matchedParts.FirstOrDefault();
-                                if(match != default(Tuple<string, string>))
+                                if (match != default(Tuple<string, string>))
                                 {
                                     //Process Child properties
                                     List<FixedWebPartProperty> fixedProperties = new List<FixedWebPartProperty>();
@@ -595,19 +595,30 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                     else
                                     {
                                         // Another scenario where there are no child nodes, just attributes
-                                        foreach(var attr in attributes)
+                                        foreach (var attr in attributes)
                                         {
                                             // This might need a filter
 
-                foreach(var webPartZone in webPartZones)
-                {
-                    zones.Add(new WebPartZone()
-                    {
-                        ZoneId = webPartZone.Id,
-                        Column = "",
-                        Row = "",
-                        ZoneIndex = ""
-                    });
+                                            fixedProperties.Add(new FixedWebPartProperty()
+                                            {
+                                                Name = attr.Name,
+                                                Type = WebPartProperyType.@string,
+                                                Value = attr.Value
+                                            });
+                                        }
+                                    }
+
+                                    extractedHtmlBlocks.FixedWebParts.Add(new FixedWebPart()
+                                    {
+                                        Column = 0,
+                                        Row = 0,
+                                        Type = match.Item2,
+                                        Property = fixedProperties.ToArray()
+                                    });
+                                }
+                            }
+                        }
+                    }
                 }
 
             }
@@ -616,7 +627,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         }
 
-        
+
         /// <summary>
         /// Generate the mapping file to output from the analysis
         /// </summary>
