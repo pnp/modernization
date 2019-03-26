@@ -29,8 +29,8 @@
   <xs:complexType name="WebPartZone">
     <xs:attribute name="ZoneIndex" type="xs:int" use="required" />
     <xs:attribute name="ZoneId" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:int" use="optional" />
-    <xs:attribute name="Column" type="xs:int" use="optional" />
+    <xs:attribute name="Row" type="xs:int" use="required" />
+    <xs:attribute name="Column" type="xs:int" use="required" />
   </xs:complexType>
 
   <xs:complexType name="FixedWebPart">
@@ -38,8 +38,8 @@
       <xs:element name="Property" type="FixedWebPartProperty" minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="Type" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:int" use="optional" />
-    <xs:attribute name="Column" type="xs:int" use="optional" />
+    <xs:attribute name="Row" type="xs:int" use="required" />
+    <xs:attribute name="Column" type="xs:int" use="required" />
     <xs:attribute name="Order" type="xs:int" use="optional" />
   </xs:complexType>
 
@@ -71,8 +71,8 @@
     </xs:sequence>
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="TargetWebPart" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:int" use="optional" />
-    <xs:attribute name="Column" type="xs:int" use="optional" />
+    <xs:attribute name="Row" type="xs:int" use="required" />
+    <xs:attribute name="Column" type="xs:int" use="required" />
   </xs:complexType>
 
   <xs:complexType name="Header">
