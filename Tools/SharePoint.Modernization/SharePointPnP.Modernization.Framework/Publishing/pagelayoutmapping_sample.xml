@@ -14,6 +14,7 @@
       <!-- Some fields become metadata. Use functions to "rewrite" field content when needed -->
       <MetaData>
         <Field Name="Title" TargetFieldName="Title" Functions=""/>
+        <Field Name="SeoKeywords" TargetFieldName="" Functions="" Ignore="true"/>
         <!-- Functions allow to 'add' new fields to the metadata collection -->
         <Field Name="MyCustomField" TargetFieldName="MyCustomField" Functions="ConsolidateCustomField({MyCustomField}); {ExtraField}=SplitCustomField({MyCustomField})" />
       </MetaData>

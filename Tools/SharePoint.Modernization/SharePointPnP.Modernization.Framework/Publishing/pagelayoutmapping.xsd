@@ -24,6 +24,7 @@
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="TargetFieldName" type="xs:string" use="required" />
     <xs:attribute name="Functions" type="xs:string" use="optional" />
+    <xs:attribute name="Ignore" type="xs:boolean" use="optional" />
   </xs:complexType>
 
   <xs:complexType name="WebPartZone">
