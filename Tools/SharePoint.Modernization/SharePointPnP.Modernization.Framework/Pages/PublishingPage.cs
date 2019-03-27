@@ -80,12 +80,15 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
                 foreach (var wikiTextPart in wikiTextWebParts)
                 {
-                    var pageContents = page.FieldValues[wikiTextPart.Name].ToString();
-                    var htmlDoc = parser.Parse(pageContents);
+                    var pageContents = page.FieldValues[wikiTextPart.Name]?.ToString();
+                    if (pageContents != null && !string.IsNullOrEmpty(pageContents))
+                    {
+                        var htmlDoc = parser.Parse(pageContents);
 
-                    // Analyze the html block (which is a wiki block)
-                    var content = htmlDoc.FirstElementChild.LastElementChild;
-                    AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, content);
+                        // Analyze the html block (which is a wiki block)
+                        var content = htmlDoc.FirstElementChild.LastElementChild;
+                        AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, content);
+                    }
                 }
 
                 // Bulk load the needed web part information
@@ -114,7 +117,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         }
                         else
                         {
-                            properties.Add(fieldWebPartProperty.Name, page.FieldValues[fieldWebPart.Name].ToString().Trim());
+                            var webPartName = page.FieldValues[fieldWebPart.Name]?.ToString().Trim();
+                            if (webPartName != null)
+                            {
+                                properties.Add(fieldWebPartProperty.Name, page.FieldValues[fieldWebPart.Name].ToString().Trim());
+                            }
                         }
                     }
 
