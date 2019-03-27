@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using AngleSharp.Parser.Html;
+using AngleSharp.Dom;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -66,11 +67,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             // Sample input: <img alt="" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
             var htmlDoc = parser.Parse(htmlImage);
-            var imgElement = htmlDoc.QuerySelectorAll("img").First();
+            var imgElement = htmlDoc.QuerySelectorAll("img").FirstOrDefault();
 
             string imageUrl = "";
 
-            if (imgElement != null && imgElement.HasAttribute("src"))
+            if (imgElement != null && imgElement != default(IElement) && imgElement.HasAttribute("src"))
             {
                 imageUrl = imgElement.GetAttribute("src");
 
@@ -97,11 +98,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             // Sample input: <img alt="bla" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
             var htmlDoc = parser.Parse(htmlImage);
-            var imgElement = htmlDoc.QuerySelectorAll("img").First();
+            var imgElement = htmlDoc.QuerySelectorAll("img").FirstOrDefault();
 
             string imageAltText = "";
 
-            if (imgElement != null && imgElement.HasAttribute("alt"))
+            if (imgElement != null && imgElement != default(IElement) && imgElement.HasAttribute("alt"))
             {
                 imageAltText = imgElement.GetAttribute("alt");
             }
