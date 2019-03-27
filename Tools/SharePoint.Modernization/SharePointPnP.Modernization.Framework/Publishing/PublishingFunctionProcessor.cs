@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -16,28 +14,31 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private List<AddOnType> addOnTypes;
         private object builtInFunctions;
         private ClientContext sourceClientContext;
+        private ClientContext targetClientContext;
         private ListItem page;
 
         #region Construction
-        public PublishingFunctionProcessor(ListItem page, ClientContext sourceClientContext, PublishingPageTransformation publishingPageTransformation)
+        public PublishingFunctionProcessor(ListItem page, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation)
         {
             this.page = page;
             this.publishingPageTransformation = publishingPageTransformation;
             this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = targetClientContext;
 
             RegisterAddons();
         }
         #endregion
 
         #region Public methods
-        public Tuple<string, string> Process(WebPartProperty webPartProperty)
+        //public Tuple<string, string> Process(WebPartProperty webPartProperty)
+        public Tuple<string, string> Process(string functions, string propertyName, string propertyType)
         {
             string propertyKey = "";
             string propertyValue = "";
 
-            if (!string.IsNullOrEmpty(webPartProperty.Functions))
+            if (!string.IsNullOrEmpty(functions))
             {
-                var functionDefinition = ParseFunctionDefinition(webPartProperty.Functions, webPartProperty, this.page);
+                var functionDefinition = ParseFunctionDefinition(functions, propertyName, propertyType, this.page);
 
                 // Execute function
                 MethodInfo methodInfo = null;
@@ -68,7 +69,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // output types support: string or bool
                     if (result is string || result is bool)
                     {
-                        propertyKey = webPartProperty.Name;
+                        //propertyKey = webPartProperty.Name;
+                        propertyKey = propertyName;
                         propertyValue = result.ToString().ToLower();
                     }
                 }
@@ -79,7 +81,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         #endregion
 
         #region Helper methods
-        private static FunctionDefinition ParseFunctionDefinition(string function, WebPartProperty webPartProperty, ListItem page)
+        //private static FunctionDefinition ParseFunctionDefinition(string function, WebPartProperty webPartProperty, ListItem page)
+        private static FunctionDefinition ParseFunctionDefinition(string function, string propertyName, string propertyType, ListItem page)
         {
             // Supported function syntax: 
             // - EncodeGuid()
@@ -110,7 +113,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 FunctionParameter output = new FunctionParameter()
                 {
-                    Name = webPartProperty.Name,
+                    //Name = webPartProperty.Name,
+                    Name = propertyName,
                     Type = FunctionType.String
                 };
 
@@ -144,8 +148,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 };
 
                 // Populate the function parameter with a value coming from publishing page
-                input.Type = MapType(webPartProperty.Type.ToString());
-                //input.Value = page[input.Name].ToString();
+                //input.Type = MapType(webPartProperty.Type.ToString());
+                input.Type = MapType(propertyType);
                 input.Value = page.GetFieldValueAs<string>(input.Name);
                 def.Input.Add(input);
             }
@@ -159,7 +163,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             // instantiate default built in functions class
             this.addOnTypes = new List<AddOnType>();
-            this.builtInFunctions = Activator.CreateInstance(typeof(PublishingBuiltIn), sourceClientContext, base.RegisteredLogObservers);
+            this.builtInFunctions = Activator.CreateInstance(typeof(PublishingBuiltIn), sourceClientContext, targetClientContext, base.RegisteredLogObservers);
 
             // instantiate the custom function classes (if there are)
             if (this.publishingPageTransformation.AddOns != null)

@@ -1,20 +1,17 @@
-﻿using Microsoft.SharePoint.Client;
+﻿using AngleSharp.Dom;
+using AngleSharp.Parser.Html;
+using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Functions;
-using System;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OfficeDevPnP.Core.Pages;
-using SharePointPnP.Modernization.Framework.Telemetry;
-using AngleSharp.Parser.Html;
-using AngleSharp.Dom;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
     public class PublishingBuiltIn: FunctionsBase
     {
         private ClientContext sourceClientContext;
+        private ClientContext targetClientContext;
         private HtmlParser parser;
 
         #region Construction
@@ -24,9 +21,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <param name="pageClientContext">ClientContext object for the site holding the page being transformed</param>
         /// <param name="sourceClientContext">The ClientContext for the source </param>
         /// <param name="clientSidePage">Reference to the client side page</param>
-        public PublishingBuiltIn(ClientContext sourceClientContext, IList<ILogObserver> logObservers = null) : base(sourceClientContext)
+        public PublishingBuiltIn(ClientContext sourceClientContext, ClientContext targetClientContext, IList<ILogObserver> logObservers = null) : base(sourceClientContext)
         {
             this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = targetClientContext;
             this.parser = new HtmlParser();
 
             if (logObservers != null)

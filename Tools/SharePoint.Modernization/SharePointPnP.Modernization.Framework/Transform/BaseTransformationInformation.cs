@@ -33,11 +33,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string TargetPageName { get; set; }
 
         /// <summary>
-        /// Configuration of the page header to apply
-        /// </summary>
-        public ClientSidePageHeader PageHeader { get; set; }
-
-        /// <summary>
         /// Apply the item level page permissions on to the target page, defaults to true
         /// </summary>
         public bool KeepPageSpecificPermissions { get; set; }

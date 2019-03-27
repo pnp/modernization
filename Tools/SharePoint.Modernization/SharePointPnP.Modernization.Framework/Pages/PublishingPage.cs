@@ -27,7 +27,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(cc).LoadDefaultPageLayoutMappingFile();
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);            
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation);            
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation) : base(page, pageTransformation)
         {
             this.publishingPageTransformation = publishingPageTransformation;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, this.publishingPageTransformation);            
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation);            
         }
         #endregion
 
@@ -111,7 +111,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         if (!string.IsNullOrEmpty(fieldWebPartProperty.Functions))
                         {
                             // execute function
-                            var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty);
+                            var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, fieldWebPartProperty.Type.ToString());
                             if (!string.IsNullOrEmpty(evaluatedField.Item1) && !properties.ContainsKey(evaluatedField.Item1))
                             {
                                 properties.Add(evaluatedField.Item1, evaluatedField.Item2);

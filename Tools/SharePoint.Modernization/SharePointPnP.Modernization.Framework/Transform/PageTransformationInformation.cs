@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core.Pages;
 using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Transform
@@ -69,6 +70,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Prefix used to name the source page. Used in conjunction with TargetPageTakesSourcePageName
         /// </summary>
         public string SourcePagePrefix { get; set; }
+
+        /// <summary>
+        /// Configuration of the page header to apply
+        /// </summary>
+        public ClientSidePageHeader PageHeader { get; set; }
 
         /// <summary>
         /// Configuration driven by the presence of a modernization center

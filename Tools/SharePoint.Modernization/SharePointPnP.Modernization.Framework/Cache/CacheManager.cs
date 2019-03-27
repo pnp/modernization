@@ -19,10 +19,10 @@ namespace SharePointPnP.Modernization.Framework.Cache
     public sealed class CacheManager
     {
         private static readonly Lazy<CacheManager> _lazyInstance = new Lazy<CacheManager>(() => new CacheManager());
+        private OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate baseTemplate;
         private ConcurrentDictionary<string, List<ClientSideComponent>> clientSideComponents;
         private ConcurrentDictionary<Guid, string> siteToComponentMapping;
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
-        private OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate baseTemplate;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
         private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;        
@@ -38,6 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
         }
 
+        #region Construction
         private CacheManager()
         {
             // place for instance initialization code
@@ -50,6 +51,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
             generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
         }
+        #endregion
 
         #region Asset Transfer
         /// <summary>

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointPnP.Modernization.Framework.Publishing;
 
+
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
     [TestClass]
@@ -41,7 +42,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                 using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext /*, @"C:\temp\mappingtest.xml"*/);
+                    //"C:\temp\mappingtest.xml"
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
 
                     var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
 
@@ -53,7 +55,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             Overwrite = true,
 
                             // Don't log test runs
-                            SkipTelemetry = true,
+                            SkipTelemetry = true,                           
 
                             //RemoveEmptySectionsAndColumns = false,
 

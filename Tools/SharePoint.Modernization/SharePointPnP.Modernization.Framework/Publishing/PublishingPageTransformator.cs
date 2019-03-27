@@ -188,7 +188,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 var fileRefFieldValue = publishingPageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString().ToLower();
 
-                // TODO: pages folder is translated, ensure to use the correct name!
                 if (fileRefFieldValue.Contains($"/{this.publishingPagesLibrary}"))
                 {
                     pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibrary}".ToLower(), "").Trim();
@@ -276,34 +275,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             #endregion
 
             LogInfo(LogStrings.TransformSourcePageAsArticlePage, LogStrings.Heading_ArticlePageHandling);
-
-            #region Configure header from target page
-#if DEBUG && MEASURE
-                Start();
-#endif
-            if (publishingPageTransformationInformation.PageHeader == null || publishingPageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.None)
-            {
-                LogInfo(LogStrings.TransformArticleSetHeaderToNone, LogStrings.Heading_ArticlePageHandling);
-
-                targetPage.RemovePageHeader();
-            }
-            else if (publishingPageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.Default)
-            {
-                LogInfo(LogStrings.TransformArticleSetHeaderToDefault, LogStrings.Heading_ArticlePageHandling);
-
-                targetPage.SetDefaultPageHeader();
-            }
-            else if (publishingPageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.Custom)
-            {
-                LogInfo($"{LogStrings.TransformArticleSetHeaderToCustom} " +
-                        $"{LogStrings.TransformArticleHeaderImageUrl} {publishingPageTransformationInformation.PageHeader.ImageServerRelativeUrl} ", LogStrings.Heading_ArticlePageHandling);
-
-                targetPage.SetCustomPageHeader(publishingPageTransformationInformation.PageHeader.ImageServerRelativeUrl, publishingPageTransformationInformation.PageHeader.TranslateX, publishingPageTransformationInformation.PageHeader.TranslateY);
-            }
-#if DEBUG && MEASURE
-                Stop("Target page header");
-#endif
-            #endregion
 
             #region Analysis of the source page
 #if DEBUG && MEASURE
@@ -404,6 +375,18 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             LogInfo(LogStrings.TransformingContentEnd, LogStrings.Heading_ArticlePageHandling);
 #if DEBUG && MEASURE
                 Stop("Content transformation");
+#endif
+            #endregion
+
+            #region Configure header for target page
+#if DEBUG && MEASURE
+                Start();
+#endif
+            PublishingPageHeaderTransformator headerTransformator = new PublishingPageHeaderTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, this.publishingPageTransformation);
+            headerTransformator.TransformHeader(ref targetPage);
+
+#if DEBUG && MEASURE
+                Stop("Target page header");
 #endif
             #endregion
 
