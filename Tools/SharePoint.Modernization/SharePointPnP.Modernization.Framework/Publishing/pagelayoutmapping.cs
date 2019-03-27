@@ -183,11 +183,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private int rowField;
         
-        private bool rowFieldSpecified;
-        
         private int columnField;
-        
-        private bool columnFieldSpecified;
         
         private int orderField;
         
@@ -227,17 +223,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool RowSpecified {
-            get {
-                return this.rowFieldSpecified;
-            }
-            set {
-                this.rowFieldSpecified = value;
-            }
-        }
-        
-        /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public int Column {
             get {
@@ -245,17 +230,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.columnField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool ColumnSpecified {
-            get {
-                return this.columnFieldSpecified;
-            }
-            set {
-                this.columnFieldSpecified = value;
             }
         }
         
@@ -296,11 +270,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private int rowField;
         
-        private bool rowFieldSpecified;
-        
         private int columnField;
-        
-        private bool columnFieldSpecified;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -336,17 +306,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool RowSpecified {
-            get {
-                return this.rowFieldSpecified;
-            }
-            set {
-                this.rowFieldSpecified = value;
-            }
-        }
-        
-        /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public int Column {
             get {
@@ -354,17 +313,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.columnField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool ColumnSpecified {
-            get {
-                return this.columnFieldSpecified;
-            }
-            set {
-                this.columnFieldSpecified = value;
             }
         }
     }
@@ -433,11 +381,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private int rowField;
         
-        private bool rowFieldSpecified;
-        
         private int columnField;
-        
-        private bool columnFieldSpecified;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Property")]
@@ -484,17 +428,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool RowSpecified {
-            get {
-                return this.rowFieldSpecified;
-            }
-            set {
-                this.rowFieldSpecified = value;
-            }
-        }
-        
-        /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public int Column {
             get {
@@ -502,17 +435,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.columnField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool ColumnSpecified {
-            get {
-                return this.columnFieldSpecified;
-            }
-            set {
-                this.columnFieldSpecified = value;
             }
         }
     }
@@ -625,6 +547,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private HeaderType typeField;
         
+        private HeaderAlignment alignmentField;
+        
+        private bool showPublishedDateField;
+        
+        private bool showPublishedDateFieldSpecified;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Field")]
         public HeaderField[] Field {
@@ -646,6 +574,39 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
                 this.typeField = value;
             }
         }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public HeaderAlignment Alignment {
+            get {
+                return this.alignmentField;
+            }
+            set {
+                this.alignmentField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool ShowPublishedDate {
+            get {
+                return this.showPublishedDateField;
+            }
+            set {
+                this.showPublishedDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ShowPublishedDateSpecified {
+            get {
+                return this.showPublishedDateFieldSpecified;
+            }
+            set {
+                this.showPublishedDateFieldSpecified = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -665,6 +626,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         CutInShape,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public enum HeaderAlignment {
+        
+        /// <remarks/>
+        Left,
+        
+        /// <remarks/>
+        Center,
     }
     
     /// <remarks/>

@@ -492,9 +492,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         Name = fieldName,
                                         TargetWebPart = "",
                                         Row = 1,
-                                        RowSpecified = true,
+                                        //RowSpecified = true,
                                         Column = 1,
-                                        ColumnSpecified = true,
+                                        //ColumnSpecified = true,
                                         Property = webPartProperties.ToArray()
                                     });
                                 }
@@ -507,9 +507,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 {
                                     ZoneId = docNode.Id,
                                     Column = 1,
-                                    ColumnSpecified = true,
+                                    //ColumnSpecified = true,
                                     Row = 1,
-                                    RowSpecified = true,
+                                    //RowSpecified = true,
                                     //ZoneIndex = control. // TODO: Is this used?
                                 });
                             }
@@ -564,9 +564,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                     extractedHtmlBlocks.FixedWebParts.Add(new FixedWebPart()
                                     {
                                         Column = 1,
-                                        ColumnSpecified = true,
+                                        //ColumnSpecified = true,
                                         Row = 1,
-                                        RowSpecified = true,
+                                        //RowSpecified = true,
                                         Type = match.Item2,
                                         Property = fixedProperties.ToArray()
                                     });
@@ -649,9 +649,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         {
                             Name = webPartField.Name,
                             Row = webPartField.Row,
-                            RowSpecified = webPartField.RowSpecified,
+                            //RowSpecified = webPartField.RowSpecified,
                             Column = webPartField.Column,
-                            ColumnSpecified = webPartField.ColumnSpecified,
+                            //ColumnSpecified = webPartField.ColumnSpecified,
                             TargetWebPart = webPartFieldDefaults.First().TargetWebPart,
                         };
 
@@ -693,7 +693,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (spFields.Where(p=>p.InternalName.Equals("PublishingRollupImage", StringComparison.InvariantCultureIgnoreCase)).Any())
             {
                 var pageLayoutHeaderFields = PublishingDefaults.PageLayoutHeaderMetadata.Where(o => o.Type.Equals("FullWidthImage", StringComparison.InvariantCultureIgnoreCase));
-                var header = new Header() { Type = HeaderType.FullWidthImage };
+                var header = new Header() {
+                    Type = HeaderType.FullWidthImage,
+                    Alignment = this.CastToEnum<HeaderAlignment>(pageLayoutHeaderFields.First().Alignment),
+                    ShowPublishedDate = pageLayoutHeaderFields.First().ShowPublishedDate,
+                    ShowPublishedDateSpecified = true,
+                };
 
                 List<HeaderField> headerFields = new List<HeaderField>();
                 foreach (var field in pageLayoutHeaderFields)

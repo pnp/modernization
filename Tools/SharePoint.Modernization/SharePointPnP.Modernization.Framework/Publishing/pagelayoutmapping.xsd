@@ -89,6 +89,15 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="Alignment" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Left" />
+          <xs:enumeration value="Center" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="ShowPublishedDate" use="optional" type="xs:boolean" />
   </xs:complexType>
 
   <xs:complexType name="MetaData">

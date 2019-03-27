@@ -9,5 +9,7 @@
         internal string Name { get; set; }
         internal string HeaderProperty { get; set; }
         internal string Functions { get; set; }
+        internal string Alignment { get; set; }
+        internal bool ShowPublishedDate { get; set; }
     }
 }

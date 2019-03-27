@@ -5,7 +5,7 @@
   </AddOns>
   <PageLayouts>
     <PageLayout Name="VolvoArticleLeft" AssociatedContentType="Article Page" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
-      <Header Type="FullWidthImage">
+      <Header Type="ColorBlock" Alignment="Center" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
       </Header>

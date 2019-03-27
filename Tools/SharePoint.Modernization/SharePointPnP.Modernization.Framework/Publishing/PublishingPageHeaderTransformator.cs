@@ -111,6 +111,26 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     {
                         targetPage.SetCustomPageHeader(newHeaderImageServerRelativeUrl);
 
+                        // Header type handling
+                        switch (publishingPageTransformationModel.Header.Type)
+                        {
+                            case HeaderType.ColorBlock: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.ColorBlock; break;
+                            case HeaderType.CutInShape: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.CutInShape; break;
+                            case HeaderType.NoImage: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.NoImage; break;
+                            case HeaderType.FullWidthImage: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.FullWidthImage; break;
+                        }
+
+                        // Alignment handling
+                        switch(publishingPageTransformationModel.Header.Alignment)
+                        {
+                            case HeaderAlignment.Left: targetPage.PageHeader.TextAlignment = ClientSidePageHeaderTitleAlignment.Left;break;
+                            case HeaderAlignment.Center: targetPage.PageHeader.TextAlignment = ClientSidePageHeaderTitleAlignment.Center; break;
+                        }
+
+                        // Show published date
+                        targetPage.PageHeader.ShowPublishDate = publishingPageTransformationModel.Header.ShowPublishedDate;
+
+                        // Topic header handling
                         HeaderField topicHeaderField = GetHeaderField(publishingPageTransformationModel, "TopicHeader");
                         if (topicHeaderField != null)
                         {

@@ -34,8 +34,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
         /// </summary>
         internal static List<PageLayoutHeaderFieldEntity> PageLayoutHeaderMetadata = new List<PageLayoutHeaderFieldEntity>()
         {
-            new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Name = "PublishingRollupImage", HeaderProperty = "ImageServerRelativeUrl", Functions = "ToImageUrl({PublishingRollupImage})" },
-            new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Name="ArticleByLine", HeaderProperty = "TopicHeader", Functions = "" },
+            new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Alignment="Left", ShowPublishedDate = false, Name = "PublishingRollupImage", HeaderProperty = "ImageServerRelativeUrl", Functions = "ToImageUrl({PublishingRollupImage})" },
+            new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Alignment="Left", ShowPublishedDate = false, Name="ArticleByLine", HeaderProperty = "TopicHeader", Functions = "" },
         };
 
         /// <summary>
