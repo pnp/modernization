@@ -43,7 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             this.version = GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
-            this.pageLayoutManager = new PageLayoutManager(this.sourceClientContext);
+            this.pageLayoutManager = new PageLayoutManager(this.sourceClientContext, base.RegisteredLogObservers);
 
             // Load xml mapping data
             XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));

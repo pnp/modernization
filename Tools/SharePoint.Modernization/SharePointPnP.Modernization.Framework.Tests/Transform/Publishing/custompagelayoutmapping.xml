@@ -31,7 +31,6 @@
         <WebPart Row="1" Column="2" Order="1" Type="Microsoft.SharePoint.WebPartPages.ScriptEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
           <Property Name="Description" Type="string" Value="$Resources:core,ScriptEditorWebPartDescription;"/>
           <Property Name="Title" Type="string" Value="$Resources:core,ScriptEditorWebPartTitle;"/>
-          <Property Name="Title2" Type="string" Value="$Resources:core,ScriptEditorWebPartTitle;"/>
           <Property Name="Content" Type="string" Value="&lt;script type='text/javascript'&gt;function Hello() {alert('Hello World');}&lt;/script&gt;&lt;input type='button' value='Submit' onclick='Hello();'/&gt;"/>
           <Property Name="__designer:IsClosed" Type="bool" Value="false"/>
         </WebPart> 

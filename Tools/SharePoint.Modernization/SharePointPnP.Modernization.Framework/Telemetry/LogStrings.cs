@@ -195,7 +195,18 @@
         public const string Error_CannotCastToEnum = "An error occurred casting value to enum";
 
         public const string XmlMappingSavedAs = "Xml Mapping saved as";
-        
+
+
+        #endregion
+
+        #region PageLayoutManager
+
+        public const string Heading_PageLayoutManager = "Page Layout Manager";
+
+        public const string Error_MappingFileSchemaValidation = "Provided custom pagelayout mapping file is invalid: {0}";
+        public const string Error_PageLayoutMappingFileDoesNotExist = "File {0} does not exist";
+
+        public const string CustomPageLayoutMappingFileProvided = "Custom pagelayout mapping file: {0}";
 
         #endregion
     }
