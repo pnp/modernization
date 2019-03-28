@@ -39,13 +39,14 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
                 //https://bertonline.sharepoint.com/sites/modernizationtestportal
-                using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
+                //https://bertonline.sharepoint.com/sites/devportal/en-us/
+                using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/modernizationtestportal"))
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\mappingtest.xml"
                     var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "page");
 
                     foreach (var page in pages)
                     {
@@ -55,8 +56,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             Overwrite = true,
 
                             // Don't log test runs
-                            SkipTelemetry = true,                           
-
+                            SkipTelemetry = true,      
+                            
                             //RemoveEmptySectionsAndColumns = false,
 
                             // Configure the page header, empty value means ClientSidePageHeaderType.None

@@ -490,7 +490,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             string targetPath = sourcePath;
 
             // Cross site collection transfer, new page always takes the name of the old page
-            // TODO: pages folder is language specific
             if (!sourcePath.Contains($"/{this.publishingPagesLibrary}"))
             {
                 // Source file was living outside of the site pages library
