@@ -226,6 +226,8 @@
 
         public const string Error_HeaderImageAssetTransferFailed = "Header image {0} could not be transferred to target site";
 
+        public const string SettingHeaderImage = "Header image set to {0}";
+
         #endregion
 
         #region PublishingLayoutTransformator

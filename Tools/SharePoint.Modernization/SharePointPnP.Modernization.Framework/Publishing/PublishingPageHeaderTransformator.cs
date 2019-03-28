@@ -104,6 +104,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                     if (!string.IsNullOrEmpty(newHeaderImageServerRelativeUrl))
                     {
+                        LogInfo(string.Format(LogStrings.SettingHeaderImage, newHeaderImageServerRelativeUrl), LogStrings.Heading_PublishingPageHeader);
                         targetPage.SetCustomPageHeader(newHeaderImageServerRelativeUrl);
                         headerCreated = true;
                     }

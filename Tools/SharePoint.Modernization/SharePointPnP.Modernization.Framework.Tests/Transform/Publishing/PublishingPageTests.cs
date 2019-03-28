@@ -1,7 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointPnP.Modernization.Framework.Publishing;
-
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
@@ -45,6 +45,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\mappingtest.xml"
                     var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp"));
 
                     var pages = sourceClientContext.Web.GetPagesFromList("Pages", "welc");
 
@@ -80,6 +81,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                         pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
                         var result = pageTransformator.Transform(pti);
+                        pageTransformator.FlushObservers();
                     }
                 }
             }
