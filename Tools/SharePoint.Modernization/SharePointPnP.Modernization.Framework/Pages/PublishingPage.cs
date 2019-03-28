@@ -3,6 +3,7 @@ using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Publishing;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +24,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation) : base(page, pageTransformation)
+        public PublishingPage(ListItem page, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
         {
             // no PublishingPageTransformation specified, fall back to default
-            this.publishingPageTransformation = new PageLayoutManager(cc).LoadDefaultPageLayoutMappingFile();
+            this.publishingPageTransformation = new PageLayoutManager(cc, base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
             this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation);            
         }
 
@@ -35,7 +36,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation) : base(page, pageTransformation)
+        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
         {
             this.publishingPageTransformation = publishingPageTransformation;
             this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation);            
@@ -64,10 +65,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
             }
 
-            // Still not layout...can't continue...
+            // Still no layout...can't continue...
             if (publishingPageTransformationModel == null)
             {
-                throw new Exception($"No valid page transformation model could be retrieved for publishing page layout {usedPageLayout}");
+                LogError(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout), LogStrings.Heading_PublishingPage);
+                throw new Exception(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout));
             }
 
             // Map layout

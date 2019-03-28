@@ -137,6 +137,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             XmlSchemaSet schemas = new XmlSchemaSet();
             schema.Seek(0, SeekOrigin.Begin);
             schemas.Add(Constants.PageLayoutMappingSchema, new XmlTextReader(schema));
+            
+            // Set stream back to start
+            stream.Seek(0, SeekOrigin.Begin);
 
             xml.Validate(schemas, (o, e) =>
             {

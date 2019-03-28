@@ -46,7 +46,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     //"C:\temp\mappingtest.xml"
                     var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "page");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "welc");
 
                     foreach (var page in pages)
                     {

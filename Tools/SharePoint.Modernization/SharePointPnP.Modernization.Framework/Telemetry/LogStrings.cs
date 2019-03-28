@@ -185,6 +185,8 @@
         public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
         #endregion
 
+        #region Publishing Page Transformation
+
         #region PageLayoutAnalyser
 
         public const string Heading_PageLayoutAnalyser = "Page Layout Analyser";
@@ -207,6 +209,16 @@
         public const string Error_PageLayoutMappingFileDoesNotExist = "File {0} does not exist";
 
         public const string CustomPageLayoutMappingFileProvided = "Custom pagelayout mapping file: {0}";
+
+        #endregion
+
+        #region PublishingPage
+
+        public const string Heading_PublishingPage = "Publishing Page analyzer";
+
+        public const string Error_NoPageLayoutTransformationModel = "No valid pagelayout transformation model could be retrieved for publishing page layout {0}";
+
+        #endregion
 
         #endregion
     }
