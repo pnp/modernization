@@ -44,6 +44,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             CopyPageMetadata = false;
             SkipTelemetry = false;
             RemoveEmptySectionsAndColumns = true;
+            PublishCreatedPage = true;
+            DisablePageComments = false;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
             // Populate with OOB mapping properties

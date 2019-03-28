@@ -60,6 +60,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// These properties are used to condition the transformation process.
         /// </summary>
         public Dictionary<string, string> MappingProperties { get; set; }
+
+        /// <summary>
+        /// Should the created page be immediately published (default = true)
+        /// </summary>
+        public bool PublishCreatedPage { get; set; }
+
+        /// <summary>
+        /// Disable page comments on the created page
+        /// </summary>
+        public bool DisablePageComments { get; set; }
         #endregion
 
         #region Override properties
