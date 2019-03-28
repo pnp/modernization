@@ -111,7 +111,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         if (!string.IsNullOrEmpty(fieldWebPartProperty.Functions))
                         {
                             // execute function
-                            var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, fieldWebPartProperty.Type.ToString());
+                            var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, MapToFunctionProcessorFieldType(fieldWebPartProperty.Type));
                             if (!string.IsNullOrEmpty(evaluatedField.Item1) && !properties.ContainsKey(evaluatedField.Item1))
                             {
                                 properties.Add(evaluatedField.Item1, evaluatedField.Item2);
@@ -336,6 +336,20 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 default: return PageLayout.Wiki_OneColumn;
             }
         }
-        #endregion
+
+        private PublishingFunctionProcessor.FieldType MapToFunctionProcessorFieldType(WebPartProperyType propertyType)
+        {
+            switch (propertyType)
+            {
+                case WebPartProperyType.@string: return PublishingFunctionProcessor.FieldType.String;
+                case WebPartProperyType.@bool: return PublishingFunctionProcessor.FieldType.Bool;
+                case WebPartProperyType.guid:return PublishingFunctionProcessor.FieldType.Guid;
+                case WebPartProperyType.integer: return PublishingFunctionProcessor.FieldType.Integer;
+                case WebPartProperyType.datetime: return PublishingFunctionProcessor.FieldType.DateTime;
+            }
+
+            return PublishingFunctionProcessor.FieldType.String;
+            #endregion
+        }
     }
 }

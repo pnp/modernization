@@ -16,7 +16,16 @@
 
   <xs:complexType name="HeaderField">
     <xs:attribute name="Name" type="xs:string" use="required" />
-    <xs:attribute name="HeaderProperty" type="xs:string" use="required" />
+    <xs:attribute name="HeaderProperty" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ImageServerRelativeUrl" />
+          <xs:enumeration value="TopicHeader" />
+          <xs:enumeration value="AlternativeText" />
+          <xs:enumeration value="Authors" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="Functions" type="xs:string" use="optional" />
   </xs:complexType>
 

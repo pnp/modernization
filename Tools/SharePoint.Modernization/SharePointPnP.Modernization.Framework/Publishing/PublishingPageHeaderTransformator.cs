@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.SharePoint.Client;
+﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Cache;
-using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
+using System;
+using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -59,25 +55,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 // ImageServerRelativeUrl 
                 string imageServerRelativeUrl = "";
-                HeaderField imageServerRelativeUrlField = GetHeaderField(publishingPageTransformationModel, "ImageServerRelativeUrl");
+                HeaderField imageServerRelativeUrlField = GetHeaderField(publishingPageTransformationModel, HeaderFieldHeaderProperty.ImageServerRelativeUrl);
 
                 if (imageServerRelativeUrlField != null)
                 {
-                    if (!string.IsNullOrEmpty(imageServerRelativeUrlField.Functions))
-                    {
-                        // execute function
-                        var evaluatedField = this.functionProcessor.Process(imageServerRelativeUrlField.Functions, imageServerRelativeUrlField.Name, "string");
-                        if (!string.IsNullOrEmpty(evaluatedField.Item1))
-                        {
-                            imageServerRelativeUrl = evaluatedField.Item2;
-                        }
-                    }
-                    else
-                    {
-                        imageServerRelativeUrl = this.publishingPageTransformationInformation.SourcePage.FieldValues[imageServerRelativeUrlField.Name]?.ToString().Trim();
-                    }
+                    imageServerRelativeUrl = GetFieldValue(imageServerRelativeUrlField);
                 }
 
+                bool headerCreated = false;
                 // Did we get a header image url?
                 if (!string.IsNullOrEmpty(imageServerRelativeUrl))
                 {
@@ -99,7 +84,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                         // Copy the asset
                         AssetTransfer assetTransfer = new AssetTransfer(contextForAssetTransfer, this.targetClientContext, base.RegisteredLogObservers);
-                        newHeaderImageServerRelativeUrl = assetTransfer.TransferAsset(imageServerRelativeUrl, targetPage.PageTitle);
+                        newHeaderImageServerRelativeUrl = assetTransfer.TransferAsset(imageServerRelativeUrl, System.IO.Path.GetFileNameWithoutExtension(publishingPageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()));
                     }
                     catch (Exception ex)
                     {
@@ -110,54 +95,94 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     if (!string.IsNullOrEmpty(newHeaderImageServerRelativeUrl))
                     {
                         targetPage.SetCustomPageHeader(newHeaderImageServerRelativeUrl);
-
-                        // Header type handling
-                        switch (publishingPageTransformationModel.Header.Type)
-                        {
-                            case HeaderType.ColorBlock: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.ColorBlock; break;
-                            case HeaderType.CutInShape: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.CutInShape; break;
-                            case HeaderType.NoImage: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.NoImage; break;
-                            case HeaderType.FullWidthImage: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.FullWidthImage; break;
-                        }
-
-                        // Alignment handling
-                        switch(publishingPageTransformationModel.Header.Alignment)
-                        {
-                            case HeaderAlignment.Left: targetPage.PageHeader.TextAlignment = ClientSidePageHeaderTitleAlignment.Left;break;
-                            case HeaderAlignment.Center: targetPage.PageHeader.TextAlignment = ClientSidePageHeaderTitleAlignment.Center; break;
-                        }
-
-                        // Show published date
-                        targetPage.PageHeader.ShowPublishDate = publishingPageTransformationModel.Header.ShowPublishedDate;
-
-                        // Topic header handling
-                        HeaderField topicHeaderField = GetHeaderField(publishingPageTransformationModel, "TopicHeader");
-                        if (topicHeaderField != null)
-                        {
-                            if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(topicHeaderField.Name))
-                            {
-                                targetPage.PageHeader.TopicHeader = publishingPageTransformationInformation.SourcePage[topicHeaderField.Name].ToString();
-                                targetPage.PageHeader.ShowTopicHeader = true;
-                            }
-                        }                        
-                    }
-                    else
-                    {
-                        // let's fall back to no header
-                        targetPage.RemovePageHeader();
+                        headerCreated = true;
                     }
                 }
-                else
+
+                if (!headerCreated)
                 {
-                    // let's fall back to no header
-                    targetPage.RemovePageHeader();
+                    // let's fall back to the default header
+                    targetPage.SetDefaultPageHeader();
                 }
+
+                // Header type handling
+                switch (publishingPageTransformationModel.Header.Type)
+                {
+                    case HeaderType.ColorBlock: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.ColorBlock; break;
+                    case HeaderType.CutInShape: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.CutInShape; break;
+                    case HeaderType.NoImage: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.NoImage; break;
+                    case HeaderType.FullWidthImage: targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.FullWidthImage; break;
+                }
+
+                // Alignment handling
+                switch (publishingPageTransformationModel.Header.Alignment)
+                {
+                    case HeaderAlignment.Left: targetPage.PageHeader.TextAlignment = ClientSidePageHeaderTitleAlignment.Left; break;
+                    case HeaderAlignment.Center: targetPage.PageHeader.TextAlignment = ClientSidePageHeaderTitleAlignment.Center; break;
+                }
+
+                // Show published date
+                targetPage.PageHeader.ShowPublishDate = publishingPageTransformationModel.Header.ShowPublishedDate;
+
+                // Topic header handling
+                HeaderField topicHeaderField = GetHeaderField(publishingPageTransformationModel, HeaderFieldHeaderProperty.TopicHeader);
+                if (topicHeaderField != null)
+                {
+                    if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(topicHeaderField.Name))
+                    {
+                        targetPage.PageHeader.TopicHeader = publishingPageTransformationInformation.SourcePage[topicHeaderField.Name].ToString();
+                        targetPage.PageHeader.ShowTopicHeader = true;
+                    }
+                }
+
+                // AlternativeText handling
+                HeaderField alternativeTextHeaderField = GetHeaderField(publishingPageTransformationModel, HeaderFieldHeaderProperty.AlternativeText);
+                if (alternativeTextHeaderField != null)
+                {
+                    var alternativeTextHeader = GetFieldValue(alternativeTextHeaderField);
+                    if (!string.IsNullOrEmpty(alternativeTextHeader))
+                    {
+                        targetPage.PageHeader.AlternativeText = alternativeTextHeader;                        
+                    }
+                }
+
+                // Authors handling
+                HeaderField authorsHeaderField = GetHeaderField(publishingPageTransformationModel, HeaderFieldHeaderProperty.Authors);
+                if (authorsHeaderField != null)
+                {
+                    var authorsHeader = GetFieldValue(authorsHeaderField, PublishingFunctionProcessor.FieldType.User);
+                    if(!string.IsNullOrEmpty(authorsHeader))
+                    {
+                        targetPage.PageHeader.Authors = authorsHeader;
+                    }
+                }
+
             }
         }
 
-        private static HeaderField GetHeaderField(PageLayout publishingPageTransformationModel, string fieldName)
+        private string GetFieldValue(HeaderField headerField, PublishingFunctionProcessor.FieldType fieldType = PublishingFunctionProcessor.FieldType.String)
         {
-            return publishingPageTransformationModel.Header.Field.Where(p => p.HeaderProperty.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            string fieldValue = null;
+            if (!string.IsNullOrEmpty(headerField.Functions))
+            {
+                // execute function
+                var evaluatedField = this.functionProcessor.Process(headerField.Functions, headerField.Name, fieldType);
+                if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                {
+                    fieldValue = evaluatedField.Item2;
+                }
+            }
+            else
+            {
+                fieldValue = this.publishingPageTransformationInformation.SourcePage.FieldValues[headerField.Name]?.ToString().Trim();
+            }
+
+            return fieldValue;
+        }
+
+        private static HeaderField GetHeaderField(PageLayout publishingPageTransformationModel, HeaderFieldHeaderProperty fieldName)
+        {
+            return publishingPageTransformationModel.Header.Field.Where(p => p.HeaderProperty == fieldName).FirstOrDefault();
         }
         #endregion
 

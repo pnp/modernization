@@ -36,6 +36,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
         {
             new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Alignment="Left", ShowPublishedDate = false, Name = "PublishingRollupImage", HeaderProperty = "ImageServerRelativeUrl", Functions = "ToImageUrl({PublishingRollupImage})" },
             new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Alignment="Left", ShowPublishedDate = false, Name="ArticleByLine", HeaderProperty = "TopicHeader", Functions = "" },
+            new PageLayoutHeaderFieldEntity() { Type = "FullWidthImage", Alignment="Left", ShowPublishedDate = false, Name="PublishingContact", HeaderProperty = "Authors", Functions = "ToAuthors({PublishingContact})" },
         };
 
         /// <summary>
