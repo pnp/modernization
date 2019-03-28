@@ -24,7 +24,15 @@
          for more details on how to setup a tenant administration site in on-premises.
     -->
     <add key="SPOTenantUrl" value="https://[tenant]-admin.sharepoint.com" />
-    <add key="SPODevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev" />
+    <add key="SPODevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev/somesubsite" />
+    
+    <!-- Team Site -->
+    <add key="SPODevTeamSiteUrl" value="https://[tenant].sharepoint.com/sites/dev-TeamSite" />
+    <!-- Publishing Portal -->
+    <add key="SPODevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev/en" />
+    <add key="SPORootDevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev" />
+    
+    
     <!-- If you test with transforming into another site collection then use below key to specify the target site collection -->
     <!-- <add key="SPOTargetSiteUrl" value="" /> -->
 

@@ -192,6 +192,7 @@
     <Compile Include="Transform\Publishing\PageLayoutAnalyserTests.cs" />
     <Compile Include="Transform\Publishing\PublishingPageTests.cs" />
     <Compile Include="Transform\ReportingTests.cs" />
+    <Compile Include="Transform\Utility\StringExtensionTests.cs" />
     <Compile Include="UnitTestLogObserver.cs" />
     <Compile Include="Transform\LoggingTests.cs" />
     <Compile Include="Transform\AssetTransferTests.cs" />

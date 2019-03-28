@@ -37,7 +37,7 @@ namespace SharePointPnP.Modernization.Framework.Tests
 
         public void SetPageId(string pageId)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

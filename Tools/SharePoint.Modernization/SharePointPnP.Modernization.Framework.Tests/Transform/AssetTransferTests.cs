@@ -18,13 +18,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_CopyAssetToTargetLocation_SmallFileTest()
+        public void AssetTransfer_CopyAssetToTarget_SmallFileTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
 
@@ -46,13 +46,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_CopyAssetToTargetLocation_LargeFileTest()
+        public void AssetTransfer_CopyAssetToTarget_LargeFileTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
 
@@ -75,13 +75,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_CopyAssetToTargetLocation_PagesWithImageWebPartTest()
+        public void AssetTransfer_CopyAssetToTarget_PagesWithImageWebPartTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
 
@@ -113,7 +113,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_ValidateSupportedAssetLocation_AspxRejectTest()
+        public void AssetTransfer_ValidateSupportedLocation_AspxRejectTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -137,7 +137,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_ValidateSupportedAssetLocation_OtherTenantRejectTest()
+        public void AssetTransfer_ValidateSupportedLocation_OtherTenantRejectTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -159,7 +159,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_ValidateSupportedAssetLocation_OtherSiteCollectionRelativeRejectTest()
+        public void AssetTransfer_ValidateSupportedLocation_OtherSiteCollectionRelativeRejectTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -178,7 +178,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         }
 
         [TestMethod]
-        public void AssetTransfer_ValidateSupportedAssetLocation_SubsiteAcceptTest()
+        public void AssetTransfer_ValidateSupportedLocation_ImageOnSubsiteAcceptTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -203,7 +203,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_ValiateSupportedAssetLocation_SameCtxRejectTest()
+        public void AssetTransfer_ValiateSupportedLocation_SameCtxRejectTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -226,7 +226,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_ValiateSupportedAssetLocation_AcceptTest()
+        public void AssetTransfer_ValiateSupportedLocation_AcceptTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
@@ -250,13 +250,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_CopyAssetToTargetLocation_WithCacheSameFileTest()
+        public void AssetTransfer_CopyAssetToTarget_WithCacheSameFileTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
 
@@ -288,13 +288,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_CopyAssetToTargetLocation_WithCacheMultipleFileTest()
+        public void AssetTransfer_CopyAssetToTarget_WithCacheMultipleFileTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
 
@@ -326,13 +326,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// This test validates with SharePoint the entire operation
         /// </summary>
         [TestMethod]
-        public void AssetTransfer_CopyAssetToTargetLocation_WithFullTransformTest()
+        public void AssetTransfer_CopyAssetToTarget_WithFullTransformTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
 
@@ -418,7 +418,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     // Needs valid client contexts as they are part of the checks.
                     AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
@@ -437,5 +437,60 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 }
             }
         }
+
+        [TestMethod]
+        public void AssetTransfer_TransferAsset_ContextSiteImageOnSubSiteAcceptTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+            // Scenario here is when the source context is a subsite and the image asset is on the Site Collection
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPORootDevSiteUrl")))
+                {
+                    // Needs valid client contexts as they are part of the checks.
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
+
+                    var siteUrl = sourceClientContext.Site.EnsureProperty(o => o.ServerRelativeUrl);
+                    var target = $"{TestCommon.AppSetting("SPOTargetSiteUrl")}/SiteAssets/";
+
+                    var sourceImageLocation = $"{siteUrl}/en/PublishingImages/extra.jpg";
+
+                    var result = assetTransfer.CopyAssetToTargetLocation(sourceImageLocation, target);
+                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+                }
+            }
+        }
+
+        [TestMethod]
+        public void AssetTransfer_TransferAsset_EnsureContextTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+            // Scenario here is when the source context is a subsite and the image asset is on the Site Collection
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPORootDevSiteUrl")))
+                {
+                    // Needs valid client contexts as they are part of the checks.
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
+
+                    var siteUrl = sourceClientContext.Site.EnsureProperty(o => o.ServerRelativeUrl);
+                    var target = $"{TestCommon.AppSetting("SPOTargetSiteUrl")}/SiteAssets/";
+
+                    var sourceImageLocation = $"{siteUrl}/en/PublishingImages/extra.jpg";
+
+                    assetTransfer.EnsureAssetContextIfRequired(sourceClientContext, sourceImageLocation);
+
+                    var result = assetTransfer.CopyAssetToTargetLocation(sourceImageLocation, target);
+
+                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+                }
+            }
+        }
+
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
@@ -82,15 +83,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var assetDetails = GetAssetTransferredIfExists(
                     new AssetTransferredEntity() { SourceAssetUrl = sourceAssetRelativeUrl, TargetAssetFolderUrl = targetFolderServerRelativeUrl });
 
-                if (string.IsNullOrEmpty(assetDetails.TargetAssetTransferredUrl)) {
-                    
+                if (string.IsNullOrEmpty(assetDetails.TargetAssetTransferredUrl))
+                {
+                    // Ensures the source context is set to the location of the asset file
+                    EnsureAssetContextIfRequired(sourceAssetRelativeUrl);
+
                     // Copy the asset file
                     string newLocationUrl = CopyAssetToTargetLocation(sourceAssetRelativeUrl, targetFolderServerRelativeUrl);
                     assetDetails.TargetAssetTransferredUrl = newLocationUrl;
-                    
+
                     // Store a reference in the cache manager - ensure a test exists with multiple identical web parts
                     StoreAssetTransferred(assetDetails);
-                    
+
                 }
 
                 var finalPath = assetDetails.TargetAssetTransferredUrl;
@@ -103,7 +107,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             LogWarning(LogStrings.AssetTransferFailedFallback, LogStrings.Heading_AssetTransfer);
             return sourceAssetRelativeUrl;
         }
-               
+
 
         /// <summary>
         /// Checks if the URL is located in a supported location
@@ -113,11 +117,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //  Referenced assets should only be files e.g. 
             //      not aspx pages 
             //      located in the pages, site pages libraries
-            
+
             var fileExtension = Path.GetExtension(sourceUrl).ToLower();
 
             // Check block list
-            var containsBlockedExtension = Constants.BlockedAssetFileExtensions.Any(o => o == fileExtension.Replace(".",""));
+            var containsBlockedExtension = Constants.BlockedAssetFileExtensions.Any(o => o == fileExtension.Replace(".", ""));
             if (containsBlockedExtension)
             {
                 return false;
@@ -132,7 +136,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             //  Ensure the referenced assets exist within the source site collection
             var sourceSiteContextUrl = _sourceClientContext.Site.EnsureProperty(w => w.ServerRelativeUrl);
-            if (!sourceUrl.Contains(sourceSiteContextUrl))
+
+            //TODO: Bug, doesnt take into account casing and can fail
+            if (!sourceUrl.ContainsIgnoringCasing(sourceSiteContextUrl))
             {
                 return false;
             }
@@ -165,7 +171,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var pageFolder = sitePagesFolder.EnsureFolder(friendlyFolder);
 
             return pageFolder.EnsureProperty(o => o.ServerRelativeUrl);
-            
+
         }
 
         /// <summary>
@@ -201,7 +207,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             // This copies the latest version of the asset to the target site collection
             // Going to need to add a bunch of checks to ensure the target file exists
-            
+
             // Each sliced upload requires a unique ID.
             Guid uploadId = Guid.NewGuid();
             // Calculate block size in bytes.
@@ -356,8 +362,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Using the Cache Manager store the asset transfer references
             // If update - treat the source URL as unique, if multiple web parts reference to this, then it will still refer to the single resource
             var cache = Cache.CacheManager.Instance;
-            if(!cache.AssetsTransfered.Any(asset => 
-                string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
+            if (!cache.AssetsTransfered.Any(asset =>
+                 string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
             {
                 cache.AssetsTransfered.Add(assetTransferredEntity);
             }
@@ -375,7 +381,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var cache = Cache.CacheManager.Instance;
 
                 var result = cache.AssetsTransfered.SingleOrDefault(
-                    asset => string.Equals(asset.TargetAssetFolderUrl,assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
+                    asset => string.Equals(asset.TargetAssetFolderUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
                     string.Equals(asset.SourceAssetUrl, assetTransferredEntity.SourceAssetUrl, StringComparison.InvariantCultureIgnoreCase));
 
                 // Return the cached details if found, if not return original search 
@@ -402,6 +408,63 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var justFileName = Path.GetFileNameWithoutExtension(fileName);
             var friendlyName = justFileName.Replace(" ", "-");
             return friendlyName;
+        }
+
+
+        /// <summary>
+        /// Ensures that we have context of the source site collection
+        /// </summary>
+        internal void EnsureAssetContextIfRequired(string sourceUrl)
+        {
+            EnsureAssetContextIfRequired(_sourceClientContext, sourceUrl);
+        }
+
+
+        /// <summary>
+        /// Ensures that we have context of the source site collection
+        /// </summary>
+        /// <param name="context">Source site context</param>
+        internal void EnsureAssetContextIfRequired(ClientContext context, string sourceUrl)
+        {
+            // There is two scenarios to check
+            //  - If the asset resides on the root site collection
+            //  - If the asset resides on another subsite
+            //  - If the asset resides on a subsite below this context
+            // Check - if the error is to check teh siterelativeurl, what if we just start at rootweb then get the file?
+            
+            try
+            {
+                context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url);
+                context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url);
+                var subWebUrls = context.Site.GetAllWebUrls(); // This could be an expensive call
+
+                var fullSiteCollectionUrl = context.Site.Url;
+
+                string match = string.Empty;
+                foreach (var subWebUrl in subWebUrls.OrderByDescending(o => o.Length))
+                {
+
+                    var hostUri = new Uri(subWebUrl);
+                    string host = $"{hostUri.Scheme}://{hostUri.DnsSafeHost}";
+                    var relativeSubWebUrl = subWebUrl.Replace(host, "");
+
+                    if (sourceUrl.ContainsIgnoringCasing(relativeSubWebUrl))
+                    {
+                        match = subWebUrl;
+                        break;
+                    }
+                }
+
+                if (match != string.Empty && match != context.Web.Url)
+                {
+                    _sourceClientContext = context.Clone(match);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_AssetTransfer, ex);
+            }
         }
     }
 }

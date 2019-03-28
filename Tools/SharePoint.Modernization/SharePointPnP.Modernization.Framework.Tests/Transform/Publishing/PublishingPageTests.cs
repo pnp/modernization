@@ -39,13 +39,14 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
                 //https://bertonline.sharepoint.com/sites/modernizationtestportal
-                using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\mappingtest.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"c:\\temp\\mappingtest.xml");
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
                     {
@@ -80,6 +81,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                         var result = pageTransformator.Transform(pti);
                     }
+
+                    pageTransformator.FlushObservers();
                 }
             }
         }
@@ -88,9 +91,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         public void PageLayoutAnalyzerTest()
         {
             //https://bertonline.sharepoint.com/sites/modernizationtestportal
-            using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
+            using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
             {
-                var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
+                var pages = sourceClientContext.Web.GetPagesFromList("Pages");
                 var analyzer = new PageLayoutAnalyser(sourceClientContext);
 
                 foreach (var page in pages)
@@ -106,7 +109,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         public void PageLayout2AnalyzerTest()
         {
             //https://bertonline.sharepoint.com/sites/modernizationtestportal
-            using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us/"))
+            using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
             {
                 
                 var analyzer = new PageLayoutAnalyser(sourceClientContext);
