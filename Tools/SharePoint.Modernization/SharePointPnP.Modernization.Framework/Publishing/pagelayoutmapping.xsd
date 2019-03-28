@@ -38,8 +38,21 @@
   <xs:complexType name="WebPartZone">
     <xs:attribute name="ZoneIndex" type="xs:int" use="required" />
     <xs:attribute name="ZoneId" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:int" use="required" />
-    <xs:attribute name="Column" type="xs:int" use="required" />
+    <xs:attribute name="Row" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="Column" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+          <xs:maxInclusive value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="FixedWebPart">
@@ -47,8 +60,21 @@
       <xs:element name="Property" type="FixedWebPartProperty" minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="Type" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:int" use="required" />
-    <xs:attribute name="Column" type="xs:int" use="required" />
+    <xs:attribute name="Row" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="Column" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+          <xs:maxInclusive value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="Order" type="xs:int" use="optional" />
   </xs:complexType>
 
@@ -80,8 +106,21 @@
     </xs:sequence>
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="TargetWebPart" type="xs:string" use="required" />
-    <xs:attribute name="Row" type="xs:int" use="required" />
-    <xs:attribute name="Column" type="xs:int" use="required" />
+    <xs:attribute name="Row" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="Column" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+          <xs:maxInclusive value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="Header">
