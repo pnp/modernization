@@ -631,8 +631,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                 targetPageFile.Update();
 
-                // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
-                targetPageFile.Publish("Page modernization initial publish");
+                if (pageTransformationInformation.PublishCreatedPage)
+                {
+                    // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
+                    targetPageFile.Publish("Page modernization initial publish");
+                }
                 
                 // Send both the property update and publish as a single operation to SharePoint
                 context.ExecuteQueryRetry();
@@ -641,6 +644,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 // Eat exceptions as this is not critical for the generated page
                 LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
+            }
+
+            // Disable page comments on the create page, if needed
+            if (pageTransformationInformation.DisablePageComments)
+            {
+                targetPage.DisableComments();
             }
 
 #if DEBUG && MEASURE

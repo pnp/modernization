@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
+using Newtonsoft.Json;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System.Collections.Generic;
@@ -106,6 +107,31 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             return imageAltText;
+        }
+        #endregion
+
+        #region Person functions
+        public string ToAuthors(string userId)
+        {
+            if (int.TryParse(userId, out int userIdInt))
+            {
+                var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt);
+
+                if (author != null)
+                {
+                    // Don't serialize null values
+                    var jsonSerializerSettings = new JsonSerializerSettings()
+                    {
+                        MissingMemberHandling = MissingMemberHandling.Ignore,
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+
+                    var json = JsonConvert.SerializeObject(author, jsonSerializerSettings);
+                    return json;
+                }
+            }
+
+            return "";
         }
         #endregion
     }

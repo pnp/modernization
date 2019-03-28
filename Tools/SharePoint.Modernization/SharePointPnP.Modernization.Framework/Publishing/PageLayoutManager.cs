@@ -1,10 +1,13 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
@@ -12,7 +15,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
     /// <summary>
     /// Class used to manage SharePoint Publishing page layouts
     /// </summary>
-    public class PageLayoutManager
+    public class PageLayoutManager: BaseTransform
     {
         private ClientContext sourceContext;
         private ClientContext targetContext;
@@ -22,7 +25,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// Constructs the page layout manager class
         /// </summary>
         /// <param name="source">Client context of the source web</param>
-        public PageLayoutManager(ClientContext source): this (source, null)
+        public PageLayoutManager(ClientContext source, IList<ILogObserver> logObservers = null) : this (source, null, logObservers)
         {
         }
 
@@ -31,11 +34,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// </summary>
         /// <param name="source">Client context of the source web</param>
         /// <param name="target">Client context for the target web</param>
-        public PageLayoutManager(ClientContext source, ClientContext target)
+        public PageLayoutManager(ClientContext source, ClientContext target, IList<ILogObserver> logObservers = null)
         {
             this.sourceContext = source ?? throw new ArgumentNullException("Please provide a value for parameter source.");
             // target and source will be set the same in case no target was specified
-            this.targetContext = target ?? source;            
+            this.targetContext = target ?? source;
+
+            // Register observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
         }
         #endregion
 
@@ -46,15 +58,25 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <returns>A <see cref="PublishingPageTransformation"/> instance.</returns>
         public PublishingPageTransformation LoadPageLayoutMappingFile(string pageLayoutMappingFile)
         {
+            LogInfo(string.Format(LogStrings.CustomPageLayoutMappingFileProvided, pageLayoutMappingFile));
+
             if (!System.IO.File.Exists(pageLayoutMappingFile))
             {
-                throw new ArgumentException($"File {pageLayoutMappingFile} does not exist.");
+                LogError(string.Format(LogStrings.Error_PageLayoutMappingFileDoesNotExist, pageLayoutMappingFile), LogStrings.Heading_PageLayoutManager);
+                throw new ArgumentException(string.Format(LogStrings.Error_PageLayoutMappingFileDoesNotExist, pageLayoutMappingFile));
             }
 
-            XmlSerializer xmlMapping = new XmlSerializer(typeof(PublishingPageTransformation));
-            using (var stream = new FileStream(pageLayoutMappingFile, FileMode.Open))
+            using (Stream schema = typeof(PageLayoutManager).Assembly.GetManifestResourceStream("SharePointPnP.Modernization.Framework.Publishing.pagelayoutmapping.xsd"))
             {
-                return (PublishingPageTransformation)xmlMapping.Deserialize(stream);
+                XmlSerializer xmlMapping = new XmlSerializer(typeof(PublishingPageTransformation));
+                using (var stream = new FileStream(pageLayoutMappingFile, FileMode.Open))
+                {
+                    // Ensure the provided custom files complies with the schema
+                    ValidateSchema(schema, stream);
+
+                    // Seems the file is good...
+                    return (PublishingPageTransformation)xmlMapping.Deserialize(stream);
+                }
             }
         }
 
@@ -106,6 +128,26 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         #region Helper methods
+        private void ValidateSchema(Stream schema, FileStream stream)
+        {
+            // Load the template into an XDocument
+            XDocument xml = XDocument.Load(stream);
+
+            // Prepare the XML Schema Set
+            XmlSchemaSet schemas = new XmlSchemaSet();
+            schema.Seek(0, SeekOrigin.Begin);
+            schemas.Add(Constants.PageLayoutMappingSchema, new XmlTextReader(schema));
+            
+            // Set stream back to start
+            stream.Seek(0, SeekOrigin.Begin);
+
+            xml.Validate(schemas, (o, e) =>
+            {
+                LogError(string.Format(LogStrings.Error_MappingFileSchemaValidation, e.Message), LogStrings.Heading_PageLayoutManager, e.Exception);
+                throw new Exception(string.Format(LogStrings.Error_MappingFileSchemaValidation, e.Message));
+            });
+        }
+
         /// <summary>
         /// Transforms a string into a stream
         /// </summary>

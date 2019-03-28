@@ -43,7 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             this.version = GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
-            this.pageLayoutManager = new PageLayoutManager(this.sourceClientContext);
+            this.pageLayoutManager = new PageLayoutManager(this.sourceClientContext, base.RegisteredLogObservers);
 
             // Load xml mapping data
             XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
@@ -340,7 +340,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetect && !useCustomLayoutTransformator)
             {
                 // Call out the specific publishing layout transformator implementation
-                PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage);
+                PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage, base.RegisteredLogObservers);
                 publishingLayoutTransformator.Transform(pageData);
             }
 
@@ -382,7 +382,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 #if DEBUG && MEASURE
                 Start();
 #endif
-            PublishingPageHeaderTransformator headerTransformator = new PublishingPageHeaderTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, this.publishingPageTransformation);
+            PublishingPageHeaderTransformator headerTransformator = new PublishingPageHeaderTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, this.publishingPageTransformation, base.RegisteredLogObservers);
             headerTransformator.TransformHeader(ref targetPage);
 
 #if DEBUG && MEASURE
@@ -421,9 +421,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                 targetPageFile.Update();
 
-                // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
-                targetPageFile.Publish("Page modernization initial publish");
-
+                if (publishingPageTransformationInformation.PublishCreatedPage)
+                {
+                    // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
+                    targetPageFile.Publish("Page modernization initial publish");
+                }
                 // Send both the property update and publish as a single operation to SharePoint
                 context.ExecuteQueryRetry();
             }
@@ -431,6 +433,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 // Eat exceptions as this is not critical for the generated page
                 LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
+            }
+
+            // Disable page comments on the create page, if needed
+            if (publishingPageTransformationInformation.DisablePageComments)
+            {
+                targetPage.DisableComments();
             }
 
 #if DEBUG && MEASURE
@@ -482,7 +490,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             string targetPath = sourcePath;
 
             // Cross site collection transfer, new page always takes the name of the old page
-            // TODO: pages folder is language specific
             if (!sourcePath.Contains($"/{this.publishingPagesLibrary}"))
             {
                 // Source file was living outside of the site pages library

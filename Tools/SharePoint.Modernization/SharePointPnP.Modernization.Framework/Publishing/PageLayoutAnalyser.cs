@@ -706,7 +706,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     headerFields.Add(new HeaderField()
                     {
                         Name = field.Name,
-                        HeaderProperty = field.HeaderProperty,
+                        HeaderProperty = this.CastToEnum<HeaderFieldHeaderProperty>(field.HeaderProperty),
                         Functions = field.Functions
                     });
                 }

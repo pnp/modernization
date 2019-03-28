@@ -7,6 +7,9 @@ namespace SharePointPnP.Modernization.Framework
     /// </summary>
     public static class Constants
     {
+        //Schemas
+        public const string PageLayoutMappingSchema = "http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema";
+
         // Fields
         public const string FileRefField = "FileRef";
         public const string FileDirRefField = "FileDirRef";

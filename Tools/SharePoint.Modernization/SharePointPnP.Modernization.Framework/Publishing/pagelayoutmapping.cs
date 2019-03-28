@@ -497,7 +497,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
-        private string headerPropertyField;
+        private HeaderFieldHeaderProperty headerPropertyField;
         
         private string functionsField;
         
@@ -514,7 +514,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string HeaderProperty {
+        public HeaderFieldHeaderProperty HeaderProperty {
             get {
                 return this.headerPropertyField;
             }
@@ -533,6 +533,25 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
                 this.functionsField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public enum HeaderFieldHeaderProperty {
+        
+        /// <remarks/>
+        ImageServerRelativeUrl,
+        
+        /// <remarks/>
+        TopicHeader,
+        
+        /// <remarks/>
+        AlternativeText,
+        
+        /// <remarks/>
+        Authors,
     }
     
     /// <remarks/>

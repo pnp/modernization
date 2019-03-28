@@ -32,6 +32,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             CopyPageMetadata = false;
             SkipTelemetry = false;
             RemoveEmptySectionsAndColumns = true;
+            PublishCreatedPage = true;
+            DisablePageComments = false;
             // Populate with OOB mapping properties
             MappingProperties = new Dictionary<string, string>(5)
             {

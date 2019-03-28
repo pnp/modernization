@@ -185,6 +185,8 @@
         public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
         #endregion
 
+        #region Publishing Page Transformation
+
         #region PageLayoutAnalyser
 
         public const string Heading_PageLayoutAnalyser = "Page Layout Analyser";
@@ -195,7 +197,46 @@
         public const string Error_CannotCastToEnum = "An error occurred casting value to enum";
 
         public const string XmlMappingSavedAs = "Xml Mapping saved as";
-        
+
+
+        #endregion
+
+        #region PageLayoutManager
+
+        public const string Heading_PageLayoutManager = "Page Layout Manager";
+
+        public const string Error_MappingFileSchemaValidation = "Provided custom pagelayout mapping file is invalid: {0}";
+        public const string Error_PageLayoutMappingFileDoesNotExist = "File {0} does not exist";
+
+        public const string CustomPageLayoutMappingFileProvided = "Custom pagelayout mapping file: {0}";
+
+        #endregion
+
+        #region PublishingPage
+
+        public const string Heading_PublishingPage = "Publishing Page analyzer";
+
+        public const string Error_NoPageLayoutTransformationModel = "No valid pagelayout transformation model could be retrieved for publishing page layout {0}";
+
+        #endregion
+
+        #region PublishingPageHeaderTransformator
+
+        public const string Heading_PublishingPageHeader = "Publishing Page header transformation";
+
+        public const string Error_HeaderImageAssetTransferFailed = "Header image {0} could not be transferred to target site";
+
+        public const string SettingHeaderImage = "Header image set to {0}";
+
+        #endregion
+
+        #region PublishingLayoutTransformator
+
+        public const string Heading_PublishingLayoutTransformator = "Publishing Page layout transformation";
+
+        public const string Error_Maximum3ColumnsAllowed = "Publishing transformation layout mapping can maximum use 3 columns";
+
+        #endregion
 
         #endregion
     }

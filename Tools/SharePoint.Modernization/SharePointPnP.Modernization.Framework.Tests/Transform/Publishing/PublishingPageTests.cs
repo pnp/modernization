@@ -1,7 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointPnP.Modernization.Framework.Publishing;
-
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
@@ -43,9 +43,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\mappingtest.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"c:\\temp\\mappingtest.xml");
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp"));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "welc");
                     var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
@@ -56,8 +58,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             Overwrite = true,
 
                             // Don't log test runs
-                            SkipTelemetry = true,                           
-
+                            SkipTelemetry = true,      
+                            
                             //RemoveEmptySectionsAndColumns = false,
 
                             // Configure the page header, empty value means ClientSidePageHeaderType.None
@@ -80,6 +82,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                         pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
                         var result = pageTransformator.Transform(pti);
+                        pageTransformator.FlushObservers();
                     }
 
                     pageTransformator.FlushObservers();

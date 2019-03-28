@@ -4,6 +4,8 @@ using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +21,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
     /// <summary>
     /// Base class for the page analyzers
     /// </summary>
-    public abstract class BasePage
+    public abstract class BasePage: BaseTransform
     {
         internal class WebPartPlaceHolder
         {
@@ -46,8 +48,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">page ListItem</param>
         /// <param name="pageTransformation">page transformation model to use for extraction or transformation</param>
-        public BasePage(ListItem page, PageTransformation pageTransformation)
+        public BasePage(ListItem page, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null)
         {
+            // Register observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
             this.page = page;
             this.cc = (page.Context as ClientContext);
             this.cc.RequestTimeout = Timeout.Infinite;

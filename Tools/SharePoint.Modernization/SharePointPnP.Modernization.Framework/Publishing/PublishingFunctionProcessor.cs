@@ -10,6 +10,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 {
     public class PublishingFunctionProcessor: BaseFunctionProcessor
     {
+        public enum FieldType
+        {
+            String = 0,
+            Bool = 1,
+            Guid = 2,
+            Integer = 3,
+            DateTime = 4,
+            User = 5,
+        }
+
         private PublishingPageTransformation publishingPageTransformation;
         private List<AddOnType> addOnTypes;
         private object builtInFunctions;
@@ -18,8 +28,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private ListItem page;
 
         #region Construction
-        public PublishingFunctionProcessor(ListItem page, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation)
+        public PublishingFunctionProcessor(ListItem page, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation, IList<ILogObserver> logObservers = null)
         {
+            //Register any existing observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
             this.page = page;
             this.publishingPageTransformation = publishingPageTransformation;
             this.sourceClientContext = sourceClientContext;
@@ -31,7 +50,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         #region Public methods
         //public Tuple<string, string> Process(WebPartProperty webPartProperty)
-        public Tuple<string, string> Process(string functions, string propertyName, string propertyType)
+        public Tuple<string, string> Process(string functions, string propertyName, FieldType propertyType)
         {
             string propertyKey = "";
             string propertyValue = "";
@@ -82,7 +101,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         #region Helper methods
         //private static FunctionDefinition ParseFunctionDefinition(string function, WebPartProperty webPartProperty, ListItem page)
-        private static FunctionDefinition ParseFunctionDefinition(string function, string propertyName, string propertyType, ListItem page)
+        private static FunctionDefinition ParseFunctionDefinition(string function, string propertyName, FieldType propertyType, ListItem page)
         {
             // Supported function syntax: 
             // - EncodeGuid()
@@ -113,7 +132,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 FunctionParameter output = new FunctionParameter()
                 {
-                    //Name = webPartProperty.Name,
                     Name = propertyName,
                     Type = FunctionType.String
                 };
@@ -148,9 +166,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 };
 
                 // Populate the function parameter with a value coming from publishing page
-                //input.Type = MapType(webPartProperty.Type.ToString());
-                input.Type = MapType(propertyType);
-                input.Value = page.GetFieldValueAs<string>(input.Name);
+                input.Type = MapType(propertyType.ToString());
+
+                if (propertyType == FieldType.String)
+                {
+                    input.Value = page.GetFieldValueAs<string>(input.Name);
+                }
+                else if (propertyType == FieldType.User)
+                {
+                    if (page.FieldExistsAndUsed(input.Name))
+                    {
+                        input.Value = ((FieldUserValue)page[input.Name]).LookupId.ToString();
+                    }
+                }
                 def.Input.Add(input);
             }
 

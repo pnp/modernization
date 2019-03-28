@@ -1,20 +1,17 @@
-﻿using SharePointPnP.Modernization.Framework.Entities;
-using SharePointPnP.Modernization.Framework.Pages;
+﻿using OfficeDevPnP.Core.Pages;
+using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OfficeDevPnP.Core.Pages;
-
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
     /// <summary>
     /// Specific layout transformator for the 'AutoDetect' layout option for publishing pages
     /// </summary>
-    public class PublishingLayoutTransformator : ILayoutTransformator
+    public class PublishingLayoutTransformator : BaseTransform, ILayoutTransformator
     {
         private ClientSidePage page;
 
@@ -23,8 +20,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// Creates a layout transformator instance
         /// </summary>
         /// <param name="page">Client side page that will be receive the created layout</param>
-        public PublishingLayoutTransformator(ClientSidePage page)
+        public PublishingLayoutTransformator(ClientSidePage page, IList<ILogObserver> logObservers = null)
         {
+            // Register observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
             this.page = page;
         }
         #endregion
@@ -65,6 +71,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                     if (distinctColumns.Count > 3)
                     {
+                        LogError(LogStrings.Error_Maximum3ColumnsAllowed, LogStrings.Heading_PublishingLayoutTransformator);
                         throw new Exception("Publishing transformation layout mapping can maximum use 3 columns");
                     }
                     else

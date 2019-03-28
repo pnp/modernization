@@ -188,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
+    <Compile Include="Entities\UserEntity.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutHeaderFieldEntity.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutMetadataEntity.cs" />
@@ -295,9 +296,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Publishing\pagelayoutmapping.xsd">
+    <EmbeddedResource Include="Publishing\pagelayoutmapping.xsd">
       <SubType>Designer</SubType>
-    </None>
+    </EmbeddedResource>
     <None Include="webpartmapping.xsc">
       <DependentUpon>webpartmapping.xsd</DependentUpon>
     </None>

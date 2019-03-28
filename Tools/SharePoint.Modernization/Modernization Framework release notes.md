@@ -16,9 +16,12 @@
 
 ### Added
 
+- Publishing page support!
 - Transformation Reporting. Get (verbose) logging as md file, page in SharePoint, console or a combination of these #82 [pkbullock]
-- Page Layout Mapping - first drop #86 [pkbullock]
+- Page Layout Mapping  #86 [pkbullock]
 - UserDocsWebPart transformation support: this web part is transformed to the highlighted content web part showing the current user's active pages
+- PublishCreatedPage configuration option: allows to define if a page needs to be published or not
+- DisablePageComments configuration option: allows to define if page comments needs to be disabled or not
 
 ### Changed
 

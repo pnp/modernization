@@ -25,7 +25,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
-        private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;        
+        private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;      
+        private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -50,6 +51,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>(10, 10);
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
             generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
+            userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
         }
         #endregion
 
@@ -377,6 +379,98 @@ namespace SharePointPnP.Modernization.Framework.Cache
             ClearClientSideComponents();
             ClearBaseTemplate();
             ClearFieldsToCopy();            
+        }
+        #endregion
+
+        #region Users
+        public UserEntity GetUserFromUserList(ClientContext context, int userListId)
+        {
+            string key = context.Web.EnsureProperty(p => p.Url);
+
+            if (this.userJsonStrings.TryGetValue(key, out Dictionary<int, UserEntity> userListFromCache))
+            {
+                if (userListFromCache.TryGetValue(userListId, out UserEntity userJsonFromCache))
+                {
+                    return userJsonFromCache;
+                }
+            }
+
+            try
+            {
+                string CAMLQueryByName = @"
+                <View Scope='Recursive'>
+                  <Query>
+                    <Where>
+                      <Contains>
+                        <FieldRef Name='ID'/>
+                        <Value Type='Integer'>{0}</Value>
+                      </Contains>
+                    </Where>
+                  </Query>
+                </View>";
+
+                List siteUserInfoList = context.Web.SiteUserInfoList;
+                CamlQuery query = new CamlQuery
+                {
+                    ViewXml = String.Format(CAMLQueryByName, userListId)
+                };
+                var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query));
+                context.ExecuteQueryRetry();
+
+                UserEntity author = null;
+                if (loadedUsers != null)
+                {
+                    var loadedUser = loadedUsers.FirstOrDefault();
+                    if (loadedUser != null)
+                    {
+                        // Does not work for groups
+                        if (loadedUser["UserName"] == null)
+                        {
+                            return null;
+                        }
+
+                        author = new UserEntity()
+                        {
+                            Upn = loadedUser["UserName"].ToString(),
+                            Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
+                            Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
+                        };
+
+                        author.Id = $"i:0#.f|membership|{author.Upn}";
+
+                        // Store in cache
+                        if (userListFromCache != null)
+                        {
+                            // We already has a user list, simply add this one
+                            Dictionary<int, UserEntity> newUserListToCache = new Dictionary<int, UserEntity>(userListFromCache)
+                            {
+                                { userListId, author }
+                            };
+
+                            this.userJsonStrings.TryUpdate(key, newUserListToCache, userListFromCache);
+                        }
+                        else
+                        {
+                            // First user for this key (= web)
+                            Dictionary<int, UserEntity> newUserListToCache = new Dictionary<int, UserEntity>()
+                            {
+                                { userListId, author }
+                            };
+
+                            this.userJsonStrings.TryAdd(key, newUserListToCache);
+                        }
+
+                        // return 
+                        return author;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // TODO logging
+            }
+
+            return null;
         }
         #endregion
 
