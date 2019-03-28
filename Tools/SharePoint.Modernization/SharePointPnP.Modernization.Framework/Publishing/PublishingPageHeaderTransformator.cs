@@ -1,8 +1,10 @@
 ﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Cache;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
@@ -16,13 +18,22 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private ClientContext targetClientContext;
 
         #region Construction
-        public PublishingPageHeaderTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation)
+        public PublishingPageHeaderTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation, IList<ILogObserver> logObservers = null)
         {
+            // Register observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
             this.publishingPageTransformationInformation = publishingPageTransformationInformation;
             this.publishingPageTransformation = publishingPageTransformation;
             this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
-            this.functionProcessor = new PublishingFunctionProcessor(publishingPageTransformationInformation.SourcePage, sourceClientContext, targetClientContext, this.publishingPageTransformation);
+            this.functionProcessor = new PublishingFunctionProcessor(publishingPageTransformationInformation.SourcePage, sourceClientContext, targetClientContext, this.publishingPageTransformation, base.RegisteredLogObservers);
         }
         #endregion
 
@@ -88,8 +99,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     }
                     catch (Exception ex)
                     {
-                        // TODO: update strings
-                        //LogError(LogStrings.Error_ReturnCrossSiteRelativePath, LogStrings.Heading_BuiltInFunctions, ex);
+                        LogError(LogStrings.Error_HeaderImageAssetTransferFailed, LogStrings.Heading_PublishingPageHeader, ex);
                     }
 
                     if (!string.IsNullOrEmpty(newHeaderImageServerRelativeUrl))

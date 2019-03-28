@@ -340,7 +340,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetect && !useCustomLayoutTransformator)
             {
                 // Call out the specific publishing layout transformator implementation
-                PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage);
+                PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage, base.RegisteredLogObservers);
                 publishingLayoutTransformator.Transform(pageData);
             }
 
@@ -382,7 +382,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 #if DEBUG && MEASURE
                 Start();
 #endif
-            PublishingPageHeaderTransformator headerTransformator = new PublishingPageHeaderTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, this.publishingPageTransformation);
+            PublishingPageHeaderTransformator headerTransformator = new PublishingPageHeaderTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, this.publishingPageTransformation, base.RegisteredLogObservers);
             headerTransformator.TransformHeader(ref targetPage);
 
 #if DEBUG && MEASURE

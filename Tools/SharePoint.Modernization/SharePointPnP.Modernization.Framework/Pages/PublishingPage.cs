@@ -28,7 +28,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(cc, base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation);            
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, base.RegisteredLogObservers);            
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
         {
             this.publishingPageTransformation = publishingPageTransformation;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation);            
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, base.RegisteredLogObservers);            
         }
         #endregion
 

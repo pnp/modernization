@@ -220,6 +220,22 @@
 
         #endregion
 
+        #region PublishingPageHeaderTransformator
+
+        public const string Heading_PublishingPageHeader = "Publishing Page header transformation";
+
+        public const string Error_HeaderImageAssetTransferFailed = "Header image {0} could not be transferred to target site";
+
+        #endregion
+
+        #region PublishingLayoutTransformator
+
+        public const string Heading_PublishingLayoutTransformator = "Publishing Page layout transformation";
+
+        public const string Error_Maximum3ColumnsAllowed = "Publishing transformation layout mapping can maximum use 3 columns";
+
+        #endregion
+
         #endregion
     }
 }
