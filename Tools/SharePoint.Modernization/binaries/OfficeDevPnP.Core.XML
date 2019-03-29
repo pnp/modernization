@@ -489,6 +489,11 @@
               Looks up a localized string similar to The server version could not be detected. Note that the check does assume the process at least has read access to SharePoint. Error: {0}..
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.ClientSidePageHeader_ImageInDifferentWeb">
+            <summary>
+              Looks up a localized string similar to The {0} image set as page header lives in a different web and will not be set..
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.ClientSidePageHeader_ImageNotFound">
             <summary>
               Looks up a localized string similar to The provided page header image &apos;{0}&apos; cannot be found. .
