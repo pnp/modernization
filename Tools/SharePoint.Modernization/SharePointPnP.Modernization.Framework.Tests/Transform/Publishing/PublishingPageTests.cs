@@ -47,8 +47,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp"));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "welc");
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "welc");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
                     {

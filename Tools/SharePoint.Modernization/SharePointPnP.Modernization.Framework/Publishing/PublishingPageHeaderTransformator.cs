@@ -81,20 +81,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     try
                     {
                         // Integrate asset transformator
-
-                        // Check if the asset lives in the current site...else assume it lives in the rootweb of the site collection
-                        ClientContext contextForAssetTransfer = this.sourceClientContext;
-                        string assetServerRelativePath = imageServerRelativeUrl.Substring(0, imageServerRelativeUrl.LastIndexOf("/"));
-                        string sourceWebRelativePath = this.sourceClientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
-
-                        if (!assetServerRelativePath.StartsWith(sourceWebRelativePath, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            string rootWebUrl = this.sourceClientContext.Site.Url;
-                            contextForAssetTransfer = this.sourceClientContext.Clone(rootWebUrl);
-                        }
-
-                        // Copy the asset
-                        AssetTransfer assetTransfer = new AssetTransfer(contextForAssetTransfer, this.targetClientContext, base.RegisteredLogObservers);
+                        AssetTransfer assetTransfer = new AssetTransfer(this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
                         newHeaderImageServerRelativeUrl = assetTransfer.TransferAsset(imageServerRelativeUrl, System.IO.Path.GetFileNameWithoutExtension(publishingPageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()));
                     }
                     catch (Exception ex)

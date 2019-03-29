@@ -436,7 +436,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url);
                 context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url);
-                var subWebUrls = context.Site.GetAllWebUrls(); // This could be an expensive call
+                var subWebUrls = context.Site.GetAllSubSites(); // This could be an expensive call
 
                 var fullSiteCollectionUrl = context.Site.Url;
 
