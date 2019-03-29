@@ -302,9 +302,9 @@
     <None Include="webpartmapping.xsc">
       <DependentUpon>webpartmapping.xsd</DependentUpon>
     </None>
-    <None Include="webpartmapping.xsd">
+    <EmbeddedResource Include="webpartmapping.xsd">
       <SubType>Designer</SubType>
-    </None>
+    </EmbeddedResource>
     <None Include="webpartmapping.xss">
       <DependentUpon>webpartmapping.xsd</DependentUpon>
     </None>

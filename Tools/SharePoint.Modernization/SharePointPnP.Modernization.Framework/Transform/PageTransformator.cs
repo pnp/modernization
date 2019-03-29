@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace SharePointPnP.Modernization.Framework.Transform
@@ -67,11 +70,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
             this.version = GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
 
-            // Load xml mapping data
-            XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
-            using (var stream = new FileStream(pageTransformationFile, FileMode.Open))
+            using (Stream schema = typeof(PageTransformator).Assembly.GetManifestResourceStream("SharePointPnP.Modernization.Framework.webpartmapping.xsd"))
             {
-                this.pageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                // Load xml mapping data
+                XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
+                using (var stream = new FileStream(pageTransformationFile, FileMode.Open))
+                {
+                    // Ensure the provided file complies with the current schema
+                    ValidateSchema(schema, stream);
+
+                    // All good so it seems
+                    this.pageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
+                }
             }
         }
 
@@ -1028,6 +1038,26 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             return file;
+        }
+
+        private void ValidateSchema(Stream schema, FileStream stream)
+        {
+            // Load the template into an XDocument
+            XDocument xml = XDocument.Load(stream);
+
+            // Prepare the XML Schema Set
+            XmlSchemaSet schemas = new XmlSchemaSet();
+            schema.Seek(0, SeekOrigin.Begin);
+            schemas.Add(Constants.PageTransformationSchema, new XmlTextReader(schema));
+
+            // Set stream back to start
+            stream.Seek(0, SeekOrigin.Begin);
+
+            xml.Validate(schemas, (o, e) =>
+            {
+                LogError(string.Format(LogStrings.Error_WebPartMappingSchemaValidation, e.Message), LogStrings.Heading_PageTransformationInfomation, e.Exception);
+                throw new Exception(string.Format(LogStrings.Error_MappingFileSchemaValidation, e.Message));
+            });
         }
         #endregion
 

@@ -51,6 +51,7 @@
         public const string Error_PageDoesNotExistInWeb = "Page does not exist in current web";
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
+        public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
 
         #endregion
 
