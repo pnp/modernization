@@ -37,7 +37,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         }
         #endregion
 
-        public void LogTransformationDone(TimeSpan duration)
+        public void LogTransformationDone(TimeSpan duration, string pageType)
         {
             if (this.telemetryClient == null)
             {
@@ -60,6 +60,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                 // Also add to the metric of transformed pages via the service endpoint
                 this.telemetryClient.GetMetric($"TransformationEngine.PagesTransformed").TrackValue(1);
                 this.telemetryClient.GetMetric($"TransformationEngine.PageDuration").TrackValue(duration.TotalSeconds);
+                this.telemetryClient.GetMetric($"TransformationEngine.{pageType}").TrackValue(1);
             }
             catch
             {

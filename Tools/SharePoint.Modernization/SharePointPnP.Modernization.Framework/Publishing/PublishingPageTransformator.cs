@@ -469,7 +469,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (!publishingPageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)
             {
                 TimeSpan duration = DateTime.Now.Subtract(transformationStartDateTime);
-                this.pageTelemetry.LogTransformationDone(duration);
+                this.pageTelemetry.LogTransformationDone(duration, pageType);
                 this.pageTelemetry.Flush();
             }
 
