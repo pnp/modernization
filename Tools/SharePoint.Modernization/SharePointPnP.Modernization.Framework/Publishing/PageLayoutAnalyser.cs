@@ -540,7 +540,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 {
                                                     Name = stronglyTypedChild.NodeName,
                                                     Type = WebPartProperyType.@string,
-                                                    Value = System.Web.HttpUtility.HtmlEncode(content)
+                                                    Value = EncodingAndCleanUpContent(content)
                                                 });
                                             }
                                         }
@@ -580,6 +580,22 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             return extractedHtmlBlocks;
         }
+
+        /// <summary>
+        /// Cleans and encodes content data
+        /// </summary>
+        /// <param name="content">web part value</param>
+        /// <returns></returns>
+        internal string EncodingAndCleanUpContent(string content)
+        {
+            if (content.Contains("CDATA"))
+            {
+                content = content.Replace("<!--[CDATA[", "").Replace("]]-->", "");    
+            }
+
+            return System.Web.HttpUtility.HtmlEncode(content);
+        }
+
         #endregion
 
         #region Helper methods
@@ -797,110 +813,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         #endregion
 
-        #region Old code - to be dropped
-        /*
-/// <summary>
-/// Gets the page layout for analysis
-/// </summary>
-internal WebPartField[] GetPageLayoutFileWebParts(ListItem pageLayout)
-{
-    List<WebPartField> wpFields = new List<WebPartField>();
-
-    File file = pageLayout.File;
-    var webPartManager = file.GetLimitedWebPartManager(Microsoft.SharePoint.Client.WebParts.PersonalizationScope.Shared);
-
-    _siteCollContext.Load(webPartManager);
-    _siteCollContext.Load(webPartManager.WebParts);
-    _siteCollContext.Load(webPartManager.WebParts,
-        i => i.Include(o => o.WebPart.Title),
-        i => i.Include(o => o.ZoneId),
-        i => i.Include(o => o.WebPart));
-    _siteCollContext.Load(file);
-    _siteCollContext.ExecuteQueryRetry();
-
-    var wps = webPartManager.WebParts;
-
-    foreach (var part in wps)
-    {
-
-        var props = part.WebPart.Properties.FieldValues;
-        List<WebPartProperty> partProperties = new List<WebPartProperty>();
-
-        foreach (var prop in props)
-        {
-            partProperties.Add(new WebPartProperty() { Name = prop.Key, Type = WebPartProperyType.@string });
-        }
-
-        wpFields.Add(new WebPartField()
-        {
-            Name = part.WebPart.Title,
-            Property = partProperties.ToArray()
-
-        });
-
-    }
-
-    return wpFields.ToArray();
-}
-*/
-
-
-        ///// <summary>
-        ///// Get fixed web parts defined in the page layout
-        ///// </summary>
-        //internal FixedWebPart[] GetFixedWebPartsFromZones(ListItem pageLayout)
-        //{
-        //    /*Plan
-        //     * Scan through the file to find the web parts by the tags
-        //     * Extract and convert to definition
-        //     * Check the TagPrefix and find all the web parts e.g. Register Tagprefix="WebPartPages" Namespace="Microsoft.SharePoint.WebPartPages"
-        //     * Get a list of all the API recognised web parts and perform a delta
-        //     * List of types can be found in the WebParts class in root of project
-        //    */
-
-        //    List<FixedWebPart> fixedWebParts = new List<FixedWebPart>();
-        //    const string TagPrefix = "WebPartPages";
-
-        //    pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
-        //    var fileUrl = pageLayout.File.ServerRelativeUrl;
-
-        //    var fileHtml = _siteCollContext.Web.GetFileAsString(fileUrl);
-
-        //    using (var document = this.parser.Parse(fileHtml))
-        //    {
-
-        //        var webParts = document.All.Where(o => o.TagName.Contains(TagPrefix)).ToArray();
-
-        //        for (var i = 0; i < webParts.Count(); i++)
-        //        {
-        //            fixedWebParts.Add(new FixedWebPart()
-        //            {
-        //                Type = "",
-        //                Column = 0,
-        //                Row = 0,
-        //                Order = 0
-        //            });
-        //        }
-
-        //    }
-
-        //    return fixedWebParts.ToArray();
-
-        //}
-
-        ///// <summary>
-        ///// This method analyses the Html strcuture to determine layout
-        ///// </summary>
-        //internal void ExtractLayoutFromHtmlStructure()
-        //{
-        //    /*Plan
-        //     * Scan through the file to plot the 
-        //     * - Determine if a grid system, classic, fabric or Html structure is in use
-        //     * - Work out the location of the web part in relation to the grid system
-        //    */
-        //}
-
-        #endregion
+        
 
     }
 }
