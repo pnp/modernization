@@ -232,7 +232,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// </summary>
         /// <param name="context">Context of the site</param>
         /// <returns>Translated name of the pages library</returns>
-        public string GetPublishingPageName(ClientContext context)
+        public string GetPublishingPagesLibraryName(ClientContext context)
         {
             uint lcid = context.Web.EnsureProperty(p => p.Language);
 

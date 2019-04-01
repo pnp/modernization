@@ -76,6 +76,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             this.version = GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
+            this.pageLayoutManager = new PageLayoutManager(this.sourceClientContext, base.RegisteredLogObservers);
 
             this.pageTransformation = pageTransformationModel;
 
@@ -182,7 +183,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             string pageFolder = "";
 
             // Get the publishing pages library name
-            this.publishingPagesLibrary = CacheManager.Instance.GetPublishingPageName(this.sourceClientContext);
+            this.publishingPagesLibrary = CacheManager.Instance.GetPublishingPagesLibraryName(this.sourceClientContext);
 
             if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
             {
