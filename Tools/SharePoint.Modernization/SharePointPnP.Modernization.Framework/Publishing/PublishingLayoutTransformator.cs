@@ -59,28 +59,29 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 var webpartsInRow = pageData.Item2.Where(p => p.Row == rowIterator);
                 if (webpartsInRow.Any())
                 {
-                    // Build a list of used columns
-                    List<int> distinctColumns = new List<int>();
-                    foreach(var wpInRow in webpartsInRow)
+                    // Determine max column number
+                    int maxColumns = 1;
+
+                    foreach (var wpInRow in webpartsInRow)
                     {
-                        if (!distinctColumns.Contains(wpInRow.Column))
+                        if (wpInRow.Column > maxColumns)
                         {
-                            distinctColumns.Add(wpInRow.Column);
+                            maxColumns = wpInRow.Column;
                         }
                     }
 
-                    if (distinctColumns.Count > 3)
+                    if (maxColumns > 3)
                     {
                         LogError(LogStrings.Error_Maximum3ColumnsAllowed, LogStrings.Heading_PublishingLayoutTransformator);
                         throw new Exception("Publishing transformation layout mapping can maximum use 3 columns");
                     }
                     else
                     {
-                        if (distinctColumns.Count == 1)
+                        if (maxColumns == 1)
                         {
                             page.AddSection(CanvasSectionTemplate.OneColumn, sectionOrder);
                         }
-                        else if (distinctColumns.Count == 2)
+                        else if (maxColumns == 2)
                         {
                             // if we've only an image in one of the columns then make that one the 'small' column
                             var imageWebPartsInRow = webpartsInRow.Where(p => p.Type == WebParts.WikiImage);
@@ -164,7 +165,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
                             }
                         }
-                        else if (distinctColumns.Count == 3)
+                        else if (maxColumns == 3)
                         {
                             page.AddSection(CanvasSectionTemplate.ThreeColumn, sectionOrder);
                         }
