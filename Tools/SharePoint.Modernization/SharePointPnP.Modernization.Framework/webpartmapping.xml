@@ -182,7 +182,7 @@ configure the page transformation engine to use the community script editor. You
       <WebPart Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" CrossSiteTransformationSupported="true">
         <Properties>
           <Property Name="ContentLink" Type="string" Functions="{Temp} = ContentEmbedCrossSiteCheck({ContentLink}); {ServerRelativeContent} = ReturnServerRelativePath({ContentLink}); {FullPath} = Concatenate({Host}, {ServerRelativeContent});{EncodedContentLink} = HtmlEncodeForJson({FullPath})" />
-          <Property Name="Content" Type="string" Functions="{Script} = HtmlEncodeForJson({Content}); {FileContents} = LoadContentFromFile({ContentLink}); {UsePlaceHolders} = ReturnTrue(); {CleanedContents} = TextCleanup({Content},{UsePlaceHolders}); {CleanedFileContents} = TextCleanup({FileContents},{UsePlaceHolders}); {FileContentsEncoded} = HtmlEncodeForJson({FileContents})"/>
+          <Property Name="Content" Type="string" Functions="{Script} = HtmlEncodeForJson({Content}); {FileContents} = LoadContentFromFile({ContentLink}); {UsePlaceHolders} = ReturnFalse(); {CleanedContents} = TextCleanup({Content},{UsePlaceHolders}); {CleanedFileContents} = TextCleanup({FileContents},{UsePlaceHolders}); {FileContentsEncoded} = HtmlEncodeForJson({FileContents})"/>
           <Property Name="PartStorage" Type="string"/>
         </Properties>
         <!-- If a link was used then:

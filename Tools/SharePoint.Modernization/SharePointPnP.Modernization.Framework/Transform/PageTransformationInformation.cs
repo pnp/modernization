@@ -51,8 +51,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Populate with OOB mapping properties
             MappingProperties = new Dictionary<string, string>(5)
             {
-                { "UseCommunityScriptEditor", "false" },
-                { "SummaryLinksToQuickLinks", "true" }
+                { Constants.UseCommunityScriptEditorMappingProperty, "false" },
+                { Constants.SummaryLinksToQuickLinksMappingProperty, "true" }
             };
         }
         #endregion

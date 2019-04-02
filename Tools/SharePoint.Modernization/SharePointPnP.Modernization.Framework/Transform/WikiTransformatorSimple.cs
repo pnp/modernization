@@ -1,23 +1,47 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Html;
+using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OfficeDevPnP.Core.Pages;
+using SharePointPnP.Modernization.Framework.Functions;
+using SharePointPnP.Modernization.Framework.Telemetry;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
-    public class WikiTransformatorSimple
+    public class WikiTransformatorSimple: BaseTransform
     {
         private HtmlParser parser;
+        private ClientContext sourceContext;
+        private ClientSidePage page;
+        private Dictionary<string, string> mappingProperties;
+        private BuiltIn builtInFunctions;
 
         #region Construction
         /// <summary>
         /// Default constructor
         /// </summary>
-        public WikiTransformatorSimple()
+        public WikiTransformatorSimple(ClientContext sourceContext, ClientSidePage page, Dictionary<string, string> mappingProperties, IList<ILogObserver> logObservers = null)
         {
+            //Register any existing observers
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
+            this.sourceContext = sourceContext;
+            this.page = page;
+            this.mappingProperties = mappingProperties;
+
+            // Instantiate BuiltIn functions class
+            this.builtInFunctions = new BuiltIn(this.page.Context, this.sourceContext, this.page, base.RegisteredLogObservers);
+
             // Instantiate the AngleSharp Html parser
             parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true });
         }
@@ -63,13 +87,44 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // iterate over all parts found on the wiki page
             foreach (var wp in wikiPageWebParts)
             {
+                string htmlToParse = "";
                 if (wp.Type == WebParts.WikiText)
+                {
+                    htmlToParse = wp.Properties["Text"];
+                }
+                else if (wp.Type == WebParts.ContentEditor)
+                {
+                    string fileContents = "";
+                    if (wp.Properties.ContainsKey("ContentLink") && !string.IsNullOrEmpty(wp.Properties["ContentLink"]) && !wp.Properties["ContentLink"].ToLower().EndsWith(".aspx"))
+                    {
+                        // Load file contents
+                        fileContents = this.builtInFunctions.LoadContentFromFile(wp.Properties["ContentLink"]);
+                    }
+
+                    // Run the same selector as we're running from the default mapping file
+                    var selectorResult = this.builtInFunctions.ContentEmbedSelectorContentLink(wp.Properties["ContentLink"], wp.Properties["Content"], fileContents, this.mappingProperties[Constants.UseCommunityScriptEditorMappingProperty]);
+
+                    if (selectorResult.Equals("NonASPXLinkNoScript", StringComparison.InvariantCultureIgnoreCase) ||
+                        selectorResult.Equals("ContentNoScript", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        if (!string.IsNullOrEmpty(fileContents))
+                        {
+                            htmlToParse = fileContents;
+                        }
+                        else
+                        {
+                            htmlToParse = wp.Properties["Content"];
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(htmlToParse))
                 {
                     // Reset the replaced web parts list
                     replacedWebParts = new List<WebPartEntity>(10);
 
                     // Parse the html
-                    using (var document = this.parser.Parse(wp.Properties["Text"]))
+                    using (var document = this.parser.Parse(htmlToParse))
                     {
                         // Check if this text requires special handling due to embedded images or iframes...
                         var images = document.QuerySelectorAll("img");

@@ -29,6 +29,7 @@
 - Tables with col/row spans: split cells and put the content in the first cell of the split #77
 - Transform nested tables as individual tables #75
 - Support transformation from pages living outside of the sitepages library #80
+- Content editor: if content is recognized as transformable html (so no script) then it will be treated as wiki content, hence embedded images and videos will be created as separate image and video web part + in cross site scenarios the images are copied over to the target site
 
 ## [March release (prod) - version 1.0.1903.0]
 
