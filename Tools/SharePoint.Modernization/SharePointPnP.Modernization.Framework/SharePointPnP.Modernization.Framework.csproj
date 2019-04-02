@@ -282,7 +282,6 @@
     <Compile Include="Transform\QuickLinksTransformator.cs" />
     <Compile Include="Transform\SummaryLinksHtmlTransformator.cs" />
     <Compile Include="Transform\TokenParser.cs" />
-    <Compile Include="Transform\WikiTransformator.cs" />
     <Compile Include="Transform\WikiTransformatorSimple.cs" />
     <Compile Include="webpartmapping.cs">
       <DependentUpon>webpartmapping.xsd</DependentUpon>
