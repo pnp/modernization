@@ -4,7 +4,8 @@
     <!-- <AddOn Name="Custom" Type="SharePoint.Modernization.Framework.SampleAddOn.MyCustomFunctions" Assembly="C:\github\BertPnPTools\Solutions\SharePoint.Modernization\SharePoint.Modernization.Framework\bin\Debug\SharePoint.Modernization.Framework.SampleAddOn.dll" />-->
   </AddOns>
   <PageLayouts>
-    <PageLayout Name="VolvoArticleLeft" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
+    <!-- To test contentype handling, set AssociatedContentType to CustomPage1 + adjust the metadata -->
+    <PageLayout Name="VolvoArticleLeft" AssociatedContentType="" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
@@ -12,7 +13,9 @@
         <Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({PublishingContact})"/>
       </Header>
       <MetaData>
-        <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
+        <!-- Use Custom1 field when AssociatedContentType is set to CustomPage1 -->
+        <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />-->
+        <Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />
       </MetaData>
       <WebParts>
         <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1">

@@ -44,6 +44,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (this.pageLayoutMappingModel != null)
             {
                 bool isDirty = false;
+                bool listItemWasReloaded = false;
                 string contentTypeId = null;
                 
                 // Set content type
@@ -55,6 +56,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
                         this.targetClientContext.Load(this.page.PageListItem);
                         this.targetClientContext.ExecuteQueryRetry();
+                        listItemWasReloaded = true;
 
                         this.page.PageListItem[Constants.ContentTypeIdField] = contentTypeId;
                         this.page.PageListItem.Update();
@@ -65,7 +67,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Determine content type to use
                 if (string.IsNullOrEmpty(contentTypeId))
                 {
-                    contentTypeId = Constants.ModernPageContentTypeId;
+                    // grab the default content type
+                    contentTypeId = this.page.PageListItem[Constants.ContentTypeIdField].ToString();
                 }
 
                 // Copy the field metadata
@@ -74,6 +77,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // Process only fields which have a target field set...
                     if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
                     {
+                        if (!listItemWasReloaded)
+                        {
+                            // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
+                            this.targetClientContext.Load(this.page.PageListItem);
+                            this.targetClientContext.ExecuteQueryRetry();
+                            listItemWasReloaded = true;
+                        }
+
                         // Get information about this content type field
                         var targetFieldData = CacheManager.Instance.GetPublishingContentTypeField(this.page.PageListItem.ParentList, contentTypeId, fieldToProcess.TargetFieldName);
 
