@@ -284,16 +284,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Analyze the source page
             Tuple<Pages.PageLayout, List<WebPartEntity>> pageData = null;
 
-            if (pageType.Equals("PublishingPage", StringComparison.InvariantCultureIgnoreCase))
-            {
-                LogInfo($"{LogStrings.TransformSourcePageIsPublishingPage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
+            LogInfo($"{LogStrings.TransformSourcePageIsPublishingPage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
 
-                pageData = new PublishingPage(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation).Analyze();
+            // Grab the pagelayout mapping to use:
+            var pageLayoutMappingModel = GetPageLayoutMappingModel(publishingPageTransformationInformation.SourcePage);
 
-                // Wiki content can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
-                LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);
-                pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiTransformatorSimple(this.sourceClientContext, targetPage, publishingPageTransformationInformation.MappingProperties, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, publishingPageTransformationInformation.HandleWikiImagesAndVideos));
-            }
+            pageData = new PublishingPage(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation).Analyze(pageLayoutMappingModel);
+
+            // Wiki content can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
+            LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);
+            pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiTransformatorSimple(this.sourceClientContext, targetPage, publishingPageTransformationInformation.MappingProperties, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, publishingPageTransformationInformation.HandleWikiImagesAndVideos));
+
 #if DEBUG && MEASURE
                 Stop("Analyze page");
 #endif
@@ -447,6 +448,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 #endif
             #endregion
 
+            #region Page metadata handling
+            PublishingMetadataTransformator publishingMetadataTransformator = new PublishingMetadataTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, targetPage, pageLayoutMappingModel, base.RegisteredLogObservers);
+            publishingMetadataTransformator.Transform();
+            #endregion
+
             #region Permission handling
             ListItemPermission listItemPermissionsToKeep = null;
             if (publishingPageTransformationInformation.KeepPageSpecificPermissions)
@@ -482,6 +488,29 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         #region Helper methods
+        private PageLayout GetPageLayoutMappingModel(ListItem page)
+        {
+            // Load relevant model data for the used page layout
+            string usedPageLayout = Path.GetFileNameWithoutExtension(page.PageLayoutFile());
+            var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+            // No layout provided via either the default mapping or custom mapping file provided
+            if (publishingPageTransformationModel == null)
+            {
+                publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
+            }
+
+            // Still no layout...can't continue...
+            if (publishingPageTransformationModel == null)
+            {
+                LogError(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout), LogStrings.Heading_ArticlePageHandling);
+                throw new Exception(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout));
+            }
+
+            return publishingPageTransformationModel;
+        }
+
+
         private string ReturnModernPageServerRelativeUrl(PublishingPageTransformationInformation publishingPageTransformationInformation)
         {
             string returnUrl = null;

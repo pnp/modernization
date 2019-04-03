@@ -21,6 +21,7 @@ namespace SharePointPnP.Modernization.Framework
         public const string WikiField = "WikiField";
         public const string ModifiedField = "Modified";
         public const string ModifiedByField = "Editor";
+        public const string ContentTypeIdField = "ContentTypeId";
         public const string PublishingPageLayoutField = "PublishingPageLayout";
         public const string AudienceField = "Audience";
         public const string PublishingRollupImageField = "PublishingRollupImage";
@@ -29,6 +30,7 @@ namespace SharePointPnP.Modernization.Framework
 
         // Content Type ID's
         public const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
+        public const string ModernPageContentTypeId = "0x0101009D1CB255DA76424F860D91F20E6C4118";
 
         // Features
         public static readonly Guid FeatureId_Web_ModernPage = new Guid("B6917CB1-93A0-4B97-A84D-7CF49975D4EC");

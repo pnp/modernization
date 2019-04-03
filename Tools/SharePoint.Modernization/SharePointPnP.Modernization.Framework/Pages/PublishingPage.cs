@@ -47,7 +47,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Analyses a publishing page
         /// </summary>
         /// <returns>Information about the analyzed publishing page</returns>
-        public Tuple<PageLayout, List<WebPartEntity>> Analyze()
+        public Tuple<PageLayout, List<WebPartEntity>> Analyze(Publishing.PageLayout publishingPageTransformationModel)
         {
             List<WebPartEntity> webparts = new List<WebPartEntity>();            
 
@@ -55,14 +55,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
             var publishingPageUrl = page[Constants.FileRefField].ToString();
             var publishingPage = cc.Web.GetFileByServerRelativeUrl(publishingPageUrl);
 
-            // Load relevant model data for the used page layout
+            // Load relevant model data for the used page layout in case not already provided - safetynet for calls from modernization scanner
             string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(page.PageLayoutFile());
-            var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-
-            // No layout provided via either the default mapping or custom mapping file provided
             if (publishingPageTransformationModel == null)
             {
-                publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
+                publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+                // No layout provided via either the default mapping or custom mapping file provided
+                if (publishingPageTransformationModel == null)
+                {
+                    publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
+                }
             }
 
             // Still no layout...can't continue...

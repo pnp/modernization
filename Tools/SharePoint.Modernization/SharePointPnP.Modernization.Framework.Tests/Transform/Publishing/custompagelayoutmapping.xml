@@ -4,7 +4,7 @@
     <!-- <AddOn Name="Custom" Type="SharePoint.Modernization.Framework.SampleAddOn.MyCustomFunctions" Assembly="C:\github\BertPnPTools\Solutions\SharePoint.Modernization\SharePoint.Modernization.Framework\bin\Debug\SharePoint.Modernization.Framework.SampleAddOn.dll" />-->
   </AddOns>
   <PageLayouts>
-    <PageLayout Name="VolvoArticleLeft" AssociatedContentType="Article Page" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
+    <PageLayout Name="VolvoArticleLeft" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
@@ -13,7 +13,7 @@
       </Header>
       <MetaData>
         <Field Name="Title" TargetFieldName="Title" Functions="" />
-        <Field Name="ArticleStartDate" TargetFieldName="" Functions="" />
+        <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
       </MetaData>
       <WebParts>
         <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1">

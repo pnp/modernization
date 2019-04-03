@@ -74,7 +74,7 @@ namespace Microsoft.SharePoint.Client
             }
             else if (pageType.Equals("PublishingPage", StringComparison.InvariantCultureIgnoreCase))
             {
-                return new PublishingPage(item, pageTransformation).Analyze();
+                return new PublishingPage(item, pageTransformation).Analyze(null);
             }
 
             return null;

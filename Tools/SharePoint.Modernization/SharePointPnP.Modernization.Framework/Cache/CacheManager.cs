@@ -27,6 +27,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
         private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;      
         private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
+        private ConcurrentDictionary<string, string> contentTypes;
+        private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -52,6 +54,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
             generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
             userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
+            contentTypes = new ConcurrentDictionary<string, string>();
+            publishingContentTypeFields = new ConcurrentDictionary<string, List<FieldData>>();
         }
         #endregion
 
@@ -113,7 +117,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         }
         #endregion
 
-        #region Base template
+        #region Base template and metadata
         /// <summary>
         /// Get's the base template that will be used to filter out "OOB" fields
         /// </summary>
@@ -216,12 +220,57 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return null;
         }
 
+        public FieldData GetPublishingContentTypeField(List pagesLibrary, string contentTypeId, string fieldName)
+        {
+            // Try to get from cache
+            if (this.publishingContentTypeFields.TryGetValue(contentTypeId, out List<FieldData> fieldsFromCache))
+            {
+                // return field if found
+                return fieldsFromCache.Where(p => p.FieldName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            }
+
+            ClientContext context = pagesLibrary.Context as ClientContext;
+
+            // Get the content type object
+            var ctCol = pagesLibrary.ContentTypes;
+            var ctType = context.LoadQuery(ctCol.Where(item => item.StringId == contentTypeId));
+            context.ExecuteQueryRetry();
+
+            if (ctType.FirstOrDefault() != null)
+            {
+                // Load all fields
+                FieldCollection fields = ctType.FirstOrDefault().Fields;
+                context.Load(fields, fs => fs.Include(f => f.Id, f => f.TypeAsString, f => f.InternalName));
+                context.ExecuteQueryRetry();
+
+                List<FieldData> contentTypeFields = new List<FieldData>();
+                foreach (var field in fields)
+                {
+                    contentTypeFields.Add(new FieldData()
+                    {
+                        FieldId = field.Id,
+                        FieldName = field.InternalName,
+                        FieldType = field.TypeAsString,
+                    });
+                }
+
+                // Store in cache
+                this.publishingContentTypeFields.TryAdd(contentTypeId, contentTypeFields);
+                
+                // Return field, if found
+                return contentTypeFields.Where(p => p.FieldName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Clear the fields to copy cache
         /// </summary>
         public void ClearFieldsToCopy()
         {
             this.fieldsToCopy.Clear();
+            this.publishingContentTypeFields.Clear();
         }
 
         #endregion
@@ -471,6 +520,41 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
 
             return null;
+        }
+        #endregion
+
+        #region Content types
+        public string GetContentTypeId(List pagesLibrary, string contentTypeName)
+        {
+            string contentTypeId = null;
+
+            // try to get from cache
+            this.contentTypes.TryGetValue(contentTypeName, out string contentTypeIdFromCache);
+            if (!string.IsNullOrEmpty(contentTypeIdFromCache))
+            {
+                return contentTypeIdFromCache;
+            }
+
+            // Load content type
+            var ctCol = pagesLibrary.ContentTypes;
+            var results = pagesLibrary.Context.LoadQuery(ctCol.Where(item => item.Name == contentTypeName));
+            pagesLibrary.Context.ExecuteQueryRetry();
+
+            if (results.FirstOrDefault() != null)
+            {
+                contentTypeId = results.FirstOrDefault().StringId;
+                
+                // We only allow content types that inherit from the OOB Site Page content type
+                if (!contentTypeId.StartsWith(Constants.ModernPageContentTypeId, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return null;
+                }
+
+                // add to cache
+                this.contentTypes.TryAdd(contentTypeName, contentTypeId);
+            }
+
+            return contentTypeId;
         }
         #endregion
 

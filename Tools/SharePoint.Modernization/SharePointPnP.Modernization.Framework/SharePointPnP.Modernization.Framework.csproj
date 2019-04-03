@@ -199,6 +199,7 @@
     <Compile Include="Publishing\PublishingBuiltIn.cs" />
     <Compile Include="Publishing\PublishingFunctionProcessor.cs" />
     <Compile Include="Publishing\PublishingLayoutTransformator.cs" />
+    <Compile Include="Publishing\PublishingMetadataTransformator.cs" />
     <Compile Include="Publishing\PublishingPageHeaderTransformator.cs" />
     <Compile Include="Publishing\PublishingPageTransformationInformation.cs" />
     <Compile Include="Publishing\PublishingPageTransformator.cs" />
