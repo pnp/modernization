@@ -5,7 +5,7 @@
   </AddOns>
   <PageLayouts>
     <!-- To test contentype handling, set AssociatedContentType to CustomPage1 + adjust the metadata -->
-    <PageLayout Name="VolvoArticleLeft" AssociatedContentType="" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
+    <PageLayout Name="VolvoArticleLeft" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
@@ -14,8 +14,10 @@
       </Header>
       <MetaData>
         <!-- Use Custom1 field when AssociatedContentType is set to CustomPage1 -->
-        <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />-->
-        <Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />
+        <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
+        <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" />
+        <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" />
+        <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />-->
       </MetaData>
       <WebParts>
         <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1">
