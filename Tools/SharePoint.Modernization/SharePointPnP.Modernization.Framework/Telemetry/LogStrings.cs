@@ -105,6 +105,7 @@
         public const string TransformSavedPageInCrossSiteCollection = "Saved page in cross-site collection";
         public const string TransformSavedPage = "Saved page";
         public const string TransformCopyingMetaDataField = "Copying field: ";
+        public const string TransformGetItemPermissions = "Item level permissions read";
         public const string TransformCopiedItemPermissions = "Item level permissions copied";
         public const string TransformComplete = "Transformation Complete";
         public const string TransformSwappingPageStep1 = "Step 1 - First copy the source page to a new name";
@@ -119,6 +120,7 @@
         public const string TransformSwappingPagesStep6 = "STEP6: if the source page lived outside of the site pages library then we also need to delete the original page from that spot";
         public const string TransformedPage = "Transformed Page";
         public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
+        public const string TransformDisablePageComments = "Page commenting is disabled this this page";
 
         #endregion
 

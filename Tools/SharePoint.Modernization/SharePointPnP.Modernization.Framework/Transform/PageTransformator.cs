@@ -660,6 +660,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (pageTransformationInformation.DisablePageComments)
             {
                 targetPage.DisableComments();
+                LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
             }
 
 #if DEBUG && MEASURE

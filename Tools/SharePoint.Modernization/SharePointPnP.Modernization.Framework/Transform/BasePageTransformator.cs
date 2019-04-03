@@ -244,6 +244,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
             }
 
+            LogInfo(LogStrings.TransformGetItemPermissions, LogStrings.Heading_ApplyItemLevelPermissions);
+
             return lip;
         }
 

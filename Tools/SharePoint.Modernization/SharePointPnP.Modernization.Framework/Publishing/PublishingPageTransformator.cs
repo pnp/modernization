@@ -441,6 +441,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (publishingPageTransformationInformation.DisablePageComments)
             {
                 targetPage.DisableComments();
+                LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
             }
 
 #if DEBUG && MEASURE
