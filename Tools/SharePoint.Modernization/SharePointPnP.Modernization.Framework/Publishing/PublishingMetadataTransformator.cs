@@ -156,7 +156,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 {
                                                     var valueCollectionToCopy = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValueCollection);
                                                     var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
-                                                    var valueCollection = new TaxonomyFieldValueCollection(this.sourceClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                    var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
                                                     taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
                                                 }
                                                 else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
