@@ -12,7 +12,6 @@
         <Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({PublishingContact})"/>
       </Header>
       <MetaData>
-        <Field Name="Title" TargetFieldName="Title" Functions="" />
         <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
       </MetaData>
       <WebParts>

@@ -26,7 +26,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
         /// </summary>
         internal static List<PageLayoutMetadataEntity> MetaDataFieldToTargetMappings = new List<PageLayoutMetadataEntity>()
         {
-            new PageLayoutMetadataEntity(){ FieldName = "Title", TargetFieldName="Title", Functions = "" },            
+            new PageLayoutMetadataEntity(){ FieldName = "Title", TargetFieldName="", Functions = "" },            
         };
 
         /// <summary>
