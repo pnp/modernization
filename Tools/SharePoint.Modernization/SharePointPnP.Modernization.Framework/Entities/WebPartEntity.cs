@@ -11,7 +11,7 @@ namespace SharePointPnP.Modernization.Framework.Entities
     {
         public WebPartEntity()
         {
-            this.Properties = new Dictionary<string, string>();
+            this.Properties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public string Type { get; set; }

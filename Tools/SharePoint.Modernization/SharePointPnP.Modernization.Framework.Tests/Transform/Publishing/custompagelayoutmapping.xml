@@ -37,8 +37,14 @@
           <Property Name="Title" Type="string" Value="$Resources:core,ScriptEditorWebPartTitle;"/>
           <Property Name="Content" Type="string" Value="&lt;script type='text/javascript'&gt;function Hello() {alert('Hello World');}&lt;/script&gt;&lt;input type='button' value='Submit' onclick='Hello();'/&gt;"/>
           <Property Name="__designer:IsClosed" Type="bool" Value="false"/>
-        </WebPart> 
-      </FixedWebParts>
+        </WebPart>
+        <!--
+        <WebPart Row="1" Column="2" Order="2" Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+          <Property Name="Title" Type="string" Value="Example Embedded Web Content Editor"/>
+          <Property Name="CONTENT" Type="string" Value="Welcome to the home of all SharePoint modernization tools and solutions. Modernization means transforming current classic SharePoint usage into modern usage, e.g. using modern site pages instead of classic wiki pages or Office 365 Group connecting of classic sites. In this repository you'll find all the SharePoint PnP open source scripts, tools and solutions that will help you modernize your SharePoint environment."/>
+        </WebPart>
+        -->
+      </FixedWebParts>    
     </PageLayout>
   </PageLayouts>
 </PublishingPageTransformation>

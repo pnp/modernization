@@ -109,7 +109,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 var fieldWebParts = publishingPageTransformationModel.WebParts.Where(p => !p.TargetWebPart.Equals(WebParts.WikiText, StringComparison.InvariantCultureIgnoreCase));                
                 foreach (var fieldWebPart in fieldWebParts.OrderBy(p => p.Row).OrderBy(p => p.Column))
                 {
-                    Dictionary<string, string> properties = new Dictionary<string, string>();
+                    Dictionary<string, string> properties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
                     foreach (var fieldWebPartProperty in fieldWebPart.Property)
                     {
@@ -299,7 +299,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
         private Dictionary<string, string> CastAsPropertiesDictionary(FixedWebPart webPart)
         {
-            Dictionary<string, string> props = new Dictionary<string, string>();
+            Dictionary<string, string> props = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             foreach(var prop in webPart.Property)
             {

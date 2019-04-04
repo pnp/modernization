@@ -102,7 +102,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
 
                     // Run the same selector as we're running from the default mapping file
-                    var selectorResult = this.builtInFunctions.ContentEmbedSelectorContentLink(wp.Properties["ContentLink"], wp.Properties["Content"], fileContents, this.mappingProperties[Constants.UseCommunityScriptEditorMappingProperty]);
+                    var selectorResult = this.builtInFunctions.ContentEmbedSelectorContentLink((wp.Properties.ContainsKey("ContentLink") ? wp.Properties["ContentLink"] : null), (wp.Properties.ContainsKey("Content") ? wp.Properties["Content"] : null), fileContents, this.mappingProperties[Constants.UseCommunityScriptEditorMappingProperty]);
 
                     if (selectorResult.Equals("NonASPXLinkNoScript", StringComparison.InvariantCultureIgnoreCase) ||
                         selectorResult.Equals("ContentNoScript", StringComparison.InvariantCultureIgnoreCase))
