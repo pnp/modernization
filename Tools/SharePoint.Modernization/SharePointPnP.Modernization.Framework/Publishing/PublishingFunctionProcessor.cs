@@ -49,7 +49,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         #endregion
 
         #region Public methods
-        //public Tuple<string, string> Process(WebPartProperty webPartProperty)
         public Tuple<string, string> Process(string functions, string propertyName, FieldType propertyType)
         {
             string propertyKey = "";
@@ -88,9 +87,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // output types support: string or bool
                     if (result is string || result is bool)
                     {
-                        //propertyKey = webPartProperty.Name;
                         propertyKey = propertyName;
-                        propertyValue = result.ToString().ToLower();
+                        propertyValue = result.ToString();
                     }
                 }
             }
