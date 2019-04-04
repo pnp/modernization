@@ -20,7 +20,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Folder where the page to transform lives in
         /// </summary>
-        public string Folder { get; set; }
+        internal string Folder { get; set; }
 
         /// <summary>
         /// Overwrite the target page if it already exists?
