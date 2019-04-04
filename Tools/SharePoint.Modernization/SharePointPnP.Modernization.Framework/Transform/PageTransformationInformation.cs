@@ -74,6 +74,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string SourcePagePrefix { get; set; }
 
         /// <summary>
+        /// Copy the page metadata (if any) to the created modern client side page. Defaults to false
+        /// </summary>
+        public bool CopyPageMetadata { get; set; }
+
+        /// <summary>
         /// Configuration of the page header to apply
         /// </summary>
         public ClientSidePageHeader PageHeader { get; set; }

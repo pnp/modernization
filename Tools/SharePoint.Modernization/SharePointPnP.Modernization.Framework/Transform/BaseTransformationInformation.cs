@@ -38,11 +38,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public bool KeepPageSpecificPermissions { get; set; }
 
         /// <summary>
-        /// Copy the page metadata (if any) to the created modern client side page. Defaults to false
-        /// </summary>
-        public bool CopyPageMetadata { get; set; }
-
-        /// <summary>
         /// Removes empty sections and columns to optimize screen real estate
         /// </summary>
         public bool RemoveEmptySectionsAndColumns { get; set; }

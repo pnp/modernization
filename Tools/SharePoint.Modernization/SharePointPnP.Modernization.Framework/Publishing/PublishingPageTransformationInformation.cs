@@ -29,7 +29,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             Overwrite = overwrite;
             HandleWikiImagesAndVideos = true;
             KeepPageSpecificPermissions = true;
-            CopyPageMetadata = false;
             SkipTelemetry = false;
             RemoveEmptySectionsAndColumns = true;
             PublishCreatedPage = true;
