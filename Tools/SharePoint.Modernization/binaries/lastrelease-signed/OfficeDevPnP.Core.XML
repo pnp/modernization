@@ -247,6 +247,34 @@
             <param name="scope">Specifies the app catalog to work with. Defaults to Tenant</param>
             <returns></returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeamsAsync(System.Guid)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="id">The unique id of the app. Notice that this is not the product id as listen in the app catalog</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeamsAsync(OfficeDevPnP.Core.ALM.AppMetadata)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="appMetadata">The app metadata object of the app to remove.</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeams(System.Guid)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="id">The unique id of the app. Notice that this is not the product id as listen in the app catalog</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.ALM.AppManager.SyncToTeams(OfficeDevPnP.Core.ALM.AppMetadata)">
+            <summary>
+            Synchronize an app from the tenant app catalog with the teams app catalog
+            </summary>
+            <param name="appMetadata">The app metadata object of the app to remove.</param>
+            <returns></returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.ALM.AppManager.GetAvailable(OfficeDevPnP.Core.Enums.AppCatalogScope)">
             <summary>
             Returns all available apps.
@@ -459,6 +487,11 @@
         <member name="P:OfficeDevPnP.Core.CoreResources.ClientContextExtensions_HasMinimalServerLibraryVersion_Error">
             <summary>
               Looks up a localized string similar to The server version could not be detected. Note that the check does assume the process at least has read access to SharePoint. Error: {0}..
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.ClientSidePageHeader_ImageInDifferentWeb">
+            <summary>
+              Looks up a localized string similar to The {0} image set as page header lives in a different web and will not be set..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.ClientSidePageHeader_ImageNotFound">
@@ -6669,6 +6702,11 @@
             Defines the Title for the client-side page
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.ContentTypeID">
+            <summary>
+            Defines the ContentTypeID for the client-side page
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.Header">
             <summary>
             Defines the Header for the client-side page
@@ -6677,11 +6715,6 @@
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.FieldValues">
             <summary>
             Defines the page fields values, if any
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.ContentTypeID">
-            <summary>
-            Defines the Content Type ID for the page, if it is a custom one
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.#ctor">
@@ -33714,6 +33747,11 @@
             Planner web part
             </summary>
         </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.Sites">
+            <summary>
+            Sites web part
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Pages.PromotedState">
             <summary>
             Page promotion state
@@ -44850,6 +44888,13 @@
             </summary>
             <param name="site">The target site</param>
             <returns>The classification for the site</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SiteExtensions.IsCommunicationSite(Microsoft.SharePoint.Client.Site)">
+            <summary>
+            Checks if the current Site Collection is a "modern" Communication Site
+            </summary>
+            <param name="site">The target site</param>
+            <returns>Returns true if the site is a Communication Site</returns>
         </member>
         <member name="T:Microsoft.SharePoint.Client.VariationExtensions">
             <summary>

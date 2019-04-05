@@ -6702,6 +6702,11 @@
             Defines the Title for the client-side page
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.ContentTypeID">
+            <summary>
+            Defines the ContentTypeID for the client-side page
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.Header">
             <summary>
             Defines the Header for the client-side page
@@ -6710,11 +6715,6 @@
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.FieldValues">
             <summary>
             Defines the page fields values, if any
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.ContentTypeID">
-            <summary>
-            Defines the Content Type ID for the page, if it is a custom one
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.ClientSidePage.#ctor">
@@ -33747,6 +33747,11 @@
             Planner web part
             </summary>
         </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.Sites">
+            <summary>
+            Sites web part
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Pages.PromotedState">
             <summary>
             Page promotion state
@@ -44883,6 +44888,13 @@
             </summary>
             <param name="site">The target site</param>
             <returns>The classification for the site</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SiteExtensions.IsCommunicationSite(Microsoft.SharePoint.Client.Site)">
+            <summary>
+            Checks if the current Site Collection is a "modern" Communication Site
+            </summary>
+            <param name="site">The target site</param>
+            <returns>Returns true if the site is a Communication Site</returns>
         </member>
         <member name="T:Microsoft.SharePoint.Client.VariationExtensions">
             <summary>
