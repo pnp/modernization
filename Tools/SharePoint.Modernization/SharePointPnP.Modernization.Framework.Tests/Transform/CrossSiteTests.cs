@@ -66,7 +66,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
 
-                    var pages = sourceClientContext.Web.GetPages("wp_summarylinks_1");
+                    var pages = sourceClientContext.Web.GetPages("wp_");
 
                     foreach (var page in pages)
                     {
