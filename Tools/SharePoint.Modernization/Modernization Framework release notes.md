@@ -12,6 +12,14 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
+## [May release (prod) - unreleased]
+
+## Added
+
+## Changed
+
+- Added filter for ASPX files and additional error handling #102 [pkbullock]
+
 ## [April release (prod) - version 1.0.1904.0]
 
 ### Added
