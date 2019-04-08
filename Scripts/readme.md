@@ -9,3 +9,4 @@ O365GroupConnect | Contains scripts that show how to perform a bulk Office 365 G
 PageTransformation | Holds scripts that can be used to modernize classic wiki and web part pages
 ModernizeSiteCollection | End to end modernization scripts that show how to fully modernize a site collection
 ListAndLibraries | Scripts to configure modern lists and libraries
+PublishingPageTransformation | Scripts to perform operations to transform publishing pages with the engine directly
