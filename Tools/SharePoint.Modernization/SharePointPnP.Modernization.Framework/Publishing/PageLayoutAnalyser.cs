@@ -107,7 +107,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 foreach (ListItem layout in spPageLayouts)
                 {
-                    AnalysePageLayout(layout);
+                    try
+                    {
+                        AnalysePageLayout(layout);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError(LogStrings.Error_CannotProcessPageLayoutAnalyseAll, LogStrings.Heading_PageLayoutAnalyser, ex);
+                    }
+
                 }
             }
         }
@@ -118,59 +126,68 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <param name="pageLayoutItem">Page layout list item</param>
         public PageLayout AnalysePageLayout(ListItem pageLayoutItem)
         {
-            // Get the associated page layout content type
-            string assocContentType = pageLayoutItem[Constants.PublishingAssociatedContentTypeField].ToString();
-            var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
-
-            // Load content type fields in memory once
-            var contentTypeFields = LoadContentTypeFields(assocContentTypeParts[1]);
-
-            // Extact page header
-            var extractedHeader = ExtractPageHeaderFromPageLayoutAssociatedContentType(contentTypeFields);
-
-            // Analyze the pagelayout file content
-            var extractedHtmlBlocks = ExtractControlsFromPageLayoutHtml(pageLayoutItem);
-            extractedHtmlBlocks.WebPartFields = CleanExtractedWebPartFields(extractedHtmlBlocks.WebPartFields, contentTypeFields);
-
-            // Detect the fields that will become metadata in the target site
-            var extractedMetaData = ExtractMetaDataFromPageLayoutAssociatedContentType(contentTypeFields, extractedHtmlBlocks.WebPartFields, extractedHeader);
-
-            // Combine all data to a single PageLayout mapping
-            var layoutMapping = new PageLayout()
+            try
             {
-                // Display name of the page layout
-                Name = Path.GetFileNameWithoutExtension(pageLayoutItem[Constants.FileLeafRefField].ToString()),
-                // Default to no page header for now
-                PageHeader = extractedHeader != null ? PageLayoutPageHeader.Custom : PageLayoutPageHeader.None,
-                // Default to autodetect layout model
-                PageLayoutTemplate = PageLayoutPageLayoutTemplate.AutoDetect,
-                // The content type to be used on the target modern page
-                AssociatedContentType = "",
-                // Set the header details (if any)
-                Header = extractedHeader,
-                // Fields that will become metadata fields for the target page
-                MetaData = extractedMetaData,
-                // Fields that will become web parts on the target page
-                WebParts = extractedHtmlBlocks.WebPartFields.Count > 0 ? extractedHtmlBlocks.WebPartFields.ToArray() : null,
-                // Web part zones that can hold zero or more web parts
-                WebPartZones = extractedHtmlBlocks.WebPartZones.Count > 0 ? extractedHtmlBlocks.WebPartZones.ToArray() : null,
-                // Fixed web parts, this are web parts which are 'hardcoded' in the pagelayout aspx file
-                FixedWebParts = extractedHtmlBlocks.FixedWebParts.Count > 0 ? extractedHtmlBlocks.FixedWebParts?.ToArray() : null,
-            };
+                // Get the associated page layout content type
+                string assocContentType = pageLayoutItem[Constants.PublishingAssociatedContentTypeField].ToString();
+                var assocContentTypeParts = assocContentType.Split(new string[] { ";#" }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Add to mappings list
-            if (_mapping.PageLayouts != null)
+                // Load content type fields in memory once
+                var contentTypeFields = LoadContentTypeFields(assocContentTypeParts[1]);
+
+                // Extact page header
+                var extractedHeader = ExtractPageHeaderFromPageLayoutAssociatedContentType(contentTypeFields);
+
+                // Analyze the pagelayout file content
+                var extractedHtmlBlocks = ExtractControlsFromPageLayoutHtml(pageLayoutItem);
+                extractedHtmlBlocks.WebPartFields = CleanExtractedWebPartFields(extractedHtmlBlocks.WebPartFields, contentTypeFields);
+
+                // Detect the fields that will become metadata in the target site
+                var extractedMetaData = ExtractMetaDataFromPageLayoutAssociatedContentType(contentTypeFields, extractedHtmlBlocks.WebPartFields, extractedHeader);
+
+                // Combine all data to a single PageLayout mapping
+                var layoutMapping = new PageLayout()
+                {
+                    // Display name of the page layout
+                    Name = Path.GetFileNameWithoutExtension(pageLayoutItem[Constants.FileLeafRefField].ToString()),
+                    // Default to no page header for now
+                    PageHeader = extractedHeader != null ? PageLayoutPageHeader.Custom : PageLayoutPageHeader.None,
+                    // Default to autodetect layout model
+                    PageLayoutTemplate = PageLayoutPageLayoutTemplate.AutoDetect,
+                    // The content type to be used on the target modern page
+                    AssociatedContentType = "",
+                    // Set the header details (if any)
+                    Header = extractedHeader,
+                    // Fields that will become metadata fields for the target page
+                    MetaData = extractedMetaData,
+                    // Fields that will become web parts on the target page
+                    WebParts = extractedHtmlBlocks.WebPartFields.Count > 0 ? extractedHtmlBlocks.WebPartFields.ToArray() : null,
+                    // Web part zones that can hold zero or more web parts
+                    WebPartZones = extractedHtmlBlocks.WebPartZones.Count > 0 ? extractedHtmlBlocks.WebPartZones.ToArray() : null,
+                    // Fixed web parts, this are web parts which are 'hardcoded' in the pagelayout aspx file
+                    FixedWebParts = extractedHtmlBlocks.FixedWebParts.Count > 0 ? extractedHtmlBlocks.FixedWebParts?.ToArray() : null,
+                };
+
+                // Add to mappings list
+                if (_mapping.PageLayouts != null)
+                {
+                    var expandMappings = _mapping.PageLayouts.ToList();
+                    expandMappings.Add(layoutMapping);
+                    _mapping.PageLayouts = expandMappings.ToArray();
+                }
+                else
+                {
+                    _mapping.PageLayouts = new[] { layoutMapping };
+                }
+
+                return layoutMapping;
+
+            }catch(Exception ex)
             {
-                var expandMappings = _mapping.PageLayouts.ToList();
-                expandMappings.Add(layoutMapping);
-                _mapping.PageLayouts = expandMappings.ToArray();
+                LogError(LogStrings.Error_CannotProcessPageLayoutAnalyse, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
-            else
-            {
-                _mapping.PageLayouts = new[] { layoutMapping };
-            }
 
-            return layoutMapping;
+            return null;
         }
 
         /// <summary>
@@ -267,22 +284,27 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     $"<Query>" +
                         $"<Where>" +
                             $"<And>" +
+                                $"<Contains>" +
+                                    $"<FieldRef Name='File_x0020_Type'/><Value Type='Text'>aspx</Value>" +
+                                $"</Contains>" +
                                 $"<And>" +
-                                    $"<Geq>" +
-                                        $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
-                                    $"</Geq>" +
-                                    $"<BeginsWith>" +
-                                        $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{Constants.PageLayoutBaseContentTypeId}</Value>" +
-                                    $"</BeginsWith>" +
+                                    $"<And>" +
+                                        $"<Geq>" +
+                                            $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
+                                        $"</Geq>" +
+                                        $"<BeginsWith>" +
+                                            $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{Constants.PageLayoutBaseContentTypeId}</Value>" +
+                                        $"</BeginsWith>" +
+                                    $"</And>" +
+                                    $"<Or>" +
+                                        $"<Eq>" +
+                                            $"<FieldRef Name='PublishingHidden'/><Value Type='Boolean'>0</Value>" +
+                                        $"</Eq>" +
+                                        $"<IsNull>" +
+                                            $"<FieldRef Name='PublishingHidden'/>" +
+                                        $"</IsNull>" +
+                                    $"</Or>" +
                                 $"</And>" +
-                                $"<Or>" +
-                                    $"<Eq>" +
-                                        $"<FieldRef Name='PublishingHidden'/><Value Type='Boolean'>0</Value>" +
-                                    $"</Eq>" +
-                                    $"<IsNull>" +
-                                        $"<FieldRef Name='PublishingHidden'/>" +
-                                    $"</IsNull>" +
-                                $"</Or>" +
                             $"</And>" +
                          $"</Where>" +
                     $"</Query>" +

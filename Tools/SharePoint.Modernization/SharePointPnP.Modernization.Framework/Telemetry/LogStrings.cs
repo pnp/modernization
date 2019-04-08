@@ -198,6 +198,8 @@
         public const string Error_CannotGetSiteCollContext = "Cannot get site collection context";
         public const string Error_CannotMapMetadataFields = "Cannot map the metadata fields from the content types";
         public const string Error_CannotCastToEnum = "An error occurred casting value to enum";
+        public const string Error_CannotProcessPageLayoutAnalyseAll = "Error mapping page layout - Analyse All";
+        public const string Error_CannotProcessPageLayoutAnalyse = "Error mapping page layout - Analyse";
 
         public const string XmlMappingSavedAs = "Xml Mapping saved as";
 
