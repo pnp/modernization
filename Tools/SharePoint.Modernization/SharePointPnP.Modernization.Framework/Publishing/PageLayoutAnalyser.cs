@@ -172,7 +172,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 if (_mapping.PageLayouts != null)
                 {
                     var expandMappings = _mapping.PageLayouts.ToList();
-                    expandMappings.Add(layoutMapping);
+
+                    // Prevent duplicate references to the same page layout
+                    if (!expandMappings.Any(o => o.Name == layoutMapping.Name))
+                    {
+                        expandMappings.Add(layoutMapping);
+                    }
+
                     _mapping.PageLayouts = expandMappings.ToArray();
                 }
                 else
