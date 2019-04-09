@@ -19,6 +19,7 @@
 ## Changed
 
 - Added filter for ASPX files and additional error handling #102 [pkbullock]
+- Duplicate analyser mappings produced #100 [pkbullock]
 
 ## [April release (prod) - version 1.0.1904.0]
 
