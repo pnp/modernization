@@ -258,7 +258,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = 0,
                         IsClosed = GetFixedWebPartProperty<bool>(fixedWebpart, "__designer:IsClosed", false),
                         Hidden = false,
-                        Properties = CastAsPropertiesDictionary(fixedWebpart),
+                        Properties = CastAsPropertiesDictionary(fixedWebpart, true),
                     });
 
                 }
@@ -297,13 +297,14 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return defaultValue;
         }
 
-        private Dictionary<string, string> CastAsPropertiesDictionary(FixedWebPart webPart)
+        private Dictionary<string, string> CastAsPropertiesDictionary(FixedWebPart webPart, bool decodeValues = false)
         {
             Dictionary<string, string> props = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             foreach(var prop in webPart.Property)
             {
-                props.Add(prop.Name, prop.Value);
+                props.Add(prop.Name,
+                    decodeValues ? System.Web.HttpUtility.HtmlDecode(prop.Value) : prop.Value);
             }
 
             return props;

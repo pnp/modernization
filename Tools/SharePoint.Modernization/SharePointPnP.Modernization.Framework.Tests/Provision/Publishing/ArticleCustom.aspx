@@ -49,7 +49,7 @@
                     <FrameType>None</FrameType>
 					<PartImageLarge>/_layouts/15/images/mscontl.gif</PartImageLarge>
 					<ID>g_db666743_4c5b_4a21_a9cf_7a199ce19a60</ID>
-					<Content xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor"><![CDATA[Welcome to the home of all SharePoint modernization tools and solutions. Modernization means transforming current "classic" SharePoint usage into "modern" usage, e.g. using modern site pages instead of classic wiki pages or Office 365 Group connecting of classic sites. In this repository you'll find all the SharePoint PnP open source scripts, tools and solutions that will help you modernize your SharePoint environment.]]></Content>
+					<Content xmlns="http://schemas.microsoft.com/WebPart/v2/ContentEditor"><![CDATA[<p>Welcome to the home of all SharePoint modernization tools and solutions. Modernization means transforming current <em>"classic"</em> SharePoint usage into "modern" usage, e.g. using modern site pages instead of classic wiki pages or Office 365 Group connecting of classic sites.</p> <p>In this repository you'll find all the SharePoint PnP open source scripts, tools and solutions that will help you modernize your <strong>SharePoint</strong> environment.</p>]]></Content>
 				</WebPart>
 			</WebPartPages:ContentEditorWebPart>
 

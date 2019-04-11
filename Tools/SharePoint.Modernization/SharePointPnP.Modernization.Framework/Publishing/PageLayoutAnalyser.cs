@@ -85,7 +85,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             EnsureSiteCollectionContext(sourceContext);
 
-            parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true }, Configuration.Default.WithDefaultLoader().WithCss());
+            parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true, IsScripting = true }, Configuration.Default.WithDefaultLoader().WithCss());
         }
         #endregion
 
@@ -458,6 +458,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             var fileUrl = pageLayout.File.ServerRelativeUrl;
             var fileHtml = LoadPageLayoutFile(fileUrl);
 
+            // The HTML file may contain CDATA tags which AngleSharp cannot process as XML
+            if (fileHtml.Contains("CDATA"))
+            {
+                //Angle sharp doesnt process XML CDATA properly.
+                fileHtml = fileHtml
+                            .Replace("<![CDATA[", "").Replace("]]>", "")
+                            .Replace("<!--[CDATA[", "").Replace("]]-->", "");
+            }
+
             using (var document = this.parser.Parse(fileHtml))
             {
 
@@ -562,13 +571,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             if (childProp.NodeName != "#text")
                                             {
                                                 var stronglyTypedChild = (IElement)childProp;
-                                                var content = !string.IsNullOrEmpty(childProp.TextContent) ? childProp.TextContent : stronglyTypedChild.InnerHtml;
-
+                                                
                                                 fixedProperties.Add(new FixedWebPartProperty()
                                                 {
                                                     Name = stronglyTypedChild.NodeName,
                                                     Type = WebPartProperyType.@string,
-                                                    Value = EncodingAndCleanUpContent(content)
+                                                    Value = EncodingAndCleanUpContent(stronglyTypedChild.InnerHtml)
                                                 });
                                             }
                                         }
@@ -614,14 +622,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// </summary>
         /// <param name="content">web part value</param>
         /// <returns></returns>
-        internal string EncodingAndCleanUpContent(string content)
+        internal string EncodingAndCleanUpContent(string htmlContent)
         {
-            if (content.Contains("CDATA"))
-            {
-                content = content.Replace("<!--[CDATA[", "").Replace("]]-->", "");    
-            }
-
-            return System.Web.HttpUtility.HtmlEncode(content);
+            return System.Web.HttpUtility.HtmlEncode(htmlContent);
         }
 
         #endregion
