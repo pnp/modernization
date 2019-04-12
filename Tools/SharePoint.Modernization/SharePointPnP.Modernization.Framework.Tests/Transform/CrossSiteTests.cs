@@ -62,11 +62,12 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPages("wp_");
+                    var pages = sourceClientContext.Web.GetPages("wpp_with");
 
                     foreach (var page in pages)
                     {
@@ -120,14 +121,58 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
             //Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
+
+        [TestMethod]
+        public void CrossSiteTransform_OverwriteOffTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                //Test Requires a test site
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
+                {
+                    var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
+
+                    var pages = sourceClientContext.Web.GetPages("wpp_with"); //Specific page - aim for one file
+
+                    foreach (var page in pages)
+                    {
+                        PageTransformationInformation pti = new PageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = false,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                        };
+
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                        var result = Assert.ThrowsException<ArgumentException>(() =>
+                        {
+                            var result1 = pageTransformator.Transform(pti);
+                            var result2 = pageTransformator.Transform(pti); //Run twice incase target site didnt have the file in the first place
+                        });
+
+                        Assert.IsTrue(result.Message.Contains("Not overwriting - there already exists a page with name"));
+
+                    }
+                }
+            }
+        }
+
+
         [TestMethod]
         public void CrossSiteTransform_SameSite_WebPartPageTest()
         {
-            using (var sourceClientContext = TestCommon.CreateClientContext())
+            using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
             {
                 var pageTransformator = new PageTransformator(sourceClientContext);
+                pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                var pages = sourceClientContext.Web.GetPages("wpp");
+                var pages = sourceClientContext.Web.GetPages("wpp_with");
 
                 foreach (var page in pages)
                 {
@@ -178,6 +223,49 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
             Assert.Inconclusive(TestCommon.InconclusiveNoAutomatedChecksMessage);
 
         }
+
+        [TestMethod]
+        public void CrossSiteTransform_SameSite_OverwriteOffTest()
+        {
+
+            //Test Requires a test site
+            using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
+            {
+                var pageTransformator = new PageTransformator(sourceClientContext);
+                pageTransformator.RegisterObserver(new UnitTestLogObserver());
+
+                var pages = sourceClientContext.Web.GetPages("wpp_with"); //Specific page - aim for one file
+
+                foreach (var page in pages)
+                {
+                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = false,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        TargetPagePrefix = "Converted_",
+
+                    };
+
+                    pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                    pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                    var result = Assert.ThrowsException<ArgumentException>(() =>
+                    {
+                        var result1 = pageTransformator.Transform(pti);
+                        var result2 = pageTransformator.Transform(pti); //Run twice incase target site didnt have the file in the first place
+                        });
+
+                    Assert.IsTrue(result.Message.Contains("Not overwriting - there already exists a page with name"));
+
+                }
+            }
+
+        }
+
 
         [TestMethod]
         public void CrossSiteTransform_SameSite_WikiPageTest()
