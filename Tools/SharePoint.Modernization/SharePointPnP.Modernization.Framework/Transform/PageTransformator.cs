@@ -313,7 +313,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogDebug(LogStrings.LoadingExistingPageIfExists, LogStrings.Heading_PageCreation);
 
                 // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
-                existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary);
+                existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary, targetClientContext);
                 pageExists = true;
             }
             catch (ArgumentException ex)
@@ -982,37 +982,42 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
         }
 
-        private Microsoft.SharePoint.Client.File Load(ClientContext cc, PageTransformationInformation pageTransformationInformation, out List pagesLibrary)
+        private Microsoft.SharePoint.Client.File Load(ClientContext sourceContext, PageTransformationInformation pageTransformationInformation, out List pagesLibrary, ClientContext targetContext = null)
         {
-            cc.Web.EnsureProperty(w => w.ServerRelativeUrl);
+            sourceContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
             // Load the pages library and page file (if exists) in one go 
-            var listServerRelativeUrl = UrlUtility.Combine(cc.Web.ServerRelativeUrl, "SitePages");
-            pagesLibrary = cc.Web.GetList(listServerRelativeUrl);
+            var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, "SitePages");
+            
+            pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl);
 
             if (pageTransformationInformation.CopyPageMetadata)
             {
-                cc.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, 
+                sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, 
                                                   l => l.Hidden, l => l.EffectiveBasePermissions, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl, 
                                                   l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required));
             }
             else
             {
-                cc.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, 
+                sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, 
                                                   l => l.Hidden, l => l.EffectiveBasePermissions, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
             }
 
-            var file = cc.Web.GetFileByServerRelativeUrl($"{listServerRelativeUrl}/{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
-            cc.Web.Context.Load(file, f => f.Exists, f => f.ListItemAllFields);
+            var contextForFile = targetClientContext == null ? sourceClientContext : targetClientContext;
+            var sitePagesServerRelativeUrl = UrlUtility.Combine(contextForFile.Web.ServerRelativeUrl, "sitepages");
+
+            var file = contextForFile.Web.GetFileByServerRelativeUrl($"{sitePagesServerRelativeUrl}/{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
+            contextForFile.Web.Context.Load(file, f => f.Exists, f => f.ListItemAllFields);
+            contextForFile.ExecuteQueryRetry();
 
             if (pageTransformationInformation.KeepPageSpecificPermissions)
             {
-                cc.Load(pageTransformationInformation.SourcePage, p => p.HasUniqueRoleAssignments);
+                sourceContext.Load(pageTransformationInformation.SourcePage, p => p.HasUniqueRoleAssignments);
             }
 
             try
             {
-                cc.ExecuteQueryRetry();
+                sourceContext.ExecuteQueryRetry();
             }
             catch (ServerException se)
             {
@@ -1034,7 +1039,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (!file.Exists)
             {
-                LogError(LogStrings.Error_PageDoesNotExistInWeb, LogStrings.Heading_Load);
+                LogError(LogStrings.Error_PageDoesNotExistInWeb, LogStrings.Heading_Load, null, true);
                 throw new ArgumentException($"{pageTransformationInformation.TargetPageName} - {LogStrings.Error_PageDoesNotExistInWeb}");
             }
 

@@ -607,7 +607,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             if (!file.Exists)
             {
-                LogError(LogStrings.Error_PageDoesNotExistInWeb, LogStrings.Heading_Load);
+                LogError(LogStrings.Error_PageDoesNotExistInWeb, LogStrings.Heading_Load, null, true);
                 throw new ArgumentException($"{publishingPageTransformationInformation.TargetPageName} - {LogStrings.Error_PageDoesNotExistInWeb}");
             }
 
