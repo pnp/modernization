@@ -85,7 +85,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             EnsureSiteCollectionContext(sourceContext);
 
-            parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true }, Configuration.Default.WithDefaultLoader().WithCss());
+            //parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true,}, Configuration.Default.WithDefaultLoader().WithCss());
+            parser = new HtmlParser();
         }
         #endregion
 
@@ -458,6 +459,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             var fileUrl = pageLayout.File.ServerRelativeUrl;
             var fileHtml = LoadPageLayoutFile(fileUrl);
 
+            // replace cdata tags to 'fool' AngleSharp
+            fileHtml = fileHtml.Replace("<![CDATA[", "<encodeddata>");
+            fileHtml = fileHtml.Replace("]]>", "</encodeddata>");
+
             using (var document = this.parser.Parse(fileHtml))
             {
 
@@ -535,9 +540,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 {
                                     ZoneId = docNode.Id,
                                     Column = 1,
-                                    //ColumnSpecified = true,
                                     Row = 1,
-                                    //RowSpecified = true,
                                     //ZoneIndex = control. // TODO: Is this used?
                                 });
                             }
@@ -562,7 +565,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             if (childProp.NodeName != "#text")
                                             {
                                                 var stronglyTypedChild = (IElement)childProp;
-                                                var content = !string.IsNullOrEmpty(childProp.TextContent) ? childProp.TextContent : stronglyTypedChild.InnerHtml;
+                                                //var content = !string.IsNullOrEmpty(childProp.TextContent) ? childProp.TextContent : stronglyTypedChild.InnerHtml;
+                                                var content = stronglyTypedChild.InnerHtml;
 
                                                 fixedProperties.Add(new FixedWebPartProperty()
                                                 {
@@ -616,12 +620,21 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <returns></returns>
         internal string EncodingAndCleanUpContent(string content)
         {
-            if (content.Contains("CDATA"))
+            if (string.IsNullOrEmpty(content))
             {
-                content = content.Replace("<!--[CDATA[", "").Replace("]]-->", "");    
+                return "";
             }
 
-            return System.Web.HttpUtility.HtmlEncode(content);
+            if (content.Contains("encodeddata>"))
+            {
+                // Drop the 'fake' tags again...we'll the XML serializer deal with the encoding work
+                content = content.Replace("<encodeddata>", "").Replace("</encodeddata>", "");
+                return content;
+            }
+            else
+            {
+                return System.Web.HttpUtility.HtmlEncode(content);
+            }
         }
 
         #endregion
