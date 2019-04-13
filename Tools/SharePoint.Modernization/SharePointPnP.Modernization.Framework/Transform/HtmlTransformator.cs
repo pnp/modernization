@@ -1430,8 +1430,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 int rowPos = 0;
                 foreach (var row in rows)
                 {
+                    // We assume a table header only has TH cells
                     var tableHeaders = row.Children.Where(p => p.TagName.Equals("th", StringComparison.InvariantCultureIgnoreCase));
-                    if (tableHeaders != null && tableHeaders.Count() > 0)
+                    var cellsInTableHeader = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase));
+                    if (tableHeaders != null && tableHeaders.Count() > 0 && cellsInTableHeader.Count() == 0)
                     {
                         int colPos = 0;
                         foreach (var tableHeader in tableHeaders)
@@ -1450,74 +1452,77 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             }
                         }
                     }
-
-                    var tableCells = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase));
-                    if (tableCells != null && tableCells.Count() > 0)
+                    else
                     {
-                        int colPos = 0;
-                        foreach (var tableCell in tableCells)
+                        // Support model of TD cells mixed with TH
+                        var tableCells = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase) || p.TagName.Equals("th", StringComparison.InvariantCultureIgnoreCase));
+                        if (tableCells != null && tableCells.Count() > 0)
                         {
-
-                            if (cells[rowPos, colPos] != null)
+                            int colPos = 0;
+                            foreach (var tableCell in tableCells)
                             {
-                                // cells was already filled due to previous row span expansion. Find next free cell on this row
-                                while ((cells[rowPos, colPos] != null) && colPos < tableDimension.Item1)
+
+                                if (cells[rowPos, colPos] != null)
                                 {
-                                    colPos++;
-                                }
-                            }
-
-                            cells[rowPos, colPos] = new IElementCell(tableCell);
-                            colPos++;
-
-                            var colSpan = tableCell.GetAttribute("colspan");
-                            var rowSpan = tableCell.GetAttribute("rowspan");
-
-                            // We do have both col and row span set
-                            if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd) &&
-                                !string.IsNullOrEmpty(rowSpan) && rowSpan != "1" && int.TryParse(rowSpan, out int rowCellsToAdd))
-                            {
-                                int tempRowPos = rowPos;
-                                for (int j = 0; j < rowCellsToAdd; j++)
-                                {
-                                    int tempColPos = colPos - 1;
-                                    for (int i = 0; i < columnCellsToAdd; i++)
+                                    // cells was already filled due to previous row span expansion. Find next free cell on this row
+                                    while ((cells[rowPos, colPos] != null) && colPos < tableDimension.Item1)
                                     {
-                                        if (cells[tempColPos, tempRowPos] == null)
-                                        {
-                                            cells[tempColPos, tempRowPos] = new IElementCell(null);
-                                        }
-                                        tempColPos++;
-                                    }
-                                    tempRowPos++;
-                                }
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd2))
-                                {
-                                    for (int i = 0; i < columnCellsToAdd2 - 1; i++)
-                                    {
-                                        cells[rowPos, colPos] = new IElementCell(null);
                                         colPos++;
                                     }
                                 }
 
-                                if (!string.IsNullOrEmpty(rowSpan) && rowSpan != "1" && int.TryParse(rowSpan, out int rowCellsToAdd2))
+                                cells[rowPos, colPos] = new IElementCell(tableCell);
+                                colPos++;
+
+                                var colSpan = tableCell.GetAttribute("colspan");
+                                var rowSpan = tableCell.GetAttribute("rowspan");
+
+                                // We do have both col and row span set
+                                if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd) &&
+                                    !string.IsNullOrEmpty(rowSpan) && rowSpan != "1" && int.TryParse(rowSpan, out int rowCellsToAdd))
                                 {
-                                    int tempRowPos = rowPos + 1;
-                                    for (int i = 0; i < rowCellsToAdd2 - 1; i++)
+                                    int tempRowPos = rowPos;
+                                    for (int j = 0; j < rowCellsToAdd; j++)
                                     {
-                                        cells[tempRowPos, colPos - 1] = new IElementCell(null);
+                                        int tempColPos = colPos - 1;
+                                        for (int i = 0; i < columnCellsToAdd; i++)
+                                        {
+                                            if (cells[tempColPos, tempRowPos] == null)
+                                            {
+                                                cells[tempColPos, tempRowPos] = new IElementCell(null);
+                                            }
+                                            tempColPos++;
+                                        }
                                         tempRowPos++;
                                     }
                                 }
-                            }
-                        }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(colSpan) && colSpan != "1" && int.TryParse(colSpan, out int columnCellsToAdd2))
+                                    {
+                                        for (int i = 0; i < columnCellsToAdd2 - 1; i++)
+                                        {
+                                            cells[rowPos, colPos] = new IElementCell(null);
+                                            colPos++;
+                                        }
+                                    }
 
-                        // Only increase row pos for actual rows as header is handled differently
-                        rowPos++;
-                    }                    
+                                    if (!string.IsNullOrEmpty(rowSpan) && rowSpan != "1" && int.TryParse(rowSpan, out int rowCellsToAdd2))
+                                    {
+                                        int tempRowPos = rowPos + 1;
+                                        for (int i = 0; i < rowCellsToAdd2 - 1; i++)
+                                        {
+                                            cells[tempRowPos, colPos - 1] = new IElementCell(null);
+                                            tempRowPos++;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Only increase row pos for actual rows as header is handled differently
+                            rowPos++;
+                        }
+                    }
                 }
             }
 
@@ -1599,7 +1604,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         hasHeader = true;
                     }
 
-                    var tableCells = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase));
+                    // It's allowed to mix TH and TD in a table row
+                    var tableCells = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase) || p.TagName.Equals("th", StringComparison.InvariantCultureIgnoreCase));
                     if (tableCells != null && tableCells.Count() > 0)
                     {
                         int colCount = 0;

@@ -22,6 +22,7 @@
 - Duplicate analyser mappings produced #100 [pkbullock]
 - Amended Page Transformator to check target site for existing file #117 [pkbullock]
 - Fixed CDATA handling in page layout analyzer
+- Support table structures with mixed TD and TH cells in the same TR
 
 ## [April release (prod) - version 1.0.1904.0]
 
