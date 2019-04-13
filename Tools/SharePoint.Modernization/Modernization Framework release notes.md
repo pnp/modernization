@@ -20,6 +20,8 @@
 
 - Added filter for ASPX files and additional error handling #102 [pkbullock]
 - Duplicate analyser mappings produced #100 [pkbullock]
+- Amended Page Transformator to check target site for existing file #117 [pkbullock]
+- Fixed CDATA handling in page layout analyzer
 
 ## [April release (prod) - version 1.0.1904.0]
 
