@@ -183,6 +183,7 @@ configure the page transformation engine to use the community script editor. You
         <Properties>
           <Property Name="ContentLink" Type="string" Functions="{Temp} = ContentEmbedCrossSiteCheck({ContentLink}); {ServerRelativeContent} = ReturnServerRelativePath({ContentLink}); {FullPath} = Concatenate({Host}, {ServerRelativeContent});{EncodedContentLink} = HtmlEncodeForJson({FullPath})" />
           <Property Name="Content" Type="string" Functions="{Script} = HtmlEncodeForJson({Content}); {FileContents} = LoadContentFromFile({ContentLink}); {UsePlaceHolders} = ReturnFalse(); {CleanedContents} = TextCleanup({Content},{UsePlaceHolders}); {CleanedFileContents} = TextCleanup({FileContents},{UsePlaceHolders}); {FileContentsEncoded} = HtmlEncodeForJson({FileContents})"/>
+          <Property Name="ChromeType" Type="integer"/>
           <Property Name="PartStorage" Type="string"/>
         </Properties>
         <!-- If a link was used then:

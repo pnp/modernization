@@ -115,6 +115,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         {
                             htmlToParse = wp.Properties["Content"];
                         }
+
+                        // Is there a need to add the web part title as content?
+                        htmlToParse = IncludeWebPartTitle(htmlToParse, wp.Properties);
                     }
                 }
 
@@ -134,6 +137,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // No special handling needed, so skip this wiki text part
                         if (!elementsToHandle.Any())
                         {
+                            if (wp.Type == WebParts.ContentEditor)
+                            {
+                                // Since we've already read (and possible extended) the content let's 'rewrite' the web part properties
+                                if (wp.Properties.ContainsKey("ContentLink"))
+                                {
+                                    wp.Properties["ContentLink"] = "";                                    
+                                }
+
+                                if (!wp.Properties.ContainsKey("Content"))
+                                {
+                                    wp.Properties.Add("Content", htmlToParse);
+                                }
+                                else
+                                {
+                                    wp.Properties["Content"] = htmlToParse;
+                                }
+                            }
+
                             updatedWebParts.Add(wp);
                             continue;
                         }
@@ -400,6 +421,26 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             // Return the collection of "split" web parts
             return updatedWebParts;
+        }
+
+        private string IncludeWebPartTitle(string htmlContent, Dictionary<string,string> webPartProperties)
+        {
+            if (webPartProperties.ContainsKey("ChromeType") && webPartProperties["ChromeType"] != null)
+            {
+                string chromeType = webPartProperties["ChromeType"].ToString();
+
+                // Add header for all but the chrometype = none and chrometype = border only
+                if (chromeType != "2" && chromeType != "4")
+                {
+                    // Only add a header if there a title set
+                    if (webPartProperties.ContainsKey("Title") && webPartProperties["Title"] != null)
+                    {
+                        htmlContent = $"<H2>{webPartProperties["Title"].ToString()}</H2><div>{htmlContent}</div>";
+                    }
+                }
+            }
+
+            return htmlContent;
         }
 
         private void StripEmptyDivAndPfromHtmlTree(IElement newWikiTextHtmlFragment)

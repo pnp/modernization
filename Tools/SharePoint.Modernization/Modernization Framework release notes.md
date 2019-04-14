@@ -23,6 +23,7 @@
 - Amended Page Transformator to check target site for existing file #117 [pkbullock]
 - Fixed CDATA handling in page layout analyzer
 - Support table structures with mixed TD and TH cells in the same TR
+- Content Editor web part title is taking over when the web part's "ChromeType" differs from "None" or "Border-only" #120
 
 ## [April release (prod) - version 1.0.1904.0]
 
