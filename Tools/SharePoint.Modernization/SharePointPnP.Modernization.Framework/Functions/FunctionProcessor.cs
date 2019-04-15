@@ -274,6 +274,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             FunctionDefinition def = new FunctionDefinition();
 
+            // Set the output parameter
             string functionString = null;
             if (function.IndexOf("=") > 0)
             {
@@ -299,7 +300,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 functionString = function.Trim();
             }
 
-
+            // Analyze the fuction
             string functionName = functionString.Substring(0, functionString.IndexOf("("));
             if (functionName.IndexOf(".") > -1)
             {
@@ -316,13 +317,31 @@ namespace SharePointPnP.Modernization.Framework.Functions
             
             def.Input = new List<FunctionParameter>();
 
+            // Analyze the function parameters
+            int staticCounter = 0;
             var functionParameters = functionString.Substring(functionString.IndexOf("(") + 1).Replace(")", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var functionParameter in functionParameters)
             {
-                FunctionParameter input = new FunctionParameter()
+                //FunctionParameter input = new FunctionParameter()
+                //{
+                //    Name = functionParameter.Replace("{", "").Replace("}", "").Trim(),
+                //};
+                FunctionParameter input = new FunctionParameter();
+                if (functionParameter.Contains("{") && functionParameter.Contains("}"))
                 {
-                    Name = functionParameter.Replace("{", "").Replace("}", "").Trim(),
-                };
+                    input.Name = functionParameter.Replace("{", "").Replace("}", "").Trim();
+                }
+                else if (functionParameter.Contains("'"))
+                {
+                    input.IsStatic = true;
+                    input.Name = $"Static_{staticCounter}";
+                    input.Value = functionParameter.Replace("'", "");
+                    staticCounter++;
+                }
+                else
+                {
+                    input.Name = functionParameter.Trim();
+                }
 
                 // Populate the function parameter with a value coming from the analyzed web part
                 var wpProp = webPartData.Properties.Where(p => p.Name.Equals(input.Name, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
@@ -330,8 +349,11 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 {
                     // Map types used in the model to types used in function processor
                     input.Type = MapType(wpProp.Type.ToString());
-                    var wpInstanceProp = webPart.Properties.Where(p => p.Key.Equals(input.Name, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
-                    input.Value = wpInstanceProp.Value;
+                    if (!input.IsStatic)
+                    {
+                        var wpInstanceProp = webPart.Properties.Where(p => p.Key.Equals(input.Name, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
+                        input.Value = wpInstanceProp.Value;
+                    }
                     def.Input.Add(input);
                 }
                 else

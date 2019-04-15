@@ -105,6 +105,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // - EncodeGuid()
             // - MyLib.EncodeGuid()
             // - EncodeGuid({ListId})
+            // - Literal('a string')
             // - EncodeGuid({ListId}, {Param2})
             // - {ViewId} = EncodeGuid()
             // - {ViewId} = EncodeGuid({ListId})
@@ -113,6 +114,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             FunctionDefinition def = new FunctionDefinition();
 
+            // Set the output parameter
             string functionString = null;
             if (function.IndexOf("=") > 0)
             {
@@ -138,7 +140,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 functionString = function.Trim();
             }
 
-
+            // Analyze the fuction
             string functionName = functionString.Substring(0, functionString.IndexOf("("));
             if (functionName.IndexOf(".") > -1)
             {
@@ -155,26 +157,43 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             def.Input = new List<FunctionParameter>();
 
+            // Analyze the function parameters
+            int staticCounter = 0;
             var functionParameters = functionString.Substring(functionString.IndexOf("(") + 1).Replace(")", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var functionParameter in functionParameters)
             {
-                FunctionParameter input = new FunctionParameter()
+                FunctionParameter input = new FunctionParameter();
+                if (functionParameter.Contains("{") && functionParameter.Contains("}"))
                 {
-                    Name = functionParameter.Replace("{", "").Replace("}", "").Trim(),
-                };
+                    input.Name = functionParameter.Replace("{", "").Replace("}", "").Trim();
+                }
+                else if (functionParameter.Contains("'"))
+                {
+                    input.IsStatic = true;
+                    input.Name = $"Static_{staticCounter}";
+                    input.Value = functionParameter.Replace("'", "");
+                    staticCounter++;
+                }
+                else
+                {
+                    input.Name = functionParameter.Trim();
+                }
 
                 // Populate the function parameter with a value coming from publishing page
                 input.Type = MapType(propertyType.ToString());
 
-                if (propertyType == FieldType.String)
+                if (!input.IsStatic)
                 {
-                    input.Value = page.GetFieldValueAs<string>(input.Name);
-                }
-                else if (propertyType == FieldType.User)
-                {
-                    if (page.FieldExistsAndUsed(input.Name))
+                    if (propertyType == FieldType.String)
                     {
-                        input.Value = ((FieldUserValue)page[input.Name]).LookupId.ToString();
+                        input.Value = page.GetFieldValueAs<string>(input.Name);
+                    }
+                    else if (propertyType == FieldType.User)
+                    {
+                        if (page.FieldExistsAndUsed(input.Name))
+                        {
+                            input.Value = ((FieldUserValue)page[input.Name]).LookupId.ToString();
+                        }
                     }
                 }
                 def.Input.Add(input);

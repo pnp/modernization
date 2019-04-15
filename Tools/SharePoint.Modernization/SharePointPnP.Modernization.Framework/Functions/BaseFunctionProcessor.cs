@@ -1,10 +1,7 @@
 ﻿using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Functions
 {
@@ -39,6 +36,11 @@ namespace SharePointPnP.Modernization.Framework.Functions
             /// Value of the parameter
             /// </summary>
             public string Value { get; set; }
+
+            /// <summary>
+            /// Is this a static, hard coded, value. Eg 'my hardcoded string'
+            /// </summary>
+            public bool IsStatic { get; set; }
         }
 
         /// <summary>

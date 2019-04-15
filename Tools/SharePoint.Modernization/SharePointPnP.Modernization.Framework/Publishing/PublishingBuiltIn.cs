@@ -50,6 +50,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             return "";
         }
+
+
+        /// <summary>
+        /// Returns an the (static) string provided as input
+        /// </summary>
+        /// <returns>String provided as input</returns>
+        [FunctionDocumentation(Description = "Returns an the (static) string provided as input",
+                               Example = "EmptyString('static string')")]
+        [InputDocumentation(Name = "'static string'", Description = "Static input string")]
+        [OutputDocumentation(Name = "return value", Description = "String provided as input")]
+        public string StaticString(string staticString)
+        {
+            return staticString;
+        }
         #endregion
 
         #region Image functions

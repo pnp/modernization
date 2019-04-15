@@ -8,6 +8,7 @@
     <PageLayout Name="VolvoArticleLeft" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
+        <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="StaticString('/sites/ModernizationTarget/SiteAssets/sitepages/Michael-Freedman/ms-stories-station-q-freedman-michael-12-1024x683.jpg')" />-->
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
         <Field Name="Comments" HeaderProperty="AlternativeText"/>
         <Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({PublishingContact})"/>
