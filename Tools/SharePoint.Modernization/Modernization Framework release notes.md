@@ -17,6 +17,7 @@
 ## Added
 
 - Support for static parameter values in function definitions. Use the new StaticString function, e.g. StaticString('your static string') to define a static value. Fixes #119
+- Support for running a function on MetaData field mappings
 
 ## Changed
 

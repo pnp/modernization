@@ -15,6 +15,7 @@
       </Header>
       <MetaData>
         <!-- Use Custom1 field when AssociatedContentType is set to CustomPage1 -->
+        <Field Name="PublishingContactEmail" TargetFieldName="BannerImageUrl" Functions="StaticString('https://bertonline.sharepoint.com/_layouts/15/getpreview.ashx?guidSite=88eebac1710b464cb6816639340fac55&amp;guidWeb=277fe40db9d24da5bbc6827714184958&amp;guidFile=91bf17fd54e849149a3ad6b4f006304e&amp;ext=jpg')" />
         <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
         <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" />
         <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" />

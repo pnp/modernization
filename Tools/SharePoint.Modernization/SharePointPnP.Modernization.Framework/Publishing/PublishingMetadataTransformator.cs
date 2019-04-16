@@ -13,14 +13,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 {
     public class PublishingMetadataTransformator: BaseTransform
     {
-        PublishingPageTransformationInformation publishingPageTransformationInformation;
-        ClientContext sourceClientContext;
-        ClientContext targetClientContext;
-        ClientSidePage page;
-        PageLayout pageLayoutMappingModel;
+        private PublishingPageTransformationInformation publishingPageTransformationInformation;
+        private ClientContext sourceClientContext;
+        private ClientContext targetClientContext;
+        private ClientSidePage page;
+        private PageLayout pageLayoutMappingModel;
+        private PublishingPageTransformation publishingPageTransformation;
+        private PublishingFunctionProcessor functionProcessor;
 
         #region Construction
-        public PublishingMetadataTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext, ClientContext targetClientContext, ClientSidePage page, PageLayout publishingPageLayoutModel, IList<ILogObserver> logObservers = null)
+        public PublishingMetadataTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext, ClientContext targetClientContext, ClientSidePage page, PageLayout publishingPageLayoutModel, PublishingPageTransformation publishingPageTransformation, IList<ILogObserver> logObservers = null)
         {
             // Register observers
             if (logObservers != null)
@@ -36,6 +38,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.targetClientContext = targetClientContext;
             this.page = page;
             this.pageLayoutMappingModel = publishingPageLayoutModel;
+            this.publishingPageTransformation = publishingPageTransformation;
+            this.functionProcessor = new PublishingFunctionProcessor(publishingPageTransformationInformation.SourcePage, sourceClientContext, targetClientContext, this.publishingPageTransformation, base.RegisteredLogObservers);
         }
         #endregion
 
@@ -92,7 +96,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         {
                             if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
                             {
-                                this.page.PageListItem[targetFieldData.FieldName] = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
+                                if (!string.IsNullOrEmpty(fieldToProcess.Functions))
+                                {
+                                    // execute function
+                                    var evaluatedField = this.functionProcessor.Process(fieldToProcess.Functions, fieldToProcess.Name, CastToPublishingFunctionProcessorFieldType(targetFieldData.FieldType));
+                                    if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                                    {
+                                        this.page.PageListItem[targetFieldData.FieldName] = evaluatedField.Item2;
+                                    }
+                                }
+                                else
+                                {
+                                    this.page.PageListItem[targetFieldData.FieldName] = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
+                                }
                                 isDirty = true;
 
                                 LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
@@ -230,6 +246,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // TODO: add logging
             }
         }
+
+        #region Helper methods
+        private PublishingFunctionProcessor.FieldType CastToPublishingFunctionProcessorFieldType(string fieldType)
+        {
+            if (fieldType.Equals("User", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return PublishingFunctionProcessor.FieldType.User;
+            }
+            else
+            {
+                return PublishingFunctionProcessor.FieldType.String;
+            }
+        }
+        #endregion
 
     }
 }

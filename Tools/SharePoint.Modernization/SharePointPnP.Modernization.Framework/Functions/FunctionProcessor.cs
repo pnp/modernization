@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
-using SharePointPnP.Modernization.Framework.Transform;
 
 namespace SharePointPnP.Modernization.Framework.Functions
 {
@@ -274,6 +274,24 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             FunctionDefinition def = new FunctionDefinition();
 
+            // Let's grab 'static' parameters and replace them with a simple value, otherwise the parsing can go wrong due to special characters inside the static string
+            Dictionary<string, string> staticParameters = null;
+            if (function.IndexOf("'") > 0)
+            {
+                staticParameters = new Dictionary<string, string>();
+
+                // Grab '' enclosed strings
+                var regex = new Regex(@"('(?:[^'\\]|(?:\\\\)|(?:\\\\)*\\.{1})*')");
+                var matches = regex.Matches(function);
+
+                int staticReplacement = 0;
+                foreach (var match in matches)
+                {
+                    staticParameters.Add($"'StaticParameter{staticReplacement}'", match.ToString());
+                    function = function.Replace(match.ToString(), $"'StaticParameter{staticReplacement}'");
+                }
+            }
+
             // Set the output parameter
             string functionString = null;
             if (function.IndexOf("=") > 0)
@@ -335,7 +353,19 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 {
                     input.IsStatic = true;
                     input.Name = $"Static_{staticCounter}";
-                    input.Value = functionParameter.Replace("'", "");
+
+                    if (functionParameter.StartsWith("'StaticParameter"))
+                    {
+                        if (staticParameters.TryGetValue(functionParameter, out string staticParameterValue))
+                        {
+                            input.Value = staticParameterValue.Replace("'", "");
+                        }
+                    }
+                    else
+                    {
+                        input.Value = functionParameter.Replace("'", "");
+                    }
+
                     staticCounter++;
                 }
                 else
