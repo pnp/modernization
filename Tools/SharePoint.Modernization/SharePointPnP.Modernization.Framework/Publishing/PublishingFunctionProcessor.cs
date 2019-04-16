@@ -106,7 +106,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // - EncodeGuid()
             // - MyLib.EncodeGuid()
             // - EncodeGuid({ListId})
-            // - Literal('a string')
+            // - StaticString('a string')
             // - EncodeGuid({ListId}, {Param2})
             // - {ViewId} = EncodeGuid()
             // - {ViewId} = EncodeGuid({ListId})

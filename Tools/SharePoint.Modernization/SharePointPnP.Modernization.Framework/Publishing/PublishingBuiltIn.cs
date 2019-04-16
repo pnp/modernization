@@ -14,6 +14,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private ClientContext sourceClientContext;
         private ClientContext targetClientContext;
         private HtmlParser parser;
+        private BuiltIn builtIn;
 
         #region Construction
         /// <summary>
@@ -27,6 +28,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
             this.parser = new HtmlParser();
+            this.builtIn = new BuiltIn(targetClientContext, sourceClientContext, logObservers: logObservers);
 
             if (logObservers != null)
             {
@@ -78,6 +80,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         [OutputDocumentation(Name = "return value", Description = "Server relative image url")]
         public string ToImageUrl(string htmlImage)
         {
+            // If the image string is not a html image representation then simply return the trimmed value
+            if (!htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                return htmlImage;
+            }
+
             // Sample input: <img alt="" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
             var htmlDoc = parser.Parse(htmlImage);
             var imgElement = htmlDoc.QuerySelectorAll("img").FirstOrDefault();
@@ -109,6 +117,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         [OutputDocumentation(Name = "return value", Description = "Image alternate text")]
         public string ToImageAltText(string htmlImage)
         {
+            // If the image string is not a html image representation then simply return the trimmed value
+            if (!htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                return htmlImage;
+            }
+
             // Sample input: <img alt="bla" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
             var htmlDoc = parser.Parse(htmlImage);
             var imgElement = htmlDoc.QuerySelectorAll("img").FirstOrDefault();
@@ -121,6 +135,56 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             return imageAltText;
+        }
+
+        /// <summary>
+        /// Returns a page preview image url
+        /// </summary>
+        /// <param name="image">A publishing image field value or a string containing a server relative image path</param>
+        /// <returns>A formatted preview image url</returns>
+        [FunctionDocumentation(Description = "Returns a page preview image url.",
+                                   Example = "ToPreviewImageUrl({PreviewImage})")]
+        [InputDocumentation(Name = "{PreviewImage}", Description = "A publishing image field value or a string containing a server relative image path")]
+        [OutputDocumentation(Name = "return value", Description = "A formatted preview image url")]
+        public string ToPreviewImageUrl(string image)
+        {
+            if (string.IsNullOrEmpty(image))
+            {
+                return "";
+            }
+
+            // If the image string is a html image representation
+            if (image.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                image = ToImageUrl(image);
+            }
+
+            // The image string should now be a server relative path...trigger asset transfer if needed by calling the builtin function ReturnCrossSiteRelativePath
+            var previewServerRelativeUrl = this.builtIn.ReturnCrossSiteRelativePath(image);
+
+            // Lookup the image properties by calling the builtin function ImageLookup
+            var imageProperties = this.builtIn.ImageLookup(previewServerRelativeUrl);
+
+            // Construct preview image url
+            string siteIdString = this.targetClientContext.Site.EnsureProperty(p => p.Id).ToString().Replace("-", "");
+            string webIdString = this.targetClientContext.Web.EnsureProperty(p => p.Id).ToString().Replace("-", "");
+            if (imageProperties.TryGetValue("ImageUniqueId", out string uniqueIdString))
+            {
+                uniqueIdString = uniqueIdString.Replace("-", "");
+                string extension = System.IO.Path.GetExtension(previewServerRelativeUrl);
+                if (!string.IsNullOrEmpty(extension))
+                {
+                    extension = extension.Replace(".", "");
+                }
+
+                if (!string.IsNullOrEmpty(siteIdString) && !string.IsNullOrEmpty(webIdString) && !string.IsNullOrEmpty(uniqueIdString) && !string.IsNullOrEmpty(extension))
+                {
+                    return $"{this.targetClientContext.Web.EnsureProperty(p => p.Url)}/_layouts/15/getpreview.ashx?guidSite={siteIdString}&guidWeb={webIdString}&guidFile={uniqueIdString}&ext={extension}";
+                }
+            }
+
+            // Something went wrong...leave preview image url blank so that the default logic during page save can still pick up a nice preview image
+            return "";
         }
         #endregion
 

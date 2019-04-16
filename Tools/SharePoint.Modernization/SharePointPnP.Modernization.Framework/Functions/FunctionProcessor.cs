@@ -267,6 +267,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             // - MyLib.EncodeGuid()
             // - EncodeGuid({ListId})
             // - EncodeGuid({ListId}, {Param2})
+            // - StaticString('a string')
             // - {ViewId} = EncodeGuid()
             // - {ViewId} = EncodeGuid({ListId})
             // - {ViewId} = MyLib.EncodeGuid({ListId})
@@ -340,10 +341,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
             var functionParameters = functionString.Substring(functionString.IndexOf("(") + 1).Replace(")", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var functionParameter in functionParameters)
             {
-                //FunctionParameter input = new FunctionParameter()
-                //{
-                //    Name = functionParameter.Replace("{", "").Replace("}", "").Trim(),
-                //};
                 FunctionParameter input = new FunctionParameter();
                 if (functionParameter.Contains("{") && functionParameter.Contains("}"))
                 {

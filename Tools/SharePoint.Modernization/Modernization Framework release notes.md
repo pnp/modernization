@@ -17,7 +17,8 @@
 ## Added
 
 - Support for static parameter values in function definitions. Use the new StaticString function, e.g. StaticString('your static string') to define a static value. Fixes #119
-- Support for running a function on MetaData field mappings
+- Support for running a function on MetaData field mappings (single function can be added per field, not supported for taxonomy fields)
+- Added ToPreviewImageUrl built in function which allows to control the page preview image via either a dynamic value (field of the source page list item) or a static string
 
 ## Changed
 

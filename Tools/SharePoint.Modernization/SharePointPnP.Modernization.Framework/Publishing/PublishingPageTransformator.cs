@@ -289,7 +289,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Grab the pagelayout mapping to use:
             var pageLayoutMappingModel = GetPageLayoutMappingModel(publishingPageTransformationInformation.SourcePage);
 
-            pageData = new PublishingPage(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation).Analyze(pageLayoutMappingModel);
+            pageData = new PublishingPage(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation, targetContext: targetClientContext, logObservers: base.RegisteredLogObservers).Analyze(pageLayoutMappingModel);
 
             // Wiki content can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
             LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);

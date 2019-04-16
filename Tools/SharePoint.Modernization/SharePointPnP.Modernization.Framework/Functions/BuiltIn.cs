@@ -638,11 +638,21 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             try
             {
-                var clientSidePage = this.clientSidePage.PageTitle;
+                string pageFileName = null;
+
+                if (this.clientSidePage != null && !string.IsNullOrEmpty(this.clientSidePage.PageTitle))
+                {
+                    pageFileName = this.clientSidePage.PageTitle;
+                }
+                else
+                {
+                    // deduct based upon filename in url
+                    pageFileName = Path.GetFileNameWithoutExtension(serverRelativeAssetFileName);
+                }
 
                 AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, base.clientContext, base.RegisteredLogObservers);
 
-                var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, clientSidePage);
+                var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, pageFileName);
 
                 return newAssetLocation;
 
