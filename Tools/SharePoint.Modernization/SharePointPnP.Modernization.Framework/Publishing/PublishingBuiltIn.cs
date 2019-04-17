@@ -81,7 +81,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         public string ToImageUrl(string htmlImage)
         {
             // If the image string is not a html image representation then simply return the trimmed value
-            if (!htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            if (string.IsNullOrEmpty(htmlImage) || !htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 return htmlImage;
             }
@@ -118,7 +118,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         public string ToImageAltText(string htmlImage)
         {
             // If the image string is not a html image representation then simply return the trimmed value
-            if (!htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            if (string.IsNullOrEmpty(htmlImage) || !htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 return htmlImage;
             }
