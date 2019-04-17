@@ -1643,6 +1643,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 maxRows--;
             }
 
+            // If there's a TR then there must be one cell
+            if (maxRows > 0 && maxCols == 0)
+            {
+                maxCols = 1;
+            }
+
             return new Tuple<int, int>(maxCols,maxRows);
         }
 
