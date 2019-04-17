@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Telemetry;
@@ -430,41 +431,77 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //  - If the asset resides on the root site collection
             //  - If the asset resides on another subsite
             //  - If the asset resides on a subsite below this context
-            // Check - if the error is to check teh siterelativeurl, what if we just start at rootweb then get the file?
             
             try
             {
-                context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url);
-                context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url);
-                var subWebUrls = context.Site.GetAllSubSites(); // This could be an expensive call
-
-                var fullSiteCollectionUrl = context.Site.Url;
+                context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url, o => o.RootWeb.Id);
+                context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url, o => o.Id);
 
                 string match = string.Empty;
-                foreach (var subWebUrl in subWebUrls.OrderByDescending(o => o.Length))
+
+                // Break the URL into segments and deteremine which URL detects the file in the structure.
+                // Use Web IDs to validate content isnt the same on the root
+                                
+                var fullSiteCollectionUrl = context.Site.Url;
+                var relativeSiteCollUrl = context.Site.ServerRelativeUrl;
+                var sourceCtxUrl = context.Web.Url;
+
+                // Lets break into segments
+                var fileName = Path.GetFileName(sourceUrl);
+
+                // Could already be relative
+                //var sourceUrlWithOutBaseAddr = sourceUrl.Replace(fullSiteCollectionUrl, "").Replace(relativeSiteCollUrl,"");
+                var urlSegments = sourceUrl.Split('/');
+                                                             
+                // Need null tests
+                var filteredUrlSegments = urlSegments.Where(o => !string.IsNullOrEmpty(o) && o != fileName).Reverse();
+                
+                //Assume the last segment is the filename
+                //Assume the segment before the last is either a folder or library
+
+                //Url to strip back until detected as subweb
+                var remainingUrl = sourceUrl.Replace(fileName, ""); //remove file name
+
+                //Urls to try to determine web
+                foreach (var segment in filteredUrlSegments) //Assume the segment before the last is either a folder or library
                 {
-
-                    var hostUri = new Uri(subWebUrl);
-                    string host = $"{hostUri.Scheme}://{hostUri.DnsSafeHost}";
-                    var relativeSubWebUrl = subWebUrl.Replace(host, "");
-
-                    if (sourceUrl.ContainsIgnoringCasing(relativeSubWebUrl))
+                    try
                     {
-                        match = subWebUrl;
-                        break;
+                        var testUrl = UrlUtility.Combine(fullSiteCollectionUrl, remainingUrl.Replace(relativeSiteCollUrl, ""));
+
+                        //No need to recurse this
+                        var exists = context.WebExistsFullUrl(testUrl);
+
+                        if (exists)
+                        {
+                            //winner
+                            match = testUrl;
+                            break;
+                        }
+                        else
+                        {
+                            remainingUrl = remainingUrl.TrimEnd('/').TrimEnd($"{segment}".ToCharArray());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Nope not the right web - Swallow
                     }
                 }
 
                 if (match != string.Empty && match != context.Web.Url)
                 {
-                    _sourceClientContext = context.Clone(match);
-                }
 
+                    _sourceClientContext = context.Clone(match);
+                    LogDebug("Source Context Switched", "EsureAssetContextIfRequired");
+                }
             }
             catch (Exception ex)
             {
                 LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_AssetTransfer, ex);
             }
         }
+
+
     }
 }
