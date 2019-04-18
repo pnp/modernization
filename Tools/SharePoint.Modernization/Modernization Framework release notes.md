@@ -29,6 +29,7 @@
 - Support table structures with mixed TD and TH cells in the same TR
 - Content Editor web part title is taking over when the web part's "ChromeType" differs from "None" or "Border-only" #120
 - Fix: Table size detection issues #123 and #124
+- Fix: Performance improvements around asset transfer #125 (fixes #111) [pkbullock]
 
 ## [April release (prod) - version 1.0.1904.0]
 
