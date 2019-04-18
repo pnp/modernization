@@ -1,7 +1,10 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Publishing;
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -13,58 +16,66 @@ namespace SharePointPnP.Modernization.Framework.Profiler
     {
         static void Main(string[] args)
         {
-            using (var cc = new ClientContext("https://bertonline.sharepoint.com/sites/espctest2"))
-            {                
-                SharePointOnlineCredentials creds = new SharePointOnlineCredentials("bert.jansen@bertonline.onmicrosoft.com", ConvertToSecureString(""));
-                cc.Credentials = creds;
+            SharePointOnlineCredentials creds = new SharePointOnlineCredentials(AppSetting("Username"), ConvertToSecureString(AppSetting("Password")));
 
-                var pageTransformator = new PageTransformator(cc);
+            using (var targetClientContext = new ClientContext(AppSetting("SPOTargetSiteUrl")))
+            {
+                targetClientContext.Credentials = creds;
 
-                //complexwiki
-                //demo1
-                //wikitext
-                //wiki_li
-                //webparts.aspx
-                //contentbyquery1.aspx
-                //how to use this library.aspx
-                var pages = cc.Web.GetPages("webparts.aspx");
-
-                foreach (var page in pages)
+                using (var sourceClientContext = new ClientContext(AppSetting("SPODevSiteUrl")))
                 {
-                    PageTransformationInformation pti = new PageTransformationInformation(page)
+                    sourceClientContext.Credentials = creds;
+
+                    //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
+                    //"C:\temp\mappingtest.xml"
+                    //var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\mappingtest.xml");
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp"));
+                    
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", pageNameStartsWith: "article");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
+
+                    foreach (var page in pages)
                     {
-                        // If target page exists, then overwrite it
-                        Overwrite = true,
+                        PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
 
-                        // Migrated page gets the name of the original page
-                        //TargetPageTakesSourcePageName = false,
+                            // Don't log test runs
+                            SkipTelemetry = true,
 
-                        // Give the migrated page a specific prefix, default is Migrated_
-                        //TargetPagePrefix = "Yes_",
+                            //RemoveEmptySectionsAndColumns = false,
 
-                        // Configure the page header, empty value means ClientSidePageHeaderType.None
-                        //PageHeader = new ClientSidePageHeader(cc, ClientSidePageHeaderType.None, null),
+                            // Configure the page header, empty value means ClientSidePageHeaderType.None
+                            //PageHeader = new ClientSidePageHeader(cc, ClientSidePageHeaderType.None, null),
 
-                        // If the page is a home page then replace with stock home page
-                        //ReplaceHomePageWithDefaultHomePage = true,
+                            // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
+                            // HandleWikiImagesAndVideos = false,
 
-                        // Replace embedded images and iframes with a placeholder and add respective images and video web parts at the bottom of the page
-                        //HandleWikiImagesAndVideos = false,
+                            // Callout to your custom code to allow for title overriding
+                            //PageTitleOverride = titleOverride,
 
-                        // Callout to your custom code to allow for title overriding
-                        //PageTitleOverride = titleOverride,
+                            // Callout to your custom layout handler
+                            //LayoutTransformatorOverride = layoutOverride,
 
-                        // Callout to your custom layout handler
-                        //LayoutTransformatorOverride = layoutOverride,
+                            // Callout to your custom content transformator...in case you fully want replace the model
+                            //ContentTransformatorOverride = contentOverride,
+                        };
 
-                        // Callout to your custom content transformator...in case you fully want replace the model
-                        //ContentTransformatorOverride = contentOverride,
-                    };
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
-                    pageTransformator.Transform(pti);
+                        var result = pageTransformator.Transform(pti);
+                        pageTransformator.FlushObservers();
+                    }
+
+                    pageTransformator.FlushObservers();
                 }
-
             }
+
+            Console.WriteLine("App Complete, press any key to end!");
+            Console.ReadKey();
         }
 
         private static SecureString ConvertToSecureString(string password)
@@ -79,6 +90,22 @@ namespace SharePointPnP.Modernization.Framework.Profiler
 
             securePassword.MakeReadOnly();
             return securePassword;
+        }
+
+        public static string AppSetting(string key)
+        {
+#if !NETSTANDARD2_0
+            return ConfigurationManager.AppSettings[key];
+#else
+            try
+            {
+                return configuration.AppSettings.Settings[key].Value;
+            }
+            catch
+            {
+                return null;
+            }
+#endif
         }
     }
 }
