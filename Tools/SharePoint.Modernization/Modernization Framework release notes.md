@@ -28,7 +28,7 @@
 - Fixed CDATA handling in page layout analyzer
 - Support table structures with mixed TD and TH cells in the same TR
 - Content Editor web part title is taking over when the web part's "ChromeType" differs from "None" or "Border-only" #120
-- Fix: Division by 0 in GetDefaultCellTableCellWidths #123
+- Fix: Table size detection issues #123 and #124
 
 ## [April release (prod) - version 1.0.1904.0]
 

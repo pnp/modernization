@@ -1599,7 +1599,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     // Do we have a header
                     var tableHeaders = row.Children.Where(p => p.TagName.Equals("th", StringComparison.InvariantCultureIgnoreCase));
-                    if (tableHeaders != null && tableHeaders.Count() > 0)
+
+                    var tdInHeader = row.Children.Where(p => p.TagName.Equals("td", StringComparison.InvariantCultureIgnoreCase));
+                    int tdCellsInHeader = 0;
+                    if (tdInHeader != null)
+                    {
+                        tdCellsInHeader = tdInHeader.Count();
+                    }
+
+                    if (tableHeaders != null && tableHeaders.Count() > 0 && tdCellsInHeader == 0)
                     {
                         hasHeader = true;
                     }
