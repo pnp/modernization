@@ -58,6 +58,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 this.Element = element;
             }
+
+            internal string TextAlign { get; set; }
         }
         #endregion
 
@@ -214,6 +216,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         // Save the styles we want to maintain
                         string width = element.Style.Width;
+                        string textAlign = element.Style.TextAlign;
 
                         // Delete all styling information from the element
                         element.RemoveAttribute("style");
@@ -222,6 +225,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         if (!string.IsNullOrEmpty(width))
                         {
                             element.Style.Width = width;
+                        }
+                        if (!string.IsNullOrEmpty(textAlign))
+                        {
+                            element.Style.TextAlign = textAlign;
                         }
                     }
                 }
@@ -295,6 +302,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         var tableHeaderCell = document.CreateElement("td");
                         tableHeaderCell.Style.Width = $"{cellWidth[headerCounter]}px";
+
+                        // Restore alignment if needed
+                        if (normalizedTable.Header[colPos].TextAlign != null)
+                        {
+                            tableHeaderCell.Style.TextAlign = normalizedTable.Header[colPos].TextAlign;
+                        }
+
                         headerCounter++;
 
                         tableHeaderCell.AppendChild(tableHeaderValue);
@@ -324,6 +338,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             // Formatting of the table cell content was already done in previous steps, so we simply copy what we have
                             newTableCell.InnerHtml = normalizedTable.Cells[rowPos, colPos].Element.InnerHtml;
                         }
+
+                        // Restore alignment if needed
+                        if (normalizedTable.Cells[rowPos, colPos].TextAlign != null)
+                        {
+                            newTableCell.Style.TextAlign = normalizedTable.Cells[rowPos, colPos].TextAlign;
+                        }
+
                         newRow.AppendChild(newTableCell);
                     }
 
@@ -1439,6 +1460,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         foreach (var tableHeader in tableHeaders)
                         {
                             headerCells[colPos] = new IElementCell(tableHeader);
+
+                            //Check header styles
+                            if (tableHeader.Style != null && !string.IsNullOrEmpty(tableHeader.Style.TextAlign))
+                            {
+                                headerCells[colPos].TextAlign = tableHeader.Style.TextAlign;
+                            }
+
+                            // Prep for next cell
                             colPos++;
 
                             var colSpan = tableHeader.GetAttribute("colspan");
@@ -1472,6 +1501,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 }
 
                                 cells[rowPos, colPos] = new IElementCell(tableCell);
+
+                                //Check header styles
+                                if (tableCell.Style != null && !string.IsNullOrEmpty(tableCell.Style.TextAlign))
+                                {
+                                    cells[rowPos, colPos].TextAlign = tableCell.Style.TextAlign;
+                                }
+
+                                // Prep for next cell
                                 colPos++;
 
                                 var colSpan = tableCell.GetAttribute("colspan");
