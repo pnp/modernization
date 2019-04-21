@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharePointPnP.Modernization.Framework.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
     {
 
         // Cache the logs between calls
-        private static readonly Lazy<List<Tuple<LogLevel,LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
+        private static readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
         protected bool _includeDebugEntries;
         protected bool _includeVerbose;
         protected DateTime _reportDate;
@@ -139,11 +140,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var distinctLogs = Logs.Where(p => p.Item2.Heading == LogStrings.Heading_Summary && p.Item2.Significance == LogEntrySignificance.SourceSiteUrl); //TODO: Need to improve this
 
             bool first = true;
-            foreach(var distinctLogEntry in distinctLogs)
+            foreach (var distinctLogEntry in distinctLogs)
             {
                 var logEntriesToProcess = Logs.Where(p => p.Item2.PageId == distinctLogEntry.Item2.PageId);
                 GenerateReportForPage(report, logEntriesToProcess, first, _includeVerbose);
-                
+
                 first = false;
             }
 
@@ -162,7 +163,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <returns></returns>
         private string GenerateReportForPage(StringBuilder report, IEnumerable<Tuple<LogLevel, LogEntry>> logEntriesToProcess, bool firstRun = true, bool includeVerbose = false)
         {
-            
+
             // Log Analysis
 
             // This could display something cool here e.g. Time taken to transform and transformation options e.g. PageTransformationInformation details
@@ -175,6 +176,22 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var sourceSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.SourceSiteUrl);
             var targetSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetSiteUrl);
             var assetsTransferred = transformationSummary.Where(l => l.Item2.Significance == LogEntrySignificance.AssetTransferred);
+            var assetsTransferredCount = assetsTransferred.Count();
+            var baseTenantUrl = "";
+
+            try
+            {
+                if (sourceSite != default(Tuple<LogLevel, LogEntry>) && sourceSite.Item2.Message.ContainsIgnoringCasing("https://"))
+                {
+                    Uri siteUri = new Uri(sourceSite?.Item2.Message);
+                    string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
+                    baseTenantUrl = host;
+                }
+            }
+            catch (Exception)
+            {
+                //Swallow
+            }
 
             #region Calculate Span from Log Timings
 
@@ -218,13 +235,13 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
                 if (firstRun)
                 {
-                    report.AppendLine($"Source Page {TableColumnSeperator} Date {TableColumnSeperator} Source Site {TableColumnSeperator} Duration {TableColumnSeperator} Target Site {TableColumnSeperator} Target Page Url {TableColumnSeperator} Number of Warnings {TableColumnSeperator} Number of Errors");
+                    report.AppendLine($"Source Page {TableColumnSeperator} Date {TableColumnSeperator} Duration {TableColumnSeperator} Target Page Url {TableColumnSeperator} No. of Warnings {TableColumnSeperator} No. of Errors");
 
                     report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
 
                 }
 
-                report.AppendLine($"{sourcePage?.Item2.Message} {TableColumnSeperator} {reportDate} {TableColumnSeperator} {sourceSite?.Item2.Message} {TableColumnSeperator} {spanResult} {TableColumnSeperator} {targetSite?.Item2.Message} {TableColumnSeperator} {targetPage?.Item2.Message} {TableColumnSeperator} {logWarningsCount} {TableColumnSeperator} {logErrorCount}");
+                report.AppendLine($"[{sourcePage?.Item2.Message}]({baseTenantUrl}{sourcePage?.Item2.Message}) {TableColumnSeperator} {reportDate} {TableColumnSeperator} {spanResult} {TableColumnSeperator} [{targetPage?.Item2.Message}]({baseTenantUrl}{targetPage?.Item2.Message}) {TableColumnSeperator} {logWarningsCount} {TableColumnSeperator} {logErrorCount}");
 
 
             }

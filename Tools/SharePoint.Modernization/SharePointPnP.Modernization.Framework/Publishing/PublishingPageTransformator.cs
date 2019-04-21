@@ -537,7 +537,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             returnUrl = $"{targetPath}{originalSourcePageName}";
 
-            LogInfo($"{LogStrings.TransformedPage}: {returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
+            LogInfo($"{returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
             return returnUrl;
         }
 
