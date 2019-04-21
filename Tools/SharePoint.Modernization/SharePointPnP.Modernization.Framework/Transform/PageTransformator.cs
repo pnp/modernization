@@ -192,7 +192,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
             LoadClientObject(sourceClientContext);
 
-            LogInfo($"{LogStrings.TransformingSite} {sourceClientContext.Web.Url}", LogStrings.Heading_Summary);
+            LogInfo($"{sourceClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
 
             if (hasTargetContext)
             {
@@ -213,7 +213,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     pageTransformationInformation.TargetPageTakesSourcePageName = true;
                 }
 
-                LogInfo($"{LogStrings.CrossSiteTransferToSite} {targetClientContext.Web.Url}", LogStrings.Heading_Summary);
+                LogInfo($"{targetClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
             }
 
             // Need to add further validation for target template
@@ -225,7 +225,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
             }
 
-            LogInfo($"{LogStrings.TransformingPage} {pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary);
+            LogInfo($"{pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
@@ -966,7 +966,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
             }
 
-            LogInfo($"{LogStrings.TransformedPage}: {returnUrl}", LogStrings.Heading_Summary);
+            LogInfo($"{returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
             return returnUrl;
         }
 

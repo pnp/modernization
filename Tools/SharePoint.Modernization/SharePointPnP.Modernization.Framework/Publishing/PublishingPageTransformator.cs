@@ -148,7 +148,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
             LoadClientObject(sourceClientContext);
 
-            LogInfo($"{LogStrings.TransformingSite} {sourceClientContext.Web.Url}", LogStrings.Heading_Summary);
+            LogInfo($"{sourceClientContext.Web.Url}", LogStrings.Heading_Summary, 
+                LogEntrySignificance.SourceSiteUrl);
 
             LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
             LoadClientObject(targetClientContext);
@@ -160,7 +161,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 throw new ArgumentNullException(LogStrings.Error_SameSiteTransferNoAllowedForPublishingPages);
             }
 
-            LogInfo($"{LogStrings.CrossSiteTransferToSite} {targetClientContext.Web.Url}", LogStrings.Heading_Summary);
+            LogInfo($"{targetClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
 
             // Need to add further validation for target template
             if (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP")
@@ -170,7 +171,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
             }
 
-            LogInfo($"{LogStrings.TransformingPage} {publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary);
+            LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
@@ -536,7 +537,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             returnUrl = $"{targetPath}{originalSourcePageName}";
 
-            LogInfo($"{LogStrings.TransformedPage}: {returnUrl}", LogStrings.Heading_Summary);
+            LogInfo($"{LogStrings.TransformedPage}: {returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
             return returnUrl;
         }
 

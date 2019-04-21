@@ -95,10 +95,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Notifies the observers of info messages
         /// </summary>
         /// <param name="logEntry">The message.</param>
-        public void LogInfo(string message, string heading = "")
+        public void LogInfo(string message, string heading = "", LogEntrySignificance significance = LogEntrySignificance.None)
         {
             StackTrace stackTrace = new StackTrace();
-            var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
+            var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString(), Significance = significance };
 
             Log(logEntry, LogLevel.Information);
         }

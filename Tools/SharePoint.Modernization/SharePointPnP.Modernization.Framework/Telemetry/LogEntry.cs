@@ -19,17 +19,17 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Gets or sets Log message
         /// </summary>
         public string Message { get; set; }
-        
+
         /// <summary>
         /// Gets or sets CorrelationId of type Guid
         /// </summary>
         public Guid CorrelationId { get; set; }
-        
+
         /// <summary>
         /// Gets or sets Log source
         /// </summary>
         public string Source { get; set; }
-        
+
         /// <summary>
         /// Gets or sets Log Exception
         /// </summary>
@@ -54,5 +54,24 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Page that's being transformed
         /// </summary>
         public string PageId { get; set; }
+
+        /// <summary>
+        /// Extra significance of the entry for the logs
+        /// </summary>
+        public LogEntrySignificance Significance {get;set;}
+    }
+
+    /// <summary>
+    /// Specfies to the loggers that a specific entry has significance.
+    /// </summary>
+    public enum LogEntrySignificance
+    {
+        None,
+        SourcePage,
+        TargetPage,
+        AssetTransferred, 
+        SourceSiteUrl,
+        TargetSiteUrl
+
     }
 }

@@ -99,7 +99,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 var finalPath = assetDetails.TargetAssetTransferredUrl;
-                LogInfo($"{LogStrings.AssetTransferredToUrl}: {finalPath}", LogStrings.Heading_Summary);
+                LogInfo($"{finalPath}", LogStrings.Heading_Summary, LogEntrySignificance.AssetTransferred);
                 return finalPath;
 
             }
