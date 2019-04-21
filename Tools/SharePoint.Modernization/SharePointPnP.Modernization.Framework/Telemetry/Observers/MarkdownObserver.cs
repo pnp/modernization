@@ -151,11 +151,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// Generates a markdown based report based on the logs
         /// </summary>
         /// <returns></returns>
-        private string GenerateReportForPage(StringBuilder report, IEnumerable<Tuple<LogLevel, LogEntry>> logEntriesToProcess, bool includeHeading = true)
+        private string GenerateReportForPage(StringBuilder report, IEnumerable<Tuple<LogLevel, LogEntry>> logEntriesToProcess, bool includeHeading = true, bool includeVerbose = false)
         {
             if (includeHeading)
             {
-                report.AppendLine($"{Heading1} Modernisation Report");
+                report.AppendLine($"{Heading1} {LogStrings.Report_ModernisationReport}");
                 report.AppendLine();
             }
 
@@ -163,16 +163,16 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var reportDate = _reportDate;
             var allLogs = logEntriesToProcess.OrderBy(l => l.Item2.EntryTime);
 
-            report.AppendLine($"{Heading2} Transformation Details");
+            report.AppendLine($"{Heading2} {LogStrings.Report_TransformationDetails}");
             report.AppendLine();
-            report.AppendLine($"{UnorderedListItem} Report date: {reportDate}");
+            report.AppendLine($"{UnorderedListItem} {LogStrings.Report_ReportDate}: {reportDate}");
             var logStart = allLogs.FirstOrDefault();
             var logEnd = allLogs.LastOrDefault();
 
             if (logStart != default(Tuple<LogLevel,LogEntry>) && logEnd != default(Tuple<LogLevel, LogEntry>))
             {
                 TimeSpan span = logEnd.Item2.EntryTime.Subtract(logStart.Item2.EntryTime);
-                report.AppendLine($"{UnorderedListItem} Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+                report.AppendLine($"{UnorderedListItem} {LogStrings.Report_TransformDuration}: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
             }
 
             var transformationSummary = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_Summary);
@@ -185,9 +185,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             #region Summary Page Transformation Information Settings
 
             report.AppendLine();
-            report.AppendLine($"{Heading3} Page Transformation Settings");
+            report.AppendLine($"{Heading3} {LogStrings.Report_TransformationSettings}");
             report.AppendLine();
-            report.AppendLine($"Property {TableColumnSeperator} Setting");
+            report.AppendLine($"{LogStrings.Report_Property} {TableColumnSeperator} {LogStrings.Report_Settings}");
             report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
 
             var transformationSettings = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_PageTransformationInfomation);
@@ -196,18 +196,18 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var keyValue = log.Item2.Message.Split(new string[] { LogStrings.KeyValueSeperatorToken }, StringSplitOptions.None);
                 if (keyValue.Length == 2) //Protect output
                 {
-                    report.AppendLine($"{keyValue[0] ?? ""} {TableColumnSeperator} {keyValue[1] ?? "<Not Set>"}");
+                    report.AppendLine($"{keyValue[0] ?? ""} {TableColumnSeperator} {keyValue[1] ?? LogStrings.Report_ValueNotSet}");
                 }
             }
 
             #endregion
 
-            report.AppendLine($"{Heading2} Transformation Operation Summary");
+            report.AppendLine($"{Heading2} {LogStrings.Report_TransformDetails}");
             report.AppendLine();
 
             #region Transformation Summary
 
-            report.AppendLine($"Date {TableColumnSeperator} Operation {TableColumnSeperator} Actions Performed");
+            report.AppendLine(string.Format(LogStrings.Report_TransformDetailsTableHeader, TableColumnSeperator));
             report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
 
             var logDetails = allLogs.Where(l => l.Item2.Heading != LogStrings.Heading_PageTransformationInfomation &&
@@ -248,10 +248,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             {
                 #region Report on Errors
 
-                report.AppendLine($"{Heading3} Errors occurred during transformation");
+                report.AppendLine($"{Heading3} {LogStrings.Report_ErrorsOccurred}");
                 report.AppendLine();
 
-                report.AppendLine($"Date {TableColumnSeperator} Operation {TableColumnSeperator} Error Message");
+                report.AppendLine(string.Format(LogStrings.Report_TransformErrorsTableHeader, TableColumnSeperator));
                 report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
 
                 foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Error))

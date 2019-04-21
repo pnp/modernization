@@ -11,6 +11,24 @@
 
         public const string KeyValueSeperatorToken = ";#;";
 
+        #region Report Text
+
+        public const string Report_ModernisationReport = "Modernisation Report";
+        public const string Report_TransformationDetails = "Transformation Details";
+        public const string Report_ReportDate = "Report date";
+        public const string Report_TransformDuration = "Transform duration";
+        public const string Report_TransformationSettings = "Page Transformation Settings";
+        public const string Report_Property = "Property";
+        public const string Report_Settings = "Setting";
+        public const string Report_TransformDetails = "Transformation Operation Details";
+        public const string Report_TransformDetailsTableHeader = "Date {0} Operation {0} Actions Performed";
+        public const string Report_ErrorsOccurred = "Errors occurred during transformation";
+        public const string Report_TransformErrorsTableHeader = "Date {0} Operation {0} Error Message";
+        public const string Report_ValueNotSet = "<Not Set>";
+
+        #endregion
+
+
         #region Page Transformation
 
         #region Headings
