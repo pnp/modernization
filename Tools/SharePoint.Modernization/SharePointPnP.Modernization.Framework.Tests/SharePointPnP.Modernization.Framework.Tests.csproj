@@ -294,6 +294,7 @@
     <Content Include="Provision\Publishing\ArticleCustom.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="Provision\Publishing\ArticleTopic.aspx" />
     <Content Include="Provision\SitePages\WPP_Blank.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
