@@ -201,6 +201,8 @@
         public const string Error_CannotProcessPageLayoutAnalyseAll = "Error mapping page layout - Analyse All";
         public const string Error_CannotProcessPageLayoutAnalyse = "Error mapping page layout - Analyse";
 
+        public const string OOBPageLayoutSkipped = "Skipped page layout {0} because it's an OOB page layout";
+
         public const string XmlMappingSavedAs = "Xml Mapping saved as";
 
 

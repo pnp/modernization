@@ -94,7 +94,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Main entry point into the class to analyse the page layouts
         /// </summary>
-        public void AnalyseAll()
+        /// <param name="skipOOBPageLayouts">Skip OOB page layouts</param>
+        public void AnalyseAll(bool skipOOBPageLayouts = false)
         {
             // Determine if ‘default’ layouts for the OOB page layouts
             // When there’s no layout we “generate” a best effort one and store it in cache. Generation can 
@@ -110,6 +111,18 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 {
                     try
                     {
+                        if (skipOOBPageLayouts)
+                        {
+                            // Check if this is an OOB page layout and skip if so
+                            string pageLayoutName = Path.GetFileNameWithoutExtension(layout[Constants.FileLeafRefField].ToString());                            
+                            var oobPageLayoutFile = Constants.OobPublishingPageLayouts.Any(o => o.Equals(pageLayoutName, StringComparison.InvariantCultureIgnoreCase));
+                            if (oobPageLayoutFile)
+                            {
+                                LogInfo(String.Format(LogStrings.OOBPageLayoutSkipped, pageLayoutName), LogStrings.Heading_PageLayoutAnalyser);
+                                continue;
+                            }
+                        }
+
                         AnalysePageLayout(layout);
                     }
                     catch (Exception ex)
