@@ -32,6 +32,7 @@
 - Fix: Performance improvements around asset transfer #125 (fixes #111) [pkbullock]
 - Fix: Take over text alignment in table cells #104
 - Fix: Integrate "enhanced" processing of content editor text content also in web part page analyzer flow #106
+- Fix: capacity was less than the current size. #130
 
 ## [April release (prod) - version 1.0.1904.0]
 
