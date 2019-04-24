@@ -74,5 +74,10 @@ namespace SharePointPnP.Modernization.Framework
         public static string[] AllowedAssetFileExtensions = new string[] { "png", "jpg", "gif", "mp4", "mpeg" };
         // Cross site assets transfer blocked files that are referred to
         public static string[] BlockedAssetFileExtensions = new string[] { "aspx" };
+        // OOB Publishing Portal page layouts - these layouts are already included in the default mapping file
+        public static string[] OobPublishingPageLayouts = new string[] { "ArticleLeft", "ArticleLinks", "ArticleRight", "BlankWebPartPage", "ProjectPage", "WelcomeLinks",
+                                                                         "PageFromDocLayout", "WelcomeSplash", "ErrorLayout", "EnterpriseWiki", "CatalogArticle", "CatalogWelcome",
+                                                                         "PageLayoutTemplate", "RedirectPageLayout", "VariationRootPageLayout" };
+
     }
 }

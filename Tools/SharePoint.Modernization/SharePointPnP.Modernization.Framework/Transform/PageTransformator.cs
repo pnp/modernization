@@ -439,7 +439,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
                 
                 // Analyze the "text" parts (wikitext parts and text in content editor web parts)
-                pageData = new Tuple<PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiTransformatorSimple(this.sourceClientContext, targetPage, pageTransformationInformation.MappingProperties, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, pageTransformationInformation.HandleWikiImagesAndVideos));
+                pageData = new Tuple<PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, pageTransformationInformation.MappingProperties, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, pageTransformationInformation.HandleWikiImagesAndVideos));
 
 #if DEBUG && MEASURE
                 Stop("Analyze page");

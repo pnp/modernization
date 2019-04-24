@@ -19,6 +19,8 @@
 - Support for static parameter values in function definitions. Use the new StaticString function, e.g. StaticString('your static string') to define a static value. Fixes #119
 - Support for running a function on MetaData field mappings (single function can be added per field, not supported for taxonomy fields)
 - Added ToPreviewImageUrl built in function which allows to control the page preview image via either a dynamic value (field of the source page list item) or a static string
+- Added mapping for image anchor (wiki and publishing) and image caption (publishing) to modern image web part
+- Simple URL rewrite engine for publishing page transformation
 
 ## Changed
 
@@ -32,6 +34,8 @@
 - Fix: Performance improvements around asset transfer #125 (fixes #111) [pkbullock]
 - Fix: Take over text alignment in table cells #104
 - Fix: Integrate "enhanced" processing of content editor text content also in web part page analyzer flow #106
+- Fix: capacity was less than the current size. #130
+- PageLayoutAnalyser.AnalyseAll now can skip OOB page layouts
 
 ## [April release (prod) - version 1.0.1904.0]
 

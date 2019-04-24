@@ -80,8 +80,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         [OutputDocumentation(Name = "return value", Description = "Server relative image url")]
         public string ToImageUrl(string htmlImage)
         {
-            // If the image string is not a html image representation then simply return the trimmed value
-            if (string.IsNullOrEmpty(htmlImage) || !htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            // If the image string is not a html image representation then simply return the trimmed value. If an image has a link it's wrapped in an anchor tag
+            if (string.IsNullOrEmpty(htmlImage) || !(htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase) || htmlImage.Trim().StartsWith("<a", System.StringComparison.InvariantCultureIgnoreCase)))
             {
                 return htmlImage;
             }
@@ -117,8 +117,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         [OutputDocumentation(Name = "return value", Description = "Image alternate text")]
         public string ToImageAltText(string htmlImage)
         {
-            // If the image string is not a html image representation then simply return the trimmed value
-            if (string.IsNullOrEmpty(htmlImage) || !htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            // If the image string is not a html image representation then simply return the trimmed value. If an image has a link it's wrapped in an anchor tag
+            if (string.IsNullOrEmpty(htmlImage) || !(htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase) || htmlImage.Trim().StartsWith("<a", System.StringComparison.InvariantCultureIgnoreCase)))
             {
                 return htmlImage;
             }
@@ -138,6 +138,85 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         /// <summary>
+        /// Returns the image anchor url of a Publishing Image field value
+        /// </summary>
+        /// <param name="htmlImage">Publishing Image field value</param>
+        /// <returns>Image anchor url</returns>
+        [FunctionDocumentation(Description = "Returns the image anchor url of a Publishing Image field value.",
+                       Example = "ToImageAnchor({PublishingPageImage})")]
+        [InputDocumentation(Name = "{PublishingPageImage}", Description = "Publishing Image field value")]
+        [OutputDocumentation(Name = "return value", Description = "Image anchor url")]
+        public string ToImageAnchor(string htmlImage)
+        {
+            // If the image string is not a html image representation then simply return the trimmed value. If an image has a link it's wrapped in an anchor tag
+            if (string.IsNullOrEmpty(htmlImage) || !(htmlImage.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase) || htmlImage.Trim().StartsWith("<a", System.StringComparison.InvariantCultureIgnoreCase)))
+            {
+                return htmlImage;
+            }
+
+            // Sample input: <img alt="" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
+            var htmlDoc = parser.Parse(htmlImage);
+            var anchorElement = htmlDoc.QuerySelectorAll("a").FirstOrDefault();
+
+            string imageAnchor = "";
+
+            if (anchorElement != null && anchorElement != default(IElement) && anchorElement.HasAttribute("href"))
+            {
+                imageAnchor = anchorElement.GetAttribute("href");
+
+                // drop of url params (if any)
+                if (imageAnchor.Contains("?"))
+                {
+                    imageAnchor = imageAnchor.Substring(0, imageAnchor.IndexOf("?"));
+                }
+            }
+
+            return imageAnchor;
+        }
+
+        /// <summary>
+        /// Returns the image caption of a Publishing Html image caption field
+        /// </summary>
+        /// <param name="htmlField">Publishing Html image caption field value</param>
+        /// <returns>Image caption</returns>
+        [FunctionDocumentation(Description = "Returns the image caption of a Publishing Html image caption field",
+                       Example = "ToImageCaption({PublishingImageCaption})")]
+        [InputDocumentation(Name = "{PublishingImageCaption}", Description = "Publishing Html image caption field value")]
+        [OutputDocumentation(Name = "return value", Description = "Image caption")]
+        public string ToImageCaption(string htmlField)
+        {
+            // If the image string is not a html image representation then simply return the trimmed value. If an image has a link it's wrapped in an anchor tag
+            if (string.IsNullOrEmpty(htmlField))
+            {
+                return "";
+            }
+
+            // Sample input: <p>Some caption<BR></p> 
+            try
+            {
+                var htmlDoc = parser.Parse(htmlField);
+
+                string imageCaption = null;
+
+                if (htmlDoc.FirstElementChild != null)
+                {
+                    imageCaption = htmlDoc.FirstElementChild.TextContent;
+                }
+
+                if (!string.IsNullOrEmpty(imageCaption))
+                {
+                    return imageCaption;
+                }
+            }
+            catch
+            {
+                // No need to fail for this reason...
+            }
+
+            return "";
+        }
+
+        /// <summary>
         /// Returns a page preview image url
         /// </summary>
         /// <param name="image">A publishing image field value or a string containing a server relative image path</param>
@@ -154,7 +233,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // If the image string is a html image representation
-            if (image.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase))
+            if (image.Trim().StartsWith("<img", System.StringComparison.InvariantCultureIgnoreCase) || image.Trim().StartsWith("<a", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 image = ToImageUrl(image);
             }

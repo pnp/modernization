@@ -9,6 +9,7 @@
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="StaticString('/sites/ModernizationTarget/SiteAssets/sitepages/Michael-Freedman/ms-stories-station-q-freedman-michael-12-1024x683.jpg')" />-->
+        <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="StaticString('/sites/devPortal/publishingiMages/Page-travel-instructions.jpg')" />-->
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PreviewImage})" />-->
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
         <Field Name="Comments" HeaderProperty="AlternativeText"/>
@@ -27,6 +28,8 @@
         <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1">
           <Property Name="ImageUrl" Type="string" Functions="ToImageUrl({PublishingPageImage})"/>
           <Property Name="AlternativeText" Type="string" Functions="ToImageAltText({PublishingPageImage})" />
+          <Property Name="Anchor" Type="string" Functions="ToImageAnchor({PublishingPageImage})" />
+          <Property Name="Caption" Type="string" Functions="ToImageCaption({PublishingImageCaption})" />
         </Field>
         <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
           <Property Name="Text" Type="string" Functions="" />
