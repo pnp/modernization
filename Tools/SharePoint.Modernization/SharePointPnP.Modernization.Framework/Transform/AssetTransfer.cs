@@ -467,7 +467,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     try
                     {
-                        var testUrl = UrlUtility.Combine(fullSiteCollectionUrl, remainingUrl.Replace(relativeSiteCollUrl, ""));
+                        var testUrl = UrlUtility.Combine(fullSiteCollectionUrl.ToLower(), remainingUrl.ToLower().Replace(relativeSiteCollUrl.ToLower(), ""));
 
                         //No need to recurse this
                         var exists = context.WebExistsFullUrl(testUrl);
@@ -489,7 +489,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
 
-                if (match != string.Empty && match != context.Web.Url)
+                if (match != string.Empty && !match.Equals(context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
                 {
 
                     _sourceClientContext = context.Clone(match);
