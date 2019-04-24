@@ -295,6 +295,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);
             pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, publishingPageTransformationInformation.MappingProperties, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, publishingPageTransformationInformation.HandleWikiImagesAndVideos));
 
+            // Url rewriting
+            if (!publishingPageTransformationInformation.SkipUrlRewrite)
+            {
+                pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new UrlTransformator(publishingPageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers).Rewrite(pageData.Item2, sourceClientContext.Web.Url, sourceClientContext.Site.Url, targetClientContext.Web.Url, this.publishingPagesLibrary));
+            }
+
 #if DEBUG && MEASURE
                 Stop("Analyze page");
 #endif

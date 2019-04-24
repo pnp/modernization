@@ -65,6 +65,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Disable page comments on the created page
         /// </summary>
         public bool DisablePageComments { get; set; }
+
+        /// <summary>
+        /// Skip URL rewriting
+        /// </summary>
+        public bool SkipUrlRewrite { get; set; }
         #endregion
 
         #region Override properties
