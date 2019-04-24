@@ -694,8 +694,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     continue;
                 }
 
+                Guid fieldId = Guid.Empty;
+                Guid.TryParse(webPartField.Name, out fieldId);
+
                 // Find the field, we'll use the field's type to get the 'default' transformation behaviour
-                var spField = spFields.Where(p => p.StaticName.Equals(webPartField.Name, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                var spField = spFields.Where(p => p.StaticName.Equals(webPartField.Name, StringComparison.InvariantCultureIgnoreCase) || p.Id == fieldId).FirstOrDefault();
                 if (spField != null)
                 {
                     var webPartFieldDefaults = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));
@@ -704,13 +707,18 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         // Copy basic fields
                         WebPartField wpf = new WebPartField()
                         {
-                            Name = webPartField.Name,
+                            Name = spField.StaticName,
                             Row = webPartField.Row,
                             //RowSpecified = webPartField.RowSpecified,
                             Column = webPartField.Column,
                             //ColumnSpecified = webPartField.ColumnSpecified,
                             TargetWebPart = webPartFieldDefaults.First().TargetWebPart,
                         };
+
+                        if(fieldId != Guid.Empty)
+                        {
+                            wpf.FieldId = fieldId.ToString();
+                        }
 
                         // Copy the default target web part properties
                         var properties = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));

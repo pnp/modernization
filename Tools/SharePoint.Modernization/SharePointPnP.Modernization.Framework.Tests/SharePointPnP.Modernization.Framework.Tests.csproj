@@ -291,6 +291,7 @@
     <Content Include="Provision\Images\Photos\wirebonding_qubit.jpg" />
     <Content Include="Provision\Images\Photos\work-life-balance.png" />
     <Content Include="Provision\Images\Photos\working-methods.jpg" />
+    <Content Include="Provision\Publishing\Article131.aspx" />
     <Content Include="Provision\Publishing\ArticleCustom.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>

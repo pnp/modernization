@@ -18,7 +18,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing.Layouts
             new PageLayoutWebPartFieldEntity() { TargetWebPart = "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c", FieldType = "SummaryLinks", Name = "SummaryLinkStore", Type="string" },
             new PageLayoutWebPartFieldEntity() { TargetWebPart = "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c", FieldType = "SummaryLinks", Name = "Title", Type="string", Functions="EmptyString()" },
 
-            new PageLayoutWebPartFieldEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiTextPart", FieldType = "HTML", Name="Text", Type="string" },            
+            new PageLayoutWebPartFieldEntity() { TargetWebPart = "SharePointPnP.Modernization.WikiTextPart", FieldType = "HTML", Name="Text", Type="string" },
         };
 
         /// <summary>
