@@ -12,7 +12,10 @@ using SharePointPnP.Modernization.Framework.Telemetry;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
-    public class WikiTransformatorSimple: BaseTransform
+    /// <summary>
+    /// Translates wiki text parts in to a list of real and fake web parts
+    /// </summary>
+    public class WikiHtmlTransformator: BaseTransform
     {
         private HtmlParser parser;
         private ClientContext sourceContext;
@@ -24,7 +27,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Default constructor
         /// </summary>
-        public WikiTransformatorSimple(ClientContext sourceContext, ClientSidePage page, Dictionary<string, string> mappingProperties, IList<ILogObserver> logObservers = null)
+        public WikiHtmlTransformator(ClientContext sourceContext, ClientSidePage page, Dictionary<string, string> mappingProperties, IList<ILogObserver> logObservers = null)
         {
             //Register any existing observers
             if (logObservers != null)
@@ -219,6 +222,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     props.Add("Width", (element as IHtmlImageElement).DisplayWidth.ToString());
                                     props.Add("Height", (element as IHtmlImageElement).DisplayHeight.ToString());
                                     props.Add("Anchor", anchorTag ?? "");
+                                    props.Add("Caption", "");
                                 }
 
                                 var alt = (element as IElement).Attributes.Where(p => p.Name.Equals("alt", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
