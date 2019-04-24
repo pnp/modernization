@@ -98,7 +98,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                     else
                     {
-                        LogWarning("Could not retrieve field value from mapping", LogStrings.Heading_PublishingPage);
+                        LogWarning(LogStrings.Warning_CannotRetrieveFieldValue, LogStrings.Heading_PublishingPage);
                     }
                 }
 
