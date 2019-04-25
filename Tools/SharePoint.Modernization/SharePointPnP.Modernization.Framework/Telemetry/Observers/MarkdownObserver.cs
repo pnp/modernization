@@ -148,11 +148,16 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 first = false;
             }
 
-            //TODO: For Summary Mode only:
+            //TODO: For Summary Mode only
+            if (!_includeVerbose)
+            {
 
-            //if errors - include just errors
+                //if errors - include just errors
 
-            //if warnings - include just warnings
+                //if warnings - include just warnings
+
+                //if critical - include critical messages
+            }
 
             return report.ToString();
         }

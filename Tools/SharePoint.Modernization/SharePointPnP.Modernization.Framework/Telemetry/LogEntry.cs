@@ -59,6 +59,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Extra significance of the entry for the logs
         /// </summary>
         public LogEntrySignificance Significance {get;set;}
+
+        /// <summary>
+        /// Marks this error as a critical exception that prevents transformation
+        /// </summary>
+        public bool IsCriticalException { get; set; }
     }
 
     /// <summary>

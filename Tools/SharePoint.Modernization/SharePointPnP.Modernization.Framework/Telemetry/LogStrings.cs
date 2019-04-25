@@ -26,6 +26,12 @@
         public const string Report_TransformErrorsTableHeader = "Date {0} Operation {0} Error Message";
         public const string Report_ValueNotSet = "<Not Set>";
 
+
+        public const string Report_TransformStatus = "Transform Status";
+        public const string Report_TransformSuccess = "Successful";
+        public const string Report_TransformSuccessWithIssues = "Successful with {0} warnings";
+        public const string Report_TransformFail = "A issue prevented successful transformation";
+
         #endregion
 
 
@@ -70,6 +76,8 @@
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
         public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
+
+        public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
 
         #endregion
 
