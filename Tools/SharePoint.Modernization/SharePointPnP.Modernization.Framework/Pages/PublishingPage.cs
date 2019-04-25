@@ -87,7 +87,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
                 foreach (var wikiTextPart in wikiTextWebParts)
                 {
-                    var pageContents = page.FieldValues[wikiTextPart.Name]?.ToString();
+                    var pageContents = page.GetFieldValueAs<string>(wikiTextPart.Name);
                     if (pageContents != null && !string.IsNullOrEmpty(pageContents))
                     {
                         var htmlDoc = parser.Parse(pageContents);
@@ -95,6 +95,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         // Analyze the html block (which is a wiki block)
                         var content = htmlDoc.FirstElementChild.LastElementChild;
                         AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, content);
+                    }
+                    else
+                    {
+                        LogWarning(LogStrings.Warning_CannotRetrieveFieldValue, LogStrings.Heading_PublishingPage);
                     }
                 }
 

@@ -379,6 +379,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string targetWebPartField;
         
+        private string fieldIdField;
+        
         private int rowField;
         
         private int columnField;
@@ -413,6 +415,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.targetWebPartField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string FieldId {
+            get {
+                return this.fieldIdField;
+            }
+            set {
+                this.fieldIdField = value;
             }
         }
         

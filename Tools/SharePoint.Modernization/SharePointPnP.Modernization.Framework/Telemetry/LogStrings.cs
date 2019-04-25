@@ -224,6 +224,7 @@
         public const string Heading_PublishingPage = "Publishing Page analyzer";
 
         public const string Error_NoPageLayoutTransformationModel = "No valid pagelayout transformation model could be retrieved for publishing page layout {0}";
+        public const string Warning_CannotRetrieveFieldValue = "Could not retrieve field value from mapping, the contents were empty";
 
         #endregion
 
