@@ -64,6 +64,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         private string ReWriteUrls(string input, string sourceSiteUrl, string sourceWebUrl, string targetWebUrl, string pagesLibrary)
         {
+            string origSourceSiteUrl = sourceSiteUrl;
+            string origSourceWebUrl = sourceWebUrl;
+            string origTargetWebUrl = targetWebUrl;
+
             //TODO: find a solution for managed navigation links as they're returned as "https://bertonline.sharepoint.com/sites/ModernizationTarget/_layouts/15/FIXUPREDIRECT.ASPX?WebId=b710de6c-ff13-41f2-b119-0e7ad57269d2&TermSetId=c6eba345-eaf4-4e17-9c3e-c8436e017326&TermId=c2d20b8f-e70b-417d-8aa3-d5e3b59f6167"
 
             bool isSubSite = !sourceSiteUrl.Equals(sourceWebUrl, StringComparison.InvariantCultureIgnoreCase);
@@ -100,6 +104,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (isSubSite)
             {
+                // reset URLs
+                sourceSiteUrl = origSourceSiteUrl;
+                sourceWebUrl = origSourceWebUrl;
+                targetWebUrl = origTargetWebUrl;
+
                 // Rewrite url's from pages library to sitepages
                 if (!string.IsNullOrEmpty(pagesLibrary))
                 {
