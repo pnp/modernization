@@ -1262,6 +1262,15 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
             }
 
+            // Rewrite url's if needed
+            if (!this.baseTransformationInformation.SkipUrlRewrite)
+            {
+                foreach(var link in links)
+                {
+                    link.Url = this.urlTransformator.Transform(link.Url);
+                }
+            }
+
             QuickLinksTransformator qlt = new QuickLinksTransformator(this.clientContext);
             var res = qlt.Transform(links);
 
