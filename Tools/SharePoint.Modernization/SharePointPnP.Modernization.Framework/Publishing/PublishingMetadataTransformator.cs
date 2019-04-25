@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.page = page;
             this.pageLayoutMappingModel = publishingPageLayoutModel;
             this.publishingPageTransformation = publishingPageTransformation;
-            this.functionProcessor = new PublishingFunctionProcessor(publishingPageTransformationInformation.SourcePage, sourceClientContext, targetClientContext, this.publishingPageTransformation, base.RegisteredLogObservers);
+            this.functionProcessor = new PublishingFunctionProcessor(publishingPageTransformationInformation.SourcePage, sourceClientContext, targetClientContext, this.publishingPageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers);
         }
         #endregion
 

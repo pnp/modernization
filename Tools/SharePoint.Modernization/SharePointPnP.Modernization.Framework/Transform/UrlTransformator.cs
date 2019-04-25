@@ -1,38 +1,65 @@
-﻿
+﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Utilities;
-using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
     public class UrlTransformator : BaseTransform
     {
+        private ClientContext sourceContext;
+        private ClientContext targetContext;
+
+        private string sourceSiteUrl;
+        private string sourceWebUrl;
+        private string targetWebUrl;
+        private string pagesLibrary;
 
         #region Construction
-        public UrlTransformator(BaseTransformationInformation transformationInformation, IList<ILogObserver> logObservers = null)
+        public UrlTransformator(ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null)
         {
-
-        }
-        #endregion
-
-        public List<WebPartEntity> Rewrite(List<WebPartEntity> webParts, string sourceSiteUrl, string sourceWebUrl, string targetWebUrl, string pagesLibrary = null)
-        {
-
-            foreach(var webPart in webParts)
+            // Hookup logging
+            if (logObservers != null)
             {
-                if (webPart.Type == WebParts.WikiText)
+                foreach (var observer in logObservers)
                 {
-                    webPart.Properties["Text"] = ReWriteUrls(webPart.Properties["Text"], sourceSiteUrl, sourceWebUrl, targetWebUrl, pagesLibrary);
+                    base.RegisterObserver(observer);
                 }
             }
 
-            return webParts;
+            // Ensure source and target context are set
+            if (sourceContext == null && targetContext != null)
+            {
+                sourceContext = targetContext;
+            }
+
+            if (targetContext == null && sourceContext != null)
+            {
+                targetContext = sourceContext;
+            }
+
+            // Grab the needed information to drive url rewrite
+            this.sourceContext = sourceContext;
+            this.targetContext = targetContext;
+            this.sourceSiteUrl = sourceContext.Site.EnsureProperty(p => p.Url);
+            this.sourceWebUrl = sourceContext.Web.EnsureProperty(p => p.Url);
+            this.pagesLibrary = CacheManager.Instance.GetPublishingPagesLibraryName(this.sourceContext);
+            this.targetWebUrl = targetContext.Web.EnsureProperty(p => p.Url);
+        }
+        #endregion
+
+        public string Transform(string input)
+        {
+            // Do we need to rewrite?
+            if (this.sourceWebUrl.Equals(this.targetWebUrl, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return input;
+            }
+
+            return ReWriteUrls(input, this.sourceSiteUrl, this.sourceWebUrl, this.targetWebUrl, this.pagesLibrary);
         }
 
         private string ReWriteUrls(string input, string sourceSiteUrl, string sourceWebUrl, string targetWebUrl, string pagesLibrary)

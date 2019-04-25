@@ -7,6 +7,7 @@ using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Transform;
 
 namespace SharePointPnP.Modernization.Framework.Functions
 {
@@ -27,7 +28,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// </summary>
         /// <param name="page">Client side page for which we're executing the functions/selectors as part of the mapping</param>
         /// <param name="pageTransformation">Webpart mapping information</param>
-        public FunctionProcessor(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null)
+        public FunctionProcessor(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, BaseTransformationInformation baseTransformationInformation, IList<ILogObserver> logObservers = null)
         {
             this.page = page;
             this.pageTransformation = pageTransformation;
@@ -43,7 +44,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             // instantiate default built in functions class
             this.addOnTypes = new List<AddOnType>();
-            this.builtInFunctions = Activator.CreateInstance(typeof(BuiltIn), this.page.Context, sourceClientContext, this.page, base.RegisteredLogObservers);
+            this.builtInFunctions = Activator.CreateInstance(typeof(BuiltIn), baseTransformationInformation, this.page.Context, sourceClientContext, this.page, base.RegisteredLogObservers);
 
             // instantiate the custom function classes (if there are)
             foreach (var addOn in this.pageTransformation.AddOns)

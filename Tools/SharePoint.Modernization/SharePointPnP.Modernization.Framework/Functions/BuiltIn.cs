@@ -18,7 +18,10 @@ namespace SharePointPnP.Modernization.Framework.Functions
     public partial class BuiltIn : FunctionsBase
     {
         private ClientContext sourceClientContext;
+        private ClientContext targetClientContext;
         private ClientSidePage clientSidePage;
+        private BaseTransformationInformation baseTransformationInformation;
+        private UrlTransformator urlTransformator;
 
         #region Construction
         /// <summary>
@@ -27,11 +30,14 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// <param name="pageClientContext">ClientContext object for the site holding the page being transformed</param>
         /// <param name="sourceClientContext">The ClientContext for the source </param>
         /// <param name="clientSidePage">Reference to the client side page</param>
-        public BuiltIn(ClientContext pageClientContext, ClientContext sourceClientContext = null, ClientSidePage clientSidePage = null, IList<ILogObserver> logObservers = null) : base(pageClientContext)
+        public BuiltIn(BaseTransformationInformation baseTransformationInformation, ClientContext pageClientContext, ClientContext sourceClientContext = null, ClientSidePage clientSidePage = null, IList<ILogObserver> logObservers = null) : base(pageClientContext)
         {
             // This is an optional property, in cross site transfer the two contexts would be different.
             this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = pageClientContext;
             this.clientSidePage = clientSidePage;
+            this.baseTransformationInformation = baseTransformationInformation;
+            this.urlTransformator = new UrlTransformator(this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
 
             if (logObservers != null)
             {
@@ -228,6 +234,12 @@ namespace SharePointPnP.Modernization.Framework.Functions
             if (string.IsNullOrEmpty(text))
             {
                 return "";
+            }
+
+            // Rewrite url's if needed
+            if (!this.baseTransformationInformation.SkipUrlRewrite)
+            {
+                text = this.urlTransformator.Transform(text);
             }
 
             bool usePlaceHolder = true;

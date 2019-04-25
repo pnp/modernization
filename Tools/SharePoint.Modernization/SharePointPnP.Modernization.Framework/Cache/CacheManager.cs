@@ -283,6 +283,11 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns>Translated name of the pages library</returns>
         public string GetPublishingPagesLibraryName(ClientContext context)
         {
+            if (context == null)
+            {
+                return "pages";
+            }
+
             uint lcid = context.Web.EnsureProperty(p => p.Language);
 
             if (publishingPagesLibraryNames.ContainsKey(lcid))

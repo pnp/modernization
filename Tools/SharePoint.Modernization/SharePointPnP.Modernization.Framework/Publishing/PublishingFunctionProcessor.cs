@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private ClientContext sourceClientContext;
         private ClientContext targetClientContext;
         private ListItem page;
+        private BaseTransformationInformation baseTransformationInformation;
 
         #region Construction
-        public PublishingFunctionProcessor(ListItem page, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation, IList<ILogObserver> logObservers = null)
+        public PublishingFunctionProcessor(ListItem page, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation,  IList<ILogObserver> logObservers = null)
         {
             //Register any existing observers
             if (logObservers != null)
@@ -44,6 +46,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.publishingPageTransformation = publishingPageTransformation;
             this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
+            this.baseTransformationInformation = baseTransformationInformation;
 
             RegisterAddons();
         }
@@ -238,7 +241,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             // instantiate default built in functions class
             this.addOnTypes = new List<AddOnType>();
-            this.builtInFunctions = Activator.CreateInstance(typeof(PublishingBuiltIn), sourceClientContext, targetClientContext, base.RegisteredLogObservers);
+            this.builtInFunctions = Activator.CreateInstance(typeof(PublishingBuiltIn), this.baseTransformationInformation, sourceClientContext, targetClientContext, base.RegisteredLogObservers);
 
             // instantiate the custom function classes (if there are)
             if (this.publishingPageTransformation.AddOns != null)
