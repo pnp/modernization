@@ -36,6 +36,7 @@
 - Fix: Integrate "enhanced" processing of content editor text content also in web part page analyzer flow #106
 - Fix: capacity was less than the current size. #130
 - PageLayoutAnalyser.AnalyseAll now can skip OOB page layouts
+- Fix: Page layout analyzer can handle fields specified by id instead of name #131 and #133 [pkbullock]
 
 ## [April release (prod) - version 1.0.1904.0]
 
