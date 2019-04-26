@@ -399,6 +399,11 @@
               Looks up a localized string similar to In order to provision the template you need to be Term Store Administrator. Please, change the Term Store settings (for instructions you can read this document: https://go.microsoft.com/fwlink/?linkid=2087340) and try again..
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.CanProvisionIssuesMessages.User_Is_Not_Tenant_Admin">
+            <summary>
+              Looks up a localized string similar to In order to provision the template you need Tenant Admin rights. Please ask a Tenant Admin to provision the template for you or to promote yourself to a Tenant Admin..
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.CoreResources">
             <summary>
               A strongly-typed resource class, for looking up localized strings, etc.
@@ -5804,6 +5809,11 @@
             Lack of Permissions to access the TermStore
             </summary>
         </member>
+        <member name="F:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionIssueTags.USER_IS_NOT_TENANT_ADMIN">
+            <summary>
+            Lack of Permissions, the user is not a Tenant Admin, which is required by the rule
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionRuleAttribute">
             <summary>
             Attribute to decorate a CanProvisionRule
@@ -5935,9 +5945,14 @@
             Provides a unique Tag for the current issue
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionIssue.InnerException">
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionIssue.ExceptionMessage">
             <summary>
-            Provides the Inner Exception of an Issue
+            Provides the Message of the source Exception of an Issue
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionIssue.ExceptionStackTrace">
+            <summary>
+            Provides the StackTrace of the source Exception of an Issue
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionResult">
