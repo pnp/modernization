@@ -1209,11 +1209,21 @@ namespace SharePointPnP.Modernization.Framework.Functions
                        Example = "{CleanedText} = TextCleanUpSummaryLinks({Text})")]
         [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
         [OutputDocumentation(Name = "{CleanedText}", Description = "Html compliant with client side text part")]
-        public string TextCleanUpSummaryLinks(string text)
+        public string TextCleanUpSummaryLinks(string text, int chromeType, string title)
         {
             if (string.IsNullOrEmpty(text))
             {
                 return "";
+            }
+
+            // Add header for all but the chrometype = none and chrometype = border only
+            string webPartTitle = null;
+            if (chromeType != 2 && chromeType != 4)
+            {
+                if (!string.IsNullOrEmpty(title))
+                {
+                    webPartTitle = title;
+                }
             }
 
             // Rewrite url's if needed
@@ -1222,7 +1232,12 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 text = this.urlTransformator.Transform(text);
             }
 
-            return new SummaryLinksHtmlTransformator().Transform(text, false);
+            var summaryLinksHtmlTransformator = new SummaryLinksHtmlTransformator
+            {
+                WebPartTitle = webPartTitle
+            };
+
+            return summaryLinksHtmlTransformator.Transform(text, false);
         }
 
         /// <summary>

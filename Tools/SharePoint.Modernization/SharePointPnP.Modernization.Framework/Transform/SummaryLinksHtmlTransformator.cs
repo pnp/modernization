@@ -11,6 +11,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     public class SummaryLinksHtmlTransformator: IHtmlTransformator
     {
         private HtmlParser parser;
+        private string webPartTitle;
 
         #region Construction
         /// <summary>
@@ -19,10 +20,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public SummaryLinksHtmlTransformator()
         {
             // Instantiate the AngleSharp Html parser
-            parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true });
+            parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true });            
         }
         #endregion
 
+        #region Properties
+        public string WebPartTitle
+        {
+            get
+            {
+                return this.webPartTitle;
+            }
+            set
+            {
+                this.webPartTitle = value;
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Transforms the passed summarylinks html to be usable by the client side text part
@@ -111,10 +125,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     // Return the transformed html
                     if (newDocument.DocumentElement.Children.Count() > 1)
                     {
-                        return newDocument.DocumentElement.Children[1].InnerHtml;
+                        string htmlContent = newDocument.DocumentElement.Children[1].InnerHtml;
+
+                        // Add the web part title is that's required
+                        if (!string.IsNullOrEmpty(this.webPartTitle))
+                        {
+                            htmlContent = $"<H3>{this.webPartTitle}</H3>{htmlContent}";
+                        }
+
+                        return htmlContent;
                     }
                     else
                     {
+                        if (!string.IsNullOrEmpty(this.webPartTitle))
+                        {
+                            text = $"<H3>{this.webPartTitle}</H3><div>{text}</div>";
+                        }
+
                         return text;
                     }
                 }
