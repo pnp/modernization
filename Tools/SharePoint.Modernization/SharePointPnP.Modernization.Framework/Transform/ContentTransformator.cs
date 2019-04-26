@@ -536,7 +536,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return true;
         }
 
-        private static void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
+        private void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
         {
             List<Property> tempList = new List<Property>();
             if (webPartData.Properties != null)
@@ -544,6 +544,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 tempList.AddRange(webPartData.Properties);
             }
 
+            // Add properties listed on the Base web part
+            var baseProperties = this.pageTransformation.BaseWebPart.Properties;
+            foreach (var baseProperty in baseProperties)
+            {
+                // Only add the global property once as the webPartData.Properties collection is reused across web parts and pages
+                var propAlreadyAdded = tempList.Where(p => p.Name.Equals(baseProperty.Name, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                if (propAlreadyAdded == null)
+                {
+                    // Add parameter to model
+                    tempList.Add(new Property()
+                    {
+                        Functions = baseProperty.Functions,
+                        Name = baseProperty.Name,
+                        Type = PropertyType.@string
+                    });
+                }
+            }
+
+            // Add global properties
             foreach (var token in globalProperties)
             {
                 // Add property to web part
