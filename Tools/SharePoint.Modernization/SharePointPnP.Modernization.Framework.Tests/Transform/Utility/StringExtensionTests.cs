@@ -65,5 +65,27 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Utility
 
             Assert.IsFalse(result);
         }
+
+        [TestMethod]
+        public void StringExtension_StripString()
+        {
+            var input = "/sites/pnptransformationsource/en/pages/search.aspx";
+            var expectedResult = "/en/pages/search.aspx";
+
+            var result = input.StripRelativeUrlSectionString();
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StringExtension_StripNoSitesString()
+        {
+            var input = "pnptransformationsource/en/pages/search.aspx";
+            var expectedResult = "pnptransformationsource/en/pages/search.aspx";
+
+            var result = input.StripRelativeUrlSectionString();
+
+            Assert.AreEqual(expectedResult, result);
+        }
     }
 }
