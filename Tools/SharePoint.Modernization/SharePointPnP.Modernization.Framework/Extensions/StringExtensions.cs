@@ -25,7 +25,7 @@ namespace SharePointPnP.Modernization.Framework.Extensions
         /// <returns></returns>
         public static string PrependIfNotNull(this string value, string prependString)
         {
-            if (!value.ContainsIgnoringCasing(prependString) && !string.IsNullOrEmpty(value))
+            if (!string.IsNullOrEmpty(value) && !value.ContainsIgnoringCasing(prependString))
             {
                 value = prependString + value;
             }
@@ -43,19 +43,21 @@ namespace SharePointPnP.Modernization.Framework.Extensions
         /// <returns></returns>
         public static string StripRelativeUrlSectionString(this string value)
         {
-            var siteColl = "/sites/";
-            var containsSites = value.IndexOf(siteColl, StringComparison.InvariantCultureIgnoreCase);
-            if (containsSites > -1)
+            if (!string.IsNullOrEmpty(value))
             {
-
-                var result = value.TrimStart(siteColl.ToCharArray());
-                if (result.IndexOf('/') > -1)
+                var siteColl = "/sites/";
+                var containsSites = value.IndexOf(siteColl, StringComparison.InvariantCultureIgnoreCase);
+                if (containsSites > -1)
                 {
-                    return result.Substring(result.IndexOf('/'));
+
+                    var result = value.TrimStart(siteColl.ToCharArray());
+                    if (result.IndexOf('/') > -1)
+                    {
+                        return result.Substring(result.IndexOf('/'));
+                    }
+
                 }
-
             }
-
             return value;
         }
     }
