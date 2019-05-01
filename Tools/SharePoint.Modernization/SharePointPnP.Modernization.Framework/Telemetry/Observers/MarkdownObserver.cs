@@ -1,4 +1,5 @@
-﻿using SharePointPnP.Modernization.Framework.Extensions;
+﻿using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -135,6 +136,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         protected virtual string GenerateReport(bool includeHeading = true)
         {
             StringBuilder report = new StringBuilder();
+            List<TransformationLogAnalysis> summaries = new List<TransformationLogAnalysis>();
 
             // Get one log entry per page...assumes that this log entry is included by each transformator
             var distinctLogs = Logs.Where(p => p.Item2.Heading == LogStrings.Heading_Summary && p.Item2.Significance == LogEntrySignificance.SourceSiteUrl); //TODO: Need to improve this
@@ -143,7 +145,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             foreach (var distinctLogEntry in distinctLogs)
             {
                 var logEntriesToProcess = Logs.Where(p => p.Item2.PageId == distinctLogEntry.Item2.PageId);
-                GenerateReportForPage(report, logEntriesToProcess, first, _includeVerbose);
+                var summary = GenerateReportForPage(report, logEntriesToProcess, first, _includeVerbose);
+                summaries.Add(summary);
 
                 first = false;
             }
@@ -151,12 +154,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             //TODO: For Summary Mode only
             if (!_includeVerbose)
             {
-
                 //if errors - include just errors
-
                 //if warnings - include just warnings
-
                 //if critical - include critical messages
+                GenerateSummaryReport(report, summaries);
             }
 
             return report.ToString();
@@ -166,9 +167,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// Generates a markdown based report based on the logs
         /// </summary>
         /// <returns></returns>
-        private string GenerateReportForPage(StringBuilder report, IEnumerable<Tuple<LogLevel, LogEntry>> logEntriesToProcess, bool firstRun = true, bool includeVerbose = false)
+        private TransformationLogAnalysis GenerateReportForPage(StringBuilder report, IEnumerable<Tuple<LogLevel, LogEntry>> logEntriesToProcess, bool firstRun = true, bool includeVerbose = false)
         {
 
+            TransformationLogAnalysis summaryReport = new TransformationLogAnalysis();
             // Log Analysis
 
             // This could display something cool here e.g. Time taken to transform and transformation options e.g. PageTransformationInformation details
@@ -182,6 +184,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var targetSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetSiteUrl);
             var assetsTransferred = transformationSummary.Where(l => l.Item2.Significance == LogEntrySignificance.AssetTransferred);
             var assetsTransferredCount = assetsTransferred.Count();
+            var criticalErrors = transformationSummary.Where(l => l.Item2.IsCriticalException == true);
+
+            summaryReport.CriticalErrors = criticalErrors;
+            
             var baseTenantUrl = "";
 
             try
@@ -224,6 +230,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var logWarnings = logDetails.Where(l => l.Item1 == LogLevel.Warning);
             var logWarningsCount = logWarnings.Count();
 
+            summaryReport.Warnings = logWarnings;
+            summaryReport.Errors = logErrors;
+            summaryReport.SourcePage = sourcePage?.Item2.Message;
+
             // Report Content
             if (firstRun)
             {
@@ -236,17 +246,38 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 //Summary details only
 
                 //Fields we need: 
-                // PageID, Source Page, Date, Site, Duration, Cross-site transfer mode, Target Page Url, Number of Warnings, Number of Errors
+                // Date, Duration, Src Page, Target Page Url, Status
 
                 if (firstRun)
                 {
-                    report.AppendLine($"Source Page {TableColumnSeperator} Date {TableColumnSeperator} Duration {TableColumnSeperator} Target Page Url {TableColumnSeperator} No. of Warnings {TableColumnSeperator} No. of Errors");
-
-                    report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
-
+                    report.AppendLine($"Date {TableColumnSeperator} Duration {TableColumnSeperator} Source Page {TableColumnSeperator} Target Page Url {TableColumnSeperator} Status");
+                    report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
                 }
 
-                report.AppendLine($"[{sourcePage?.Item2.Message}]({baseTenantUrl}{sourcePage?.Item2.Message}) {TableColumnSeperator} {reportDate} {TableColumnSeperator} {spanResult} {TableColumnSeperator} [{targetPage?.Item2.Message}]({baseTenantUrl}{targetPage?.Item2.Message}) {TableColumnSeperator} {logWarningsCount} {TableColumnSeperator} {logErrorCount}");
+                var status = string.Empty;
+
+                if (criticalErrors.Any())
+                {
+                    status = LogStrings.Report_TransformFail;
+                }
+                else
+                {
+                    if(logWarningsCount > 0 || logErrorCount > 0)
+                    {
+                        status = string.Format(LogStrings.Report_TransformSuccessWithIssues, logWarningsCount, logErrorCount);
+                    }
+                    else
+                    {
+                        status = LogStrings.Report_TransformSuccess;
+                    }
+                }
+
+                var reportSrcPageUrl = sourcePage?.Item2.Message.PrependIfNotNull(baseTenantUrl);
+                var reportTgtPageUrl = targetPage?.Item2.Message.PrependIfNotNull(baseTenantUrl);
+                var reportSrcPageTitle = sourcePage?.Item2.Message.StripRelativeUrlSectionString();
+                var reportTgtPageTitle = targetPage?.Item2.Message.StripRelativeUrlSectionString();
+
+                report.AppendLine($"{reportDate} {TableColumnSeperator} {spanResult} {TableColumnSeperator} [{reportSrcPageTitle}]({reportSrcPageUrl}) {TableColumnSeperator} [{reportTgtPageTitle}]({reportTgtPageUrl}) {TableColumnSeperator} {status}");
 
 
             }
@@ -372,8 +403,19 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 #endregion
 
             }
+           
+            return summaryReport;
+        }
 
-            return report.ToString();
+
+        /// <summary>
+        /// Generate a summary report
+        /// </summary>
+        /// <param name="report"></param>
+        /// <param name="summeries"></param>
+        private void GenerateSummaryReport(StringBuilder report, List<TransformationLogAnalysis> summeries)
+        {
+
         }
 
         /// <summary>

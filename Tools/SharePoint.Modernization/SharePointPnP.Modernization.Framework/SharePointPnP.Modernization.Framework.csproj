@@ -188,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
+    <Compile Include="Entities\TransformationLogAnalysis.cs" />
     <Compile Include="Entities\UserEntity.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutHeaderFieldEntity.cs" />

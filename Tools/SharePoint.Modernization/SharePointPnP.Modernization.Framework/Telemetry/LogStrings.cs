@@ -29,7 +29,7 @@
 
         public const string Report_TransformStatus = "Transform Status";
         public const string Report_TransformSuccess = "Successful";
-        public const string Report_TransformSuccessWithIssues = "Successful with {0} warnings";
+        public const string Report_TransformSuccessWithIssues = "Successful with {0} warnings and {1} non-critical errors";
         public const string Report_TransformFail = "A issue prevented successful transformation";
 
         #endregion
