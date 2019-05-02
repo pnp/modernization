@@ -23,10 +23,13 @@
         public const string Report_Settings = "Setting";
         public const string Report_TransformDetails = "Transformation Operation Details";
         public const string Report_TransformDetailsTableHeader = "Date {0} Operation {0} Actions Performed";
-        public const string Report_ErrorsOccurred = "Errors occurred during transformation";
-        public const string Report_TransformErrorsTableHeader = "Date {0} Operation {0} Error Message";
+        
+        public const string Report_TransformIssuesTableHeader = "Date {0} Page {0} Operation {0} Message";
         public const string Report_ValueNotSet = "<Not Set>";
 
+        public const string Report_ErrorsOccurred = "Errors during transformation";
+        public const string Report_ErrorsCriticalOccurred = "Critical Errors during transformation";
+        public const string Report_WarningsOccurred = "Warnings during transformation";
 
         public const string Report_TransformStatus = "Transform Status";
         public const string Report_TransformSuccess = "Successful";

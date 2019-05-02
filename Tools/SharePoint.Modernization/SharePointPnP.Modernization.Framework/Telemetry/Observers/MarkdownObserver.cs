@@ -285,6 +285,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             if (!includeVerbose)
             {
+                #region Summary
+
                 //Summary details only
 
                 //Fields we need: 
@@ -313,10 +315,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var reportTgtPageUrl = analysis.TargetPage.PrependIfNotNull(analysis.BaseTenantUrl);
                 var reportSrcPageTitle = analysis.SourcePage.StripRelativeUrlSectionString();
                 var reportTgtPageTitle = analysis.TargetPage.StripRelativeUrlSectionString();
+                var transformPageStartDate = analysis.PageLogsOrdered.FirstOrDefault();
 
-                report.AppendLine($"{analysis.ReportDate} {TableColumnSeperator} {durationResult} {TableColumnSeperator} [{reportSrcPageTitle}]({reportSrcPageUrl}) {TableColumnSeperator} [{reportTgtPageTitle}]({reportTgtPageUrl}) {TableColumnSeperator} {status}");
+                report.AppendLine($"{transformPageStartDate?.Item2.EntryTime} {TableColumnSeperator} {durationResult} {TableColumnSeperator} [{reportSrcPageTitle}]({reportSrcPageUrl}) {TableColumnSeperator} [{reportTgtPageTitle}]({reportTgtPageUrl}) {TableColumnSeperator} {status}");
 
-
+                #endregion
             }
             else
             {
@@ -427,30 +430,69 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         {
             StringBuilder errorSummary = new StringBuilder();
 
-            var anyErrors = summaries.Any(o => o.Errors.Any());
+            var anyErrors = summaries.Any(o => o.Errors.Any(e => e.Item2.IsCriticalException == false));
             var anyWarnings = summaries.Any(o => o.Warnings.Any());
             var anyCritical = summaries.Any(o => o.CriticalErrors.Any());
-            
-            #region Error Details
+
+            if (anyWarnings)
+            {
+                report.AppendLine($"{Heading2} {LogStrings.Report_WarningsOccurred}");
+                report.AppendLine();
+
+                report.AppendLine(string.Format(LogStrings.Report_TransformIssuesTableHeader, TableColumnSeperator));
+                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+
+                foreach (var summary in summaries)
+                {
+                    foreach (var log in summary.Warnings)
+                    {
+                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
+                    }
+                }
+            }
 
             if (anyErrors)
             {
-                report.AppendLine($"{Heading3} {LogStrings.Report_ErrorsOccurred}");
+                report.AppendLine($"{Heading2} {LogStrings.Report_ErrorsOccurred}");
                 report.AppendLine();
 
-                report.AppendLine(string.Format(LogStrings.Report_TransformErrorsTableHeader, TableColumnSeperator));
-                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+                report.AppendLine(string.Format(LogStrings.Report_TransformIssuesTableHeader, TableColumnSeperator));
+                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
 
                 foreach (var summary in summaries)
                 {
                     foreach (var log in summary.Errors)
                     {
-                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
+                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} {log.Item2.Exception?.StackTrace}");
                     }
                 }
             }
 
-            #endregion
+            if (anyCritical)
+            {
+                report.AppendLine($"{Heading2} {LogStrings.Report_ErrorsCriticalOccurred}");
+                report.AppendLine();
+
+                
+                foreach (var summary in summaries)
+                {
+
+                    var reportSrcPageUrl = summary.SourcePage.PrependIfNotNull(summary.BaseTenantUrl);
+                    var reportSrcPageTitle = summary.SourcePage.StripRelativeUrlSectionString();
+                    
+                    foreach (var log in summary.CriticalErrors) //In theory should only be one - showstoppers
+                    {
+                        report.AppendLine($"### {log.Item2.EntryTime} - [{reportSrcPageTitle}]({reportSrcPageUrl})");
+
+                        report.AppendLine();
+                        report.AppendFormat("> {1}{0} \n", log.Item2?.Exception?.StackTrace, log.Item2?.Exception?.Message);
+                        report.AppendLine();
+                    }
+
+                }
+            }
+
+
         }
 
         /// <summary>
