@@ -151,18 +151,14 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 summaries.Add(analysis);
                 first = false;
 
-                GenerateReportForPage(report, analysis, _includeVerbose);
+                GenerateReportForPage(report, analysis, _includeVerbose, includeHeading);
             }
 
-            //TODO: For Summary Mode only
-            if (!_includeVerbose)
-            {
-                //if errors - include just errors
-                //if warnings - include just warnings
-                //if critical - include critical messages
-                GenerateIssueSummaryReport(report, summaries);
-            }
-
+            //if errors - include just errors
+            //if warnings - include just warnings
+            //if critical - include critical messages
+            GenerateIssueSummaryReport(report, summaries);
+            
             return report.ToString();
         }
 
@@ -263,7 +259,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// Generates a markdown based report based on the logs
         /// </summary>
         /// <returns></returns>
-        private void GenerateReportForPage(StringBuilder report, TransformationLogAnalysis analysis, bool includeVerbose = false)
+        private void GenerateReportForPage(StringBuilder report, TransformationLogAnalysis analysis, bool includeVerbose = false, bool showHeading = true)
         {
 
 
@@ -276,7 +272,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             
             // Report Content
-            if (analysis.IsFirstAnalysis)
+            if (analysis.IsFirstAnalysis && showHeading)
             {
                 var title = includeVerbose ? LogStrings.Report_ModernisationReport : LogStrings.Report_ModernisationSummaryReport;
                 report.AppendLine($"{Heading1} {title}");
@@ -485,7 +481,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                         report.AppendLine($"### {log.Item2.EntryTime} - [{reportSrcPageTitle}]({reportSrcPageUrl})");
 
                         report.AppendLine();
-                        report.AppendFormat("> {1}{0} \n", log.Item2?.Exception?.StackTrace, log.Item2?.Exception?.Message);
+                        report.AppendFormat("_{1}{0}_ \n", log.Item2?.Exception?.StackTrace, log.Item2?.Exception?.Message);
                         report.AppendLine();
                     }
 
