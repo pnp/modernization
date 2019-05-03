@@ -4,6 +4,7 @@ using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Transform;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,6 +16,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private ClientContext targetClientContext;
         private HtmlParser parser;
         private BuiltIn builtIn;
+        private BaseTransformationInformation baseTransformationInformation;
+
 
         #region Construction
         /// <summary>
@@ -23,12 +26,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <param name="pageClientContext">ClientContext object for the site holding the page being transformed</param>
         /// <param name="sourceClientContext">The ClientContext for the source </param>
         /// <param name="clientSidePage">Reference to the client side page</param>
-        public PublishingBuiltIn(ClientContext sourceClientContext, ClientContext targetClientContext, IList<ILogObserver> logObservers = null) : base(sourceClientContext)
+        public PublishingBuiltIn(BaseTransformationInformation baseTransformationInformation, ClientContext sourceClientContext, ClientContext targetClientContext, IList<ILogObserver> logObservers = null) : base(sourceClientContext)
         {
             this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
+            this.baseTransformationInformation = baseTransformationInformation;
             this.parser = new HtmlParser();
-            this.builtIn = new BuiltIn(targetClientContext, sourceClientContext, logObservers: logObservers);
+            this.builtIn = new BuiltIn(this.baseTransformationInformation, targetClientContext, sourceClientContext, logObservers: logObservers);
 
             if (logObservers != null)
             {

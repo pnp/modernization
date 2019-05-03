@@ -106,6 +106,7 @@
     </xs:sequence>
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="TargetWebPart" type="xs:string" use="required" />
+    <xs:attribute name="FieldId" type="xs:string" use="optional" />
     <xs:attribute name="Row" use="required">
       <xs:simpleType>
         <xs:restriction base="xs:int">

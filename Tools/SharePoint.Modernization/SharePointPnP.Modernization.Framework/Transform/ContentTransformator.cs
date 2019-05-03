@@ -38,7 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="page">Client side page that will be updates</param>
         /// <param name="pageTransformation">Transformation information</param>
-        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, Dictionary<string, string> mappingProperties, IList<ILogObserver> logObservers = null) : base()
+        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, BaseTransformationInformation transformationInformation, IList<ILogObserver> logObservers = null) : base()
         {
             
             //Register any existing observers
@@ -52,8 +52,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             this.page = page ?? throw new ArgumentException("Page cannot be null");
             this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
-            this.globalTokens = CreateGlobalTokenList(page.Context, mappingProperties);
-            this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation, base.RegisteredLogObservers);
+            this.globalTokens = CreateGlobalTokenList(page.Context, transformationInformation.MappingProperties);
+            this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation, transformationInformation, base.RegisteredLogObservers);
 
             this.sourceClientContext = sourceClientContext;
             this.isCrossSiteTransfer = IsCrossSiteTransfer();
@@ -536,7 +536,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return true;
         }
 
-        private static void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
+        private void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
         {
             List<Property> tempList = new List<Property>();
             if (webPartData.Properties != null)
@@ -544,6 +544,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 tempList.AddRange(webPartData.Properties);
             }
 
+            // Add properties listed on the Base web part
+            var baseProperties = this.pageTransformation.BaseWebPart.Properties;
+            foreach (var baseProperty in baseProperties)
+            {
+                // Only add the global property once as the webPartData.Properties collection is reused across web parts and pages
+                var propAlreadyAdded = tempList.Where(p => p.Name.Equals(baseProperty.Name, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                if (propAlreadyAdded == null)
+                {
+                    // Add parameter to model
+                    tempList.Add(new Property()
+                    {
+                        Functions = baseProperty.Functions,
+                        Name = baseProperty.Name,
+                        Type = PropertyType.@string
+                    });
+                }
+            }
+
+            // Add global properties
             foreach (var token in globalProperties)
             {
                 // Add property to web part

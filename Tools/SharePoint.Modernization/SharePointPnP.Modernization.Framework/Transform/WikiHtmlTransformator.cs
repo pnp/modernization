@@ -27,7 +27,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Default constructor
         /// </summary>
-        public WikiHtmlTransformator(ClientContext sourceContext, ClientSidePage page, Dictionary<string, string> mappingProperties, IList<ILogObserver> logObservers = null)
+        public WikiHtmlTransformator(ClientContext sourceContext, ClientSidePage page, BaseTransformationInformation basePageTransformationInformation, IList<ILogObserver> logObservers = null)
         {
             //Register any existing observers
             if (logObservers != null)
@@ -40,10 +40,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             this.sourceContext = sourceContext;
             this.page = page;
-            this.mappingProperties = mappingProperties;
+            this.mappingProperties = basePageTransformationInformation.MappingProperties;
 
             // Instantiate BuiltIn functions class
-            this.builtInFunctions = new BuiltIn(this.page.Context, this.sourceContext, this.page, base.RegisteredLogObservers);
+            this.builtInFunctions = new BuiltIn(basePageTransformationInformation, this.page.Context, this.sourceContext, this.page, base.RegisteredLogObservers);
 
             // Instantiate the AngleSharp Html parser
             parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true });

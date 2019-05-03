@@ -95,7 +95,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         }
 
         [TestMethod]
-        public void PageLayoutAnalyzerTest()
+        public void PageLayout_AnalyzeByPages_Test()
         {
             //https://bertonline.sharepoint.com/sites/modernizationtestportal
             using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
@@ -113,7 +113,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         }
 
         [TestMethod]
-        public void PageLayout2AnalyzerTest()
+        public void PageLayout_AnalyseAll_Test()
         {
             //https://bertonline.sharepoint.com/sites/modernizationtestportal
             using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))

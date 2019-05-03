@@ -4,6 +4,7 @@ using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Publishing;
 using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,11 +25,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
+        public PublishingPage(ListItem page, PageTransformation pageTransformation, BaseTransformationInformation baseTransformationInformation, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
         {
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(cc, base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, base.RegisteredLogObservers);            
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            
         }
 
         /// <summary>
@@ -36,10 +37,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, ClientContext targetContext = null, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
+        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation, ClientContext targetContext = null, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
         {
             this.publishingPageTransformation = publishingPageTransformation;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, targetContext, this.publishingPageTransformation, base.RegisteredLogObservers);            
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, targetContext, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            
         }
         #endregion
 
@@ -87,7 +88,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
                 foreach (var wikiTextPart in wikiTextWebParts)
                 {
-                    var pageContents = page.FieldValues[wikiTextPart.Name]?.ToString();
+                    var pageContents = page.GetFieldValueAs<string>(wikiTextPart.Name);
                     if (pageContents != null && !string.IsNullOrEmpty(pageContents))
                     {
                         var htmlDoc = parser.Parse(pageContents);
@@ -95,6 +96,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         // Analyze the html block (which is a wiki block)
                         var content = htmlDoc.FirstElementChild.LastElementChild;
                         AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, content);
+                    }
+                    else
+                    {
+                        LogWarning(LogStrings.Warning_CannotRetrieveFieldValue, LogStrings.Heading_PublishingPage);
                     }
                 }
 
