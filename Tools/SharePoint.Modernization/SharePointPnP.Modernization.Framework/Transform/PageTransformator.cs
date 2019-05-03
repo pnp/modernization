@@ -442,7 +442,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
 
                     // Analyze the "text" parts (wikitext parts and text in content editor web parts)
-                    pageData = new Tuple<PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, pageTransformationInformation.MappingProperties, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, pageTransformationInformation.HandleWikiImagesAndVideos));
+                    pageData = new Tuple<PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, pageTransformationInformation, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, pageTransformationInformation.HandleWikiImagesAndVideos));
 
 #if DEBUG && MEASURE
                 Stop("Analyze page");
@@ -580,7 +580,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif
                     // Use the default content transformator
-                    IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation.MappingProperties, base.RegisteredLogObservers);
+                    IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation, base.RegisteredLogObservers);
 
                     // Do we have an override?
                     if (pageTransformationInformation.ContentTransformatorOverride != null)

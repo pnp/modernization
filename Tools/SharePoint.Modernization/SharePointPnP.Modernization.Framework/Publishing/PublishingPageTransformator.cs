@@ -293,16 +293,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Grab the pagelayout mapping to use:
                 var pageLayoutMappingModel = GetPageLayoutMappingModel(publishingPageTransformationInformation.SourcePage);
 
-                pageData = new PublishingPage(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation, targetContext: targetClientContext, logObservers: base.RegisteredLogObservers).Analyze(pageLayoutMappingModel);
+                pageData = new PublishingPage(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation, logObservers: base.RegisteredLogObservers).Analyze(pageLayoutMappingModel);
 
                 // Wiki content can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
                 LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);
-                pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, publishingPageTransformationInformation.MappingProperties, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, publishingPageTransformationInformation.HandleWikiImagesAndVideos));
+                pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, publishingPageTransformationInformation, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, publishingPageTransformationInformation.HandleWikiImagesAndVideos));
 
                 // Url rewriting
                 if (!publishingPageTransformationInformation.SkipUrlRewrite)
                 {
-                    pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new UrlTransformator(publishingPageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers).Rewrite(pageData.Item2, sourceClientContext.Web.Url, sourceClientContext.Site.Url, targetClientContext.Web.Url, this.publishingPagesLibrary));
+                    pageData = new Tuple<Pages.PageLayout, List<WebPartEntity>>(pageData.Item1, new UrlTransformator(sourceClientContext, targetClientContext, base.RegisteredLogObservers).Rewrite(pageData.Item2, sourceClientContext.Web.Url, sourceClientContext.Site.Url, targetClientContext.Web.Url, this.publishingPagesLibrary));
                 }
 
 #if DEBUG && MEASURE
@@ -369,7 +369,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 Start();
 #endif
                 // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, publishingPageTransformationInformation.MappingProperties, base.RegisteredLogObservers);
+                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, publishingPageTransformationInformation, base.RegisteredLogObservers);
 
                 // Do we have an override?
                 if (publishingPageTransformationInformation.ContentTransformatorOverride != null)
