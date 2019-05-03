@@ -38,6 +38,7 @@
 - PageLayoutAnalyser.AnalyseAll now can skip OOB page layouts
 - Fix: Page layout analyzer can handle fields specified by id instead of name #131 and #133 [pkbullock]
 - Fix: Web part title (when the web part's "ChromeType" differs from "None" or "Border-only") is retained when summarylinks are transformed to html #137
+- Fix: switch to FIPS compliant hash method #146 
 
 ## [April release (prod) - version 1.0.1904.0]
 

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -566,14 +567,19 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #region Helper methods
         private static string Sha256(string randomString)
         {
-            var crypt = new System.Security.Cryptography.SHA256Managed();
-            var hash = new StringBuilder();
-            byte[] crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(randomString));
-            foreach (byte theByte in crypto)
-            {
-                hash.Append(theByte.ToString("x2"));
-            }
-            return hash.ToString();
+            SHA256CryptoServiceProvider provider = new SHA256CryptoServiceProvider();
+            byte[] hash = provider.ComputeHash(Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(randomString)));
+            string componentKeyToCache = BitConverter.ToString(hash);
+            return componentKeyToCache;
+
+            //var crypt = new System.Security.Cryptography.SHA256Managed();
+            //var hash = new StringBuilder();
+            //byte[] crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(randomString));
+            //foreach (byte theByte in crypto)
+            //{
+            //    hash.Append(theByte.ToString("x2"));
+            //}
+            //return hash.ToString();
         }
 
         private void AddFieldRef(OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRefCollection fieldRefs, Guid Id, string name)
