@@ -34,6 +34,10 @@
         <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
           <Property Name="Text" Type="string" Functions="" />
         </Field>
+        <Field Name="SummaryLinks" TargetWebPart="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="1" Column="3">
+          <Property Name="SummaryLinkStore" Type="string" />
+          <Property Name="Title" Type="string" Functions="StaticString('Hi there')" />
+        </Field>
       </WebParts>
       <WebPartZones>
         <WebPartZone Row="2" Column="1" ZoneId="g_0C7F16935FAC4709915E2D77092A90DE" ZoneIndex="0"/>
