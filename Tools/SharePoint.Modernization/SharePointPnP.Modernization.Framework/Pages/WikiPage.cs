@@ -77,7 +77,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     if (contentHost != null && contentHost.FirstElementChild != null && !IsNestedLayoutsZoneOuter(contentHost))
                     {
                         var content = contentHost.FirstElementChild;
-                        AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, rowCount, colCount, content);
+                        AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, rowCount, colCount, 0, content);
                     }
                 }
             }

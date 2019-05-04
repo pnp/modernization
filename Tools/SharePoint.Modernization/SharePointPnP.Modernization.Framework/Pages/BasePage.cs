@@ -94,13 +94,13 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return type;
         }
 
-        internal void AnalyzeWikiContentBlock(List<WebPartEntity> webparts, IHtmlDocument htmlDoc, List<WebPartPlaceHolder> webPartsToRetrieve, int rowCount, int colCount, IElement content)
+        internal void AnalyzeWikiContentBlock(List<WebPartEntity> webparts, IHtmlDocument htmlDoc, List<WebPartPlaceHolder> webPartsToRetrieve, int rowCount, int colCount, int startOrder, IElement content)
         {           
             // Drop elements which we anyhow can't transform and/or which are stripped out from RTE
             CleanHtml(content, htmlDoc);
 
             StringBuilder textContent = new StringBuilder();
-            int order = 0;
+            int order = startOrder;
             foreach (var node in content.ChildNodes)
             {
                 // Do we find a web part inside...

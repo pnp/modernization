@@ -53,6 +53,13 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="Order" use="optional">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="FixedWebPart">
@@ -75,7 +82,13 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="Order" type="xs:int" use="optional" />
+    <xs:attribute name="Order" use="optional">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:simpleType name="WebPartProperyType">
@@ -119,6 +132,13 @@
         <xs:restriction base="xs:int">
           <xs:minInclusive value="1" />
           <xs:maxInclusive value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="Order" use="optional">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

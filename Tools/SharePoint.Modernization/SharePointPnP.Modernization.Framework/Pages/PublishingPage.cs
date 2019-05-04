@@ -95,7 +95,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                         // Analyze the html block (which is a wiki block)
                         var content = htmlDoc.FirstElementChild.LastElementChild;
-                        AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, content);
+                        AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, GetNextOrder(wikiTextPart.Row, wikiTextPart.Column, wikiTextPart.Order, webparts), content);
                     }
                     else
                     {
@@ -144,7 +144,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Id = Guid.Empty,
                         Row = fieldWebPart.Row,
                         Column = fieldWebPart.Column,
-                        Order = GetNextOrder(fieldWebPart.Row, fieldWebPart.Column, webparts),
+                        Order = GetNextOrder(fieldWebPart.Row, fieldWebPart.Column, fieldWebPart.Order, webparts),
                         Properties = properties,
                     };
 
@@ -211,6 +211,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     int wpInZoneRow = 1;
                     int wpInZoneCol = 1;
+                    int wpStartOrder = 0;
                     // Determine location based upon the location given to the web part zone in the mapping
                     if (publishingPageTransformationModel.WebPartZones != null)
                     {
@@ -219,11 +220,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         {
                             wpInZoneRow = wpZoneFromTemplate.Row;
                             wpInZoneCol = wpZoneFromTemplate.Column;
+                            wpStartOrder = wpZoneFromTemplate.Order;
                         }
                     }
 
                     // Determine order already taken
-                    int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, webparts);
+                    int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, wpStartOrder, webparts);
 
                     webparts.Add(new WebPartEntity()
                     {
@@ -249,7 +251,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             {
                 foreach(var fixedWebpart in publishingPageTransformationModel.FixedWebParts)
                 {
-                    int wpFixedOrderUsed = GetNextOrder(fixedWebpart.Row, fixedWebpart.Column, webparts);
+                    int wpFixedOrderUsed = GetNextOrder(fixedWebpart.Row, fixedWebpart.Column, fixedWebpart.Order, webparts);
 
                     webparts.Add(new WebPartEntity()
                     {
@@ -314,18 +316,27 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return props;
         }
 
-        private int GetNextOrder(int row, int col, List<WebPartEntity> webparts)
+        private int GetNextOrder(int row, int col, int order, List<WebPartEntity> webparts)
         {
             // do we already have web parts in the same row and column
             var wp = webparts.Where(p => p.Row == row && p.Column == col);
-            if (wp != null && wp.Any())
+
+            if (order > 0)
             {
-                var lastWp = wp.OrderBy(p => p.Order).Last();
-                return lastWp.Order + 1;
+                // Multiply with 100 to leave space for possible multiple web parts living in an ordered web part zone
+                return order * 100;
             }
             else
             {
-                return 1;
+                if (wp != null && wp.Any())
+                {
+                    var lastWp = wp.OrderBy(p => p.Order).Last();
+                    return lastWp.Order + 1;
+                }
+                else
+                {
+                    return 1;
+                }
             }
         }
 

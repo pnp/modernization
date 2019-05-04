@@ -272,6 +272,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private int columnField;
         
+        private int orderField;
+        
+        private bool orderFieldSpecified;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public int ZoneIndex {
@@ -313,6 +317,28 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.columnField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Order {
+            get {
+                return this.orderField;
+            }
+            set {
+                this.orderField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool OrderSpecified {
+            get {
+                return this.orderFieldSpecified;
+            }
+            set {
+                this.orderFieldSpecified = value;
             }
         }
     }
@@ -385,6 +411,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private int columnField;
         
+        private int orderField;
+        
+        private bool orderFieldSpecified;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Property")]
         public WebPartProperty[] Property {
@@ -448,6 +478,28 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.columnField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Order {
+            get {
+                return this.orderField;
+            }
+            set {
+                this.orderField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool OrderSpecified {
+            get {
+                return this.orderFieldSpecified;
+            }
+            set {
+                this.orderFieldSpecified = value;
             }
         }
     }
