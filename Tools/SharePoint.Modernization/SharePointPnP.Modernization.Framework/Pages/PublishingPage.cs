@@ -197,7 +197,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     cc.ExecuteQueryRetry();
                 }
 
-                foreach (var foundWebPart in webPartsToRetrieve)
+                foreach (var foundWebPart in webPartsToRetrieve.OrderBy(p=> p.WebPartDefinition.WebPart.ZoneIndex))
                 {
                     if (foundWebPart.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
                     {
