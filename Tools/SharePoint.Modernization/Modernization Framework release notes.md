@@ -21,6 +21,7 @@
 - Added ToPreviewImageUrl built in function which allows to control the page preview image via either a dynamic value (field of the source page list item) or a static string
 - Added mapping for image anchor (wiki and publishing) and image caption (publishing) to modern image web part
 - Simple URL rewrite engine for publishing page transformation
+- Summary report generation #141 [pkbullock]
 
 ## Changed
 
