@@ -540,7 +540,13 @@ namespace SharePointPnP.Modernization.Framework.Pages
             var webPartProperties = this.pageTransformation.WebParts.Where(p => p.Type.Equals(webPartType, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             if (webPartProperties != null && webPartProperties.Properties != null)
             {
-                propertiesToRetrieve.AddRange(webPartProperties.Properties.ToList<Property>());
+                foreach (var p in webPartProperties.Properties.ToList<Property>())
+                {
+                    if (!propertiesToRetrieve.Contains(p))
+                    {
+                        propertiesToRetrieve.Add(p);
+                    }
+                }
             }
 
             if (string.IsNullOrEmpty(webPartXml))
@@ -550,7 +556,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     // Special case since we don't know upfront which properties are relevant here...so let's take them all
                     foreach(var prop in properties.FieldValues)
                     {
-                        propertiesToKeep.Add(prop.Key, prop.Value != null ? prop.Value.ToString() : "");
+                        if (!propertiesToKeep.ContainsKey(prop.Key))
+                        {
+                            propertiesToKeep.Add(prop.Key, prop.Value != null ? prop.Value.ToString() : "");
+                        }
                     }
                 }
                 else
@@ -560,7 +569,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     {
                         if (!string.IsNullOrEmpty(property.Name) && properties.FieldValues.ContainsKey(property.Name))
                         {
-                            propertiesToKeep.Add(property.Name, properties[property.Name] != null ? properties[property.Name].ToString() : "");
+                            if (!propertiesToKeep.ContainsKey(property.Name))
+                            {
+                                propertiesToKeep.Add(property.Name, properties[property.Name] != null ? properties[property.Name].ToString() : "");
+                            }
                         }
                     }
                 }
@@ -576,7 +588,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         // Special case since we don't know upfront which properties are relevant here...so let's take them all
                         foreach (var prop in properties.FieldValues)
                         {
-                            propertiesToKeep.Add(prop.Key, prop.Value != null ? prop.Value.ToString() : "");
+                            if (!propertiesToKeep.ContainsKey(prop.Key))
+                            {
+                                propertiesToKeep.Add(prop.Key, prop.Value != null ? prop.Value.ToString() : "");
+                            }
                         }
                     }
                     else
@@ -586,7 +601,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         {
                             if (!string.IsNullOrEmpty(property.Name) && properties.FieldValues.ContainsKey(property.Name))
                             {
-                                propertiesToKeep.Add(property.Name, properties[property.Name] != null ? properties[property.Name].ToString() : "");
+                                if (!propertiesToKeep.ContainsKey(property.Name))
+                                {
+                                    propertiesToKeep.Add(property.Name, properties[property.Name] != null ? properties[property.Name].ToString() : "");
+                                }
                             }
                         }
                     }
@@ -599,7 +617,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         {
                             if (properties.FieldValues.ContainsKey(property.Name))
                             {
-                                propertiesToKeep.Add(property.Name, properties[property.Name] != null ? properties[property.Name].ToString() : "");
+                                if (!propertiesToKeep.ContainsKey(property.Name))
+                                {
+                                    propertiesToKeep.Add(property.Name, properties[property.Name] != null ? properties[property.Name].ToString() : "");
+                                }
                             }
                             else
                             {
@@ -607,7 +628,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                 var v2Element = xml.Descendants(xmlns + property.Name).FirstOrDefault();
                                 if (v2Element != null)
                                 {
-                                    propertiesToKeep.Add(property.Name, v2Element.Value);
+                                    if (!propertiesToKeep.ContainsKey(property.Name))
+                                    {
+                                        propertiesToKeep.Add(property.Name, v2Element.Value);
+                                    }
                                 }
 
                                 // Some properties do have their own namespace defined
@@ -618,7 +642,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                     v2Element = xml.Descendants(xmlcontentns + property.Name).FirstOrDefault();
                                     if (v2Element != null)
                                     {
-                                        propertiesToKeep.Add(property.Name, v2Element.Value);
+                                        if (!propertiesToKeep.ContainsKey(property.Name))
+                                        {
+                                            propertiesToKeep.Add(property.Name, v2Element.Value);
+                                        }
                                     }
                                 }
                                 else if (webPartType == WebParts.ContentEditor)
@@ -631,7 +658,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         v2Element = xml.Descendants(xmlcontentns + property.Name).FirstOrDefault();
                                         if (v2Element != null)
                                         {
-                                            propertiesToKeep.Add(property.Name, v2Element.Value);
+                                            if (!propertiesToKeep.ContainsKey(property.Name))
+                                            {
+                                                propertiesToKeep.Add(property.Name, v2Element.Value);
+                                            }
                                         }
                                     }
                                 }
@@ -647,7 +677,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         v2Element = xml.Descendants(xmlcontentns + property.Name).FirstOrDefault();
                                         if (v2Element != null)
                                         {
-                                            propertiesToKeep.Add(property.Name, v2Element.Value);
+                                            if (!propertiesToKeep.ContainsKey(property.Name))
+                                            {
+                                                propertiesToKeep.Add(property.Name, v2Element.Value);
+                                            }
                                         }
                                     }
                                 }
@@ -661,7 +694,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         v2Element = xml.Descendants(xmlcontentns + property.Name).FirstOrDefault();
                                         if (v2Element != null)
                                         {
-                                            propertiesToKeep.Add(property.Name, v2Element.Value);
+                                            if (!propertiesToKeep.ContainsKey(property.Name))
+                                            {
+                                                propertiesToKeep.Add(property.Name, v2Element.Value);
+                                            }
                                         }
                                     }
                                 }

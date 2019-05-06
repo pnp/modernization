@@ -44,19 +44,31 @@ namespace SharePointPnP.Modernization.Framework.Extensions
         {
             if (!string.IsNullOrEmpty(value))
             {
-                var siteColl = "/sites/";
-                var containsSites = value.IndexOf(siteColl, StringComparison.InvariantCultureIgnoreCase);
-                if (containsSites > -1)
+                var sitesColl = "/sites/";
+                var teamsColl = "/teams/";
+                var containsSites = value.IndexOf(sitesColl, StringComparison.InvariantCultureIgnoreCase);
+                var containsTeams = value.IndexOf(teamsColl, StringComparison.InvariantCultureIgnoreCase);
+                if (containsSites > -1 || containsTeams > -1)
                 {
-
-                    var result = value.TrimStart(siteColl.ToCharArray());
-                    if (result.IndexOf('/') > -1)
+                    if (containsSites > -1)
                     {
-                        return result.Substring(result.IndexOf('/'));
+                        var result = value.TrimStart(sitesColl.ToCharArray());
+                        if (result.IndexOf('/') > -1)
+                        {
+                            return result.Substring(result.IndexOf('/'));
+                        }
                     }
-
+                    else if (containsTeams > -1)
+                    {
+                        var result = value.TrimStart(teamsColl.ToCharArray());
+                        if (result.IndexOf('/') > -1)
+                        {
+                            return result.Substring(result.IndexOf('/'));
+                        }
+                    }
                 }
             }
+
             return value;
         }
 

@@ -15,6 +15,7 @@
 
         public const string Report_ModernisationReport = "Modernisation Report";
         public const string Report_ModernisationSummaryReport = "Modernisation Summary Report";
+        public const string Report_ModernisationPageDetails = "Individual Page details";
         public const string Report_TransformationDetails = "Transformation Details";
         public const string Report_ReportDate = "Report date";
         public const string Report_TransformDuration = "Transform duration";

@@ -743,6 +743,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
             catch (Exception ex)
             {
                 LogError(LogStrings.CriticalError_ErrorOccurred, LogStrings.Heading_Summary, ex, isCriticalException: true);
+
+                // Throw exception if there's no registered log observers
+                if (base.RegisteredLogObservers.Count == 0)
+                {
+                    throw;
+                }
             }
 
             return string.Empty;

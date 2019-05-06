@@ -68,7 +68,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                     throw new ArgumentNullException("ClientContext is null");
                 }
 
-                var report = GenerateReport(includeHeading: false);
+                var report = GenerateReportWithSummaryAtTop(includeHeading: false);
 
                 // Dont want to assume locality here
                 string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "-").Replace(" ", "-");

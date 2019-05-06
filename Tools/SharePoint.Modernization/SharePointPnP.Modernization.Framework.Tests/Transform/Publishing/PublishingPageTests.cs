@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
                 //https://bertonline.sharepoint.com/sites/modernizationtestportal
-                using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us"))
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\mappingtest.xml"
@@ -47,7 +47,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "welc");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
@@ -82,7 +82,6 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                         pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
                         var result = pageTransformator.Transform(pti);
-                        pageTransformator.FlushObservers();
                     }
 
                     pageTransformator.FlushObservers();
