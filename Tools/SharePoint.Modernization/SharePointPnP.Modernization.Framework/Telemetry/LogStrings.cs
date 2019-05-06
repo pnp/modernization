@@ -25,7 +25,7 @@
         public const string Report_TransformDetails = "Transformation Operation Details";
         public const string Report_TransformDetailsTableHeader = "Date {0} Operation {0} Actions Performed";
 
-        public const string Report_TransformIssuesTableHeader = "Date {0} Page {0} Operation {0} Message";
+        public const string Report_TransformIssuesTableHeader = "Date {0} Source Page {0} Operation {0} Message";
         public const string Report_ValueNotSet = "<Not Set>";
 
         public const string Report_ErrorsOccurred = "Errors during transformation";
@@ -148,7 +148,7 @@
         public const string TransformSwappingPagesStep4 = "Step 4 - Finish with restoring the page navigation: update the navigation links to point back the original page name";
         public const string TransformSwappingPagesStep5 = "Step 5 - Conclude with deleting the originally created modern page as we did copy that already in step 3";
         public const string TransformSwappingPagesStep6 = "STEP6: if the source page lived outside of the site pages library then we also need to delete the original page from that spot";
-        public const string TransformedPage = "Transformed Page";
+        public const string TransformedPage = "Transformed Page:";
         public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
         public const string TransformDisablePageComments = "Page commenting is disabled this this page";
 

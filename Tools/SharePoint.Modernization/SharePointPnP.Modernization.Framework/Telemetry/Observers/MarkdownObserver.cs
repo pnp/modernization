@@ -204,7 +204,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             // Conclude with details per page
             if (_includeVerbose)
             {
-                report.AppendLine($"{Heading1} {LogStrings.Report_ModernisationSummaryReport}");
+                report.AppendLine($"{Heading1} {LogStrings.Report_ModernisationPageDetails}");
                 foreach (var modernizedFileLog in logFileAnalysis)
                 {
                     #region Transform Overview
@@ -252,12 +252,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                     {
                         report.AppendLine($"{setting.Item1 ?? ""} {TableColumnSeperator} {setting.Item2 ?? LogStrings.Report_ValueNotSet}");
                     }
-
-
                     #endregion
 
                     #region Transformation Operation Details
-                    report.AppendLine($"{Heading2} {LogStrings.Report_TransformDetails}");
+                    report.AppendLine($"{Heading3} {LogStrings.Report_TransformDetails}");
                     report.AppendLine();
 
                     report.AppendLine(string.Format(LogStrings.Report_TransformDetailsTableHeader, TableColumnSeperator));
@@ -323,7 +321,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 {
                     foreach (var log in summary.Warnings)
                     {
-                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
+                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage.StripRelativeUrlSectionString()} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
                     }
                 }
             }
@@ -340,7 +338,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 {
                     foreach (var log in summary.Errors)
                     {
-                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} {log.Item2.Exception?.StackTrace}");
+                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage.StripRelativeUrlSectionString()} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} {log.Item2.Exception?.StackTrace}");
                     }
                 }
             }
