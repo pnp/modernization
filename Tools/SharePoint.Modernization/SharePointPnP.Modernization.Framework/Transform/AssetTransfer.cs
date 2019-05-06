@@ -75,7 +75,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string TransferAsset(string sourceAssetRelativeUrl, string pageFileName)
         {
             // No point in looking any further as we're not going cross site
-            if (inSameSite)
+            if (inSameSite || string.IsNullOrEmpty(sourceAssetRelativeUrl))
             {
                 return sourceAssetRelativeUrl;
             }
@@ -116,7 +116,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             // Fall back to send back the same link
-            LogWarning(LogStrings.AssetTransferFailedFallback, LogStrings.Heading_AssetTransfer);
+            LogWarning($"{LogStrings.AssetTransferFailedFallback} {sourceAssetRelativeUrl}", LogStrings.Heading_AssetTransfer);
             return sourceAssetRelativeUrl;
         }
 
@@ -149,7 +149,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //  Ensure the referenced assets exist within the source site collection
             var sourceSiteContextUrl = _sourceClientContext.Site.EnsureProperty(w => w.ServerRelativeUrl);
 
-            //TODO: Bug, doesnt take into account casing and can fail
             if (!sourceUrl.ContainsIgnoringCasing(sourceSiteContextUrl))
             {
                 return false;
