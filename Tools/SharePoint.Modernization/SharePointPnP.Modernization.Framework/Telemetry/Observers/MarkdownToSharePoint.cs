@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Cache;
 using System;
@@ -9,13 +10,13 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
     /// <summary>
     /// Writes an MD log file to a folder (default = Transformation-Reports) inside the sitepages library
     /// </summary>
-    public class MarkdownToSharePointObserver: MarkdownObserver
+    public class MarkdownToSharePointObserver : MarkdownObserver
     {
 
         private ClientContext _clientContext;
         private string _folderName;
         private string _fileName;
-        
+
 
         /// <summary>
         /// Constructor to save a markdown report to SharePoint Modern Site Assets library
@@ -23,7 +24,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <param name="context"></param>
         /// <param name="libraryName"></param>
         /// <param name="folderName"></param>
-        public MarkdownToSharePointObserver(ClientContext context, string folderName = "Transformation-Reports", string fileName = "", bool includeDebugEntries = false) : base(fileName, null, includeDebugEntries)
+        public MarkdownToSharePointObserver(ClientContext context, string folderName = "Transformation-Reports", string fileName = "", bool includeDebugEntries = false, bool includeVerbose = false) : base(fileName, null, includeDebugEntries, includeVerbose)
         {
             _clientContext = context;
             _folderName = folderName;
@@ -51,7 +52,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             {
                 sitePagesFolder = library.RootFolder.EnsureFolder(_folderName);
             }
-            
+
             return sitePagesFolder;
         }
 
@@ -62,12 +63,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         {
             try
             {
-                if(_clientContext == null)
+                if (_clientContext == null)
                 {
                     throw new ArgumentNullException("ClientContext is null");
                 }
 
-                var report = GenerateReport(includeHeading:false);
+                var report = GenerateReport(includeHeading: false);
 
                 // Dont want to assume locality here
                 string logRunTime = _reportDate.ToString().Replace('/', '-').Replace(":", "-").Replace(" ", "-");
@@ -79,15 +80,18 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var pageName = $"{targetFolder.Name}/{logFileName}";
 
                 var reportPage = this._clientContext.Web.AddClientSidePage(pageName);
-                reportPage.PageTitle = "Modernisation Report";
+                reportPage.PageTitle = base._includeVerbose ? LogStrings.Report_ModernisationReport : LogStrings.Report_ModernisationSummaryReport;
 
                 var componentsToAdd = CacheManager.Instance.GetClientSideComponents(reportPage);
-                
+
                 ClientSideComponent baseControl = null;
                 var webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.MarkDown);
                 baseControl = componentsToAdd.FirstOrDefault(p => p.Name.Equals(webPartName, StringComparison.InvariantCultureIgnoreCase));
 
-                var jsonDecoded = GetMarkdownJsonProperties(report);
+                var jsonRpt = JsonConvert.SerializeObject(report, new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
+
+                var jsonDecoded = GetMarkdownJsonProperties(jsonRpt);
+
                 OfficeDevPnP.Core.Pages.ClientSideWebPart mdWebPart = new OfficeDevPnP.Core.Pages.ClientSideWebPart(baseControl)
                 {
                     PropertiesJson = jsonDecoded
@@ -109,18 +113,30 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             }
         }
 
-        public string GetMarkdownJsonProperties(string markdown)
+        /// <summary>
+        /// Construct a markdown web part properties
+        /// </summary>
+        /// <param name="report"></param>
+        /// <returns></returns>
+        public string GetMarkdownJsonProperties(string report)
         {
-            //TODO: Add encoding for non json safe characters
 
-            string jsonProperties = @"
+            var markdown = "\"\"";
+
+            //TODO: Add encoding for non json safe characters
+            if (!string.IsNullOrEmpty(report))
+            {
+                markdown = report;
+            }
+
+            return @"
                     {
                       ""title"": ""Markdown"",
                       ""description"": ""Use markdown to add text, tables, links, and images to your page."",
                       ""serverProcessedContent"": {
                 
                         ""searchablePlainTexts"": {
-                                        ""code"": ""###REPLACEME###""
+                                        ""code"": " + markdown + @"
                         },
                         ""imageSources"": { },
                         ""links"": { }
@@ -136,9 +152,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                         ""theme"": ""Monokai""
                       }
                     }  
-            ";
-
-            return jsonProperties.Replace("###REPLACEME###", markdown);
+                ";
         }
     }
 }

@@ -217,6 +217,7 @@
     <None Include="App.config.sample" />
     <None Include="packages.config" />
     <None Include="Provision\Documents\Contoso_Report.pptx" />
+    <Content Include="Provision\Publishing\ArticleTopic.aspx" />
     <None Include="Provision\Readme.md" />
   </ItemGroup>
   <ItemGroup>

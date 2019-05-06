@@ -42,7 +42,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Wp
                 pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp"));
                 pageTransformator.RegisterObserver(new ConsoleObserver());
 
-                var pages = cc.Web.GetPages("wp_");
+                var pages = cc.Web.GetPages("wp_1");
                 //var pages = cc.Web.GetPages("pagein", "folder1/sub1");
                 //var pages = cc.Web.GetPagesFromList("SiteAssets", "loc_", "Folder1");
                 foreach (var page in pages)

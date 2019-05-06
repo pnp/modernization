@@ -54,5 +54,28 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Page that's being transformed
         /// </summary>
         public string PageId { get; set; }
+
+        /// <summary>
+        /// Extra significance of the entry for the logs
+        /// </summary>
+        public LogEntrySignificance Significance { get; set; }
+
+        /// <summary>
+        /// Marks this error as a critical exception that prevents transformation
+        /// </summary>
+        public bool IsCriticalException { get; set; }
+    }
+
+    /// <summary>
+    /// Specfies to the loggers that a specific entry has significance.
+    /// </summary>
+    public enum LogEntrySignificance
+    {
+        None,
+        SourcePage,
+        TargetPage,
+        AssetTransferred,
+        SourceSiteUrl,
+        TargetSiteUrl
     }
 }

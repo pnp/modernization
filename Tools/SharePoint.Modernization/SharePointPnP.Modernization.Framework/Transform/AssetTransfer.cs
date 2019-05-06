@@ -29,6 +29,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         private ClientContext _sourceClientContext;
         private ClientContext _targetClientContext;
+        private bool inSameSite;
 
         /// <summary>
         /// Constructor for the asset transfer class
@@ -47,6 +48,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             _sourceClientContext = source;
             _targetClientContext = target;
+
+            // Check if we're calling asset transfer when source and target are the same
+            var sourceUrl = _sourceClientContext?.Web.EnsureProperty(p => p.Url);
+            var targetUrl = _targetClientContext?.Web.EnsureProperty(p => p.Url);
+            inSameSite = sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase);
 
             Validate(); // Perform validation
         }
@@ -68,6 +74,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         public string TransferAsset(string sourceAssetRelativeUrl, string pageFileName)
         {
+            // No point in looking any further as we're not going cross site
+            if (inSameSite)
+            {
+                return sourceAssetRelativeUrl;
+            }
 
             // Deep validation of urls
             var isValid = ValidateAssetInSupportedLocation(sourceAssetRelativeUrl) && !string.IsNullOrEmpty(pageFileName);
@@ -99,7 +110,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 var finalPath = assetDetails.TargetAssetTransferredUrl;
-                LogInfo($"{LogStrings.AssetTransferredToUrl}: {finalPath}", LogStrings.Heading_Summary);
+                LogInfo($"{finalPath}", LogStrings.Heading_Summary, LogEntrySignificance.AssetTransferred);
                 return finalPath;
 
             }
@@ -169,6 +180,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var sitePagesFolder = siteAssetsLibrary.RootFolder.EnsureFolder("SitePages");
 
             var friendlyFolder = ConvertFileToFolderFriendlyName(pageFileName);
+            friendlyFolder = friendlyFolder.StripInvalidUrlChars();
             var pageFolder = sitePagesFolder.EnsureFolder(friendlyFolder);
 
             return pageFolder.EnsureProperty(o => o.ServerRelativeUrl);

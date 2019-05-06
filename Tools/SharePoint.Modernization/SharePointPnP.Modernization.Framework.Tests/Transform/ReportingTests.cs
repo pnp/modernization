@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         private List<LogEntry> GetExampleWarnLogs()
         {
             List<LogEntry> logs = new List<LogEntry>();
-            logs.Add(new LogEntry() { Heading = "Asset Transfer", Message = "An issue occurred in transferring an asset, falling back to orignal reference." });
+            logs.Add(new LogEntry() { Heading = "Asset Transfer", Message = "An issue occurred in transferring an asset, falling back to original reference." });
 
             return logs;
         }

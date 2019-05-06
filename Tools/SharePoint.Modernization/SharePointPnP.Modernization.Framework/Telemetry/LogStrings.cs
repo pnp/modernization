@@ -11,6 +11,33 @@
 
         public const string KeyValueSeperatorToken = ";#;";
 
+        #region Report Text
+
+        public const string Report_ModernisationReport = "Modernisation Report";
+        public const string Report_ModernisationSummaryReport = "Modernisation Summary Report";
+        public const string Report_TransformationDetails = "Transformation Details";
+        public const string Report_ReportDate = "Report date";
+        public const string Report_TransformDuration = "Transform duration";
+        public const string Report_TransformationSettings = "Page Transformation Settings";
+        public const string Report_Property = "Property";
+        public const string Report_Settings = "Setting";
+        public const string Report_TransformDetails = "Transformation Operation Details";
+        public const string Report_TransformDetailsTableHeader = "Date {0} Operation {0} Actions Performed";
+
+        public const string Report_TransformIssuesTableHeader = "Date {0} Page {0} Operation {0} Message";
+        public const string Report_ValueNotSet = "<Not Set>";
+
+        public const string Report_ErrorsOccurred = "Errors during transformation";
+        public const string Report_ErrorsCriticalOccurred = "Critical Errors during transformation";
+        public const string Report_WarningsOccurred = "Warnings during transformation";
+
+        public const string Report_TransformStatus = "Transform Status";
+        public const string Report_TransformSuccess = "Successful";
+        public const string Report_TransformSuccessWithIssues = "Successful with {0} warnings and {1} non-critical errors";
+        public const string Report_TransformFail = "A issue prevented successful transformation";
+
+        #endregion
+
         #region Page Transformation
 
         #region Headings
@@ -52,6 +79,8 @@
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
         public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
+
+        public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
 
         #endregion
 
@@ -163,8 +192,8 @@
         public const string Heading_AssetTransfer = "Asset Transfer";
         public const string Error_AssetTransferClientContextNull = "One or more client context is null";
 
-        public const string AssetTransferredToUrl = "An referenced asset was found and copied to";
-        public const string AssetTransferFailedFallback = "An issue occurred in transferring an asset, falling back to orignal reference.";
+        public const string AssetTransferredToUrl = "An referenced asset was found and copied to:";
+        public const string AssetTransferFailedFallback = "An issue occurred in transferring an asset, falling back to original reference.";
 
         public const string Error_AssetTransferCheckingIfAssetExists = "An error occurred checking if a referenced asset exists";
 

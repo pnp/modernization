@@ -70,13 +70,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
             }
         }
-        
+
 
         /// <summary>
         /// Notifies the observers of error messages
         /// </summary>
         /// <param name="logEntry">The message.</param>
-        public void LogError(string message, string heading = "", Exception exception = null, bool ignoreException = false)
+        public void LogError(string message, string heading = "", Exception exception = null, bool ignoreException = false, bool isCriticalException = false)
         {
             StackTrace stackTrace = new StackTrace();
             var logEntry = new LogEntry() {
@@ -85,7 +85,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 CorrelationId = _correlationId,
                 Source = stackTrace.GetFrame(1).GetMethod().ToString(),
                 Exception = exception,
-                IgnoreException = ignoreException
+                IgnoreException = ignoreException,
+                IsCriticalException = isCriticalException
             };
 
             Log(logEntry, LogLevel.Error);
@@ -95,10 +96,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Notifies the observers of info messages
         /// </summary>
         /// <param name="logEntry">The message.</param>
-        public void LogInfo(string message, string heading = "")
+        public void LogInfo(string message, string heading = "", LogEntrySignificance significance = LogEntrySignificance.None)
         {
             StackTrace stackTrace = new StackTrace();
-            var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString() };
+            var logEntry = new LogEntry() { Heading = heading, Message = message, CorrelationId = _correlationId, Source = stackTrace.GetFrame(1).GetMethod().ToString(), Significance = significance };
 
             Log(logEntry, LogLevel.Information);
         }

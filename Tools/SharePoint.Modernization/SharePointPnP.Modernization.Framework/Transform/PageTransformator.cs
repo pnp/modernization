@@ -183,559 +183,569 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             #endregion
 
-            #region Telemetry
+            try
+            {
+
+                #region Telemetry
 #if DEBUG && MEASURE
             Start();
-#endif            
-            DateTime transformationStartDateTime = DateTime.Now;
+#endif
+                DateTime transformationStartDateTime = DateTime.Now;
 
-            LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
-            LoadClientObject(sourceClientContext);
+                LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
+                LoadClientObject(sourceClientContext);
 
-            LogInfo($"{LogStrings.TransformingSite} {sourceClientContext.Web.Url}", LogStrings.Heading_Summary);
+                LogInfo($"{sourceClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
 
-            if (hasTargetContext)
-            {
-                LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
-                LoadClientObject(targetClientContext);
-
-                if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
+                if (hasTargetContext)
                 {
-                    // Oops, seems source and target point to the same site collection...switch back the "source only" mode
-                    targetClientContext = null;
-                    hasTargetContext = false;
-                    LogWarning(LogStrings.Error_FallBackToSameSiteTransfer, LogStrings.Heading_SharePointConnection);
+                    LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
+                    LoadClientObject(targetClientContext);
+
+                    if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
+                    {
+                        // Oops, seems source and target point to the same site collection...switch back the "source only" mode
+                        targetClientContext = null;
+                        hasTargetContext = false;
+                        LogWarning(LogStrings.Error_FallBackToSameSiteTransfer, LogStrings.Heading_SharePointConnection);
+                    }
+                    else
+                    {
+                        // Ensure that the newly created page in the other site collection gets the same name as the source page
+                        LogInfo(LogStrings.Error_OverridingTagePageTakesSourcePageName, LogStrings.Heading_SharePointConnection);
+                        pageTransformationInformation.TargetPageTakesSourcePageName = true;
+                    }
+
+                    LogInfo($"{targetClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
                 }
-                else
+
+                // Need to add further validation for target template
+                if (hasTargetContext &&
+                   (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP"))
                 {
-                    // Ensure that the newly created page in the other site collection gets the same name as the source page
-                    LogInfo(LogStrings.Error_OverridingTagePageTakesSourcePageName, LogStrings.Heading_SharePointConnection);
-                    pageTransformationInformation.TargetPageTakesSourcePageName = true;
+
+                    LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);
+                    throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
                 }
 
-                LogInfo($"{LogStrings.CrossSiteTransferToSite} {targetClientContext.Web.Url}", LogStrings.Heading_Summary);
-            }
-
-            // Need to add further validation for target template
-            if (hasTargetContext &&
-               (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP"))
-            {
-
-                LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);
-                throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
-            }
-
-            LogInfo($"{LogStrings.TransformingPage} {pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary);
+                LogInfo($"{pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
 #endif
-            #endregion
+                #endregion
 
-            #region Page creation
-            // Detect if the page is living inside a folder
-            LogDebug(LogStrings.DetectIfPageIsInFolder, LogStrings.Heading_PageCreation);
-            string pageFolder = "";
-            if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
-            {
-                var fileRefFieldValue = pageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
+                #region Page creation
+                // Detect if the page is living inside a folder
+                LogDebug(LogStrings.DetectIfPageIsInFolder, LogStrings.Heading_PageCreation);
+                string pageFolder = "";
+                if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
+                {
+                    var fileRefFieldValue = pageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
 
-                if (fileRefFieldValue.ToLower().Contains("/sitepages"))
-                {
-                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
-                }
-                else
-                {
-                    // Page was living in another list, leave the list name as that will be the folder hosting the modern file in SitePages.
-                    // This convention is used to avoid naming conflicts
-                    pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}", "").Trim();
-                }
-
-                if (pageFolder.Length > 0)
-                {
-                    if (pageFolder.Contains("/"))
+                    if (fileRefFieldValue.ToLower().Contains("/sitepages"))
                     {
-                        if (pageFolder == "/")
-                        {
-                            pageFolder = "";
-                        }
-                        else
-                        {
-                            pageFolder = pageFolder.Substring(1);
-                        }
+                        pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+                    }
+                    else
+                    {
+                        // Page was living in another list, leave the list name as that will be the folder hosting the modern file in SitePages.
+                        // This convention is used to avoid naming conflicts
+                        pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}", "").Trim();
                     }
 
-                    // Add a trailing slash
-                    pageFolder = pageFolder + "/";
+                    if (pageFolder.Length > 0)
+                    {
+                        if (pageFolder.Contains("/"))
+                        {
+                            if (pageFolder == "/")
+                            {
+                                pageFolder = "";
+                            }
+                            else
+                            {
+                                pageFolder = pageFolder.Substring(1);
+                            }
+                        }
 
-                    LogInfo(LogStrings.PageIsLocatedInFolder, LogStrings.Heading_PageCreation);
+                        // Add a trailing slash
+                        pageFolder = pageFolder + "/";
+
+                        LogInfo(LogStrings.PageIsLocatedInFolder, LogStrings.Heading_PageCreation);
+                    }
                 }
-            }
-            pageTransformationInformation.Folder = pageFolder;
+                pageTransformationInformation.Folder = pageFolder;
 
-            // If no targetname specified then we'll come up with one
-            if (string.IsNullOrEmpty(pageTransformationInformation.TargetPageName))
-            {
-                if (string.IsNullOrEmpty(pageTransformationInformation.TargetPagePrefix))
+                // If no targetname specified then we'll come up with one
+                if (string.IsNullOrEmpty(pageTransformationInformation.TargetPageName))
                 {
-                    LogInfo(LogStrings.NoTargetNameUsingDefaultPrefix, LogStrings.Heading_PageCreation);
-                    pageTransformationInformation.SetDefaultTargetPagePrefix();
+                    if (string.IsNullOrEmpty(pageTransformationInformation.TargetPagePrefix))
+                    {
+                        LogInfo(LogStrings.NoTargetNameUsingDefaultPrefix, LogStrings.Heading_PageCreation);
+                        pageTransformationInformation.SetDefaultTargetPagePrefix();
+                    }
+
+                    if (hasTargetContext)
+                    {
+                        LogInfo(LogStrings.CrossSiteInUseUsingOriginalFileName, LogStrings.Heading_PageCreation);
+                        pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+                    }
+                    else
+                    {
+                        LogInfo(LogStrings.UsingSuppliedPrefix, LogStrings.Heading_PageCreation);
+
+                        pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.TargetPagePrefix}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+                    }
+
                 }
 
-                if (hasTargetContext)
-                {
-                    LogInfo(LogStrings.CrossSiteInUseUsingOriginalFileName, LogStrings.Heading_PageCreation);
-                    pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
-                }
-                else
-                {
-                    LogInfo(LogStrings.UsingSuppliedPrefix, LogStrings.Heading_PageCreation);
-
-                    pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.TargetPagePrefix}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
-                }
-
-            }
-
-            // Check if page name is free to use
-#if DEBUG && MEASURE
-            Start();
-#endif            
-            bool pageExists = false;
-            ClientSidePage targetPage = null;
-            List pagesLibrary = null;
-            Microsoft.SharePoint.Client.File existingFile = null;
-
-            //The determines of the target client context has been specified and use that to generate the target page
-            var context = hasTargetContext ? targetClientContext : sourceClientContext;
-
-            try
-            {
-                LogDebug(LogStrings.LoadingExistingPageIfExists, LogStrings.Heading_PageCreation);
-
-                // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
-                existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary, targetClientContext);
-                pageExists = true;
-            }
-            catch (ArgumentException ex)
-            {
-
-                LogError(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation, ex, true);
-            }
-#if DEBUG && MEASURE
-            Stop("Load Page");
-#endif            
-
-            if (pageExists)
-            {
-                LogInfo(LogStrings.PageAlreadyExistsInTargetLocation, LogStrings.Heading_PageCreation);
-
-                if (!pageTransformationInformation.Overwrite)
-                {
-                    var message = $"{LogStrings.PageNotOverwriteIfExists}  {pageTransformationInformation.TargetPageName}.";
-                    LogError(message, LogStrings.Heading_PageCreation);
-                    throw new ArgumentException(message);
-                }
-            }
-
-            // Create the client side page
-
-            targetPage = context.Web.AddClientSidePage($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
-            LogInfo($"{LogStrings.ModernPageCreated} ", LogStrings.Heading_PageCreation);
-            #endregion
-
-            #region Home page handling
+                // Check if page name is free to use
 #if DEBUG && MEASURE
             Start();
 #endif
-            LogDebug(LogStrings.TransformCheckIfPageIsHomePage, LogStrings.Heading_HomePageHandling);
+                bool pageExists = false;
+                ClientSidePage targetPage = null;
+                List pagesLibrary = null;
+                Microsoft.SharePoint.Client.File existingFile = null;
 
-            bool replacedByOOBHomePage = false;
-            // Check if the transformed page is the web's home page
-            if (sourceClientContext.Web.RootFolder.IsPropertyAvailable("WelcomePage") && !string.IsNullOrEmpty(sourceClientContext.Web.RootFolder.WelcomePage))
-            {
-                LogInfo(LogStrings.WelcomePageSettingsIsPresent, LogStrings.Heading_HomePageHandling);
+                //The determines of the target client context has been specified and use that to generate the target page
+                var context = hasTargetContext ? targetClientContext : sourceClientContext;
 
-                var homePageUrl = sourceClientContext.Web.RootFolder.WelcomePage;
-                var homepageName = Path.GetFileName(sourceClientContext.Web.RootFolder.WelcomePage);
-                if (homepageName.Equals(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                try
                 {
-                    LogInfo(LogStrings.TransformSourcePageIsHomePage, LogStrings.Heading_HomePageHandling);
+                    LogDebug(LogStrings.LoadingExistingPageIfExists, LogStrings.Heading_PageCreation);
 
-                    targetPage.LayoutType = ClientSidePageLayoutType.Home;
-                    if (pageTransformationInformation.ReplaceHomePageWithDefaultHomePage)
+                    // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
+                    existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary, targetClientContext);
+                    pageExists = true;
+                }
+                catch (ArgumentException ex)
+                {
+
+                    LogError(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation, ex, true);
+                }
+#if DEBUG && MEASURE
+            Stop("Load Page");
+#endif
+
+                if (pageExists)
+                {
+                    LogInfo(LogStrings.PageAlreadyExistsInTargetLocation, LogStrings.Heading_PageCreation);
+
+                    if (!pageTransformationInformation.Overwrite)
                     {
-                        targetPage.KeepDefaultWebParts = true;
-                        replacedByOOBHomePage = true;
-
-                        LogInfo(LogStrings.TransformSourcePageHomePageUsingStock,
-                            LogStrings.Heading_HomePageHandling);
+                        var message = $"{LogStrings.PageNotOverwriteIfExists}  {pageTransformationInformation.TargetPageName}.";
+                        LogError(message, LogStrings.Heading_PageCreation);
+                        throw new ArgumentException(message);
                     }
                 }
-                else
-                {
-                    LogInfo(LogStrings.TransformSourcePageIsNotHomePage, LogStrings.Heading_HomePageHandling);
-                }
-            }
-#if DEBUG && MEASURE
-            Stop(LogStrings.Heading_HomePageHandling);
-#endif            
-            #endregion
 
-            #region Article page handling
+                // Create the client side page
 
-            if (!replacedByOOBHomePage)
-            {
-                LogInfo(LogStrings.TransformSourcePageAsArticlePage, LogStrings.Heading_ArticlePageHandling);
-
-                #region Configure header from target page
-#if DEBUG && MEASURE
-                Start();
-#endif            
-                if (pageTransformationInformation.PageHeader == null || pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.None)
-                {
-                    LogInfo(LogStrings.TransformArticleSetHeaderToNone, LogStrings.Heading_ArticlePageHandling);
-
-                    targetPage.RemovePageHeader();
-                }
-                else if (pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.Default)
-                {
-                    LogInfo(LogStrings.TransformArticleSetHeaderToDefault, LogStrings.Heading_ArticlePageHandling);
-
-                    targetPage.SetDefaultPageHeader();
-                }
-                else if (pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.Custom)
-                {
-                    LogInfo($"{LogStrings.TransformArticleSetHeaderToCustom} " +
-                            $"{LogStrings.TransformArticleHeaderImageUrl} {pageTransformationInformation.PageHeader.ImageServerRelativeUrl} ", LogStrings.Heading_ArticlePageHandling);
-
-                    targetPage.SetCustomPageHeader(pageTransformationInformation.PageHeader.ImageServerRelativeUrl, pageTransformationInformation.PageHeader.TranslateX, pageTransformationInformation.PageHeader.TranslateY);
-                }
-#if DEBUG && MEASURE
-                Stop("Target page header");
-#endif            
+                targetPage = context.Web.AddClientSidePage($"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}");
+                LogInfo($"{LogStrings.ModernPageCreated} ", LogStrings.Heading_PageCreation);
                 #endregion
 
-                #region Analysis of the source page
+                #region Home page handling
+#if DEBUG && MEASURE
+            Start();
+#endif
+                LogDebug(LogStrings.TransformCheckIfPageIsHomePage, LogStrings.Heading_HomePageHandling);
+
+                bool replacedByOOBHomePage = false;
+                // Check if the transformed page is the web's home page
+                if (sourceClientContext.Web.RootFolder.IsPropertyAvailable("WelcomePage") && !string.IsNullOrEmpty(sourceClientContext.Web.RootFolder.WelcomePage))
+                {
+                    LogInfo(LogStrings.WelcomePageSettingsIsPresent, LogStrings.Heading_HomePageHandling);
+
+                    var homePageUrl = sourceClientContext.Web.RootFolder.WelcomePage;
+                    var homepageName = Path.GetFileName(sourceClientContext.Web.RootFolder.WelcomePage);
+                    if (homepageName.Equals(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        LogInfo(LogStrings.TransformSourcePageIsHomePage, LogStrings.Heading_HomePageHandling);
+
+                        targetPage.LayoutType = ClientSidePageLayoutType.Home;
+                        if (pageTransformationInformation.ReplaceHomePageWithDefaultHomePage)
+                        {
+                            targetPage.KeepDefaultWebParts = true;
+                            replacedByOOBHomePage = true;
+
+                            LogInfo(LogStrings.TransformSourcePageHomePageUsingStock,
+                                LogStrings.Heading_HomePageHandling);
+                        }
+                    }
+                    else
+                    {
+                        LogInfo(LogStrings.TransformSourcePageIsNotHomePage, LogStrings.Heading_HomePageHandling);
+                    }
+                }
+#if DEBUG && MEASURE
+            Stop(LogStrings.Heading_HomePageHandling);
+#endif
+                #endregion
+
+                #region Article page handling
+
+                if (!replacedByOOBHomePage)
+                {
+                    LogInfo(LogStrings.TransformSourcePageAsArticlePage, LogStrings.Heading_ArticlePageHandling);
+
+                    #region Configure header from target page
 #if DEBUG && MEASURE
                 Start();
-#endif            
-                // Analyze the source page
-                Tuple<PageLayout, List<WebPartEntity>> pageData = null;
+#endif
+                    if (pageTransformationInformation.PageHeader == null || pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.None)
+                    {
+                        LogInfo(LogStrings.TransformArticleSetHeaderToNone, LogStrings.Heading_ArticlePageHandling);
 
-                if (pageType.Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    LogInfo($"{LogStrings.TransformSourcePageIsWikiPage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
+                        targetPage.RemovePageHeader();
+                    }
+                    else if (pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.Default)
+                    {
+                        LogInfo(LogStrings.TransformArticleSetHeaderToDefault, LogStrings.Heading_ArticlePageHandling);
 
-                    pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze();
+                        targetPage.SetDefaultPageHeader();
+                    }
+                    else if (pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.Custom)
+                    {
+                        LogInfo($"{LogStrings.TransformArticleSetHeaderToCustom} " +
+                                $"{LogStrings.TransformArticleHeaderImageUrl} {pageTransformationInformation.PageHeader.ImageServerRelativeUrl} ", LogStrings.Heading_ArticlePageHandling);
 
-                    // Wiki pages can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
-                    LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);
-                }
-                else if (pageType.Equals("WebPartPage", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    LogInfo($"{LogStrings.TransformSourcePageIsWebPartPage} {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
+                        targetPage.SetCustomPageHeader(pageTransformationInformation.PageHeader.ImageServerRelativeUrl, pageTransformationInformation.PageHeader.TranslateX, pageTransformationInformation.PageHeader.TranslateY);
+                    }
+#if DEBUG && MEASURE
+                Stop("Target page header");
+#endif
+                    #endregion
 
-                    pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(true);
-                }
-                
-                // Analyze the "text" parts (wikitext parts and text in content editor web parts)
-                pageData = new Tuple<PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, pageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, pageTransformationInformation.HandleWikiImagesAndVideos));
+                    #region Analysis of the source page
+#if DEBUG && MEASURE
+                Start();
+#endif
+                    // Analyze the source page
+                    Tuple<PageLayout, List<WebPartEntity>> pageData = null;
+
+                    if (pageType.Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        LogInfo($"{LogStrings.TransformSourcePageIsWikiPage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
+
+                        pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze();
+
+                        // Wiki pages can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
+                        LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);
+                    }
+                    else if (pageType.Equals("WebPartPage", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        LogInfo($"{LogStrings.TransformSourcePageIsWebPartPage} {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
+
+                        pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(true);
+                    }
+
+                    // Analyze the "text" parts (wikitext parts and text in content editor web parts)
+                    pageData = new Tuple<PageLayout, List<WebPartEntity>>(pageData.Item1, new WikiHtmlTransformator(this.sourceClientContext, targetPage, pageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers).TransformPlusSplit(pageData.Item2, pageTransformationInformation.HandleWikiImagesAndVideos));
 
 #if DEBUG && MEASURE
                 Stop("Analyze page");
 #endif
-                #endregion
+                    #endregion
 
-                #region Page title configuration
+                    #region Page title configuration
 #if DEBUG && MEASURE
                 Start();
-#endif            
-                // Set page title
-                if (pageType.Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    SetPageTitle(pageTransformationInformation, targetPage);
-                }
-                else if (pageType.Equals("WebPartPage"))
-                {
-                    bool titleFound = false;
-                    var titleBarWebPart = pageData.Item2.Where(p => p.Type == WebParts.TitleBar).FirstOrDefault();
-                    if (titleBarWebPart != null)
-                    {
-                        if (titleBarWebPart.Properties.ContainsKey("HeaderTitle") && !string.IsNullOrEmpty(titleBarWebPart.Properties["HeaderTitle"]))
-                        {
-                            var title = titleBarWebPart.Properties["HeaderTitle"];
-
-                            LogInfo($"{LogStrings.TransformPageModernTitle} {title}", LogStrings.Heading_ArticlePageHandling);
-                            targetPage.PageTitle = title;
-                            titleFound = true;
-                        }
-                    }
-
-                    if (!titleFound)
+#endif
+                    // Set page title
+                    if (pageType.Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
                     {
                         SetPageTitle(pageTransformationInformation, targetPage);
                     }
-                }
+                    else if (pageType.Equals("WebPartPage"))
+                    {
+                        bool titleFound = false;
+                        var titleBarWebPart = pageData.Item2.Where(p => p.Type == WebParts.TitleBar).FirstOrDefault();
+                        if (titleBarWebPart != null)
+                        {
+                            if (titleBarWebPart.Properties.ContainsKey("HeaderTitle") && !string.IsNullOrEmpty(titleBarWebPart.Properties["HeaderTitle"]))
+                            {
+                                var title = titleBarWebPart.Properties["HeaderTitle"];
 
-                if (pageTransformationInformation.PageTitleOverride != null)
-                {
-                    var title = pageTransformationInformation.PageTitleOverride(targetPage.PageTitle);
-                    targetPage.PageTitle = title;
+                                LogInfo($"{LogStrings.TransformPageModernTitle} {title}", LogStrings.Heading_ArticlePageHandling);
+                                targetPage.PageTitle = title;
+                                titleFound = true;
+                            }
+                        }
 
-                    LogInfo($"{LogStrings.TransformPageTitleOverride} - page title: {title}", LogStrings.Heading_ArticlePageHandling);
-                }
+                        if (!titleFound)
+                        {
+                            SetPageTitle(pageTransformationInformation, targetPage);
+                        }
+                    }
+
+                    if (pageTransformationInformation.PageTitleOverride != null)
+                    {
+                        var title = pageTransformationInformation.PageTitleOverride(targetPage.PageTitle);
+                        targetPage.PageTitle = title;
+
+                        LogInfo($"{LogStrings.TransformPageTitleOverride} - page title: {title}", LogStrings.Heading_ArticlePageHandling);
+                    }
 #if DEBUG && MEASURE
                 Stop("Set page title");
 #endif
-                #endregion
+                    #endregion
 
-                #region Page layout configuration
+                    #region Page layout configuration
 #if DEBUG && MEASURE
                 Start();
-#endif            
-                // Use the default layout transformator
-                ILayoutTransformator layoutTransformator = new LayoutTransformator(targetPage);
+#endif
+                    // Use the default layout transformator
+                    ILayoutTransformator layoutTransformator = new LayoutTransformator(targetPage);
 
-                // Do we have an override?
-                if (pageTransformationInformation.LayoutTransformatorOverride != null)
-                {
-                    LogInfo(LogStrings.TransformLayoutTransformatorOverride, LogStrings.Heading_ArticlePageHandling);
-                    layoutTransformator = pageTransformationInformation.LayoutTransformatorOverride(targetPage);
-                }
+                    // Do we have an override?
+                    if (pageTransformationInformation.LayoutTransformatorOverride != null)
+                    {
+                        LogInfo(LogStrings.TransformLayoutTransformatorOverride, LogStrings.Heading_ArticlePageHandling);
+                        layoutTransformator = pageTransformationInformation.LayoutTransformatorOverride(targetPage);
+                    }
 
-                // Apply the layout to the page
-                layoutTransformator.Transform(pageData);
+                    // Apply the layout to the page
+                    layoutTransformator.Transform(pageData);
 #if DEBUG && MEASURE
                 Stop("Page layout");
 #endif
-                #endregion
+                    #endregion
 
-                #region Page Banner creation
-                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
-                {
-
-                    if (pageTransformationInformation.ModernizationCenterInformation != null && pageTransformationInformation.ModernizationCenterInformation.AddPageAcceptBanner)
+                    #region Page Banner creation
+                    if (!pageTransformationInformation.TargetPageTakesSourcePageName)
                     {
+
+                        if (pageTransformationInformation.ModernizationCenterInformation != null && pageTransformationInformation.ModernizationCenterInformation.AddPageAcceptBanner)
+                        {
 
 #if DEBUG && MEASURE
                         Start();
 #endif
 
-                        // Bump the row values for the existing web parts as we've inserted a new section
-                        foreach (var section in targetPage.Sections)
-                        {
-                            section.Order = section.Order + 1;
-                        }
+                            // Bump the row values for the existing web parts as we've inserted a new section
+                            foreach (var section in targetPage.Sections)
+                            {
+                                section.Order = section.Order + 1;
+                            }
 
-                        // Add new section for banner part
-                        targetPage.Sections.Insert(0, new CanvasSection(targetPage, CanvasSectionTemplate.OneColumn, 0));
+                            // Add new section for banner part
+                            targetPage.Sections.Insert(0, new CanvasSection(targetPage, CanvasSectionTemplate.OneColumn, 0));
 
-                        // Bump the row values for the existing web parts as we've inserted a new section
-                        foreach (var webpart in pageData.Item2)
-                        {
-                            webpart.Row = webpart.Row + 1;
-                        }
+                            // Bump the row values for the existing web parts as we've inserted a new section
+                            foreach (var webpart in pageData.Item2)
+                            {
+                                webpart.Row = webpart.Row + 1;
+                            }
 
 
-                        var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
-                        var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
-                        Uri host = new Uri(sourceClientContext.Web.Url);
+                            var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
+                            var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
+                            Uri host = new Uri(sourceClientContext.Web.Url);
 
-                        string path = $"{host.Scheme}://{host.DnsSafeHost}{sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "")}";
+                            string path = $"{host.Scheme}://{host.DnsSafeHost}{sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "")}";
 
-                        // Add "fake" banner web part that then will be transformed onto the page
-                        Dictionary<string, string> props = new Dictionary<string, string>(2)
+                            // Add "fake" banner web part that then will be transformed onto the page
+                            Dictionary<string, string> props = new Dictionary<string, string>(2)
                         {
                             { "SourcePage", $"{path}{orginalSourcePageName}" },
                             { "TargetPage", $"{path}{pageTransformationInformation.TargetPageName}" }
                         };
 
-                        WebPartEntity bannerWebPart = new WebPartEntity()
-                        {
-                            Type = WebParts.PageAcceptanceBanner,
-                            Column = 1,
-                            Row = 1,
-                            Title = "",
-                            Order = 0,
-                            Properties = props,
-                        };
-                        pageData.Item2.Insert(0, bannerWebPart);
-                        LogInfo(LogStrings.TransformAddedPageAcceptBanner, LogStrings.Heading_ArticlePageHandling);
+                            WebPartEntity bannerWebPart = new WebPartEntity()
+                            {
+                                Type = WebParts.PageAcceptanceBanner,
+                                Column = 1,
+                                Row = 1,
+                                Title = "",
+                                Order = 0,
+                                Properties = props,
+                            };
+                            pageData.Item2.Insert(0, bannerWebPart);
+                            LogInfo(LogStrings.TransformAddedPageAcceptBanner, LogStrings.Heading_ArticlePageHandling);
 
 #if DEBUG && MEASURE
                         Stop("Page Banner");
 #endif
+                        }
                     }
-                }
-                #endregion  
+                    #endregion
 
-                #region Content transformation
+                    #region Content transformation
 
-                LogDebug(LogStrings.PreparingContentTransformation, LogStrings.Heading_ArticlePageHandling);
+                    LogDebug(LogStrings.PreparingContentTransformation, LogStrings.Heading_ArticlePageHandling);
 
 #if DEBUG && MEASURE
                 Start();
-#endif            
-                // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers);
+#endif
+                    // Use the default content transformator
+                    IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, pageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers);
 
-                // Do we have an override?
-                if (pageTransformationInformation.ContentTransformatorOverride != null)
-                {
-                    LogInfo(LogStrings.TransformUsingContentTransformerOverride, LogStrings.Heading_ArticlePageHandling);
+                    // Do we have an override?
+                    if (pageTransformationInformation.ContentTransformatorOverride != null)
+                    {
+                        LogInfo(LogStrings.TransformUsingContentTransformerOverride, LogStrings.Heading_ArticlePageHandling);
 
-                    contentTransformator = pageTransformationInformation.ContentTransformatorOverride(targetPage, pageTransformation);
-                }
+                        contentTransformator = pageTransformationInformation.ContentTransformatorOverride(targetPage, pageTransformation);
+                    }
 
-                LogInfo(LogStrings.TransformingContentStart, LogStrings.Heading_ArticlePageHandling);
+                    LogInfo(LogStrings.TransformingContentStart, LogStrings.Heading_ArticlePageHandling);
 
-                // Run the content transformator
-                contentTransformator.Transform(pageData.Item2);
+                    // Run the content transformator
+                    contentTransformator.Transform(pageData.Item2);
 
-                LogInfo(LogStrings.TransformingContentEnd, LogStrings.Heading_ArticlePageHandling);
+                    LogInfo(LogStrings.TransformingContentEnd, LogStrings.Heading_ArticlePageHandling);
 #if DEBUG && MEASURE
                 Stop("Content transformation");
 #endif
-                #endregion
+                    #endregion
 
-                #region Text/Section/Column cleanup
-                // Drop "empty" text parts. Wiki pages tend to have a lot of text parts just containing div's and BR's...no point in keep those as they generate to much whitespace
-                RemoveEmptyTextParts(targetPage);
+                    #region Text/Section/Column cleanup
+                    // Drop "empty" text parts. Wiki pages tend to have a lot of text parts just containing div's and BR's...no point in keep those as they generate to much whitespace
+                    RemoveEmptyTextParts(targetPage);
 
-                // Remove empty sections and columns to optimize screen real estate
-                if (pageTransformationInformation.RemoveEmptySectionsAndColumns)
-                {
-                    RemoveEmptySectionsAndColumns(targetPage);
+                    // Remove empty sections and columns to optimize screen real estate
+                    if (pageTransformationInformation.RemoveEmptySectionsAndColumns)
+                    {
+                        RemoveEmptySectionsAndColumns(targetPage);
+                    }
+                    #endregion
                 }
                 #endregion
-            }
-            #endregion
 
-            #region Page persisting + permissions
-            #region Save the page
+                #region Page persisting + permissions
+                #region Save the page
 #if DEBUG && MEASURE
             Start();
-#endif            
-            // Persist the client side page
-            if (hasTargetContext)
-            {
-                var pageName = $"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}";
-
-                targetPage.Save(pageName);
-
-                LogInfo($"{LogStrings.TransformSavedPageInCrossSiteCollection}: {pageName}", LogStrings.Heading_ArticlePageHandling);
-            }
-            else
-            {
-                var pageName = $"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}";
-
-                targetPage.Save(pageName, existingFile, pagesLibrary);
-
-                LogInfo($"{LogStrings.TransformSavedPage}: {pageName}", LogStrings.Heading_ArticlePageHandling);
-            }
-
-            // Tag the file with a page modernization version stamp
-            string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
-            try
-            {
-                var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
-                context.Load(targetPageFile, p => p.Properties);
-                targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
-                targetPageFile.Update();
-
-                if (pageTransformationInformation.PublishCreatedPage)
+#endif
+                // Persist the client side page
+                if (hasTargetContext)
                 {
-                    // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
-                    targetPageFile.Publish("Page modernization initial publish");
-                }
-                
-                // Send both the property update and publish as a single operation to SharePoint
-                context.ExecuteQueryRetry();
-            }
-            catch(Exception ex)
-            {
-                // Eat exceptions as this is not critical for the generated page
-                LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
-            }
+                    var pageName = $"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}";
 
-            // Disable page comments on the create page, if needed
-            if (pageTransformationInformation.DisablePageComments)
-            {
-                targetPage.DisableComments();
-                LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
-            }
+                    targetPage.Save(pageName);
+
+                    LogInfo($"{LogStrings.TransformSavedPageInCrossSiteCollection}: {pageName}", LogStrings.Heading_ArticlePageHandling);
+                }
+                else
+                {
+                    var pageName = $"{pageTransformationInformation.Folder}{pageTransformationInformation.TargetPageName}";
+
+                    targetPage.Save(pageName, existingFile, pagesLibrary);
+
+                    LogInfo($"{LogStrings.TransformSavedPage}: {pageName}", LogStrings.Heading_ArticlePageHandling);
+                }
+
+                // Tag the file with a page modernization version stamp
+                string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
+                try
+                {
+                    var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
+                    context.Load(targetPageFile, p => p.Properties);
+                    targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
+                    targetPageFile.Update();
+
+                    if (pageTransformationInformation.PublishCreatedPage)
+                    {
+                        // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
+                        targetPageFile.Publish("Page modernization initial publish");
+                    }
+
+                    // Send both the property update and publish as a single operation to SharePoint
+                    context.ExecuteQueryRetry();
+                }
+                catch (Exception ex)
+                {
+                    // Eat exceptions as this is not critical for the generated page
+                    LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
+                }
+
+                // Disable page comments on the create page, if needed
+                if (pageTransformationInformation.DisablePageComments)
+                {
+                    targetPage.DisableComments();
+                    LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
+                }
 
 #if DEBUG && MEASURE
             Stop("Persist page");
 #endif
-            #endregion
+                #endregion
 
-            #region Page metadata handling
-            // Temporary removal of metadata copy for cross site.
-            if (pageTransformationInformation.CopyPageMetadata && !hasTargetContext)
-            {
+                #region Page metadata handling
+                // Temporary removal of metadata copy for cross site.
+                if (pageTransformationInformation.CopyPageMetadata && !hasTargetContext)
+                {
 #if DEBUG && MEASURE
                 Start();
 #endif
-                // Copy the page metadata 
-                CopyPageMetadata(pageTransformationInformation, targetPage, pagesLibrary);
+                    // Copy the page metadata 
+                    CopyPageMetadata(pageTransformationInformation, targetPage, pagesLibrary);
 #if DEBUG && MEASURE
                 Stop("Page metadata handling");
 #endif
-            }
-            #endregion
+                }
+                #endregion
 
-            #region Permission handling
-            ListItemPermission listItemPermissionsToKeep = null;
-            if (pageTransformationInformation.KeepPageSpecificPermissions)
-            {
+                #region Permission handling
+                ListItemPermission listItemPermissionsToKeep = null;
+                if (pageTransformationInformation.KeepPageSpecificPermissions)
+                {
 #if DEBUG && MEASURE
                 Start();
-#endif            
-                // Check if we do have item level permissions we want to take over
-                listItemPermissionsToKeep = GetItemLevelPermissions(hasTargetContext, pagesLibrary, pageTransformationInformation.SourcePage, targetPage.PageListItem);
+#endif
+                    // Check if we do have item level permissions we want to take over
+                    listItemPermissionsToKeep = GetItemLevelPermissions(hasTargetContext, pagesLibrary, pageTransformationInformation.SourcePage, targetPage.PageListItem);
 
-                if (!pageTransformationInformation.TargetPageTakesSourcePageName || hasTargetContext)
-                {
-                    // If we're not doing a page name swap now we need to update the target item with the needed item level permissions.                    
-                    // When creating the page in another site collection we'll always want to copy item level permissions if specified
-                    ApplyItemLevelPermissions(hasTargetContext, targetPage.PageListItem, listItemPermissionsToKeep);
-                }
+                    if (!pageTransformationInformation.TargetPageTakesSourcePageName || hasTargetContext)
+                    {
+                        // If we're not doing a page name swap now we need to update the target item with the needed item level permissions.                    
+                        // When creating the page in another site collection we'll always want to copy item level permissions if specified
+                        ApplyItemLevelPermissions(hasTargetContext, targetPage.PageListItem, listItemPermissionsToKeep);
+                    }
 #if DEBUG && MEASURE
                 Stop("Permission handling");
 #endif
-            }
-            #endregion
+                }
+                #endregion
 
-            #region Page name switching
-            // All went well so far...swap pages if that's needed. When copying to another site collection this step is not needed
-            // as the created page already has the final name
-            if (pageTransformationInformation.TargetPageTakesSourcePageName && !hasTargetContext)
-            {
+                #region Page name switching
+                // All went well so far...swap pages if that's needed. When copying to another site collection this step is not needed
+                // as the created page already has the final name
+                if (pageTransformationInformation.TargetPageTakesSourcePageName && !hasTargetContext)
+                {
 #if DEBUG && MEASURE
                 Start();
-#endif            
-                //Load the source page
-                SwapPages(pageTransformationInformation, listItemPermissionsToKeep);
+#endif
+                    //Load the source page
+                    SwapPages(pageTransformationInformation, listItemPermissionsToKeep);
 #if DEBUG && MEASURE
                 Stop("Pagename swap");
 #endif
-            }
-            #endregion
+                }
+                #endregion
 
-            #region Telemetry
-            if (!pageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)
+                #region Telemetry
+                if (!pageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)
+                {
+                    TimeSpan duration = DateTime.Now.Subtract(transformationStartDateTime);
+                    this.pageTelemetry.LogTransformationDone(duration, pageType);
+                    this.pageTelemetry.Flush();
+                }
+
+                LogInfo(LogStrings.TransformComplete, LogStrings.Heading_PageCreation);
+                #endregion
+
+                return serverRelativePathForModernPage;
+                #endregion
+            }
+            catch (Exception ex)
             {
-                TimeSpan duration = DateTime.Now.Subtract(transformationStartDateTime);
-                this.pageTelemetry.LogTransformationDone(duration, pageType);
-                this.pageTelemetry.Flush();
+                LogError(LogStrings.CriticalError_ErrorOccurred, LogStrings.Heading_Summary, ex, isCriticalException: true);
             }
 
-            LogInfo(LogStrings.TransformComplete, LogStrings.Heading_PageCreation);
-            #endregion
-
-            return serverRelativePathForModernPage;
-            #endregion
+            return string.Empty;
         }
 
         /// <summary>
@@ -966,7 +976,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
             }
 
-            LogInfo($"{LogStrings.TransformedPage}: {returnUrl}", LogStrings.Heading_Summary);
+            LogInfo($"{returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
             return returnUrl;
         }
 

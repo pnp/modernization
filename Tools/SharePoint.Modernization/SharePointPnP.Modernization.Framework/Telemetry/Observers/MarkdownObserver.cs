@@ -1,4 +1,7 @@
-﻿using System;
+﻿using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,8 +16,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
     {
 
         // Cache the logs between calls
-        private static readonly Lazy<List<Tuple<LogLevel,LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
+        private static readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
         protected bool _includeDebugEntries;
+        protected bool _includeVerbose;
         protected DateTime _reportDate;
         protected string _reportFileName = "";
         protected string _reportFolder = Environment.CurrentDirectory;
@@ -27,9 +31,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <param name="fileName">Name used to construct the log file name</param>
         /// <param name="folder">Folder that will hold the log file</param>
         /// <param name="includeDebugEntries">Include Debug Log Entries</param>
-        public MarkdownObserver(string fileName = "", string folder = "", bool includeDebugEntries = false)
+        public MarkdownObserver(string fileName = "", string folder = "", bool includeDebugEntries = false, bool includeVerbose = false)
         {
             _includeDebugEntries = includeDebugEntries;
+            _includeVerbose = includeVerbose;
             _reportDate = DateTime.Now;
 
             if (!string.IsNullOrEmpty(folder))
@@ -132,138 +137,359 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         protected virtual string GenerateReport(bool includeHeading = true)
         {
             StringBuilder report = new StringBuilder();
+            List<TransformationLogAnalysis> summaries = new List<TransformationLogAnalysis>();
 
             // Get one log entry per page...assumes that this log entry is included by each transformator
-            var distinctLogs = Logs.Where(p => p.Item2.Heading == LogStrings.Heading_Summary && p.Item2.Message.StartsWith(LogStrings.TransformingSite));
+            var distinctLogs = Logs.Where(p => p.Item2.Heading == LogStrings.Heading_Summary && p.Item2.Significance == LogEntrySignificance.SourceSiteUrl); //TODO: Need to improve this
 
             bool first = true;
-            foreach(var distinctLogEntry in distinctLogs)
+            foreach (var distinctLogEntry in distinctLogs)
             {
-                var logEntriesToProcess = Logs.Where(p => p.Item2.PageId == distinctLogEntry.Item2.PageId);
-                GenerateReportForPage(report, logEntriesToProcess, first);
+
+                var analysis = AnalyseLogsForReport(Logs, distinctLogEntry.Item2.PageId);
+                analysis.IsFirstAnalysis = first;
+                summaries.Add(analysis);
                 first = false;
+
+                GenerateReportForPage(report, analysis, _includeVerbose, includeHeading);
             }
+
+            //if errors - include just errors
+            //if warnings - include just warnings
+            //if critical - include critical messages
+            GenerateIssueSummaryReport(report, summaries);
 
             return report.ToString();
         }
 
         /// <summary>
-        /// Generates a markdown based report based on the logs
+        /// Analyses logs and extracts key information for reports
         /// </summary>
         /// <returns></returns>
-        private string GenerateReportForPage(StringBuilder report, IEnumerable<Tuple<LogLevel, LogEntry>> logEntriesToProcess, bool includeHeading = true)
+        private TransformationLogAnalysis AnalyseLogsForReport(List<Tuple<LogLevel, LogEntry>> logs, string pageId)
         {
-            if (includeHeading)
+            // Log Groups
+            var logEntriesToProcess = Logs.Where(p => p.Item2.PageId == pageId);
+            var orderedLogs = logEntriesToProcess.OrderBy(l => l.Item2.EntryTime);
+            var transformationSummary = orderedLogs.Where(l => l.Item2.Heading == LogStrings.Heading_Summary);
+            var assetsTransferred = transformationSummary.Where(l => l.Item2.Significance == LogEntrySignificance.AssetTransferred);
+            var logDetails = orderedLogs.Where(l => l.Item2.Heading != LogStrings.Heading_PageTransformationInfomation &&
+                                                l.Item2.Heading != LogStrings.Heading_Summary);
+
+            // Logs that contains error types
+            var logErrors = orderedLogs.Where(l => l.Item1 == LogLevel.Error);
+            var logWarnings = orderedLogs.Where(l => l.Item1 == LogLevel.Warning);
+            var criticalErrors = transformationSummary.Where(l => l.Item2.IsCriticalException == true);
+
+            // Extract key segments
+            var sourcePage = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.SourcePage);
+            var targetPage = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetPage);
+            var sourceSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.SourceSiteUrl);
+            var targetSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetSiteUrl);
+
+            // Tenant Details
+            var baseTenantUrl = string.Empty;
+            try
             {
-                report.AppendLine($"{Heading1} Modernisation Report");
-                report.AppendLine();
+                if (sourceSite != default(Tuple<LogLevel, LogEntry>) && sourceSite.Item2.Message.ContainsIgnoringCasing("https://"))
+                {
+                    Uri siteUri = new Uri(sourceSite?.Item2.Message);
+                    string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
+                    baseTenantUrl = host;
+                }
+            }
+            catch (Exception)
+            {
+                //Swallow
             }
 
-            // This could display something cool here e.g. Time taken to transform and transformation options e.g. PageTransformationInformation details
-            var reportDate = _reportDate;
-            var allLogs = logEntriesToProcess.OrderBy(l => l.Item2.EntryTime);
+            // Calculate Tranform Duration from Log Timings
+            var transformationDuration = default(TimeSpan);
+            var logStart = orderedLogs.FirstOrDefault();
+            var logEnd = orderedLogs.LastOrDefault();
 
-            report.AppendLine($"{Heading2} Transformation Details");
-            report.AppendLine();
-            report.AppendLine($"{UnorderedListItem} Report date: {reportDate}");
-            var logStart = allLogs.FirstOrDefault();
-            var logEnd = allLogs.LastOrDefault();
-
-            if (logStart != default(Tuple<LogLevel,LogEntry>) && logEnd != default(Tuple<LogLevel, LogEntry>))
+            if (logStart != default(Tuple<LogLevel, LogEntry>) && logEnd != default(Tuple<LogLevel, LogEntry>))
             {
                 TimeSpan span = logEnd.Item2.EntryTime.Subtract(logStart.Item2.EntryTime);
-                report.AppendLine($"{UnorderedListItem} Transform duration: {string.Format("{0:D2}:{1:D2}:{2:D2}", span.Hours, span.Minutes, span.Seconds)}");
+                transformationDuration = span;
             }
 
-            var transformationSummary = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_Summary);
 
-            foreach (var log in transformationSummary)
-            {
-                report.AppendLine($"{UnorderedListItem} {log.Item2.Message}");
-            }
-
-            #region Summary Page Transformation Information Settings
-
-            report.AppendLine();
-            report.AppendLine($"{Heading3} Page Transformation Settings");
-            report.AppendLine();
-            report.AppendLine($"Property {TableColumnSeperator} Setting");
-            report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
-
-            var transformationSettings = allLogs.Where(l => l.Item2.Heading == LogStrings.Heading_PageTransformationInfomation);
-            foreach (var log in transformationSettings)
+            // Summary Transformation Settings
+            var transformationSettingsLogs = orderedLogs.Where(l => l.Item2.Heading == LogStrings.Heading_PageTransformationInfomation);
+            var settings = new List<Tuple<string, string>>();
+            foreach (var log in transformationSettingsLogs)
             {
                 var keyValue = log.Item2.Message.Split(new string[] { LogStrings.KeyValueSeperatorToken }, StringSplitOptions.None);
                 if (keyValue.Length == 2) //Protect output
                 {
-                    report.AppendLine($"{keyValue[0] ?? ""} {TableColumnSeperator} {keyValue[1] ?? "<Not Set>"}");
+                    settings.Add(new Tuple<string, string>(keyValue[0], keyValue[1]));
                 }
             }
 
-            #endregion
 
-            report.AppendLine($"{Heading2} Transformation Operation Summary");
-            report.AppendLine();
-
-            #region Transformation Summary
-
-            report.AppendLine($"Date {TableColumnSeperator} Operation {TableColumnSeperator} Actions Performed");
-            report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
-
-            var logDetails = allLogs.Where(l => l.Item2.Heading != LogStrings.Heading_PageTransformationInfomation &&
-                                                l.Item2.Heading != LogStrings.Heading_Summary);
-
-            IEnumerable<Tuple<LogLevel, LogEntry>> filteredLogDetails = null;
-            if (_includeDebugEntries)
+            TransformationLogAnalysis logAnalysis = new TransformationLogAnalysis()
             {
-                filteredLogDetails = logDetails.Where(l => l.Item1 == LogLevel.Debug ||
-                                                           l.Item1 == LogLevel.Information ||
-                                                           l.Item1 == LogLevel.Warning);
+                ReportDate = _reportDate,
+                PageLogsOrdered = orderedLogs.ToList(),
+                TransformationVerboseSummary = transformationSummary.ToList(),
+                TransformationVerboseDetails = logDetails.ToList(),
+                TransformationSettings = settings,
+                AssetsTransferred = assetsTransferred.ToList(),
+                CriticalErrors = criticalErrors.ToList(),
+                Errors = logErrors.ToList(),
+                Warnings = logWarnings.ToList(),
+                PageId = pageId,
+
+                SourcePage = sourcePage?.Item2.Message,
+                TargetPage = targetPage?.Item2.Message,
+                SourceSite = sourceSite?.Item2.Message,
+                TargetSite = targetSite?.Item2.Message,
+                BaseTenantUrl = baseTenantUrl,
+                TransformationDuration = transformationDuration
+
+            };
+
+            return logAnalysis;
+        }
+
+
+
+
+        /// <summary>
+        /// Generates a markdown based report based on the logs
+        /// </summary>
+        /// <returns></returns>
+        private void GenerateReportForPage(StringBuilder report, TransformationLogAnalysis analysis, bool includeVerbose = false, bool showHeading = true)
+        {
+
+
+            var duration = analysis.TransformationDuration;
+            var durationResult = string.Format("{0:D2}:{1:D2}:{2:D2}", duration.Hours, duration.Minutes, duration.Seconds); ;
+
+            //Details
+            var logErrorCount = analysis.Errors.Count();
+            var logWarningsCount = analysis.Warnings.Count();
+
+
+            // Report Content
+            if (analysis.IsFirstAnalysis && showHeading)
+            {
+                var title = includeVerbose ? LogStrings.Report_ModernisationReport : LogStrings.Report_ModernisationSummaryReport;
+                report.AppendLine($"{Heading1} {title}");
+                report.AppendLine();
+            }
+
+            if (!includeVerbose)
+            {
+                #region Summary
+
+                //Summary details only
+
+                //Fields we need: 
+                // Date, Duration, Src Page, Target Page Url, Status
+
+                if (analysis.IsFirstAnalysis)
+                {
+                    report.AppendLine($"Date {TableColumnSeperator} Duration {TableColumnSeperator} Source Page {TableColumnSeperator} Target Page Url {TableColumnSeperator} Status");
+                    report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+                }
+
+                //Determine if the transformation is considered successful
+                var status = string.Empty;
+
+                if (analysis.CriticalErrors.Any())
+                {
+                    status = LogStrings.Report_TransformFail;
+                }
+                else
+                {
+                    status = (logWarningsCount > 0 || logErrorCount > 0) ? string.Format(LogStrings.Report_TransformSuccessWithIssues, logWarningsCount, logErrorCount)
+                        : LogStrings.Report_TransformSuccess;
+                }
+
+                var reportSrcPageUrl = analysis.SourcePage.PrependIfNotNull(analysis.BaseTenantUrl);
+                var reportTgtPageUrl = analysis.TargetPage.PrependIfNotNull(analysis.BaseTenantUrl);
+                var reportSrcPageTitle = analysis.SourcePage.StripRelativeUrlSectionString();
+                var reportTgtPageTitle = analysis.TargetPage.StripRelativeUrlSectionString();
+                var transformPageStartDate = analysis.PageLogsOrdered.FirstOrDefault();
+
+                report.AppendLine($"{transformPageStartDate?.Item2.EntryTime} {TableColumnSeperator} {durationResult} {TableColumnSeperator} [{reportSrcPageTitle}]({reportSrcPageUrl}) {TableColumnSeperator} [{reportTgtPageTitle}]({reportTgtPageUrl}) {TableColumnSeperator} {status}");
+
+                #endregion
             }
             else
             {
-                filteredLogDetails = logDetails.Where(l => l.Item1 == LogLevel.Information ||
-                                                           l.Item1 == LogLevel.Warning);
-            }
+                // Verbose details
 
-            foreach (var log in filteredLogDetails)
-            {
-                switch(log.Item1)
+                #region Transform Overview
+
+                report.AppendLine($"{Heading2} {LogStrings.Report_TransformationDetails}");
+                report.AppendLine();
+                report.AppendLine($"{UnorderedListItem} {LogStrings.Report_ReportDate}: {analysis.ReportDate}");
+                report.AppendLine($"{UnorderedListItem} {LogStrings.Report_TransformDuration}: {durationResult}");
+
+                foreach (var log in analysis.TransformationVerboseSummary)
                 {
-                    case LogLevel.Information:
-                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
-                        break;
-                    case LogLevel.Warning:
-                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {Bold}{log.Item2.Heading}{Bold} {TableColumnSeperator} {Bold}{log.Item2.Message}{Bold}");
-                        break;
-                    case LogLevel.Debug:
-                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {Italic}{log.Item2.Heading}{Italic} {TableColumnSeperator} {Italic}{log.Item2.Message}{Italic}");
-                        break;
+                    var signifcance = "";
+                    switch (log.Item2.Significance)
+                    {
+                        case LogEntrySignificance.AssetTransferred:
+                            signifcance = LogStrings.AssetTransferredToUrl;
+                            break;
+                        case LogEntrySignificance.SourcePage:
+                            signifcance = LogStrings.TransformingPage;
+                            break;
+                        case LogEntrySignificance.SourceSiteUrl:
+                            signifcance = LogStrings.TransformingSite;
+                            break;
+                        case LogEntrySignificance.TargetPage:
+                            signifcance = LogStrings.TransformedPage;
+                            break;
+                        case LogEntrySignificance.TargetSiteUrl:
+                            signifcance = LogStrings.CrossSiteTransferToSite;
+                            break;
+
+                    }
+
+                    report.AppendLine($"{UnorderedListItem} {signifcance} {log.Item2.Message}");
                 }
-            }
 
-            #endregion
+                #endregion
 
-            if (logDetails.Any(l => l.Item1 == LogLevel.Error))
-            {
-                #region Report on Errors
+                #region Summary Page Transformation Information Settings
 
-                report.AppendLine($"{Heading3} Errors occurred during transformation");
+                report.AppendLine();
+                report.AppendLine($"{Heading3} {LogStrings.Report_TransformationSettings}");
+                report.AppendLine();
+                report.AppendLine($"{LogStrings.Report_Property} {TableColumnSeperator} {LogStrings.Report_Settings}");
+                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+
+                foreach (var setting in analysis.TransformationSettings)
+                {
+                    report.AppendLine($"{setting.Item1 ?? ""} {TableColumnSeperator} {setting.Item2 ?? LogStrings.Report_ValueNotSet}");
+                }
+
+
+                #endregion
+
+                #region Transformation Operation Details
+
+                report.AppendLine($"{Heading2} {LogStrings.Report_TransformDetails}");
                 report.AppendLine();
 
-                report.AppendLine($"Date {TableColumnSeperator} Operation {TableColumnSeperator} Error Message");
-                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+                report.AppendLine(string.Format(LogStrings.Report_TransformDetailsTableHeader, TableColumnSeperator));
+                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} ");
 
-                foreach (var log in logDetails.Where(l => l.Item1 == LogLevel.Error))
+                IEnumerable<Tuple<LogLevel, LogEntry>> filteredLogDetails = null;
+                if (_includeDebugEntries)
                 {
-                    report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
+                    filteredLogDetails = analysis.TransformationVerboseDetails.Where(l => l.Item1 == LogLevel.Debug ||
+                                                               l.Item1 == LogLevel.Information ||
+                                                               l.Item1 == LogLevel.Warning);
+                }
+                else
+                {
+                    filteredLogDetails = analysis.TransformationVerboseDetails.Where(l => l.Item1 == LogLevel.Information ||
+                                                               l.Item1 == LogLevel.Warning);
+                }
+
+                foreach (var log in filteredLogDetails)
+                {
+                    switch (log.Item1)
+                    {
+                        case LogLevel.Information:
+                            report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
+                            break;
+                        case LogLevel.Warning:
+                            report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {Bold}{log.Item2.Heading}{Bold} {TableColumnSeperator} {Bold}{log.Item2.Message}{Bold}");
+                            break;
+                        case LogLevel.Debug:
+                            report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {Italic}{log.Item2.Heading}{Italic} {TableColumnSeperator} {Italic}{log.Item2.Message}{Italic}");
+                            break;
+                    }
                 }
 
                 #endregion
 
             }
 
-            return report.ToString();
+        }
+
+
+
+        /// <summary>
+        /// Generate a summary report
+        /// </summary>
+        /// <param name="report"></param>
+        /// <param name="summeries"></param>
+        private void GenerateIssueSummaryReport(StringBuilder report, List<TransformationLogAnalysis> summaries)
+        {
+            StringBuilder errorSummary = new StringBuilder();
+
+            var anyErrors = summaries.Any(o => o.Errors.Any(e => e.Item2.IsCriticalException == false));
+            var anyWarnings = summaries.Any(o => o.Warnings.Any());
+            var anyCritical = summaries.Any(o => o.CriticalErrors.Any());
+
+            if (anyWarnings)
+            {
+                report.AppendLine($"{Heading2} {LogStrings.Report_WarningsOccurred}");
+                report.AppendLine();
+
+                report.AppendLine(string.Format(LogStrings.Report_TransformIssuesTableHeader, TableColumnSeperator));
+                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+
+                foreach (var summary in summaries)
+                {
+                    foreach (var log in summary.Warnings)
+                    {
+                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message}");
+                    }
+                }
+            }
+
+            if (anyErrors)
+            {
+                report.AppendLine($"{Heading2} {LogStrings.Report_ErrorsOccurred}");
+                report.AppendLine();
+
+                report.AppendLine(string.Format(LogStrings.Report_TransformIssuesTableHeader, TableColumnSeperator));
+                report.AppendLine($"{TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn} {TableColumnSeperator} {TableHeaderColumn}");
+
+                foreach (var summary in summaries)
+                {
+                    foreach (var log in summary.Errors)
+                    {
+                        report.AppendLine($"{log.Item2.EntryTime} {TableColumnSeperator} {summary.SourcePage} {TableColumnSeperator}  {log.Item2.Heading} {TableColumnSeperator} {log.Item2.Message} {log.Item2.Exception?.StackTrace}");
+                    }
+                }
+            }
+
+            if (anyCritical)
+            {
+                report.AppendLine($"{Heading2} {LogStrings.Report_ErrorsCriticalOccurred}");
+                report.AppendLine();
+
+
+                foreach (var summary in summaries)
+                {
+
+                    var reportSrcPageUrl = summary.SourcePage.PrependIfNotNull(summary.BaseTenantUrl);
+                    var reportSrcPageTitle = summary.SourcePage.StripRelativeUrlSectionString();
+
+                    foreach (var log in summary.CriticalErrors) //In theory should only be one - showstoppers
+                    {
+                        report.AppendLine($"### {log.Item2.EntryTime} - [{reportSrcPageTitle}]({reportSrcPageUrl})");
+
+                        report.AppendLine();
+                        report.AppendFormat("_{1}{0}_ \n", log.Item2?.Exception?.StackTrace, log.Item2?.Exception?.Message);
+                        report.AppendLine();
+                    }
+
+                }
+            }
+
+
         }
 
         /// <summary>
