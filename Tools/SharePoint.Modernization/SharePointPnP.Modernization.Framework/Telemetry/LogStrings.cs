@@ -135,6 +135,7 @@
         public const string TransformSavedPageInCrossSiteCollection = "Saved page in cross-site collection";
         public const string TransformSavedPage = "Saved page";
         public const string TransformCopyingMetaDataField = "Copying field: ";
+        public const string TransformCopyingMetaDataFieldSkipped = "Skipped copying field: ";
         public const string TransformGetItemPermissions = "Item level permissions read";
         public const string TransformCopiedItemPermissions = "Item level permissions copied";
         public const string TransformComplete = "Transformation Complete";
