@@ -7,14 +7,14 @@
     <!-- Allow for choice of content type, layout and header -->
     <PageLayout Name="ArticleLeft" AssociatedContentType="" PageLayoutTemplate="TwoColumnsWithHeader" PageHeader="Custom">
       <!-- Page header construction: will override value defined in PageTransformationInformation settings -->
-      <Header Type="FullWidthImage">
+      <Header Type="FullWidthImage" Alignment="Left">
         <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>        
       </Header>      
       <!-- Some fields become metadata. Use functions to "rewrite" field content when needed -->
       <MetaData>
         <Field Name="Title" TargetFieldName="Title" Functions=""/>
-        <Field Name="SeoKeywords" TargetFieldName="" Functions="" Ignore="true"/>
+        <Field Name="SeoKeywords" TargetFieldName="" Functions=""/>
         <!-- Functions allow to 'add' new fields to the metadata collection -->
         <Field Name="MyCustomField" TargetFieldName="MyCustomField" Functions="ConsolidateCustomField({MyCustomField}); {ExtraField}=SplitCustomField({MyCustomField})" />
       </MetaData>

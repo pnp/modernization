@@ -13,7 +13,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         {
             using (ClientContext cc = TestCommon.CreateClientContext())
             {
-                PageLayoutManager m = new PageLayoutManager(cc, null);
+                PageLayoutManager m = new PageLayoutManager(null);
                 var result = m.LoadPageLayoutMappingFile(@"..\..\..\SharePointPnP.Modernization.Framework\Publishing\pagelayoutmapping_sample.xml");
             }
         }

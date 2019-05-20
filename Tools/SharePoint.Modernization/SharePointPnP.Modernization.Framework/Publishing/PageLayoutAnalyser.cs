@@ -53,7 +53,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
          */
 
         private ClientContext _siteCollContext;
-        private ClientContext _sourceContext;
 
         private PublishingPageTransformation _mapping;
         private string _defaultFileName = "PageLayoutMapping.xml";
@@ -81,7 +80,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             _mapping = new PublishingPageTransformation();
             _contentTypeFieldCache = new Dictionary<string, FieldCollection>();
             _pageLayoutFileCache = new Dictionary<string, string>();
-            _sourceContext = sourceContext;
 
             EnsureSiteCollectionContext(sourceContext);
 
@@ -670,6 +668,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return fileContents;
         }
 
+        /// <summary>
+        /// Loads the content type fields
+        /// </summary>
+        /// <param name="contentTypeId"></param>
+        /// <returns></returns>
         private FieldCollection LoadContentTypeFields(string contentTypeId)
         {
             try
@@ -695,6 +698,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
         }
 
+        /// <summary>
+        /// Perform cleanup of web part fields
+        /// </summary>
+        /// <param name="webPartFields">List of extracted web parts</param>
+        /// <param name="spFields">Collection of fields</param>
+        /// <returns></returns>
         private List<WebPartField> CleanExtractedWebPartFields(List<WebPartField> webPartFields, FieldCollection spFields)
         {
             List<WebPartField> cleanedWebPartFields = new List<WebPartField>();
@@ -802,7 +811,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Ensures that we have context of the source site collection
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">Connection to SharePoint</param>
         private void EnsureSiteCollectionContext(ClientContext context)
         {
             try
@@ -820,30 +829,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             catch (Exception ex)
             {
                 LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_PageLayoutAnalyser, ex);
-            }
-        }
-
-        /// <summary>
-        /// Gets property bag value
-        /// </summary>
-        /// <typeparam name="T">Cast to type of</typeparam>
-        /// <param name="web">Current Web</param>
-        /// <param name="key">KeyValue Pair - Key</param>
-        /// <param name="defaultValue">Default Value</param>
-        /// <returns></returns>
-        private static T GetPropertyBagValue<T>(Web web, string key, T defaultValue)
-        {
-            //TODO: Add to helpers class - source from Publishing Analyser
-
-            web.EnsureProperties(p => p.AllProperties);
-
-            if (web.AllProperties.FieldValues.ContainsKey(key))
-            {
-                return (T)web.AllProperties.FieldValues[key];
-            }
-            else
-            {
-                return defaultValue;
             }
         }
 

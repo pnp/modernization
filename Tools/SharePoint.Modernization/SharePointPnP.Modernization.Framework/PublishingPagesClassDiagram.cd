@@ -8,14 +8,14 @@
     </TypeIdentifier>
   </Class>
   <Class Name="SharePointPnP.Modernization.Framework.Publishing.PageLayoutManager">
-    <Position X="8.25" Y="7.5" Width="2.75" />
+    <Position X="8.25" Y="8" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAABAAAAAAAAAABAQAAIAQAAAAAAAAAAAABQAAAA=</HashCode>
       <FileName>Publishing\PageLayoutManager.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="SharePointPnP.Modernization.Framework.Publishing.PageLayoutAnalyser">
-    <Position X="0.5" Y="7.5" Width="4" />
+    <Position X="0.5" Y="8" Width="4" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
@@ -68,7 +68,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="SharePointPnP.Modernization.Framework.Publishing.PublishingPageHeaderTransformator">
-    <Position X="5" Y="7.5" Width="3" />
+    <Position X="5" Y="8" Width="3" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAABBAAAAAAABACAIAAAAAAAIAAAAAEAQAA=</HashCode>
       <FileName>Publishing\PublishingPageHeaderTransformator.cs</FileName>
@@ -122,6 +122,13 @@
     <TypeIdentifier>
       <HashCode>AgAAAEAAAQAAAIAAAAAAAAAAIAgJIAAAAAAACAAAAAE=</HashCode>
       <FileName>Transform\BaseTransform.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SharePointPnP.Modernization.Framework.Functions.FunctionsBase">
+    <Position X="7.25" Y="5.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Functions\FunctionsBase.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
