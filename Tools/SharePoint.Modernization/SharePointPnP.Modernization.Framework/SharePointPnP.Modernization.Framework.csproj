@@ -327,7 +327,9 @@
     </Content>
     <Content Include="xsd.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="OnPrem\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>Copy $(ProjectDir)Nuget\webpartmapping.xml $(SolutionDir)SharePointPnP.Modernization.Scanner</PostBuildEvent>

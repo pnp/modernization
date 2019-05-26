@@ -73,7 +73,8 @@ namespace Microsoft.SharePoint.Client
             try
             {
                 web.EnsureProperty(p => p.ServerRelativeUrl);
-                listHoldingPages = web.GetList($"{web.ServerRelativeUrl}/{webRelativeListName}");
+                string listRelativeUrl = $"{web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{webRelativeListName}";
+                listHoldingPages = web.GetList(listRelativeUrl);
                 web.Context.Load(listHoldingPages, p => p.RootFolder);
                 web.Context.ExecuteQueryRetry();
             }
