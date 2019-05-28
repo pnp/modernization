@@ -194,7 +194,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                     if (fileRefFieldValue.Contains($"/{this.publishingPagesLibrary}"))
                     {
-                        pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibrary}".ToLower(), "").Trim();
+                        string pagesLibraryRelativeUrl = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibrary}";
+                        pageFolder = fileRefFieldValue.Replace(pagesLibraryRelativeUrl.ToLower(), "").Trim();
                     }
                     else
                     {
