@@ -13,6 +13,7 @@ using AngleSharp.Parser.Html;
 using File = Microsoft.SharePoint.Client.File;
 using SharePointPnP.Modernization.Framework.Publishing.Layouts;
 using System.Text.RegularExpressions;
+using SharePointPnP.Modernization.Framework.Extensions;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -216,15 +217,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             //Note: ListItemExtensions class contains this logic - reuse.
             //TODO: Make more defensive, this could represent the wrong item 
-            var pageLayoutFile = publishingPage.PageLayoutFile();
+            var pageLayoutFileUrl = publishingPage.PageLayoutFile();
 
-            if (!string.IsNullOrEmpty(pageLayoutFile))
+            if (!string.IsNullOrEmpty(pageLayoutFileUrl))
             {
-                var layoutItem = _siteCollContext.Web.GetListItem(pageLayoutFile);
-                _siteCollContext.Load(layoutItem);
+                Uri uri = new Uri(pageLayoutFileUrl);
+                var host = $"{uri.Scheme}://{uri.Host}";
+                var path = pageLayoutFileUrl.Replace(host, "");
+
+                var file = _siteCollContext.Web.GetFileByServerRelativeUrl(path);
+                _siteCollContext.Load(file, o => o.ListItemAllFields);
                 _siteCollContext.ExecuteQueryRetry();
 
-                return AnalysePageLayout(layoutItem);
+                return AnalysePageLayout(file.ListItemAllFields);
             }
             else
             {
@@ -660,7 +665,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // Load from SharePoint
-            string fileContents = _siteCollContext.Web.GetFileAsString(fileUrl);
+            string fileContents = _siteCollContext.Web.GetFileByServerRelativeUrlAsString(fileUrl);
 
             // Store in cache
             _pageLayoutFileCache.Add(fileUrl, fileContents);

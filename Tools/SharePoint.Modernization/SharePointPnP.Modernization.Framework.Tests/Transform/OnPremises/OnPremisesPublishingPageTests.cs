@@ -80,8 +80,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     try
                     {
                         analyzer.AnalysePageLayoutFromPublishingPage(page);
-                    }catch
+                    }
+                    catch (Exception ex)
                     {
+                        Console.WriteLine("Error {0} {1}", ex.Message, ex.StackTrace);
                         errorCount++;
                     }
                 }
