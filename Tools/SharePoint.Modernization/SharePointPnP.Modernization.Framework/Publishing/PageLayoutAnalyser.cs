@@ -13,6 +13,7 @@ using AngleSharp.Parser.Html;
 using File = Microsoft.SharePoint.Client.File;
 using SharePointPnP.Modernization.Framework.Publishing.Layouts;
 using System.Text.RegularExpressions;
+using SharePointPnP.Modernization.Framework.Extensions;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -53,7 +54,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
          */
 
         private ClientContext _siteCollContext;
-        private ClientContext _sourceContext;
 
         private PublishingPageTransformation _mapping;
         private string _defaultFileName = "PageLayoutMapping.xml";
@@ -81,7 +81,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             _mapping = new PublishingPageTransformation();
             _contentTypeFieldCache = new Dictionary<string, FieldCollection>();
             _pageLayoutFileCache = new Dictionary<string, string>();
-            _sourceContext = sourceContext;
 
             EnsureSiteCollectionContext(sourceContext);
 
@@ -218,15 +217,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             //Note: ListItemExtensions class contains this logic - reuse.
             //TODO: Make more defensive, this could represent the wrong item 
-            var pageLayoutFile = publishingPage.PageLayoutFile();
+            var pageLayoutFileUrl = publishingPage.PageLayoutFile();
 
-            if (!string.IsNullOrEmpty(pageLayoutFile))
+            if (!string.IsNullOrEmpty(pageLayoutFileUrl))
             {
-                var layoutItem = _siteCollContext.Web.GetListItem(pageLayoutFile);
-                _siteCollContext.Load(layoutItem);
+                Uri uri = new Uri(pageLayoutFileUrl);
+                var host = $"{uri.Scheme}://{uri.Host}";
+                var path = pageLayoutFileUrl.Replace(host, "");
+
+                var file = _siteCollContext.Web.GetFileByServerRelativeUrl(path);
+                _siteCollContext.Load(file, o => o.ListItemAllFields);
                 _siteCollContext.ExecuteQueryRetry();
 
-                return AnalysePageLayout(layoutItem);
+                return AnalysePageLayout(file.ListItemAllFields);
             }
             else
             {
@@ -662,7 +665,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // Load from SharePoint
-            string fileContents = _siteCollContext.Web.GetFileAsString(fileUrl);
+            string fileContents = _siteCollContext.Web.GetFileByServerRelativeUrlAsString(fileUrl);
 
             // Store in cache
             _pageLayoutFileCache.Add(fileUrl, fileContents);
@@ -670,6 +673,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return fileContents;
         }
 
+        /// <summary>
+        /// Loads the content type fields
+        /// </summary>
+        /// <param name="contentTypeId"></param>
+        /// <returns></returns>
         private FieldCollection LoadContentTypeFields(string contentTypeId)
         {
             try
@@ -695,6 +703,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
         }
 
+        /// <summary>
+        /// Perform cleanup of web part fields
+        /// </summary>
+        /// <param name="webPartFields">List of extracted web parts</param>
+        /// <param name="spFields">Collection of fields</param>
+        /// <returns></returns>
         private List<WebPartField> CleanExtractedWebPartFields(List<WebPartField> webPartFields, FieldCollection spFields)
         {
             List<WebPartField> cleanedWebPartFields = new List<WebPartField>();
@@ -802,7 +816,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Ensures that we have context of the source site collection
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">Connection to SharePoint</param>
         private void EnsureSiteCollectionContext(ClientContext context)
         {
             try
@@ -820,30 +834,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             catch (Exception ex)
             {
                 LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_PageLayoutAnalyser, ex);
-            }
-        }
-
-        /// <summary>
-        /// Gets property bag value
-        /// </summary>
-        /// <typeparam name="T">Cast to type of</typeparam>
-        /// <param name="web">Current Web</param>
-        /// <param name="key">KeyValue Pair - Key</param>
-        /// <param name="defaultValue">Default Value</param>
-        /// <returns></returns>
-        private static T GetPropertyBagValue<T>(Web web, string key, T defaultValue)
-        {
-            //TODO: Add to helpers class - source from Publishing Analyser
-
-            web.EnsureProperties(p => p.AllProperties);
-
-            if (web.AllProperties.FieldValues.ContainsKey(key))
-            {
-                return (T)web.AllProperties.FieldValues[key];
-            }
-            else
-            {
-                return defaultValue;
             }
         }
 

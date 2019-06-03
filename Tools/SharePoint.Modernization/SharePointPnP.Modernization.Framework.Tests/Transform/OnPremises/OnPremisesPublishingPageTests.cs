@@ -2,52 +2,27 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharePointPnP.Modernization.Framework.Publishing;
 using SharePointPnP.Modernization.Framework.Telemetry.Observers;
+using System;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
     [TestClass]
-    public class PublishingPageTests
+    public class OnPremisesPublishingPageTests
     {
-        #region Test initialization
-        [ClassInitialize()]
-        public static void ClassInit(TestContext context)
-        {
-            //using (var cc = TestCommon.CreateClientContext())
-            //{
-            //    // Clean all migrated pages before next run
-            //    var pages = cc.Web.GetPages("Migrated_");
-
-            //    foreach (var page in pages.ToList())
-            //    {
-            //        page.DeleteObject();
-            //    }
-
-            //    cc.ExecuteQueryRetry();
-            //}
-        }
-
-        [ClassCleanup()]
-        public static void ClassCleanup()
-        {
-
-        }
-        #endregion
-
         [TestMethod]
-        public void BasicPublishingPageTest()
+        public void BasicOnPremPublishingPageTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                //https://bertonline.sharepoint.com/sites/modernizationtestportal
-                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
-                    //"C:\temp\mappingtest.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\temp\mappingtest.xml");
+                    //"C:\temp\onprem-mapping-all-test.xml.xml"
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\temp\onprem-mapping-all-test.xml");
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "art");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-SP");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
@@ -59,6 +34,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                             // Don't log test runs
                             SkipTelemetry = true,      
+
+                            //Permissions are unlikely to work given cross domain
+                            KeepPageSpecificPermissions = false,
                             
                             //RemoveEmptySectionsAndColumns = false,
 
@@ -90,34 +68,42 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         }
 
         [TestMethod]
-        public void PageLayout_AnalyzeByPages_Test()
+        public void OnPremPageLayout_AnalyzeByPages_Test()
         {
-            //https://bertonline.sharepoint.com/sites/modernizationtestportal
-            using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+            using (var context = TestCommon.CreateOnPremisesClientContext())
             {
-                var pages = sourceClientContext.Web.GetPagesFromList("Pages");
-                var analyzer = new PageLayoutAnalyser(sourceClientContext);
-
+                var pages = context.Web.GetPagesFromList("Pages");
+                var analyzer = new PageLayoutAnalyser(context);
+                int errorCount = 0;
                 foreach (var page in pages)
                 {
-                    analyzer.AnalysePageLayoutFromPublishingPage(page);    
+                    try
+                    {
+                        analyzer.AnalysePageLayoutFromPublishingPage(page);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error {0} {1}", ex.Message, ex.StackTrace);
+                        errorCount++;
+                    }
                 }
 
-                analyzer.GenerateMappingFile("c:\\temp", "mappingtest.xml");
+                Console.WriteLine("Error Count {0}", errorCount);
+                Assert.IsTrue((errorCount == 0));
+                analyzer.GenerateMappingFile("c:\\temp", "onprem-mapping-test.xml");
             }
         }
 
         [TestMethod]
-        public void PageLayout_AnalyseAll_Test()
+        public void OnPremPageLayout_AnalyseAll_Test()
         {
-            //https://bertonline.sharepoint.com/sites/modernizationtestportal
-            using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+            using (var context = TestCommon.CreateOnPremisesClientContext())
             {
                 
-                var analyzer = new PageLayoutAnalyser(sourceClientContext);
+                var analyzer = new PageLayoutAnalyser(context);
                 analyzer.AnalyseAll();                
 
-                analyzer.GenerateMappingFile("c:\\temp", "mappingalltest.xml");
+                analyzer.GenerateMappingFile("c:\\temp", "onprem-mapping-all-test.xml");
             }
         }
 

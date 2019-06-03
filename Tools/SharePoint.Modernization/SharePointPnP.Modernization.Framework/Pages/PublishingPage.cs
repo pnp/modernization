@@ -28,7 +28,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public PublishingPage(ListItem page, PageTransformation pageTransformation, BaseTransformationInformation baseTransformationInformation, IList<ILogObserver> logObservers = null) : base(page, null, pageTransformation, logObservers)
         {
             // no PublishingPageTransformation specified, fall back to default
-            this.publishingPageTransformation = new PageLayoutManager(cc, base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
+            this.publishingPageTransformation = new PageLayoutManager(base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
             this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            
         }
 
