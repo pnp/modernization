@@ -17,7 +17,8 @@ namespace SharePointPnP.Modernization.Framework.Entities
             TargetPage = string.Empty;
             SourceSite = string.Empty;
             TargetSite = string.Empty;
-            BaseTenantUrl = string.Empty;
+            BaseSourceUrl = string.Empty;
+            BaseTargetUrl = string.Empty;
             AssetsTransferred = new List<Tuple<LogLevel, LogEntry>>();
             PageLogsOrdered = new List<Tuple<LogLevel, LogEntry>>();
             TransformationVerboseSummary = new List<Tuple<LogLevel, LogEntry>>();
@@ -42,7 +43,8 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// </summary>
         public DateTime ReportDate { get; set; }
 
-        public string BaseTenantUrl { get; set; }
+        public string BaseSourceUrl { get; set; }
+        public string BaseTargetUrl { get; set; }
 
         public TimeSpan TransformationDuration { get; set; }
 
