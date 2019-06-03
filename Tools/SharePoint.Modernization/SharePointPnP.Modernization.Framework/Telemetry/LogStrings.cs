@@ -152,6 +152,7 @@
         public const string TransformedPage = "Transformed Page:";
         public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
         public const string TransformDisablePageComments = "Page commenting is disabled this this page";
+        public const string PageLivesOutsideOfALibrary = "Page is loaded from outside a library";
 
         #endregion
 

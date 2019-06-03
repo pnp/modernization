@@ -150,6 +150,39 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         }
 
         [TestMethod]
+        public void FileInRootTest()
+        {
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/projectsitetest"))
+            {
+                var pageTransformator = new PageTransformator(cc);
+
+                var fileToModernize = cc.Web.GetFileByServerRelativeUrl("/sites/projectsitetest/default.aspx");
+                cc.Load(fileToModernize);
+                cc.ExecuteQueryRetry();
+
+                PageTransformationInformation pti = new PageTransformationInformation(null)
+                {
+                    // If target page exists, then overwrite it
+                    Overwrite = true,
+
+                    SourceFile = fileToModernize,
+
+                    // Don't log test runs
+                    SkipTelemetry = true,
+
+                    // Modernization center setup
+                    //ModernizationCenterInformation = new ModernizationCenterInformation()
+                    //{
+                    //    AddPageAcceptBanner = true,
+                    //},
+                };
+
+                pageTransformator.Transform(pti);
+
+            }
+        }
+
+        [TestMethod]
         public void WPPerformanceTest()
         {
             using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/espctest2"))

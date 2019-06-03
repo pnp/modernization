@@ -18,8 +18,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Instantiates a web part page object
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
+        /// <param name="pageFile">File holding the page (for pages living outside of a library)</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public WebPartPage(ListItem page, PageTransformation pageTransformation) : base(page, pageTransformation)
+        public WebPartPage(ListItem page, File pageFile, PageTransformation pageTransformation) : base(page, pageFile, pageTransformation)
         {
         }
         #endregion
@@ -34,8 +35,19 @@ namespace SharePointPnP.Modernization.Framework.Pages
             List<WebPartEntity> webparts = new List<WebPartEntity>();
 
             //Load the page
-            var webPartPageUrl = page[Constants.FileRefField].ToString();
-            var webPartPage = cc.Web.GetFileByServerRelativeUrl(webPartPageUrl);
+            string webPartPageUrl = null;
+            File webPartPage = null;
+
+            if (this.page != null)
+            {
+                webPartPageUrl = page[Constants.FileRefField].ToString();
+                webPartPage = cc.Web.GetFileByServerRelativeUrl(webPartPageUrl);
+            }
+            else
+            {
+                webPartPageUrl = this.pageFile.EnsureProperty(p => p.ServerRelativeUrl);
+                webPartPage = this.pageFile;
+            }
 
             // Load page properties
             var pageProperties = webPartPage.Properties;

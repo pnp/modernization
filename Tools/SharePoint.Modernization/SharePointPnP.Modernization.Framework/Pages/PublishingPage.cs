@@ -25,7 +25,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation, BaseTransformationInformation baseTransformationInformation, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
+        public PublishingPage(ListItem page, PageTransformation pageTransformation, BaseTransformationInformation baseTransformationInformation, IList<ILogObserver> logObservers = null) : base(page, null, pageTransformation, logObservers)
         {
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(cc, base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
@@ -37,7 +37,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation, ClientContext targetContext = null, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, logObservers)
+        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation, ClientContext targetContext = null, IList<ILogObserver> logObservers = null) : base(page, null, pageTransformation, logObservers)
         {
             this.publishingPageTransformation = publishingPageTransformation;
             this.functionProcessor = new PublishingFunctionProcessor(page, cc, targetContext, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            

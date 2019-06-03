@@ -26,8 +26,67 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal PageTransformation pageTransformation;
         internal string version = "undefined";
         internal PageTelemetry pageTelemetry;
+        internal bool isRootPage = false;
 
         #region Helper methods
+        internal string GetFieldValue(BaseTransformationInformation baseTransformationInformation, string fieldName)
+        {
+
+            if (baseTransformationInformation.SourcePage != null)
+            {                
+               return baseTransformationInformation.SourcePage[fieldName].ToString();                
+            }
+            else
+            {
+
+                if (baseTransformationInformation.SourceFile != null)
+                {
+                    var fileServerRelativeUrl = baseTransformationInformation.SourceFile.EnsureProperty(p => p.ServerRelativeUrl);
+
+                    // come up with equivalent field values for the page without listitem (so page living in the root folder of the site)
+                    if (fieldName.Equals(Constants.FileRefField))
+                    {
+                        // e.g. /sites/espctest2/SitePages/demo16.aspx
+                        return fileServerRelativeUrl;
+                    }
+                    else if (fieldName.Equals(Constants.FileDirRefField))
+                    {
+                        // e.g. /sites/espctest2/SitePages
+                        return fileServerRelativeUrl.Replace($"/{System.IO.Path.GetFileName(fileServerRelativeUrl)}", "");
+
+                    }
+                    else if (fieldName.Equals(Constants.FileLeafRefField))
+                    {
+                        // e.g. demo16.aspx
+                        return System.IO.Path.GetFileName(fileServerRelativeUrl);
+                    }
+                }
+                return "";
+            }
+        }
+
+        internal bool FieldExistsAndIsUsed(BaseTransformationInformation baseTransformationInformation, string fieldName)
+        {
+            if (baseTransformationInformation.SourcePage != null)
+            {
+                return baseTransformationInformation.SourcePage.FieldExistsAndUsed(fieldName);
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        internal bool IsRootPage(File file)
+        {
+            if (file != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         internal void RemoveEmptyTextParts(ClientSidePage targetPage)
         {
             var textParts = targetPage.Controls.Where(p => p.Type == typeof(OfficeDevPnP.Core.Pages.ClientSideText));

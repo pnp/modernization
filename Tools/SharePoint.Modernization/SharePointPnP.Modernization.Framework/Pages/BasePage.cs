@@ -39,6 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         private const string webPartMarkerString = "[[WebPartMarker]]";
 
         public ListItem page;
+        public File pageFile;
         public ClientContext cc;
         public PageTransformation pageTransformation;
 
@@ -47,8 +48,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Constructs the base page class instance
         /// </summary>
         /// <param name="page">page ListItem</param>
+        /// <param name="pageFile">page File</param>
         /// <param name="pageTransformation">page transformation model to use for extraction or transformation</param>
-        public BasePage(ListItem page, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null)
+        public BasePage(ListItem page, File pageFile, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null)
         {
             // Register observers
             if (logObservers != null)
@@ -60,7 +62,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             this.page = page;
-            this.cc = (page.Context as ClientContext);
+            this.pageFile = pageFile;
+
+            if (page != null)
+            {
+                this.cc = (page.Context as ClientContext);
+            }
+            else if (pageFile != null)
+            {
+                this.cc = (pageFile.Context as ClientContext);
+            }
+
             this.cc.RequestTimeout = Timeout.Infinite;
 
             this.pageTransformation = pageTransformation;

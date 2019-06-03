@@ -135,37 +135,65 @@ namespace SharePointPnP.Modernization.Framework.Transform
             #endregion
 
             #region Input validation
-            if (pageTransformationInformation.SourcePage == null)
+            string pageType = null;
+            if (pageTransformationInformation.SourceFile != null && pageTransformationInformation.SourcePage == null)
             {
-                LogError(LogStrings.Error_SourcePageNotFound, LogStrings.Heading_InputValidation);
-                throw new ArgumentNullException(LogStrings.Error_SourcePageNotFound);
+                //TODO: extend check to ensure it's a real web part page
+                isRootPage = IsRootPage(pageTransformationInformation.SourceFile);
+
+                if (isRootPage)
+                {
+                    LogInfo(LogStrings.PageLivesOutsideOfALibrary, LogStrings.Heading_InputValidation);
+
+                    // This always is a web part page
+                    pageType = "WebPartPage";
+
+                    // Item level permission copy makes no sense here
+                    pageTransformationInformation.KeepPageSpecificPermissions = false;
+
+                    // Same for swap pages, we don't support this as the pages live in a different location
+                    pageTransformationInformation.TargetPageTakesSourcePageName = false;
+                }
+                else
+                {
+                    LogError(LogStrings.Error_BasicASPXPageCannotTransform, LogStrings.Heading_InputValidation);
+                    throw new ArgumentException(LogStrings.Error_BasicASPXPageCannotTransform);
+                }
             }
-
-            // Validate page and it's eligibility for transformation
-            if (!pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileRefField) || !pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileLeafRefField))
+            else
             {
-                LogError(LogStrings.Error_PageNotValidMissingFileRef, LogStrings.Heading_InputValidation);
-                throw new ArgumentException(LogStrings.Error_PageNotValidMissingFileRef);
-            }
+                if (pageTransformationInformation.SourcePage == null)
+                {
+                    LogError(LogStrings.Error_SourcePageNotFound, LogStrings.Heading_InputValidation);
+                    throw new ArgumentNullException(LogStrings.Error_SourcePageNotFound);
+                }
 
-            string pageType = pageTransformationInformation.SourcePage.PageType();
+                // Validate page and it's eligibility for transformation
+                if (!pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileRefField) || !pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileLeafRefField))
+                {
+                    LogError(LogStrings.Error_PageNotValidMissingFileRef, LogStrings.Heading_InputValidation);
+                    throw new ArgumentException(LogStrings.Error_PageNotValidMissingFileRef);
+                }
 
-            if (pageType.Equals("ClientSidePage", StringComparison.InvariantCultureIgnoreCase))
-            {
-                LogError(LogStrings.Error_SourcePageIsModern, LogStrings.Heading_InputValidation);
-                throw new ArgumentException(LogStrings.Error_SourcePageIsModern);
-            }
+                pageType = pageTransformationInformation.SourcePage.PageType();
 
-            if (pageType.Equals("AspxPage", StringComparison.InvariantCultureIgnoreCase))
-            {
-                LogError(LogStrings.Error_BasicASPXPageCannotTransform, LogStrings.Heading_InputValidation);
-                throw new ArgumentException(LogStrings.Error_BasicASPXPageCannotTransform);
-            }
+                if (pageType.Equals("ClientSidePage", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    LogError(LogStrings.Error_SourcePageIsModern, LogStrings.Heading_InputValidation);
+                    throw new ArgumentException(LogStrings.Error_SourcePageIsModern);
+                }
 
-            if (pageType.Equals("PublishingPage", StringComparison.InvariantCultureIgnoreCase))
-            {
-                LogError(LogStrings.Error_PublishingPagesNotYetSupported, LogStrings.Heading_InputValidation);
-                throw new ArgumentException(LogStrings.Error_PublishingPagesNotYetSupported);
+                if (pageType.Equals("AspxPage", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    LogError(LogStrings.Error_BasicASPXPageCannotTransform, LogStrings.Heading_InputValidation);
+                    throw new ArgumentException(LogStrings.Error_BasicASPXPageCannotTransform);
+                }
+
+                if (pageType.Equals("PublishingPage", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    LogError(LogStrings.Error_PublishingPagesNotYetSupported, LogStrings.Heading_InputValidation);
+                    throw new ArgumentException(LogStrings.Error_PublishingPagesNotYetSupported);
+                }
             }
 
             if (hasTargetContext)
@@ -228,7 +256,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
                 }
 
-                LogInfo($"{pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
+                LogInfo($"{GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
@@ -239,9 +267,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // Detect if the page is living inside a folder
                 LogDebug(LogStrings.DetectIfPageIsInFolder, LogStrings.Heading_PageCreation);
                 string pageFolder = "";
-                if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
+
+                if (FieldExistsAndIsUsed(pageTransformationInformation, Constants.FileDirRefField))
                 {
-                    var fileRefFieldValue = pageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
+                    var fileRefFieldValue = GetFieldValue(pageTransformationInformation, Constants.FileDirRefField);
 
                     if (fileRefFieldValue.ToLower().Contains("/sitepages"))
                     {
@@ -273,6 +302,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         LogInfo(LogStrings.PageIsLocatedInFolder, LogStrings.Heading_PageCreation);
                     }
+
+                    if (isRootPage)
+                    {
+                        pageFolder = "Root/";
+                        pageTransformationInformation.TargetPageName = $"{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
+                    }
                 }
                 pageTransformationInformation.Folder = pageFolder;
 
@@ -288,13 +323,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     if (hasTargetContext)
                     {
                         LogInfo(LogStrings.CrossSiteInUseUsingOriginalFileName, LogStrings.Heading_PageCreation);
-                        pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+                        pageTransformationInformation.TargetPageName = $"{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
                     }
                     else
                     {
                         LogInfo(LogStrings.UsingSuppliedPrefix, LogStrings.Heading_PageCreation);
 
-                        pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.TargetPagePrefix}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+                        pageTransformationInformation.TargetPageName = $"{pageTransformationInformation.TargetPagePrefix}{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
                     }
 
                 }
@@ -360,7 +395,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     var homePageUrl = sourceClientContext.Web.RootFolder.WelcomePage;
                     var homepageName = Path.GetFileName(sourceClientContext.Web.RootFolder.WelcomePage);
-                    if (homepageName.Equals(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    if (homepageName.Equals(GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField), StringComparison.InvariantCultureIgnoreCase))
                     {
                         LogInfo(LogStrings.TransformSourcePageIsHomePage, LogStrings.Heading_HomePageHandling);
 
@@ -438,7 +473,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         LogInfo($"{LogStrings.TransformSourcePageIsWebPartPage} {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
 
-                        pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(true);
+                        pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation).Analyze(true);
                     }
 
                     // Analyze the "text" parts (wikitext parts and text in content editor web parts)
@@ -540,11 +575,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             }
 
 
-                            var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
-                            var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
+                            var sourcePageUrl = GetFieldValue(pageTransformationInformation, Constants.FileRefField);
+                            var orginalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField);
                             Uri host = new Uri(sourceClientContext.Web.Url);
 
-                            string path = $"{host.Scheme}://{host.DnsSafeHost}{sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "")}";
+                            string path = $"{host.Scheme}://{host.DnsSafeHost}{sourcePageUrl.Replace(GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField), "")}";
 
                             // Add "fake" banner web part that then will be transformed onto the page
                             Dictionary<string, string> props = new Dictionary<string, string>(2)
@@ -761,10 +796,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public void SwapPages(PageTransformationInformation pageTransformationInformation, ListItemPermission listItemPermissionsToKeep)
         {
             LogInfo("Swapping pages", LogStrings.Heading_SwappingPages);
-            var sourcePageUrl = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString();
-            var orginalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString();
+            var sourcePageUrl = GetFieldValue(pageTransformationInformation, Constants.FileRefField);
+            var orginalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField);
             
-            string sourcePath = sourcePageUrl.Replace(pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString(), "");
+            string sourcePath = sourcePageUrl.Replace(GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField), "");
             string targetPath = sourcePath;
 
             if (!sourcePath.ToLower().Contains("/sitepages"))
@@ -783,7 +818,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogInfo("Using default source page prefix", LogStrings.Heading_SwappingPages);
                 pageTransformationInformation.SetDefaultSourcePagePrefix();
             }
-            var newSourcePageUrl = $"{pageTransformationInformation.SourcePagePrefix}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}";
+            var newSourcePageUrl = $"{pageTransformationInformation.SourcePagePrefix}{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
 
 
             // Rename source page using the sourcepageprefix
@@ -938,8 +973,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             string returnUrl = null;
 
-            string originalSourcePageName = pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString().ToLower();
-            string sourcePath = pageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower().Replace(originalSourcePageName, "");
+            string originalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField).ToLower();
+            string sourcePath = GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower().Replace(originalSourcePageName, "");
             string targetPath = sourcePath;
 
             if (hasTargetContext)
@@ -978,7 +1013,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 else
                 {
                     // New page takes the name of the old page
-                    returnUrl = $"{targetPath}{pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()}".ToLower();
+                    returnUrl = $"{targetPath}{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}".ToLower();
                 }
             }
 
@@ -988,9 +1023,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         private void SetPageTitle(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage)
         {
-            if (pageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileLeafRefField))
+            if (FieldExistsAndIsUsed(pageTransformationInformation, Constants.FileLeafRefField))
             {
-                string pageTitle = Path.GetFileNameWithoutExtension((pageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString()));
+                string pageTitle = Path.GetFileNameWithoutExtension((GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)));
                 if (!string.IsNullOrEmpty(pageTitle))
                 {
                     pageTitle = pageTitle.First().ToString().ToUpper() + pageTitle.Substring(1);
