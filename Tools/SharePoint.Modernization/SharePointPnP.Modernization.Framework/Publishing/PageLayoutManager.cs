@@ -23,8 +23,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Constructs the page layout manager class
         /// </summary>
-        /// <param name="source">Client context of the source web</param>
-        /// <param name="target">Client context for the target web</param>
+        /// <param name="logObservers">Currently in use log observers</param>
         public PageLayoutManager(IList<ILogObserver> logObservers = null)
         {
 
