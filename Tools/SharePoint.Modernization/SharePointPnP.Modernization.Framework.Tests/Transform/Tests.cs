@@ -177,7 +177,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     //},
                 };
 
-                pageTransformator.Transform(pti);
+                var resultingpage = pageTransformator.Transform(pti);
 
             }
         }

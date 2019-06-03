@@ -984,6 +984,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     // Source file was living outside of the site pages library
                     targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
+
+                    if (pageTransformationInformation.SourceFile != null && pageTransformationInformation.SourcePage == null)
+                    {
+                        targetPath = targetPath + "root/";
+                    }
+
                     targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
                 }
                 else
@@ -1002,6 +1008,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     // Source file was living outside of the site pages library
                     targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
+
+                    if (pageTransformationInformation.SourceFile != null && pageTransformationInformation.SourcePage == null)
+                    {
+                        targetPath = targetPath + "root/";
+                    }
+
                     targetPath = $"{sourceClientContext.Web.ServerRelativeUrl}/sitepages{targetPath}".ToLower();
                 }
 
