@@ -76,7 +76,7 @@
         public const string Error_CrossSiteTransferTargetsNonModernSite = "Page transformation for targeting non-modern sites is currently not supported.";
         public const string Error_GetVersionError = "Setting version stamp error";
         public const string Error_MissingSitePagesLibrary = "Site does not have a sitepages library and therefore this page can't be a client side page.";
-        public const string Error_PageDoesNotExistInWeb = "Page does not exist in current web";
+        
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
         public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
@@ -152,6 +152,8 @@
         public const string TransformedPage = "Transformed Page:";
         public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
         public const string TransformDisablePageComments = "Page commenting is disabled this this page";
+
+        public const string TransformPageDoesNotExistInWeb = "Page does not exist in current web";
 
         #endregion
 
