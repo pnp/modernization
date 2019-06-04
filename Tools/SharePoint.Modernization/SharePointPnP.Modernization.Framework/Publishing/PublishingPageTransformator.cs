@@ -253,11 +253,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     existingFile = Load(sourceClientContext, targetClientContext, publishingPageTransformationInformation, out pagesLibrary);
                     pageExists = true;
                 }
-                catch (ArgumentException ex)
+                catch (Exception ex)
                 {
-
-                    LogError(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation, ex, true);
+                    if(ex is ArgumentException)
+                    {
+                        //Non-critical error generated 
+                        LogInfo(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation);
+                    }
+                    else
+                    {
+                        //Something else occurred
+                        LogError(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation, ex);
+                    }
                 }
+                
 #if DEBUG && MEASURE
             Stop("Load Page");
 #endif
@@ -617,13 +626,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (pagesLibrary == null)
             {
                 LogError(LogStrings.Error_MissingSitePagesLibrary, LogStrings.Heading_Load);
-                throw new ArgumentException(LogStrings.Error_MissingSitePagesLibrary);
+                throw new ArgumentNullException(LogStrings.Error_MissingSitePagesLibrary);
             }
 
             if (!file.Exists)
             {
-                LogError(LogStrings.Error_PageDoesNotExistInWeb, LogStrings.Heading_Load, null, true);
-                throw new ArgumentException($"{publishingPageTransformationInformation.TargetPageName} - {LogStrings.Error_PageDoesNotExistInWeb}");
+                LogInfo(LogStrings.TransformPageDoesNotExistInWeb, LogStrings.Heading_Load); //Not an error this is a check
+                throw new ArgumentException($"{publishingPageTransformationInformation.TargetPageName} - {LogStrings.TransformPageDoesNotExistInWeb}");
             }
 
             return file;

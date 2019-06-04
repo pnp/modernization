@@ -189,8 +189,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                         : LogStrings.Report_TransformSuccess;
                 }
 
-                var reportSrcPageUrl = modernizedFileLog.SourcePage.PrependIfNotNull(modernizedFileLog.BaseTenantUrl);
-                var reportTgtPageUrl = modernizedFileLog.TargetPage.PrependIfNotNull(modernizedFileLog.BaseTenantUrl);
+                var reportSrcPageUrl = modernizedFileLog.SourcePage.PrependIfNotNull(modernizedFileLog.BaseSourceUrl);
+                var reportTgtPageUrl = modernizedFileLog.TargetPage.PrependIfNotNull(modernizedFileLog.BaseTargetUrl);
                 var reportSrcPageTitle = modernizedFileLog.SourcePage.StripRelativeUrlSectionString();
                 var reportTgtPageTitle = modernizedFileLog.TargetPage.StripRelativeUrlSectionString();
                 var transformPageStartDate = modernizedFileLog.PageLogsOrdered.FirstOrDefault();
@@ -352,7 +352,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 foreach (var summary in summaries)
                 {
 
-                    var reportSrcPageUrl = summary.SourcePage.PrependIfNotNull(summary.BaseTenantUrl);
+                    var reportSrcPageUrl = summary.SourcePage.PrependIfNotNull(summary.BaseSourceUrl);
                     var reportSrcPageTitle = summary.SourcePage.StripRelativeUrlSectionString();
 
                     foreach (var log in summary.CriticalErrors) //In theory should only be one - showstoppers
@@ -394,21 +394,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var targetSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetSiteUrl);
 
             // Tenant Details
-            var baseTenantUrl = string.Empty;
-            try
-            {
-                if (sourceSite != default(Tuple<LogLevel, LogEntry>) && sourceSite.Item2.Message.ContainsIgnoringCasing("https://"))
-                {
-                    Uri siteUri = new Uri(sourceSite?.Item2.Message);
-                    string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
-                    baseTenantUrl = host;
-                }
-            }
-            catch (Exception)
-            {
-                //Swallow
-            }
-
+            var baseSourceUrl = GetBaseUrl(sourceSite); 
+            var baseTargetUrl = GetBaseUrl(targetSite);
+            
             // Calculate Tranform Duration from Log Timings
             var transformationDuration = default(TimeSpan);
             var logStart = orderedLogs.FirstOrDefault();
@@ -451,12 +439,38 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 TargetPage = targetPage?.Item2.Message,
                 SourceSite = sourceSite?.Item2.Message,
                 TargetSite = targetSite?.Item2.Message,
-                BaseTenantUrl = baseTenantUrl,
+                BaseSourceUrl = baseSourceUrl,
+                BaseTargetUrl = baseTargetUrl,
                 TransformationDuration = transformationDuration
 
             };
 
             return logAnalysis;
+        }
+
+        /// <summary>
+        /// Gets base url for report
+        /// </summary>
+        /// <param name="sourceSite"></param>
+        /// <returns></returns>
+        private static string GetBaseUrl(Tuple<LogLevel, LogEntry> sourceSite)
+        {
+            try
+            {
+                if (sourceSite != default(Tuple<LogLevel, LogEntry>) && (sourceSite.Item2.Message.ContainsIgnoringCasing("https://") ||
+                    sourceSite.Item2.Message.ContainsIgnoringCasing("http://")))
+                {
+                    Uri siteUri = new Uri(sourceSite?.Item2.Message);
+                    string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
+                    return host;
+                }
+            }
+            catch (Exception)
+            {
+                //Swallow
+            }
+
+            return string.Empty;
         }
 
         #region Previous log generation logic
@@ -689,6 +703,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             }
 
         }
+
+
 
     }
 }

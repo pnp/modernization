@@ -354,10 +354,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary, targetClientContext);
                     pageExists = true;
                 }
-                catch (ArgumentException ex)
+                catch (Exception ex)
                 {
+                    if (ex is ArgumentException)
+                    {
+                        LogInfo(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation);
+                    }
+                    else
+                    {
+                        LogError(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation, ex, true);
+                    }
 
-                    LogError(LogStrings.CheckPageExistsError, LogStrings.Heading_PageCreation, ex, true);
                 }
 #if DEBUG && MEASURE
             Stop("Load Page");
@@ -1104,8 +1111,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (!file.Exists)
             {
-                LogError(LogStrings.Error_PageDoesNotExistInWeb, LogStrings.Heading_Load, null, true);
-                throw new ArgumentException($"{pageTransformationInformation.TargetPageName} - {LogStrings.Error_PageDoesNotExistInWeb}");
+                LogInfo(LogStrings.TransformPageDoesNotExistInWeb, LogStrings.Heading_Load);
+                throw new ArgumentException($"{pageTransformationInformation.TargetPageName} - {LogStrings.TransformPageDoesNotExistInWeb}");
             }
 
             return file;
