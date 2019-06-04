@@ -21,6 +21,8 @@
 
 ## Changed
 
+- Reporting improvements for on-premises as source + correct log level for some log entries #169
+
 ## [May release (prod) - version 1.0.1905.3]
 
 - Intermediate release due to needed intermediate release of the used PnP Sites Core library
