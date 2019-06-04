@@ -17,28 +17,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
     /// </summary>
     public class PageLayoutManager: BaseTransform
     {
-        private ClientContext sourceContext;
-        private ClientContext targetContext;
-
+        
         #region Construction
+       
         /// <summary>
         /// Constructs the page layout manager class
         /// </summary>
-        /// <param name="source">Client context of the source web</param>
-        public PageLayoutManager(ClientContext source, IList<ILogObserver> logObservers = null) : this (source, null, logObservers)
+        /// <param name="logObservers">Currently in use log observers</param>
+        public PageLayoutManager(IList<ILogObserver> logObservers = null)
         {
-        }
-
-        /// <summary>
-        /// Constructs the page layout manager class
-        /// </summary>
-        /// <param name="source">Client context of the source web</param>
-        /// <param name="target">Client context for the target web</param>
-        public PageLayoutManager(ClientContext source, ClientContext target, IList<ILogObserver> logObservers = null)
-        {
-            this.sourceContext = source ?? throw new ArgumentNullException("Please provide a value for parameter source.");
-            // target and source will be set the same in case no target was specified
-            this.targetContext = target ?? source;
 
             // Register observers
             if (logObservers != null)

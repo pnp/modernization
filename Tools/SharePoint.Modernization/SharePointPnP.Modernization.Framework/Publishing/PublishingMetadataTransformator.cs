@@ -14,7 +14,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
     public class PublishingMetadataTransformator: BaseTransform
     {
         private PublishingPageTransformationInformation publishingPageTransformationInformation;
-        private ClientContext sourceClientContext;
         private ClientContext targetClientContext;
         private ClientSidePage page;
         private PageLayout pageLayoutMappingModel;
@@ -34,7 +33,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             this.publishingPageTransformationInformation = publishingPageTransformationInformation;
-            this.sourceClientContext = sourceClientContext;
             this.targetClientContext = targetClientContext;
             this.page = page;
             this.pageLayoutMappingModel = publishingPageLayoutModel;

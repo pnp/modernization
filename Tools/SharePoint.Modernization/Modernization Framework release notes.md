@@ -12,6 +12,23 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
+## [May release (prod) - version 1.0.1905.0]
+
+## Added
+
+- Preview On-Premises publishing page to SharePoint Online modern page support #165 [pkbullock]
+- Support for transforming web part pages living outside of a library (so in the root folder of the site)
+
+## Changed
+
+## [May release (prod) - version 1.0.1905.3]
+
+- Intermediate release due to needed intermediate release of the used PnP Sites Core library
+
+## [May release (prod) - version 1.0.1905.2]
+
+- Intermediate release due to needed intermediate release of the used PnP Sites Core library
+
 ## [May release (prod) - version 1.0.1905.1]
 
 - Intermediate release due to needed intermediate release of the used PnP Sites Core library

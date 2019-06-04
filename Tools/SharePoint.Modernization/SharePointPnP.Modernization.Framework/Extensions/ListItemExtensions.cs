@@ -70,7 +70,7 @@ namespace Microsoft.SharePoint.Client
             }
             else if (pageType.Equals("WebPartPage", StringComparison.InvariantCultureIgnoreCase))
             {
-                return new WebPartPage(item, pageTransformation).Analyze();
+                return new WebPartPage(item, null, pageTransformation).Analyze();
             }
             else if (pageType.Equals("PublishingPage", StringComparison.InvariantCultureIgnoreCase))
             {

@@ -43,7 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             this.version = GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
-            this.pageLayoutManager = new PageLayoutManager(this.sourceClientContext, base.RegisteredLogObservers);
+            this.pageLayoutManager = new PageLayoutManager(base.RegisteredLogObservers);
 
             // Load xml mapping data
             XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
@@ -76,7 +76,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             this.version = GetVersion();
             this.pageTelemetry = new PageTelemetry(version);
-            this.pageLayoutManager = new PageLayoutManager(this.sourceClientContext, base.RegisteredLogObservers);
+            this.pageLayoutManager = new PageLayoutManager(base.RegisteredLogObservers);
 
             this.pageTransformation = pageTransformationModel;
 
@@ -194,7 +194,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                     if (fileRefFieldValue.Contains($"/{this.publishingPagesLibrary}"))
                     {
-                        pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibrary}".ToLower(), "").Trim();
+                        string pagesLibraryRelativeUrl = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibrary}";
+                        pageFolder = fileRefFieldValue.Replace(pagesLibraryRelativeUrl.ToLower(), "").Trim();
                     }
                     else
                     {

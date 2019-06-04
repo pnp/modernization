@@ -18,6 +18,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public ListItem SourcePage { get; set; }
 
         /// <summary>
+        /// File to convert - used for web part pages living outside a library as these pages do not have an associated list item
+        /// </summary>
+        public File SourceFile { get; set; }
+
+        /// <summary>
         /// Folder where the page to transform lives in
         /// </summary>
         internal string Folder { get; set; }

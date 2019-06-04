@@ -23,20 +23,30 @@
          http://blogs.msdn.com/b/vesku/archive/2014/06/09/provisioning-site-collections-using-sp-app-model-in-on-premises-with-just-csom.aspx
          for more details on how to setup a tenant administration site in on-premises.
     -->
-    <add key="SPOTenantUrl" value="https://[tenant]-admin.sharepoint.com" />
-    <add key="SPODevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev/somesubsite" />
-    
-    <!-- Team Site -->
-    <add key="SPODevTeamSiteUrl" value="https://[tenant].sharepoint.com/sites/dev-TeamSite" />
-    <!-- Publishing Portal -->
-    <add key="SPODevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev/en" />
-    <add key="SPORootDevSiteUrl" value="https://[tenant].sharepoint.com/sites/dev" />
-    
-    
-    <!-- If you test with transforming into another site collection then use below key to specify the target site collection -->
-    <!-- <add key="SPOTargetSiteUrl" value="" /> -->
+    <add key="SPOTenantUrl" value="https://tenant-admin.sharepoint.com" />
 
-    <add key="SPOCredentialManagerLabel" value=""/>
+    <!-- Source Team Site -->
+    <add key="SPODevTeamSiteUrl" value="https://tenant.sharepoint.com/sites/sourceteamsite" />
+    <add key="SPOnPremDevTeamSiteUrl" value="http://spserver/sites/sourcesite" />
+
+    <!-- Source Publishing Portal -->
+
+    <!-- SharePoint Online -->
+    <add key="SPODevSiteUrl" value="https://tenant.sharepoint.com/sites/sourcesite/subsite" />
+    <add key="SPORootDevSiteUrl" value="https://tenant.sharepoint.com/sites/sourcesite" />
+
+
+    <!-- SharePoint On-Premises -->
+    <add key="SPOnPremDevSiteUrl" value="http://spserver/sites/portal" />
+    <add key="SPOnPremRootDevSiteUrl" value="http://spserver" />
+
+    <!-- Target SharePoint Online -->
+    <add key="SPOTargetSiteUrl" value="https://tenant.sharepoint.com/sites/targetsite" />
+
+
+    <add key="SPOCredentialManagerLabel" value="onlinecredential" />
+    <add key="SPOnPremCredentialManagerLabel" value="onpremises" />
+
     <!-- If the above value is specified, a lookup will be done to the Windows Credential
     manager for a -Windows- Credential that maps to the label. If not specified, it assumes you want to specify on
     of the below options. Value will be taken based on the what's entered in this order:
@@ -45,12 +55,19 @@
     -->
 
     <!-- Priority 1: For testing against Office 365 provide a username and password -->
-    <add key="SPOUserName" value="user@[tenant].onmicrosoft.com" />
+    <add key="SPOUserName" value="user@tenant.onmicrosoft.com" />
     <add key="SPOPassword" value="" />
+
+    <add key="SPOnPremUserName" value="Domain\User" />
+    <add key="SPOnPremPassword" value="" />
 
     <!-- Priority 2: For app only testing provide an app id and app secret -->
     <add key="AppId" value="b5bdf20c-2917-5178-3309-5deb57ee6c89" />
     <add key="AppSecret" value="" />
+
+    <add key="SPOnPremAppId" value="b5bdf20c-2917-5178-3309-5deb57ee6c89" />
+    <add key="SPOnPremAppSecret" value="" />
+
 
     <!-- Permission XML for app only test
   <AppPermissionRequests AllowAppOnlyPolicy="true" >

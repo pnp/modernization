@@ -63,3 +63,15 @@ The easiest way to deploy the Azure Function app binaries is by using Kudu:
 ## After enabling Page Transformation for a site collection the ribbon buttons are grayed out
 
 The SharePoint ribbon uses a caching in SharePoint Online which causes this problem. You can either wait for the cache to expire or clean the browser cache and re-login again.
+
+## My SharePoint environment uses vanity url's, do I need to do more?
+
+By default only the first vanity domain is added the the "SharePoint Online Client Extensibility Web Application Principal" Azure AD application resulting in following URL's:
+
+ - https://domain1.mycompany.com/_forms/spfxsinglesignon.aspx?redirect
+ - https://domain1.mycompany.com/_forms/spfxsinglesignon.aspx
+ - https://domain1.mycompany.com/_forms/singlesignon.aspx?redirect
+ - https://domain1.mycompany.com/_forms/singlesignon.aspx
+ - https://domain1.mycompany.com/
+
+If you've multiple vanity URL's you'll need to add additional redirect URL's for those, simply copy the above 5 URLS's and update the domain1.mycompany.com to the other vanity URL.
