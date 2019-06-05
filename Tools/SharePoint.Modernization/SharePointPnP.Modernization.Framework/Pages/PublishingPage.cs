@@ -18,6 +18,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
     {
         private PublishingPageTransformation publishingPageTransformation;
         private PublishingFunctionProcessor functionProcessor;
+        private BaseTransformationInformation baseTransformationInformation;
 
         #region Construction
         /// <summary>
@@ -29,6 +30,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
+            this.baseTransformationInformation = baseTransformationInformation;
             this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            
         }
 
@@ -40,6 +42,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation, ClientContext targetContext = null, IList<ILogObserver> logObservers = null) : base(page, null, pageTransformation, logObservers)
         {
             this.publishingPageTransformation = publishingPageTransformation;
+            this.baseTransformationInformation = baseTransformationInformation;
             this.functionProcessor = new PublishingFunctionProcessor(page, cc, targetContext, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            
         }
         #endregion
@@ -114,6 +117,19 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 var fieldWebParts = publishingPageTransformationModel.WebParts.Where(p => !p.TargetWebPart.Equals(WebParts.WikiText, StringComparison.InvariantCultureIgnoreCase));                
                 foreach (var fieldWebPart in fieldWebParts.OrderBy(p => p.Row).OrderBy(p => p.Column))
                 {
+                    // In publishing scenarios it's common to not have all fields defined in the page layout mapping filled. By default we'll not map empty fields as that will result in empty web parts
+                    // which impact the page look and feel. Using the RemoveEmptySectionsAndColumns flag this behaviour can be turned off.
+                    if (this.baseTransformationInformation.RemoveEmptySectionsAndColumns)
+                    {
+                        var fieldContents = page.GetFieldValueAs<string>(fieldWebPart.Name);
+
+                        if (string.IsNullOrEmpty(fieldContents))
+                        {
+                            LogWarning(String.Format(LogStrings.Warning_SkippedWebPartDueToEmptyInSourcee, fieldWebPart.TargetWebPart, fieldWebPart.Name), LogStrings.Heading_PublishingPage);
+                            continue;
+                        }
+                    }
+
                     Dictionary<string, string> properties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
                     foreach (var fieldWebPartProperty in fieldWebPart.Property)

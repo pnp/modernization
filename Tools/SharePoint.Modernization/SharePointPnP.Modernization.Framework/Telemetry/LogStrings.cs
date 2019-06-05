@@ -259,6 +259,7 @@
 
         public const string Error_NoPageLayoutTransformationModel = "No valid pagelayout transformation model could be retrieved for publishing page layout {0}";
         public const string Warning_CannotRetrieveFieldValue = "Could not retrieve field value from mapping, the contents were empty";
+        public const string Warning_SkippedWebPartDueToEmptyInSourcee = "Target web part {0} is not added for field {1} because the field value was empty and the RemoveEmptySectionsAndColumns flag was set";
 
         #endregion
 
