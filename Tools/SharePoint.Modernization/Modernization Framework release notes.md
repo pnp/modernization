@@ -18,6 +18,7 @@
 
 - Preview On-Premises publishing page to SharePoint Online modern page support #165 [pkbullock]
 - Support for transforming web part pages living outside of a library (so in the root folder of the site)
+- Support for provisioning the Page Properties web part on a page (only for publishing page transformation). #171
 
 ## Changed
 

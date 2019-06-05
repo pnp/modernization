@@ -10,6 +10,7 @@ namespace SharePointPnP.Modernization.Framework
         public const string WikiText = "SharePointPnP.Modernization.WikiTextPart";
         public const string WikiImage = "SharePointPnP.Modernization.WikiImagePart";
         public const string WikiVideo = "SharePointPnP.Modernization.WikiVideoPart";
+        public const string PageProperties = "SharePointPnP.Modernization.PageProperties";
         public const string PageAcceptanceBanner = "SharePointPnP.Modernization.PageAcceptanceBanner";
         public const string XsltListView = "Microsoft.SharePoint.WebPartPages.XsltListViewWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c";
         public const string SiteFeed = "Microsoft.SharePoint.Portal.WebControls.SiteFeedWebPart, Microsoft.SharePoint.Portal, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c";

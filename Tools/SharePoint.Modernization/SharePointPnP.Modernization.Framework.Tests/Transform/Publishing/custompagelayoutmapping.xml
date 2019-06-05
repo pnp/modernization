@@ -15,13 +15,13 @@
         <Field Name="Comments" HeaderProperty="AlternativeText"/>
         <Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({PublishingContact})"/>
       </Header>
-      <MetaData>
+      <MetaData ShowPageProperties="true" PagePropertiesRow="1" PagePropertiesColumn="3" PagePropertiesOrder="1">
         <!-- Use Custom1 field when AssociatedContentType is set to CustomPage1 -->
         <!--<Field Name="PublishingContactEmail" TargetFieldName="BannerImageUrl" Functions="StaticString('https://bertonline.sharepoint.com/_layouts/15/getpreview.ashx?guidSite=88eebac1710b464cb6816639340fac55&amp;guidWeb=277fe40db9d24da5bbc6827714184958&amp;guidFile=91bf17fd54e849149a3ad6b4f006304e&amp;ext=jpg')" />-->
         <!--<Field Name="PreviewImage" TargetFieldName="BannerImageUrl" Functions="ToPreviewImageUrl({PreviewImage})" />-->
         <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
-        <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" />
-        <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" />
+        <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" ShowInPageProperties="true" />
+        <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" ShowInPageProperties="true"/>
         <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />-->
       </MetaData>
       <WebParts>
@@ -34,7 +34,7 @@
         <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
           <Property Name="Text" Type="string" Functions="" />
         </Field>
-        <Field Name="SummaryLinks" TargetWebPart="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="1" Column="3">
+        <Field Name="SummaryLinks" TargetWebPart="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="1" Column="3" Order="2">
           <Property Name="SummaryLinkStore" Type="string" />
           <Property Name="Title" Type="string" Functions="StaticString('Hi there')" />
         </Field>

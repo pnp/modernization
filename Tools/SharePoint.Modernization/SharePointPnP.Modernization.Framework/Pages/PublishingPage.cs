@@ -19,6 +19,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         private PublishingPageTransformation publishingPageTransformation;
         private PublishingFunctionProcessor functionProcessor;
         private BaseTransformationInformation baseTransformationInformation;
+        private ClientContext targetContext = null;
 
         #region Construction
         /// <summary>
@@ -31,7 +32,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             // no PublishingPageTransformation specified, fall back to default
             this.publishingPageTransformation = new PageLayoutManager(base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
             this.baseTransformationInformation = baseTransformationInformation;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);
         }
 
         /// <summary>
@@ -43,7 +44,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             this.publishingPageTransformation = publishingPageTransformation;
             this.baseTransformationInformation = baseTransformationInformation;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, targetContext, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);            
+            this.targetContext = targetContext;
+            this.functionProcessor = new PublishingFunctionProcessor(page, cc, targetContext, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);
         }
         #endregion
 
@@ -53,7 +55,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <returns>Information about the analyzed publishing page</returns>
         public Tuple<PageLayout, List<WebPartEntity>> Analyze(Publishing.PageLayout publishingPageTransformationModel)
         {
-            List<WebPartEntity> webparts = new List<WebPartEntity>();            
+            List<WebPartEntity> webparts = new List<WebPartEntity>();
 
             //Load the page
             var publishingPageUrl = page[Constants.FileRefField].ToString();
@@ -114,7 +116,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 #endregion
 
                 #region Generic processing of the other 'webpart' fields
-                var fieldWebParts = publishingPageTransformationModel.WebParts.Where(p => !p.TargetWebPart.Equals(WebParts.WikiText, StringComparison.InvariantCultureIgnoreCase));                
+                var fieldWebParts = publishingPageTransformationModel.WebParts.Where(p => !p.TargetWebPart.Equals(WebParts.WikiText, StringComparison.InvariantCultureIgnoreCase));
                 foreach (var fieldWebPart in fieldWebParts.OrderBy(p => p.Row).OrderBy(p => p.Column))
                 {
                     // In publishing scenarios it's common to not have all fields defined in the page layout mapping filled. By default we'll not map empty fields as that will result in empty web parts
@@ -164,10 +166,72 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Properties = properties,
                     };
 
-                    webparts.Add(wpEntity);                    
+                    webparts.Add(wpEntity);
                 }
             }
             #endregion
+            #endregion
+
+            #region Process fields that become metadata as they might result in the creation of page properties web part
+            if (publishingPageTransformationModel.MetaData.ShowPageProperties)
+            {
+                List<string> pagePropertiesFields = new List<string>();
+               
+                var fieldsToProcess = publishingPageTransformationModel.MetaData.Field.Where(p => p.ShowInPageProperties == true && !string.IsNullOrEmpty(p.TargetFieldName));
+
+                if (fieldsToProcess.Any())
+                {                    
+                    // Loop over the fields that are defined to be shown in the page properties and that have a target field name set
+                    foreach (var fieldToProcess in fieldsToProcess)
+                    {
+                        var targetFieldInstance = targetContext.Web.GetFieldByInternalName(fieldToProcess.TargetFieldName, true);
+                        if (targetFieldInstance != null)
+                        {
+                            if (!pagePropertiesFields.Contains(targetFieldInstance.Id.ToString()))
+                            {
+                                pagePropertiesFields.Add(targetFieldInstance.Id.ToString());
+                            }
+                        }
+                    }
+
+                    if (pagePropertiesFields.Count > 0)
+                    {
+                        string propertyString = "";
+                        foreach (var propertyField in pagePropertiesFields)
+                        {
+                            if (!string.IsNullOrEmpty(propertyField))
+                            {
+                                propertyString = $"{propertyString},\"{propertyField.ToString()}\"";
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(propertyString))
+                        {
+                            propertyString = propertyString.TrimStart(new char[] { ',' });
+                        }
+
+                        if (!string.IsNullOrEmpty(propertyString))
+                        {
+                            Dictionary<string, string> properties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+                        {
+                            { "SelectedFields", propertyString }
+                        };
+
+                            var wpEntity = new WebPartEntity()
+                            {
+                                Type = WebParts.PageProperties,
+                                Id = Guid.Empty,
+                                Row = publishingPageTransformationModel.MetaData.PagePropertiesRow,
+                                Column = publishingPageTransformationModel.MetaData.PagePropertiesColumn,
+                                Order = GetNextOrder(publishingPageTransformationModel.MetaData.PagePropertiesRow, publishingPageTransformationModel.MetaData.PagePropertiesColumn, publishingPageTransformationModel.MetaData.PagePropertiesOrder, webparts),
+                                Properties = properties,
+                            };
+
+                            webparts.Add(wpEntity);
+                        }
+                    }
+                }
+            }
             #endregion
 
             #region Web Parts in webpart zone handling

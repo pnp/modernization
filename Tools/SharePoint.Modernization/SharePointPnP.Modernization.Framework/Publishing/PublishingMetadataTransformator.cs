@@ -74,7 +74,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 }
 
                 // Copy the field metadata
-                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData)
+                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
                 {
                     // Process only fields which have a target field set...
                     if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
@@ -135,7 +135,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Handle the taxonomy fields
                 bool targetSitePagesLibraryLoaded = false;
                 List targetSitePagesLibrary = null;
-                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData)
+                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
                 {
                     // Process only fields which have a target field set...
                     if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))

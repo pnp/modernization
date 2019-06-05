@@ -518,6 +518,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string functionsField;
         
+        private bool showInPagePropertiesField;
+        
+        private bool showInPagePropertiesFieldSpecified;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string Name {
@@ -548,6 +552,154 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.functionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool ShowInPageProperties {
+            get {
+                return this.showInPagePropertiesField;
+            }
+            set {
+                this.showInPagePropertiesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ShowInPagePropertiesSpecified {
+            get {
+                return this.showInPagePropertiesFieldSpecified;
+            }
+            set {
+                this.showInPagePropertiesFieldSpecified = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public partial class MetaData {
+        
+        private MetaDataField[] fieldField;
+        
+        private bool showPagePropertiesField;
+        
+        private bool showPagePropertiesFieldSpecified;
+        
+        private int pagePropertiesRowField;
+        
+        private bool pagePropertiesRowFieldSpecified;
+        
+        private int pagePropertiesColumnField;
+        
+        private bool pagePropertiesColumnFieldSpecified;
+        
+        private int pagePropertiesOrderField;
+        
+        private bool pagePropertiesOrderFieldSpecified;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("Field")]
+        public MetaDataField[] Field {
+            get {
+                return this.fieldField;
+            }
+            set {
+                this.fieldField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool ShowPageProperties {
+            get {
+                return this.showPagePropertiesField;
+            }
+            set {
+                this.showPagePropertiesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ShowPagePropertiesSpecified {
+            get {
+                return this.showPagePropertiesFieldSpecified;
+            }
+            set {
+                this.showPagePropertiesFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int PagePropertiesRow {
+            get {
+                return this.pagePropertiesRowField;
+            }
+            set {
+                this.pagePropertiesRowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool PagePropertiesRowSpecified {
+            get {
+                return this.pagePropertiesRowFieldSpecified;
+            }
+            set {
+                this.pagePropertiesRowFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int PagePropertiesColumn {
+            get {
+                return this.pagePropertiesColumnField;
+            }
+            set {
+                this.pagePropertiesColumnField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool PagePropertiesColumnSpecified {
+            get {
+                return this.pagePropertiesColumnFieldSpecified;
+            }
+            set {
+                this.pagePropertiesColumnFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int PagePropertiesOrder {
+            get {
+                return this.pagePropertiesOrderField;
+            }
+            set {
+                this.pagePropertiesOrderField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool PagePropertiesOrderSpecified {
+            get {
+                return this.pagePropertiesOrderFieldSpecified;
+            }
+            set {
+                this.pagePropertiesOrderFieldSpecified = value;
             }
         }
     }
@@ -735,7 +887,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private Header headerField;
         
-        private MetaDataField[] metaDataField;
+        private MetaData metaDataField;
         
         private WebPartField[] webPartsField;
         
@@ -762,8 +914,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute("Field", IsNullable=false)]
-        public MetaDataField[] MetaData {
+        public MetaData MetaData {
             get {
                 return this.metaDataField;
             }

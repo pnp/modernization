@@ -156,7 +156,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 extractedHtmlBlocks.WebPartFields = CleanExtractedWebPartFields(extractedHtmlBlocks.WebPartFields, contentTypeFields);
 
                 // Detect the fields that will become metadata in the target site
-                var extractedMetaData = ExtractMetaDataFromPageLayoutAssociatedContentType(contentTypeFields, extractedHtmlBlocks.WebPartFields, extractedHeader);
+                var extractedMetaDataFields = ExtractMetaDataFromPageLayoutAssociatedContentType(contentTypeFields, extractedHtmlBlocks.WebPartFields, extractedHeader);
+
+                var metaData = new MetaData
+                {                    
+                    Field = extractedMetaDataFields
+                };
 
                 // Combine all data to a single PageLayout mapping
                 var layoutMapping = new PageLayout()
@@ -172,7 +177,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // Set the header details (if any)
                     Header = extractedHeader,
                     // Fields that will become metadata fields for the target page
-                    MetaData = extractedMetaData,
+                    MetaData = metaData,
                     // Fields that will become web parts on the target page
                     WebParts = extractedHtmlBlocks.WebPartFields.Count > 0 ? extractedHtmlBlocks.WebPartFields.ToArray() : null,
                     // Web part zones that can hold zero or more web parts

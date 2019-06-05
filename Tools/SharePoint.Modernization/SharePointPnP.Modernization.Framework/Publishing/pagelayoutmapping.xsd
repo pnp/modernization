@@ -33,6 +33,7 @@
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="TargetFieldName" type="xs:string" use="required" />
     <xs:attribute name="Functions" type="xs:string" use="optional" />
+    <xs:attribute name="ShowInPageProperties" use="optional" type="xs:boolean" />
   </xs:complexType>
 
   <xs:complexType name="WebPartZone">
@@ -173,6 +174,29 @@
     <xs:sequence>
       <xs:element name="Field" type="MetaDataField" minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
+    <xs:attribute name="ShowPageProperties" use="optional" type="xs:boolean" />
+    <xs:attribute name="PagePropertiesRow" use="optional">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="PagePropertiesColumn" use="optional">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+          <xs:maxInclusive value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="PagePropertiesOrder" use="optional">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="WebParts">
