@@ -72,5 +72,29 @@ namespace SharePointPnP.Modernization.Framework.Extensions
             return value;
         }
 
+        /// <summary>
+        /// Gets base url from string
+        /// </summary>
+        /// <param name="sourceSite"></param>
+        /// <returns></returns>
+        public static string GetBaseUrl(this string url)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(url) && (url.ContainsIgnoringCasing("https://") || url.ContainsIgnoringCasing("http://")))
+                {
+                    Uri siteUri = new Uri(url);
+                    string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
+                    return host;
+                }
+            }
+            catch (Exception)
+            {
+                //Swallow
+            }
+
+            return string.Empty;
+        }
+
     }
 }

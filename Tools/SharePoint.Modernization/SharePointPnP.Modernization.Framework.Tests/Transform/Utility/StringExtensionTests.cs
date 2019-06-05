@@ -87,5 +87,53 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Utility
 
             Assert.AreEqual(expectedResult, result);
         }
+
+        [TestMethod]
+        public void StringExtension_GetBaseUrlValidHttpsString()
+        {
+
+            var input = "https://server/pnptransformationsource/en/pages/search.aspx";
+            var expectedResult = "https://server";
+
+            var result = input.GetBaseUrl();
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StringExtension_GetBaseUrlValidHttpString()
+        {
+
+            var input = "http://server/pnptransformationsource/en/pages/search.aspx";
+            var expectedResult = "http://server";
+
+            var result = input.GetBaseUrl();
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StringExtension_GetBaseUrlInvalidString()
+        {
+
+            var input = "/pnptransformationsource/en/pages/search.aspx";
+            var expectedResult = string.Empty;
+
+            var result = input.GetBaseUrl();
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StringExtension_GetBaseUrEmptyString()
+        {
+
+            var input = string.Empty;
+            var expectedResult = string.Empty;
+
+            var result = input.GetBaseUrl();
+
+            Assert.AreEqual(expectedResult, result);
+        }
     }
 }
