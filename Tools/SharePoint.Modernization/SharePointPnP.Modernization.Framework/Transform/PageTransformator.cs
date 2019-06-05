@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
@@ -779,7 +780,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogInfo(LogStrings.TransformComplete, LogStrings.Heading_PageCreation);
                 #endregion
 
+                #region Closing
+                CacheManager.Instance.SetLastUsedTransformator(this);
                 return serverRelativePathForModernPage;
+                #endregion
+
                 #endregion
             }
             catch (Exception ex)

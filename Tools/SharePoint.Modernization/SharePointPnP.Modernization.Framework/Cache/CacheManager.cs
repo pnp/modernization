@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Publishing;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -30,6 +31,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
         private ConcurrentDictionary<string, string> contentTypes;
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
+        private BasePageTransformator lastUsedTransformator;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -561,6 +563,18 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
 
             return contentTypeId;
+        }
+        #endregion
+
+        #region Last used transformator
+        public void SetLastUsedTransformator(BasePageTransformator transformator)
+        {
+            this.lastUsedTransformator = transformator;
+        }
+
+        public BasePageTransformator GetLastUsedTransformator()
+        {
+            return this.lastUsedTransformator;
         }
         #endregion
 

@@ -496,7 +496,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo(LogStrings.TransformComplete, LogStrings.Heading_PageCreation);
                 #endregion
 
+                #region Closing
+                CacheManager.Instance.SetLastUsedTransformator(this);
                 return serverRelativePathForModernPage;
+                #endregion
+
                 #endregion
             }
             catch (Exception ex)
