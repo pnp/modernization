@@ -22,7 +22,8 @@
 
 ## Changed
 
-- Reporting improvements for on-premises as source + correct log level for some log entries #169
+- Reporting improvements for on-premises as source + correct log level for some log entries #169 [pkbullock]
+- Logic added that disables item level permissions copy in cross-farm scenarios #178 [pkbullock]
 - In publishing scenarios it's common to not have all fields defined in the page layout mapping filled. By default we'll not map empty fields as that will result in empty web parts which impact the page look and feel. Using the RemoveEmptySectionsAndColumns flag this behaviour can be turned off. #156
 
 ## [May release (prod) - version 1.0.1905.3]

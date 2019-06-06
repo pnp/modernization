@@ -25,7 +25,7 @@
         <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />-->
       </MetaData>
       <WebParts>
-        <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1">
+        <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1" Order="1">
           <Property Name="ImageUrl" Type="string" Functions="ToImageUrl({PublishingPageImage})"/>
           <Property Name="AlternativeText" Type="string" Functions="ToImageAltText({PublishingPageImage})" />
           <Property Name="Anchor" Type="string" Functions="ToImageAnchor({PublishingPageImage})" />
