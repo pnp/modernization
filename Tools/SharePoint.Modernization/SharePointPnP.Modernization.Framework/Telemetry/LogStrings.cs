@@ -89,6 +89,8 @@
 
         public const string Warning_NonCriticalErrorDuringVersionStampAndPublish = "Page could not be published as versioning is not enabled or version stamp could not be set.";
 
+        public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled";
+
         #endregion
 
         #region Status Messages

@@ -4,6 +4,7 @@ using Microsoft.SharePoint.Client.Taxonomy;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
@@ -512,6 +513,31 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id, p => p.Url);
                 // Use regular ExecuteQuery as we want to send this custom clienttag
                 clientContext.ExecuteQuery();
+            }
+        }
+
+        /// <summary>
+        /// Ensures that the contexts are the same for the feature to be supported
+        /// </summary>
+        /// <param name="baseTransformationInformation">Transformation Information</param>
+        /// <remarks>Will disable feature if not supported</remarks>
+        internal void EnsureItemLevelPermissionsContextsSupported(BaseTransformationInformation baseTransformationInformation)
+        {
+            // Source only context - allow item level permissions
+            // Source to target same base address - allow item level permissions
+            // Source to target difference base address - disallow item level permissions
+
+            if(targetClientContext != null && sourceClientContext != null && baseTransformationInformation.KeepPageSpecificPermissions)
+            {
+                var sourceUrl = sourceClientContext.Url.GetBaseUrl();
+                var targetUrl = targetClientContext.Url.GetBaseUrl();
+
+                // Override the setting for keeping item level permissions
+                if(!sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    baseTransformationInformation.KeepPageSpecificPermissions = false;
+                    LogWarning(LogStrings.Warning_ContextValidationFailWithKeepPermissionsEnabled, LogStrings.Heading_InputValidation);
+                }
             }
         }
         #endregion

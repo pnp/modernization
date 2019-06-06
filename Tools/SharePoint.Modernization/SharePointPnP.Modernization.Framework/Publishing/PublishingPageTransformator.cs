@@ -136,6 +136,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogError(LogStrings.Error_PageIsNotAPublishingPage, LogStrings.Heading_InputValidation);
                 throw new ArgumentException(LogStrings.Error_PageIsNotAPublishingPage);
             }
+
+            // Disable cross-farm item level permissions from copying
+            EnsureItemLevelPermissionsContextsSupported(publishingPageTransformationInformation);
+
             LogDebug(LogStrings.ValidationChecksComplete, LogStrings.Heading_InputValidation);
             #endregion
 
