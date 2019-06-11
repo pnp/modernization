@@ -520,20 +520,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
         #region Helper methods
         private bool IsCrossSiteTransfer()
         {
-            if (this.sourceClientContext == null)
-            {
-                return false;
-            }
-
-            this.sourceClientContext.Web.EnsureProperties(p => p.Url);
-            this.page.Context.Web.EnsureProperties(p => p.Url);
-
-            if (this.sourceClientContext.Web.Url.Equals(this.page.Context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return false;
-            }
-
+            //TODO 2010 Fix
             return true;
+
+            //if (this.sourceClientContext == null)
+            //{
+            //    return false;
+            //}
+
+            //this.sourceClientContext.Web.EnsureProperties(p => p.Url);
+            //this.page.Context.Web.EnsureProperties(p => p.Url);
+
+            //if (this.sourceClientContext.Web.Url.Equals(this.page.Context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
+            //{
+            //    return false;
+            //}
+
+            //return true;
         }
 
         private void UpdateWebPartDataProperties(WebPartEntity webPart, WebPart webPartData, Dictionary<string,string> globalProperties)
@@ -616,7 +619,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             Dictionary<string, string> globalTokens = new Dictionary<string, string>(5);
 
-            Uri hostUri = new Uri(cc.Web.Url);
+            var url = cc.Site.EnsureProperty(p => p.Url);
+            Uri hostUri = new Uri(url); //2010
             
             // Add the fixed properties
             globalTokens.Add("Host", $"{hostUri.Scheme}://{hostUri.DnsSafeHost}");

@@ -286,42 +286,44 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns>Translated name of the pages library</returns>
         public string GetPublishingPagesLibraryName(ClientContext context)
         {
-            if (context == null)
-            {
-                return "pages";
-            }
+            return "pages"; //TODO 2010 Fix
 
-            uint lcid = context.Web.EnsureProperty(p => p.Language);
+            //if (context == null)
+            //{
+            //    return "pages";
+            //}
 
-            if (publishingPagesLibraryNames.ContainsKey(lcid))
-            {
-                if (publishingPagesLibraryNames.TryGetValue(lcid, out string name))
-                {
-                    return name;
-                }
-                else
-                {
-                    // let's fallback to the default...we should never get here unless there's some threading issue
-                    return "pages";
-                }
-            }
-            else
-            {
-                ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:List_Pages_UrlName", "osrvcore", int.Parse(lcid.ToString()));
-                context.ExecuteQueryRetry();
+            //uint lcid = context.Web.EnsureProperty(p => p.Language);
 
-                string pagesLibraryName = new Regex(@"['´`]").Replace(result.Value, "");
+            //if (publishingPagesLibraryNames.ContainsKey(lcid))
+            //{
+            //    if (publishingPagesLibraryNames.TryGetValue(lcid, out string name))
+            //    {
+            //        return name;
+            //    }
+            //    else
+            //    {
+            //        // let's fallback to the default...we should never get here unless there's some threading issue
+            //        return "pages";
+            //    }
+            //}
+            //else
+            //{
+            //    ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:List_Pages_UrlName", "osrvcore", int.Parse(lcid.ToString()));
+            //    context.ExecuteQueryRetry();
 
-                if (string.IsNullOrEmpty(pagesLibraryName))
-                {
-                    return "pages";
-                }
+            //    string pagesLibraryName = new Regex(@"['´`]").Replace(result.Value, "");
 
-                // add to cache
-                publishingPagesLibraryNames.TryAdd(lcid, pagesLibraryName.ToLower());
+            //    if (string.IsNullOrEmpty(pagesLibraryName))
+            //    {
+            //        return "pages";
+            //    }
 
-                return pagesLibraryName.ToLower();
-            }
+            //    // add to cache
+            //    publishingPagesLibraryNames.TryAdd(lcid, pagesLibraryName.ToLower());
+
+            //    return pagesLibraryName.ToLower();
+            //}
         }
         #endregion
 
@@ -442,7 +444,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #region Users
         public UserEntity GetUserFromUserList(ClientContext context, int userListId)
         {
-            string key = context.Web.EnsureProperty(p => p.Url);
+            string key = context.Web.EnsureProperty(p => p.ServerRelativeUrl); //2010
 
             if (this.userJsonStrings.TryGetValue(key, out Dictionary<int, UserEntity> userListFromCache))
             {

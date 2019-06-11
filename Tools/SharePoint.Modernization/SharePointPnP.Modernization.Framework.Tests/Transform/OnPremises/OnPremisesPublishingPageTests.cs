@@ -22,7 +22,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-SP");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)

@@ -155,7 +155,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(sourceClientContext);
 
-                LogInfo($"{sourceClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
+                LogInfo($"{sourceClientContext.Web.ServerRelativeUrl}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);  //TODO 2010 Fix
 
                 LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(targetClientContext);
@@ -167,15 +167,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     throw new ArgumentNullException(LogStrings.Error_SameSiteTransferNoAllowedForPublishingPages);
                 }
 
-                LogInfo($"{targetClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
+                LogInfo($"{targetClientContext.Web.ServerRelativeUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);   //TODO 2010 Fix
 
                 // Need to add further validation for target template
-                if (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP")
-                {
+                //TODO 2010 Fix
+                //if (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP")
+                //{
 
-                    LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);
-                    throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
-                }
+                //    LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);
+                //    throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
+                //}
 
                 LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
@@ -595,6 +596,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private Microsoft.SharePoint.Client.File Load(ClientContext sourceContext, ClientContext targetContext, PublishingPageTransformationInformation publishingPageTransformationInformation, out List pagesLibrary)
         {
             sourceContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
+            sourceContext.Site.EnsureProperty(w => w.Url);  //TODO 2010 Fix
             targetContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
             // Load the pages library and page file (if exists) in one go 

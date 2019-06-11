@@ -74,7 +74,11 @@ namespace Microsoft.SharePoint.Client
             {
                 web.EnsureProperty(p => p.ServerRelativeUrl);
                 string listRelativeUrl = $"{web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{webRelativeListName}";
-                listHoldingPages = web.GetList(listRelativeUrl);
+                //listHoldingPages = web.GetList(listRelativeUrl);
+                // Temp ByPass for 2010
+                //TODO 2010 Fix
+                listHoldingPages = web.Lists.GetByTitle(webRelativeListName);
+
                 web.Context.Load(listHoldingPages, p => p.RootFolder);
                 web.Context.ExecuteQueryRetry();
             }
