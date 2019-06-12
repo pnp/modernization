@@ -22,6 +22,7 @@
         <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
         <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" ShowInPageProperties="true" />
         <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" ShowInPageProperties="true"/>
+        <Field Name="Person" TargetFieldName="Person" Functions="" ShowInPageProperties="true"/>
         <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />-->
       </MetaData>
       <WebParts>

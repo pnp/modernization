@@ -100,22 +100,81 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                             {
                                 if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
                                 {
+                                    object fieldValueToSet = null;
+
                                     if (!string.IsNullOrEmpty(fieldToProcess.Functions))
                                     {
                                         // execute function
                                         var evaluatedField = this.functionProcessor.Process(fieldToProcess.Functions, fieldToProcess.Name, CastToPublishingFunctionProcessorFieldType(targetFieldData.FieldType));
                                         if (!string.IsNullOrEmpty(evaluatedField.Item1))
                                         {
-                                            this.page.PageListItem[targetFieldData.FieldName] = evaluatedField.Item2;
+                                            //this.page.PageListItem[targetFieldData.FieldName] = evaluatedField.Item2;
+                                            fieldValueToSet = evaluatedField.Item2;
                                         }
                                     }
                                     else
                                     {
-                                        this.page.PageListItem[targetFieldData.FieldName] = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
+                                        //this.page.PageListItem[targetFieldData.FieldName] = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
+                                        fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
                                     }
-                                    isDirty = true;
 
-                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                    if (fieldValueToSet != null)
+                                    {
+                                        if (targetFieldData.FieldType == "User" || targetFieldData.FieldType == "UserMulti")
+                                        {
+                                            if (this.publishingPageTransformationInformation.IsCrossFarmTransformation)
+                                            {
+                                                // we can't copy these fields in a cross farm scenario as we do not yet support user account mapping
+                                                LogWarning($"{LogStrings.TransformCopyingUserMetaDataFieldSkipped} {fieldToProcess.Name}", LogStrings.Heading_CopyingPageMetadata);
+                                            }
+                                            else
+                                            {
+                                                if (fieldValueToSet is FieldUserValue)
+                                                {
+                                                    // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                    var user = targetClientContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
+                                                    targetClientContext.Load(user);
+                                                    targetClientContext.ExecuteQueryRetry();
+
+                                                    // Prep a new FieldUserValue object instance and update the list item
+                                                    var newUser = new FieldUserValue()
+                                                    {
+                                                        LookupId = user.Id
+                                                    };
+                                                    this.page.PageListItem[targetFieldData.FieldName] = newUser;
+                                                }
+                                                else
+                                                {
+                                                    List<FieldUserValue> userValues = new List<FieldUserValue>();
+                                                    foreach (var currentUser in (fieldValueToSet as Array))
+                                                    {
+                                                        // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                        var user = targetClientContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
+                                                        targetClientContext.Load(user);
+                                                        targetClientContext.ExecuteQueryRetry();
+
+                                                        // Prep a new FieldUserValue object instance
+                                                        var newUser = new FieldUserValue()
+                                                        {
+                                                            LookupId = user.Id
+                                                        };
+
+                                                        userValues.Add(newUser);
+                                                    }
+
+                                                    this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            this.page.PageListItem[targetFieldData.FieldName] = fieldValueToSet;
+                                        }
+
+                                        isDirty = true;
+
+                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                    }
                                 }
                             }
                         }
@@ -130,7 +189,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     targetClientContext.ExecuteQueryRetry();
                     isDirty = false;
                 }
-
 
                 // Handle the taxonomy fields
                 bool targetSitePagesLibraryLoaded = false;

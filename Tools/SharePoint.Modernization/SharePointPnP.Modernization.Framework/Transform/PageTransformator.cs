@@ -209,7 +209,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             // Disable cross-farm item level permissions from copying
-            EnsureItemLevelPermissionsContextsSupported(pageTransformationInformation);
+            CrossFarmTransformationValidation(pageTransformationInformation);
 
             LogDebug(LogStrings.ValidationChecksComplete, LogStrings.Heading_InputValidation);
 

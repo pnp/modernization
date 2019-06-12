@@ -138,7 +138,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // Disable cross-farm item level permissions from copying
-            EnsureItemLevelPermissionsContextsSupported(publishingPageTransformationInformation);
+            CrossFarmTransformationValidation(publishingPageTransformationInformation);
 
             LogDebug(LogStrings.ValidationChecksComplete, LogStrings.Heading_InputValidation);
             #endregion
