@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SharePointPnP.Modernization.Framework;
+using OfficeDevPnP.Core.Utilities;
 
 namespace Microsoft.SharePoint.Client
 {
@@ -441,5 +442,46 @@ namespace Microsoft.SharePoint.Client
             }
         }
 
+        /// <summary>
+        /// Method to bypass missing property in SharePoint 2010
+        /// </summary>
+        /// <param name="web"></param>
+        /// <remarks>Only required on source contexts</remarks>
+        /// <returns>Url</returns>
+        public static string GetUrl(this Web web)
+        {
+            
+            var siteCtx = web.Context.GetSiteCollectionContext();
+            siteCtx.Site.EnsureProperties(p => p.Url);
+            web.EnsureProperties(p => p.ServerRelativeUrl);
+
+            var siteUri = new Uri(siteCtx.Site.Url);
+            string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
+
+            var serverRelativeUrl = web.ServerRelativeUrl;
+
+            return UrlUtility.Combine(host, serverRelativeUrl);
+
+
+        }
+
+        /// <summary>
+        /// Detects for SharePoint 2010
+        /// </summary>
+        /// <param name="web"></param>
+        /// <returns></returns>
+        public static bool IsSharePoint2010(this Web web)
+        {
+            // Use the missing URL property from CSOM to determine if this is SharePoint 2010s
+            try
+            {
+                web.EnsureProperty(p => p.Url);
+                return false;
+
+            }catch(Exception ex)
+            {
+                return true;
+            }
+        }
     }
 }

@@ -155,7 +155,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(sourceClientContext);
 
-                LogInfo($"{sourceClientContext.Web.ServerRelativeUrl}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);  //TODO 2010 Fix
+                LogInfo($"{sourceClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
 
                 LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(targetClientContext);
@@ -167,7 +167,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     throw new ArgumentNullException(LogStrings.Error_SameSiteTransferNoAllowedForPublishingPages);
                 }
 
-                LogInfo($"{targetClientContext.Web.ServerRelativeUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);   //TODO 2010 Fix
+                LogInfo($"{targetClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
 
                 // Need to add further validation for target template
                 //TODO 2010 Fix

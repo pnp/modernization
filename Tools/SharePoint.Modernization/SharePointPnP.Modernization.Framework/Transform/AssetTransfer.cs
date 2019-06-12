@@ -50,8 +50,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             _targetClientContext = target;
 
             // Check if we're calling asset transfer when source and target are the same
-            var sourceUrl = _sourceClientContext?.Web.EnsureProperty(p => p.Url);
-            var targetUrl = _targetClientContext?.Web.EnsureProperty(p => p.Url);
+            var sourceUrl = _sourceClientContext?.Web.GetUrl();
+            var targetUrl = _targetClientContext?.Web.GetUrl();
             inSameSite = sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase);
 
             Validate(); // Perform validation
@@ -228,7 +228,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             // Get the file from SharePoint
             var sourceAssetFile = _sourceClientContext.Web.GetFileByServerRelativeUrl(sourceFileUrl);
-            ClientResult<System.IO.Stream> sourceAssetFileData = sourceAssetFile.OpenBinaryStream();
+            ClientResult<System.IO.Stream> sourceAssetFileData = sourceAssetFile.OpenBinaryStream(); //TODO 2010 Not working 
 
             _sourceClientContext.Load(sourceAssetFile);
             _sourceClientContext.ExecuteQueryRetry();
@@ -455,7 +455,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 
                 var fullSiteCollectionUrl = context.Site.Url;
                 var relativeSiteCollUrl = context.Site.ServerRelativeUrl;
-                var sourceCtxUrl = context.Web.Url;
+                var sourceCtxUrl = context.Web.GetUrl();
 
                 // Lets break into segments
                 var fileName = Path.GetFileName(sourceUrl);
@@ -500,7 +500,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
 
-                if (match != string.Empty && !match.Equals(context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
+                if (match != string.Empty && !match.Equals(context.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
                 {
 
                     _sourceClientContext = context.Clone(match);

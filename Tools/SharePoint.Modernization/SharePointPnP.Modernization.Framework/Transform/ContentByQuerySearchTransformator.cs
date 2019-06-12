@@ -530,7 +530,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (!string.IsNullOrEmpty(scope))
                 {
                     // replace site collection url by ~sitecollection so we can reuse the existing logic
-                    scope = scope.Replace(this.clientContext.Site.RootWeb.Url, "~sitecollection");
+                    scope = scope.Replace(this.clientContext.Site.RootWeb.GetUrl(), "~sitecollection");
 
                     // TODO: seems like CSWP scopes to site and sub sites while the Site option in HCWP scopes to just the site
                     //if (scope.Equals("{Site.URL}", StringComparison.InvariantCultureIgnoreCase))

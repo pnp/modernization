@@ -131,7 +131,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return "";
             }
 
-            var hostUri = new Uri(this.clientContext.Web.Url);
+            var hostUri = new Uri(this.clientContext.Web.GetUrl());
             string host = $"{hostUri.Scheme}://{hostUri.DnsSafeHost}";
 
             return path.Replace(host, "");
@@ -733,7 +733,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 try
                 {
                     // 
-                    Uri hostUri = new Uri(this.clientContext.Web.Url);
+                    Uri hostUri = new Uri(this.clientContext.Web.GetUrl());
 
                     // Find the web url hosting the content file
                     var webUrlResult = Web.GetWebUrlFromPageUrl(this.clientContext, $"{hostUri.Scheme}://{hostUri.DnsSafeHost}{serverRelativeUrl}");
@@ -910,13 +910,13 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return "";
             }
 
-            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl, p => p.Url);
+            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
             if (!contentLink.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
             {
                 try
                 {
                     // Content editor does allow a web part on a sub web to point to a file in the rootweb...Pointing to files outside of the current site collection is not allowed
-                    Uri hostUri = new Uri(this.clientContext.Web.Url);
+                    Uri hostUri = new Uri(this.clientContext.Web.GetUrl());
 
                     // Find the web url hosting the content file
                     var webUrlResult = Web.GetWebUrlFromPageUrl(this.clientContext, $"{hostUri.Scheme}://{hostUri.DnsSafeHost}{contentLink}");
@@ -1439,10 +1439,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return false;
             }
 
-            this.sourceClientContext.Web.EnsureProperties(p => p.Url);
-            this.clientSidePage.Context.Web.EnsureProperties(p => p.Url);
-
-            if (this.sourceClientContext.Web.Url.Equals(this.clientSidePage.Context.Web.Url, StringComparison.InvariantCultureIgnoreCase))
+            if (this.sourceClientContext.Web.GetUrl().Equals(this.clientSidePage.Context.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
             {
                 return false;
             }

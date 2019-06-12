@@ -227,7 +227,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(sourceClientContext);
 
-                LogInfo($"{sourceClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
+                LogInfo($"{sourceClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
 
                 if (hasTargetContext)
                 {
@@ -248,7 +248,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         pageTransformationInformation.TargetPageTakesSourcePageName = true;
                     }
 
-                    LogInfo($"{targetClientContext.Web.Url}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
+                    LogInfo($"{targetClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
                 }
 
                 // Need to add further validation for target template
@@ -588,7 +588,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                             var sourcePageUrl = GetFieldValue(pageTransformationInformation, Constants.FileRefField);
                             var orginalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField);
-                            Uri host = new Uri(sourceClientContext.Web.Url);
+                            Uri host = new Uri(sourceClientContext.Web.GetUrl());
 
                             string path = $"{host.Scheme}://{host.DnsSafeHost}{sourcePageUrl.Replace(GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField), "")}";
 

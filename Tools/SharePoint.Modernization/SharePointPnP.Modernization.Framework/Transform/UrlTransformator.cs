@@ -44,13 +44,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Grab the needed information to drive url rewrite
             this.sourceContext = sourceContext;
             this.targetContext = targetContext;
-            //TODO 2010 Fix
-            this.sourceSiteUrl = sourceContext.Site.EnsureProperty(p => p.ServerRelativeUrl);
-            //TODO 2010 Fix
-            this.sourceWebUrl = sourceContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
+            
+            this.sourceSiteUrl = sourceContext.Site.EnsureProperty(p => p.Url);
+            this.sourceWebUrl = sourceContext.Web.GetUrl();
             this.pagesLibrary = CacheManager.Instance.GetPublishingPagesLibraryName(this.sourceContext);
-            //TODO 2010 Fix
-            this.targetWebUrl = targetContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
+            this.targetWebUrl = targetContext.Web.GetUrl();
         }
         #endregion
 

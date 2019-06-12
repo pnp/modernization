@@ -444,7 +444,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #region Users
         public UserEntity GetUserFromUserList(ClientContext context, int userListId)
         {
-            string key = context.Web.EnsureProperty(p => p.ServerRelativeUrl); //2010
+            string key = context.Web.GetUrl();
 
             if (this.userJsonStrings.TryGetValue(key, out Dictionary<int, UserEntity> userListFromCache))
             {
