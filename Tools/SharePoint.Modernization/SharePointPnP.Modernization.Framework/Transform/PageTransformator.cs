@@ -776,7 +776,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (!pageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)
                 {
                     TimeSpan duration = DateTime.Now.Subtract(transformationStartDateTime);
-                    this.pageTelemetry.LogTransformationDone(duration, pageType);
+                    this.pageTelemetry.LogTransformationDone(duration, pageType, pageTransformationInformation);
                     this.pageTelemetry.Flush();
                 }
 
