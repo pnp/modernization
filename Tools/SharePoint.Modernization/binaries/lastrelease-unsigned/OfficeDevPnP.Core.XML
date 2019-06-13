@@ -1755,8 +1755,63 @@
               Looks up a localized string similar to Scope of template does not match target.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI" -->
-        <!-- Badly formed XML comment ignored for member "P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI_CSS" -->
+        <member name="P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI">
+             <summary>
+               Looks up a localized string similar to /**
+             * PnP SharePoint - Responsiveness
+             * @see {@link https://github.com/SharePoint/PnP-Guidance/blob/master/articles/Embedding-JavaScript-into-SharePoint.md|PnP Guidance}
+             * @see {@link http://usejsdoc.org/|JSDoc}
+             */
+            
+             /*
+             * PnPResponsiveApp
+             * @namespace
+             */
+            if (window.hasOwnProperty(&apos;Type&apos;)) {
+                Type.registerNamespace(&apos;PnPResponsiveApp&apos;);
+            } else {
+                window.PnPResponsiveApp = window.PnPResponsiveApp || {};
+            }
+            
+             /**
+             * PnP Responsive
+             * @class
+             */
+             PnPResponsiveApp.Main = (function ()  [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI_CSS">
+             <summary>
+               Looks up a localized string similar to .mobile-only {
+                display: none;
+            }
+            
+            #sideNavBox, #contentRow, #siteIcon {
+                -webkit-transition: all 400ms ease;
+                -moz-transition: all 400ms ease;
+                -ms-transition: all 400ms ease;
+                -o-transition: all 400ms ease;
+                transition: all 400ms ease;
+            }
+            
+            #contentBox {
+                min-width: auto;
+            }
+            
+             /* Make sure dialog windows don&apos;t break */
+            .ms-dialog #contentRow {
+                margin-left: 0;
+            }
+            
+            .ms-dialog #contentBox {
+                margin-top: 0;
+            }
+            
+            .ms-dialog #s4-bodyContainer {
+                min-width: 0;
+               [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.TaxonomyExtension_CreateTerm01UnderParent2">
             <summary>
               Looks up a localized string similar to Creating term &apos;{0}|{1}&apos; under parent &apos;{2}&apos;..
@@ -5887,13 +5942,19 @@
             </summary>
             <param name="accessToken">The OAuth accessToken for Microsoft Graph with Azure AD</param>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility.EnableSiteClassifications(System.String,OfficeDevPnP.Core.Framework.Graph.Model.SiteClassificationsSettings)" -->
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility.EnableSiteClassifications(System.String,OfficeDevPnP.Core.Framework.Graph.Model.SiteClassificationsSettings)">
+            <summary>
+            Enables Site Classifications for the target tenant 
+            </summary>
+            <param name="accessToken">The OAuth accessToken for Microsoft Graph with Azure AD</param>
+            <param name="siteClassificationsSettings">The site classifications settings to apply.</param>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility.EnableSiteClassifications(System.String,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Enables Site Classifications for the target tenant 
             </summary>
             <param name="accessToken">The OAuth accessToken for Microsoft Graph with Azure AD</param>
-            <param name="classificationList">The list of classification values</param>
+            <param name="classificationsList">The list of classification values</param>
             <param name="defaultClassification">The default classification</param>
             <param name="usageGuidelinesUrl">The URL of a guidance page</param>
         </member>
@@ -5904,7 +5965,13 @@
             <param name="accessToken">The OAuth accessToken for Microsoft Graph with Azure AD</param>
             <returns>The list of Site Classification values</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility.UpdateSiteClassificationsSettings(System.String,OfficeDevPnP.Core.Framework.Graph.Model.SiteClassificationsSettings)" -->
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility.UpdateSiteClassificationsSettings(System.String,OfficeDevPnP.Core.Framework.Graph.Model.SiteClassificationsSettings)">
+            <summary>
+            Updates Site Classifications settings for the target tenant
+            </summary>
+            <param name="accessToken">The OAuth accessToken for Microsoft Graph with Azure AD</param>
+            <param name="siteClassificationsSettings">The site classifications settings to apply.</param>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility.UpdateSiteClassificationsSettings(System.String,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Updates Site Classifications settings for the target tenant
@@ -11908,7 +11975,7 @@
             Constructor for DataRow class
             </summary>
             <param name="values">DataRow Values</param>
-            <param name="key">Key column value in case of KeyColumn it set on collection</param>
+            <param name="keyValue">Key column value in case of KeyColumn it set on collection</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.DataRow.#ctor(System.Collections.Generic.Dictionary{System.String,System.String},OfficeDevPnP.Core.Framework.Provisioning.Model.ObjectSecurity)">
             <summary>
@@ -14663,6 +14730,7 @@
             </summary>
             <param name="scope">The PnP Provisioning Scope</param>
             <param name="parser">The PnP Token Parser</param>
+            <param name="connector">The PnP File Connector</param>
             <param name="team">The Team settings, including security settings</param>
             <param name="teamId">The ID of the target Team</param>
             <param name="accessToken">The OAuth 2.0 Access Token</param>
@@ -14757,8 +14825,7 @@
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.SimpleTokenDefinition.#ctor(System.String[])">
             <summary>
             Constructor
-            </summary>
-            <param name="web">Current site/subsite</param>
+            </summary>        
             <param name="token">token</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.SimpleTokenDefinition.GetTokens">
@@ -14787,6 +14854,11 @@
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.VolatileTokenDefinition">
             <summary>
             Defines a provisioning engine Token. Make sure to only use the TokenContext property to execute queries in token methods.
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.DateNowToken">
+            <summary>
+            Gets current date time in universal date time format yyyy-MM-ddTHH:mm:ss.fffK 
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.DateNowToken.#ctor(Microsoft.SharePoint.Client.Web)">
@@ -14907,7 +14979,7 @@
             Helper class holding public methods that used by the client side page object handler. The purpose is to be able to reuse these public methods in a extensibility provider
             </summary>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ClientSidePageContentsHelper.ExtractClientSidePage(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.String,System.Boolean)">
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ClientSidePageContentsHelper.ExtractClientSidePage(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
             Extracts a client side page
             </summary>
@@ -14918,6 +14990,7 @@
             <param name="pageUrl">Url of the page to extract</param>
             <param name="pageName">Name of the page to extract</param>
             <param name="isHomePage">Is this a home page?</param>
+            <param name="isTemplate">Is this a template?</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ListItemUtilities.TryDeserializeAsJson``1(System.String,``0@)">
             <summary>
@@ -14937,7 +15010,7 @@
             <summary>
             Creates child terms for the current model term if any exist
             </summary>
-            <param name="web"></param>
+            <param name="context"></param>
             <param name="modelTerm"></param>
             <param name="term"></param>
             <param name="termStore"></param>
@@ -14951,7 +15024,7 @@
             false for the first part of the the return tuple. this will notify the system
             that the term should be created instead of re-used.
             </summary>
-            <param name="web"></param>
+            <param name="context"></param>
             <param name="modelTerm"></param>
             <param name="parent"></param>
             <param name="termStore"></param>
@@ -15104,6 +15177,14 @@
             <param name="context"></param>
             <returns></returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectHandlerBase.TokenizeXml(System.String,Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Tokenize a XML snippet based attribute with {themecatalog} or {masterpagecatalog}
+            </summary>
+            <param name="xml">the XML snippet to tokenize as String</param>
+            <param name="web">Web being used</param>
+            <returns>tokenized xml as String</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectHandlerBase.Tokenize(System.String,System.String,Microsoft.SharePoint.Client.Web)">
             <summary>
             Tokenize a template item url based attribute with {themecatalog} or {masterpagecatalog} or {site}+
@@ -15112,20 +15193,6 @@
             <param name="webUrl">web url of the actual web as String</param>
             <param name="web">Web being used</param>
             <returns>tokenized url as String</returns>
-        </member>
-        <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTermGroups.TryReuseTermResult">
-            <summary>
-            Attempts to reuse the model term. If the term does not yet exists it will return
-            false for the first part of the the return tuple. this will notify the system
-            that the term should be created instead of re-used.
-            </summary>
-            <param name="web"></param>
-            <param name="modelTerm"></param>
-            <param name="parent"></param>
-            <param name="termStore"></param>
-            <param name="parser"></param>
-            <param name="scope"></param>
-            <returns></returns>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningMessageType">
             <summary>
@@ -15271,6 +15338,11 @@
             if true includes search configuration in the template
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation.IncludeAllClientSidePages">
+            <summary>
+            If true all client side pages will be included in the template.
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation.HandlersToProcess">
             <summary>
             List of of handlers to process
@@ -15293,6 +15365,19 @@
             <value>
               <c>true</c> if the export should contains content types issued from syndication (= content type hub)
             </value>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation.IncludeHiddenLists">
+            <summary>
+            Declares whether to include hidden lists in the output or not
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation.ListsToExtract">
+            <summary>
+            Optional argument to specify the collection of lists to extract
+            </summary>
+            <remarks>
+            Can contain the title or the ID of the lists to export
+            </remarks>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.SiteToTemplateConversion.GetRemoteTemplate(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation)">
             <summary>
@@ -37007,8 +37092,20 @@
             <param name="formatter">Provisioning Template formatter</param>
             <returns>Returns collection of ProvisioningTemplate</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetHierarchy(System.String)" -->
-        <!-- Badly formed XML comment ignored for member "M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetTemplate(System.String)" -->
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetHierarchy(System.String)">
+            <summary>
+            Gets ProvisioningHierarchy
+            </summary>
+            <param name="uri">The source uri</param>
+            <returns>Returns a ProvisioningHierarchy</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetTemplate(System.String)">
+            <summary>
+            Gets ProvisioningTemplate
+            </summary>
+            <param name="uri">The source uri</param>
+            <returns>Returns a ProvisioningTemplate</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetTemplate(System.String,OfficeDevPnP.Core.Framework.Provisioning.Providers.ITemplateProviderExtension[])">
             <summary>
             Gets ProvisioningTemplate
@@ -37052,12 +37149,18 @@
             <param name="extensions">Collection of provisioning template extensions</param>
             <returns>Returns a ProvisioningTemplate</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetTemplate(System.IO.Stream)" -->
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetTemplate(System.IO.Stream)">
+            <summary>
+            Gets ProvisioningTemplate
+            </summary>
+            <param name="stream">The source stream</param>
+            <returns>Returns a ProvisioningTemplate</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.TemplateProviderBase.GetTemplate(System.IO.Stream,OfficeDevPnP.Core.Framework.Provisioning.Providers.ITemplateProviderExtension[])">
             <summary>
             Gets ProvisioningTemplate
             </summary>
-            <param name="uri">The source uri</param>
+            <param name="stream">The source stream</param>
             <param name="extensions">Collection of provisioning template extensions</param>
             <returns>Returns a ProvisioningTemplate</returns>
         </member>
@@ -37065,7 +37168,7 @@
             <summary>
             Gets ProvisioningTemplate
             </summary>
-            <param name="uri">The source uri</param>
+            <param name="stream">The source stream</param>
             <param name="identifier">ProvisioningTemplate identifier</param>
             <returns>Returns a ProvisioningTemplate</returns>
         </member>
@@ -37073,7 +37176,7 @@
             <summary>
             Gets ProvisioningTemplate
             </summary>
-            <param name="uri">The source uri</param>
+            <param name="stream">The source stream</param>
             <param name="formatter">Provisioning Template formatter</param>
             <returns>Returns a ProvisioningTemplate</returns>
         </member>
@@ -37081,7 +37184,7 @@
             <summary>
             Gets ProvisioningTemplate
             </summary>
-            <param name="uri">The source uri</param>
+            <param name="stream">The source stream</param>
             <param name="identifier">ProvisioningTemplate identifier</param>
             <param name="formatter">Provisioning Template formatter</param>
             <returns>Returns a ProvisioningTemplate</returns>
@@ -37090,7 +37193,7 @@
             <summary>
             Gets ProvisioningTemplate
             </summary>
-            <param name="uri">The source uri</param>
+            <param name="stream">The source stream</param>
             <param name="identifier">ProvisioningTemplate identifier</param>
             <param name="formatter">Provisioning Template formatter</param>
             <param name="extensions">Collection of provisioning template extensions</param>
@@ -37601,6 +37704,7 @@
             <param name="persistenceConnector">The FileConnector object that will be used for physical persistence of the file</param>
             <param name="author">The Author of the .PNP package file, if any. Optional</param>
             <param name="signingCertificate">The X.509 certificate to use for digital signature of the template, optional</param>
+            <param name="templateFileName">The name of the tempalte file, optional</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Connectors.OpenXMLConnector.GetFiles">
             <summary>
@@ -42218,6 +42322,7 @@
             Refreshes the SharePoint FedAuth cookie
             </summary>
             <param name="siteUrl">Url of the SharePoint site that's secured via ADFS</param>
+            <param name="serialNumber">Certificate's serial number. Can be found in Serial number field in the certificate.</param>
             <param name="sts">Hostname of the ADFS server (e.g. sts.company.com)</param>
             <param name="idpId">Identifier of the ADFS relying party that we're hitting</param>
             <param name="logonTokenCacheExpirationWindow">Optioanlly provide the value of the SharePoint STS logonTokenCacheExpirationWindow. Defaults to 10 minutes.</param>
@@ -43249,6 +43354,14 @@
             <param name="context">Context to operate against</param>
             <param name="alias">Alias to check</param>
             <returns>True if in use, false otherwise</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.TeamifySiteAsync(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Enable Microsoft Teams team in an O365 group connected team site
+            Will also enable it on a newly Groupified classic site
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
         </member>
         <member name="T:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation">
             <summary>
@@ -44875,6 +44988,13 @@
             <param name="clientContext">ClientContext of the site to operate against</param>
             <param name="alias">Alias to verify</param>
             <returns>True if in use, false otherwise</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.TeamifyAsync(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Enable MS Teams team on a group connected team site
+            </summary>
+            <param name="clientContext"></param>
+            <returns></returns>
         </member>
         <member name="T:Microsoft.SharePoint.Client.ClientObjectExtensions">
             <summary>
@@ -47330,8 +47450,20 @@
             <param name="web">Web to operate on</param>
             <returns>True if site is closed, false otherwise</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Microsoft.SharePoint.Client.InformationManagementExtensions.IsClosedBySitePolicyAsync(Microsoft.SharePoint.Client.Web)" -->
-        <!-- Badly formed XML comment ignored for member "M:Microsoft.SharePoint.Client.InformationManagementExtensions.IsClosedBySitePolicyImplementation(Microsoft.SharePoint.Client.Web)" -->
+        <member name="M:Microsoft.SharePoint.Client.InformationManagementExtensions.IsClosedBySitePolicyAsync(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Check if a site is closed
+            </summary>
+            <param name="web">Web to operate on</param>
+            <returns>True if site is closed, false otherwise</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.InformationManagementExtensions.IsClosedBySitePolicyImplementation(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Check if a site is closed
+            </summary>
+            <param name="web">Web to operate on</param>
+            <returns>True if site is closed, false otherwise</returns>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.InformationManagementExtensions.SetClosedBySitePolicy(Microsoft.SharePoint.Client.Web)">
             <summary>
             Close a site, if it has a site policy applied and is currently not closed
@@ -50032,7 +50164,14 @@
             <param name="tenant">A tenant object pointing to the context of a Tenant Administration site </param>
             <returns>UserProfileService web service client</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Microsoft.SharePoint.Client.TenantExtensions.EnableSiteClassifications(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,OfficeDevPnP.Core.Framework.Graph.Model.SiteClassificationsSettings)" -->
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.EnableSiteClassifications(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,OfficeDevPnP.Core.Framework.Graph.Model.SiteClassificationsSettings)">
+            <summary>
+            Enables Site Classifications for the target tenant 
+            </summary>
+            <param name="tenant">The target tenant</param>
+            <param name="accessToken">The OAuth accessToken for Microsoft Graph with Azure AD</param>
+            <param name="siteClassificationsSettings">The site classifications settings to apply.</param>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.EnableSiteClassifications(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
             <summary>
             Enables Site Classifications for the target tenant 

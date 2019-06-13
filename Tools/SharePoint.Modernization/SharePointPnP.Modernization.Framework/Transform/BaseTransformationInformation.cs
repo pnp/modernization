@@ -23,11 +23,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public File SourceFile { get; set; }
 
         /// <summary>
-        /// Folder where the page to transform lives in
-        /// </summary>
-        internal string Folder { get; set; }
-
-        /// <summary>
         /// Overwrite the target page if it already exists?
         /// </summary>
         public bool Overwrite { get; set; }
@@ -99,6 +94,27 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public bool SkipTelemetry { get; set; }
         #endregion
 
+        #region Internal fields, not settable by 3rd party
+        /// <summary>
+        /// Folder where the page to transform lives in
+        /// </summary>
+        internal string Folder { get; set; }
+
+        /// <summary>
+        /// Indicates if this transformation spans farms (on-prem to online tenant, online tenant A to online tenant B)
+        /// </summary>
+        internal bool IsCrossFarmTransformation { get; set; }
+        
+        /// <summary>
+        /// SharePoint version of the source 
+        /// </summary>
+        internal SPVersion SourceVersion { get; set; }
+
+        /// <summary>
+        /// SharePoint version of the target 
+        /// </summary>
+        internal SPVersion TargetVersion { get; set; }
+        #endregion
 
     }
 }

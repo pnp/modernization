@@ -138,7 +138,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // Disable cross-farm item level permissions from copying
-            EnsureItemLevelPermissionsContextsSupported(publishingPageTransformationInformation);
+            CrossFarmTransformationValidation(publishingPageTransformationInformation);
 
             LogDebug(LogStrings.ValidationChecksComplete, LogStrings.Heading_InputValidation);
             #endregion
@@ -494,7 +494,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 if (!publishingPageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)
                 {
                     TimeSpan duration = DateTime.Now.Subtract(transformationStartDateTime);
-                    this.pageTelemetry.LogTransformationDone(duration, pageType);
+                    this.pageTelemetry.LogTransformationDone(duration, pageType, publishingPageTransformationInformation);
                     this.pageTelemetry.Flush();
                 }
 

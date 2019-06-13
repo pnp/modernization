@@ -284,6 +284,7 @@
     <Compile Include="Transform\PageTransformator.cs" />
     <Compile Include="Transform\HtmlTransformator.cs" />
     <Compile Include="Transform\QuickLinksTransformator.cs" />
+    <Compile Include="Transform\SPVersion.cs" />
     <Compile Include="Transform\SummaryLinksHtmlTransformator.cs" />
     <Compile Include="Transform\TokenParser.cs" />
     <Compile Include="Transform\UrlTransformator.cs" />

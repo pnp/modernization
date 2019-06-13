@@ -12,7 +12,15 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [June release (unreleased)]
+## [Unreleased]
+
+## Added
+
+## Changed
+
+- User fields are now correctly copied over in cross site publishing transformation scenarios #184
+
+## [June release - version 1.0.1906.0]
 
 ## Added
 

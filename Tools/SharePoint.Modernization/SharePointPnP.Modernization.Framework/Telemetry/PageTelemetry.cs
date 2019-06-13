@@ -1,5 +1,6 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 
@@ -37,7 +38,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         }
         #endregion
 
-        public void LogTransformationDone(TimeSpan duration, string pageType)
+        public void LogTransformationDone(TimeSpan duration, string pageType, BaseTransformationInformation baseTransformationInformation)
         {
             if (this.telemetryClient == null)
             {
@@ -61,6 +62,19 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                 this.telemetryClient.GetMetric($"TransformationEngine.PagesTransformed").TrackValue(1);
                 this.telemetryClient.GetMetric($"TransformationEngine.PageDuration").TrackValue(duration.TotalSeconds);
                 this.telemetryClient.GetMetric($"TransformationEngine.{pageType}").TrackValue(1);
+
+                // Log source environment type 
+                this.telemetryClient.GetMetric($"TransformationEngine.Source{baseTransformationInformation.SourceVersion.ToString()}").TrackValue(1);
+
+                // Cross farm or not?
+                if (baseTransformationInformation.IsCrossFarmTransformation)
+                {
+                    this.telemetryClient.GetMetric($"TransformationEngine.CrossFarmTransformation").TrackValue(1);
+                }
+                else
+                {
+                    this.telemetryClient.GetMetric($"TransformationEngine.IntraFarmTransformation").TrackValue(1);
+                }
             }
             catch
             {
