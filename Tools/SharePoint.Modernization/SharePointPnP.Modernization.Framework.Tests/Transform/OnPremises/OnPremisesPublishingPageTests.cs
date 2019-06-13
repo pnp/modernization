@@ -22,6 +22,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
+                    //Quick test if SP2010 has this API property.
+                    sourceClientContext.ExecuteQuery();
+                    Console.WriteLine(sourceClientContext.ServerLibraryVersion);
+
                     var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 

@@ -64,5 +64,28 @@ namespace SharePointPnP.Modernization.Framework.Extensions
 
             return hasMinimalVersion;
         }
+
+        /// <summary>
+        /// Is the connected server SharePoint 2010
+        /// </summary>
+        /// <param name="clientContext"></param>
+        /// <returns></returns>
+        public static bool IsSharePoint2010(this ClientRuntimeContext clientContext)
+        {
+            //Get 2013 version. - TEMP
+
+            try
+            {
+                // This works in 2010
+                clientContext.ExecuteQueryRetry();
+                return clientContext.ServerLibraryVersion.CompareTo(Constants.MinimumRequiredVersion_SP2013) >= 0;
+            }
+            catch (PropertyOrFieldNotInitializedException)
+            {
+                // swallow the exception.
+            }
+
+            return false;
+        }
     }
 }
