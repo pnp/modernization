@@ -79,10 +79,5 @@ namespace SharePointPnP.Modernization.Framework
                                                                          "PageFromDocLayout", "WelcomeSplash", "ErrorLayout", "EnterpriseWiki", "CatalogArticle", "CatalogWelcome",
                                                                          "PageLayoutTemplate", "RedirectPageLayout", "VariationRootPageLayout" };
 
-
-        public const string MinimumRequiredVersion_SP2010 = "14.0.4763.1000"; //RTM
-        public const string MinimumRequiredVersion_SP2013 = "​15.0.4420.1017"; //RTM
-        public const string MinimumRequiredVersion_SP2016 = "16.0.4327.1000"; //RTM
-        public const string MinimumRequiredVersion_SP2019 = "16.0.10711.37301"; //RTM
     }
 }
