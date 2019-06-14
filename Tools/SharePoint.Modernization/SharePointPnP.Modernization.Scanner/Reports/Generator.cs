@@ -215,6 +215,7 @@ namespace SharePoint.Modernization.Scanner.Reports
             DataTable pubPagesBaseTable = null;
             DataTable pubWebsTable = null;
             DataTable pubPagesTable = null;
+            DataTable pubPagesMissingWebPartsTable = null;
             ScanSummary scanSummary = null;
 
             var outputfolder = ".";
@@ -313,6 +314,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                         // Read the file                    
                         pubPagesBaseTable = parser.GetDataTable();
 
+                        // Table 1
                         var pubPagesTable1 = pubPagesBaseTable.Copy();
                         // clean table
                         string[] columnsToKeep = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "PageRelativeUrl", "PageName", "ContentType", "ContentTypeId", "PageLayout", "PageLayoutFile", "PageLayoutWasCustomized", "GlobalAudiences", "SecurityGroupAudiences", "SharePointGroupAudiences", "ModifiedAt", "Mapping %" };
@@ -326,6 +328,34 @@ namespace SharePoint.Modernization.Scanner.Reports
                         {
                             pubPagesTable.Merge(pubPagesTable1);
                         }
+
+                        // Table 2
+                        var pubPagesMissingWebPartsTable1 = pubPagesBaseTable.Copy();
+                        // clean table
+                        columnsToKeep = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "PageRelativeUrl", "Unmapped web parts" };
+                        pubPagesMissingWebPartsTable1 = DropTableColumns(pubPagesMissingWebPartsTable1, columnsToKeep);
+
+                        // expand rows
+                        pubPagesMissingWebPartsTable1 = ExpandRows(pubPagesMissingWebPartsTable1, "Unmapped web parts");
+                        // delete "unneeded" rows
+                        for (int i = pubPagesMissingWebPartsTable1.Rows.Count - 1; i >= 0; i--)
+                        {
+                            DataRow dr = pubPagesMissingWebPartsTable1.Rows[i];
+                            if (string.IsNullOrEmpty(dr["Unmapped web parts"].ToString()))
+                            {
+                                dr.Delete();
+                            }
+                        }
+
+                        if (pubPagesMissingWebPartsTable == null)
+                        {
+                            pubPagesMissingWebPartsTable = pubPagesMissingWebPartsTable1;
+                        }
+                        else
+                        {
+                            pubPagesMissingWebPartsTable.Merge(pubPagesMissingWebPartsTable1);
+                        }
+
                     }
                 }
             }
@@ -390,6 +420,12 @@ namespace SharePoint.Modernization.Scanner.Reports
                 if (pubPagesTable != null)
                 {
                     InsertTableData(pubPagesSheet.Tables[0], pubPagesTable);
+                }
+
+                var unmappedWebPartsSheet = excel.Workbook.Worksheets["UnmappedWebParts"];
+                if (pubPagesMissingWebPartsTable != null)
+                {
+                    InsertTableData(unmappedWebPartsSheet.Tables[0], pubPagesMissingWebPartsTable);
                 }
 
                 // Save the resulting file

@@ -8,6 +8,8 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ### Added
 
+- Publishing page report now shows "web part transformation compatibility" graphs
+
 ### Changed
 
 - Improved report generation from multiple individual scans (-g parameter):
