@@ -260,6 +260,7 @@
     <Compile Include="Telemetry\ScannerTelemetry.cs" />
     <Compile Include="Telemetry\TelemetryEvents.cs" />
     <Compile Include="Telemetry\VersionCheck.cs" />
+    <Compile Include="Utilities\PageTransformationManager.cs" />
     <Compile Include="Utilities\WebpartMappingLoader.cs" />
   </ItemGroup>
   <ItemGroup>

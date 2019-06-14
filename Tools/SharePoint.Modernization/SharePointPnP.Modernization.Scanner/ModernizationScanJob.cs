@@ -7,7 +7,6 @@ using System.Collections.Concurrent;
 using SharePoint.Modernization.Scanner.Results;
 using SharePoint.Modernization.Scanner.Analyzers;
 using Microsoft.Online.SharePoint.TenantAdministration;
-using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
 using SharePointPnP.Modernization.Framework;
@@ -318,38 +317,8 @@ namespace SharePoint.Modernization.Scanner
                 this.SPOTenant = new Tenant(ccAdmin);
             }
 
-            // Load xml mapping data
-            XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
-
-            // If there's a webpartmapping file in the .exe folder then use that
-            if (System.IO.File.Exists("webpartmapping.xml"))
-            {
-                using (var stream = new FileStream("webpartmapping.xml", FileMode.Open))
-                {
-                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
-                }
-            }
-            else
-            {
-                // No webpartmapping file found, let's grab the embedded one
-                string webpartMappingString = WebpartMappingLoader.LoadFile("SharePoint.Modernization.Scanner.webpartmapping.xml");
-                using (var stream = WebpartMappingLoader.GenerateStreamFromString(webpartMappingString))
-                {
-                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
-
-                    // Drop web parts that have community mappings as we're not sure if that mapping will be used. This is 
-                    // needed to align with the older model where the community mapping was in comments in the standard
-                    // mapping file.
-                    var webPartsWithMappingsToRemove = this.PageTransformation.WebParts.Where(p => p.Type.Equals(WebParts.ScriptEditor) || p.Type.Equals(WebParts.SimpleForm));
-                    if (webPartsWithMappingsToRemove.Any())
-                    {
-                        foreach(var webPart in webPartsWithMappingsToRemove)
-                        {
-                            webPart.Mappings = null;
-                        }
-                    }
-                }
-            }
+            // Load the pagetransformation model that the scanner will use
+            this.PageTransformation = new PageTransformationManager().LoadPageTransformationModel();
 
             return sites;
         }
@@ -695,7 +664,7 @@ namespace SharePoint.Modernization.Scanner
                     outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "PageRelativeUrl", "PageName",
                                                    "ContentType", "ContentTypeId", "PageLayout", "PageLayoutFile", "PageLayoutWasCustomized",
                                                    "GlobalAudiences", "SecurityGroupAudiences", "SharePointGroupAudiences",
-                                                   "ModifiedAt", "ModifiedBy", "Mapping %"
+                                                   "ModifiedAt", "ModifiedBy", "Mapping %", "Unmapped web parts"
                                                  };
 
                     string header1 = string.Join(this.Separator, outputHeaders);
@@ -721,7 +690,7 @@ namespace SharePoint.Modernization.Scanner
                             var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.PageRelativeUrl), ToCsv(item.Value.PageName),
                                                                     ToCsv(item.Value.ContentType), ToCsv(item.Value.ContentTypeId), ToCsv(item.Value.PageLayout), ToCsv(item.Value.PageLayoutFile), item.Value.PageLayoutWasCustomized,
                                                                     ToCsv(PublishingPageScanResult.FormatList(item.Value.GlobalAudiences)), ToCsv(PublishingPageScanResult.FormatList(item.Value.SecurityGroupAudiences, "|")), ToCsv(PublishingPageScanResult.FormatList(item.Value.SharePointGroupAudiences)),
-                                                                    item.Value.ModifiedAt, ToCsv(item.Value.ModifiedBy), "{MappingPercentage}"
+                                                                    item.Value.ModifiedAt, ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
                                 );
 
                             string part2 = "";

@@ -21,7 +21,7 @@ SharePoint.Modernization.Scanner | Bert Jansen (**Microsoft**)
 
 Version  | Date | Comments
 ---------| -----| --------
-2.4 | February 16th 2019 | Performance improvements (40% faster for full scan) + embedded webpartmapping.xml file. Scanner distribution is not single .exe
+2.4 | February 16th 2019 | Performance improvements (40% faster for full scan) + embedded webpartmapping.xml file. Scanner distribution is now a single .exe
 2.3 | December 12th 2018 | Using latest PnP Sites Core library with updated throttling implementation, several small reliability improvements, export SiteId in ModernizationSiteScanResults.csv, built-in check to see if there's a newer version available, generation of SitesWithCustomizations.csv
 2.2 | November 9th 2018 | Updated complexity calculation for publishing portals, updated list of modern capable lists (850), improved telemetry and error handling, bug fixing
 2.1 | October 24th 2018 | Publishing portal analysis improvements: detect custom page layouts, classify publishing portals in simple/medium/complex
