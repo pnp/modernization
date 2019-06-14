@@ -119,7 +119,9 @@
         ScheduledPublishing,
         AudienceTargeting,
         Languages,
-        VariationLabels
+        VariationLabels,
+        WebPartMapping,
+        UnMappedWebParts
     }
 
 }

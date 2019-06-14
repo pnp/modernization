@@ -597,7 +597,7 @@ namespace SharePoint.Modernization.Scanner
                 // Telemetry
                 if (this.ScannerTelemetry != null)
                 {
-                    this.ScannerTelemetry.LogPublishingScan(this.PublishingSiteScanResults, this.PublishingWebScanResults, this.PublishingPageScanResults);
+                    this.ScannerTelemetry.LogPublishingScan(this.PublishingSiteScanResults, this.PublishingWebScanResults, this.PublishingPageScanResults, this.PageTransformation);
                 }
 
                 // Export the site publishing data

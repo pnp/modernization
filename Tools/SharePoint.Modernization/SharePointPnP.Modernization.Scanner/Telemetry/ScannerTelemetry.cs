@@ -349,9 +349,11 @@ namespace SharePoint.Modernization.Scanner.Telemetry
         /// <param name="publishingSiteScanResults">Scanned publishing portals</param>
         /// <param name="publishingWebScanResults">Scanned publishing webs</param>
         /// <param name="publishingPageScanResults">Scanned publishing pages</param>
+        /// <param name="pageTransformation">Page transformation data</param>
         public void LogPublishingScan(Dictionary<string, PublishingSiteScanResult> publishingSiteScanResults, 
                                       ConcurrentDictionary<string, PublishingWebScanResult> publishingWebScanResults,
-                                      ConcurrentDictionary<string, PublishingPageScanResult> publishingPageScanResults)
+                                      ConcurrentDictionary<string, PublishingPageScanResult> publishingPageScanResults,
+                                      PageTransformation pageTransformation)
         {
             if (this.telemetryClient == null)
             {
@@ -390,6 +392,9 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Metric audienceTargeting = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.AudienceTargeting.ToString()}", "Publishing.AudienceTargeting");
                 Metric languages = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.Languages.ToString()}", "Publishing.Languages");
                 Metric variationLabels = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.VariationLabels.ToString()}", "Publishing.VariationLabels");
+                Metric webPartMapping = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.WebPartMapping.ToString()}", "Publishing.WebPartMapping");
+                Metric unMappedWebParts = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.UnMappedWebParts.ToString()}", "Publishing.UnMappedWebParts");
+
 
                 // The metrics automatically aggregate and only send once a minute to app insights...so this approach does not result in extra traffic
                 foreach (var item in publishingWebScanResults)
@@ -418,6 +423,35 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                         WriteMetric(audienceTargeting, (item.Value.SecurityGroupAudiences != null && item.Value.SecurityGroupAudiences.Count > 0) ||
                                                        (item.Value.SharePointGroupAudiences != null && item.Value.SharePointGroupAudiences.Count > 0) ||
                                                        (item.Value.GlobalAudiences != null && item.Value.GlobalAudiences.Count > 0));
+
+                        if (item.Value.WebParts != null)
+                        {
+                            int webPartsOnPage = item.Value.WebParts.Count();
+                            int webPartsOnPageMapped = 0;
+                            List<string> nonMappedWebParts = new List<string>();
+                            foreach (var webPart in item.Value.WebParts.OrderBy(p => p.Row).ThenBy(p => p.Column).ThenBy(p => p.Order))
+                            {
+                                var found = pageTransformation.WebParts.Where(p => p.Type.Equals(webPart.Type, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                                if (found != null && found.Mappings != null)
+                                {
+                                    webPartsOnPageMapped++;
+                                }
+                                else
+                                {
+                                    var t = webPart.Type.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0];
+                                    if (!nonMappedWebParts.Contains(t))
+                                    {
+                                        nonMappedWebParts.Add(t);
+                                    }
+                                }
+                            }
+
+                            WriteMetric(webPartMapping, String.Format("{0:0}", (((double)webPartsOnPageMapped / (double)webPartsOnPage) * 100)));
+                            foreach (var w in nonMappedWebParts)
+                            {
+                                WriteMetric(unMappedWebParts, w);
+                            }
+                        }
                     }
                 }
             }
