@@ -1,10 +1,12 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using File = Microsoft.SharePoint.Client.File;
 
 namespace SharePointPnP.Modernization.Framework.Extensions
 {
@@ -27,19 +29,41 @@ namespace SharePointPnP.Modernization.Framework.Extensions
         {
 
             var file = web.GetFileByServerRelativeUrl(serverRelativeUrl);
-            
-            web.Context.Load(file);
-            web.Context.ExecuteQueryRetry();
+            var context = web.Context;
+            context.Load(file);
+            context.ExecuteQueryRetry();
 
-            ClientResult<Stream> stream = file.OpenBinaryStream();
+            var spVersion = BaseTransform.GetVersion(context);
 
-            web.Context.ExecuteQueryRetry();
+            Stream sourceStream = null;
 
+            if (spVersion == SPVersion.SP2010)
+            {
+                sourceStream = new MemoryStream();
+
+                if (context.HasPendingRequest)
+                {
+                    context.ExecuteQuery();
+                }
+                var fileBinary = File.OpenBinaryDirect((ClientContext)context, serverRelativeUrl);
+                context.ExecuteQueryRetry();
+                Stream tempSourceStream = fileBinary.Stream;
+
+                CopyStream(tempSourceStream, sourceStream);
+                sourceStream.Seek(0, SeekOrigin.Begin);
+
+            }
+            else
+            {
+                ClientResult<Stream> stream = file.OpenBinaryStream();
+                web.Context.ExecuteQueryRetry();
+                sourceStream = stream.Value;
+            }
             string returnString = string.Empty;
 
             using (Stream memStream = new MemoryStream())
             {
-                CopyStream(stream.Value, memStream);
+                CopyStream(sourceStream, memStream);
                 memStream.Position = 0;
 
                 StreamReader reader = new StreamReader(memStream);

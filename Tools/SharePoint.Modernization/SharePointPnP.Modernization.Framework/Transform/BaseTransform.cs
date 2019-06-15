@@ -180,7 +180,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="clientContext"></param>
         /// <returns></returns>
-        internal SPVersion GetVersion(ClientRuntimeContext clientContext)
+        public static SPVersion GetVersion(ClientRuntimeContext clientContext)
         {
             Uri urlUri = new Uri(clientContext.Url);
 
