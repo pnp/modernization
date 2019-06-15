@@ -59,8 +59,15 @@ namespace SharePointPnP.Modernization.Framework.Cache
             userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
             contentTypes = new ConcurrentDictionary<string, string>();
             publishingContentTypeFields = new ConcurrentDictionary<string, List<FieldData>>();
+            SharepointVersions = new ConcurrentDictionary<Uri, SPVersion>();
         }
         #endregion
+
+        /// <summary>
+        /// List of URLs and SharePoint Versions
+        /// </summary>
+        public ConcurrentDictionary<Uri, SPVersion> SharepointVersions { get; }
+
 
         #region Asset Transfer
         /// <summary>
@@ -68,6 +75,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// </summary>
         public List<AssetTransferredEntity> AssetsTransfered { get; set; }
         #endregion
+
+
 
         #region Client Side Components
         /// <summary>
@@ -437,8 +446,18 @@ namespace SharePointPnP.Modernization.Framework.Cache
             this.AssetsTransfered.Clear();
             ClearClientSideComponents();
             ClearBaseTemplate();
-            ClearFieldsToCopy();            
+            ClearFieldsToCopy();
+            ClearSharePointVersions();
         }
+
+        /// <summary>
+        /// Clears Cached SharePoint versions
+        /// </summary>
+        public void ClearSharePointVersions()
+        {
+            this.SharepointVersions.Clear();
+        }
+
         #endregion
 
         #region Users

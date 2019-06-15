@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
@@ -181,70 +182,85 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         internal SPVersion GetVersion(ClientRuntimeContext clientContext)
         {
-            try
+            Uri urlUri = new Uri(clientContext.Url);
+
+            if (CacheManager.Instance.SharepointVersions.ContainsKey(urlUri))
             {
-                Uri urlUri = new Uri(clientContext.Url);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{urlUri.Scheme}://{urlUri.DnsSafeHost}:{urlUri.Port}/_vti_pvt/service.cnf");
-                request.UseDefaultCredentials = true;
-
-                var response = request.GetResponse();
-
-                using (var dataStream = response.GetResponseStream())
+                return CacheManager.Instance.SharepointVersions[urlUri];
+            }
+            else
+            {
+                try
                 {
-                    // Open the stream using a StreamReader for easy access.
-                    using (System.IO.StreamReader reader = new System.IO.StreamReader(dataStream))
+                    
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{urlUri.Scheme}://{urlUri.DnsSafeHost}:{urlUri.Port}/_vti_pvt/service.cnf");
+                    request.UseDefaultCredentials = true;
+
+                    var response = request.GetResponse();
+
+                    using (var dataStream = response.GetResponseStream())
                     {
-                        // Read the content.Will be in this format
-                        // SPO:
-                        //vti_encoding: SR | utf8 - nl
-                        //vti_extenderversion: SR | 16.0.0.8929
-                        // SP2019:
-                        // vti_encoding:SR|utf8-nl
-                        // vti_extenderversion:SR|16.0.0.10340
-                        // SP2016:
-                        // vti_encoding: SR | utf8 - nl
-                        // vti_extenderversion: SR | 16.0.0.4732
-                        // SP2013:
-                        // vti_encoding:SR|utf8-nl
-                        // vti_extenderversion: SR | 15.0.0.4505
-                        // Version numbers from https://buildnumbers.wordpress.com/sharepoint/
-
-                        string version = reader.ReadToEnd().Split('|')[2].Trim();
-
-                        if (Version.TryParse(version, out Version v))
+                        // Open the stream using a StreamReader for easy access.
+                        using (System.IO.StreamReader reader = new System.IO.StreamReader(dataStream))
                         {
-                            if (v.Major == 14)
+                            // Read the content.Will be in this format
+                            // SPO:
+                            //vti_encoding: SR | utf8 - nl
+                            //vti_extenderversion: SR | 16.0.0.8929
+                            // SP2019:
+                            // vti_encoding:SR|utf8-nl
+                            // vti_extenderversion:SR|16.0.0.10340
+                            // SP2016:
+                            // vti_encoding: SR | utf8 - nl
+                            // vti_extenderversion: SR | 16.0.0.4732
+                            // SP2013:
+                            // vti_encoding:SR|utf8-nl
+                            // vti_extenderversion: SR | 15.0.0.4505
+                            // Version numbers from https://buildnumbers.wordpress.com/sharepoint/
+
+                            string version = reader.ReadToEnd().Split('|')[2].Trim();
+
+                            if (Version.TryParse(version, out Version v))
                             {
-                                return SPVersion.SP2010;
-                            }
-                            else if (v.Major == 15)
-                            {
-                                return SPVersion.SP2013;
-                            }
-                            else if (v.Major == 16)
-                            {
-                                if (v.MinorRevision < 6000)
+                                if (v.Major == 14)
                                 {
-                                    return SPVersion.SP2016;
+                                    CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2010);
+                                    return SPVersion.SP2010;
                                 }
-                                else if (v.MinorRevision > 10300)
+                                else if (v.Major == 15)
                                 {
-                                    return SPVersion.SP2019;
+                                    CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013);
+                                    return SPVersion.SP2013;
                                 }
-                                else
+                                else if (v.Major == 16)
                                 {
-                                    return SPVersion.SPO;
+                                    if (v.MinorRevision < 6000)
+                                    {
+                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016);
+                                        return SPVersion.SP2016;
+                                    }
+                                    else if (v.MinorRevision > 10300)
+                                    {
+                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2019);
+                                        return SPVersion.SP2019;
+                                    }
+                                    else
+                                    {
+                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SPO);
+                                        return SPVersion.SPO;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            catch (WebException ex)
-            {
-                // todo
+                catch (WebException ex)
+                {
+                    // todo
+                }
             }
 
+            CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SPO);
             return SPVersion.SPO;
         }
         #endregion
