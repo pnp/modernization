@@ -44,8 +44,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Grab the needed information to drive url rewrite
             this.sourceContext = sourceContext;
             this.targetContext = targetContext;
-            
-            this.sourceSiteUrl = sourceContext.Site.EnsureProperty(p => p.Url);
+
+            sourceContext.Site.EnsureProperties(p => p.ServerRelativeUrl, p => p.Url);
+
+            this.sourceSiteUrl = sourceContext.Site.Url;
             this.sourceWebUrl = sourceContext.Web.GetUrl();
             this.pagesLibrary = CacheManager.Instance.GetPublishingPagesLibraryName(this.sourceContext);
             this.targetWebUrl = targetContext.Web.GetUrl();
