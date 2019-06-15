@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 
 
@@ -563,75 +562,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
         #endregion
 
-        #region Helper methods
-        private SPVersion GetVersion(ClientRuntimeContext clientContext)
-        {
-            try
-            {
-                Uri urlUri = new Uri(clientContext.Url);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{urlUri.Scheme}://{urlUri.DnsSafeHost}:{urlUri.Port}/_vti_pvt/service.cnf");
-                request.UseDefaultCredentials = true;
-
-                var response = request.GetResponse();
-
-                using (var dataStream = response.GetResponseStream())
-                {
-                    // Open the stream using a StreamReader for easy access.
-                    using (System.IO.StreamReader reader = new System.IO.StreamReader(dataStream))
-                    {
-                        // Read the content.Will be in this format
-                        // SPO:
-                        //vti_encoding: SR | utf8 - nl
-                        //vti_extenderversion: SR | 16.0.0.8929
-                        // SP2019:
-                        // vti_encoding:SR|utf8-nl
-                        // vti_extenderversion:SR|16.0.0.10340
-                        // SP2016:
-                        // vti_encoding: SR | utf8 - nl
-                        // vti_extenderversion: SR | 16.0.0.4732
-                        // SP2013:
-                        // vti_encoding:SR|utf8-nl
-                        // vti_extenderversion: SR | 15.0.0.4505
-                        // Version numbers from https://buildnumbers.wordpress.com/sharepoint/
-
-                        string version = reader.ReadToEnd().Split('|')[2].Trim();
-
-                        if (Version.TryParse(version, out Version v))
-                        {
-                            if (v.Major == 14)
-                            {
-                                return SPVersion.SP2010;
-                            }
-                            else if (v.Major == 15)
-                            {
-                                return SPVersion.SP2013;
-                            }
-                            else if (v.Major == 16)
-                            {
-                                if (v.MinorRevision < 6000)
-                                {
-                                    return SPVersion.SP2016;
-                                }
-                                else if (v.MinorRevision > 10300)
-                                {
-                                    return SPVersion.SP2019;
-                                }
-                                else
-                                {
-                                    return SPVersion.SPO;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                // todo
-            }
-
-            return SPVersion.SPO;
-        }
-        #endregion
+        
     }
 }
