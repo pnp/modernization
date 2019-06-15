@@ -452,7 +452,7 @@ namespace Microsoft.SharePoint.Client
         {
             
             var siteCtx = web.Context.GetSiteCollectionContext();
-            siteCtx.Site.EnsureProperties(p => p.Url);
+            siteCtx.Site.EnsureProperties(p => p.ServerRelativeUrl,p => p.Url);
             web.EnsureProperties(p => p.ServerRelativeUrl);
 
             var siteUri = new Uri(siteCtx.Site.Url);
@@ -465,23 +465,5 @@ namespace Microsoft.SharePoint.Client
 
         }
 
-        /// <summary>
-        /// Detects for SharePoint 2010
-        /// </summary>
-        /// <param name="web"></param>
-        /// <returns></returns>
-        public static bool IsSharePoint2010(this Web web)
-        {
-            // Use the missing URL property from CSOM to determine if this is SharePoint 2010s
-            try
-            {
-                web.EnsureProperty(p => p.Url);
-                return false;
-
-            }catch(Exception ex)
-            {
-                return true;
-            }
-        }
     }
 }
