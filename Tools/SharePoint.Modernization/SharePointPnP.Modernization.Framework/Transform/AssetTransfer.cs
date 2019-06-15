@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using File = Microsoft.SharePoint.Client.File;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -30,6 +31,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private ClientContext _sourceClientContext;
         private ClientContext _targetClientContext;
         private bool inSameSite;
+        private SPVersion _sourceContextSPVersion;
 
         /// <summary>
         /// Constructor for the asset transfer class
@@ -53,6 +55,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var sourceUrl = _sourceClientContext?.Web.GetUrl();
             var targetUrl = _targetClientContext?.Web.GetUrl();
             inSameSite = sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase);
+            _sourceContextSPVersion = GetVersion(_sourceClientContext);
 
             Validate(); // Perform validation
         }
@@ -226,293 +229,329 @@ namespace SharePointPnP.Modernization.Framework.Transform
             int blockSize = fileChunkSizeInMB * 1024 * 1024;
             bool fileOverwrite = true;
 
-            // Get the file from SharePoint
+            Stream sourceStream = null;
             var sourceAssetFile = _sourceClientContext.Web.GetFileByServerRelativeUrl(sourceFileUrl);
-            ClientResult<System.IO.Stream> sourceAssetFileData = sourceAssetFile.OpenBinaryStream(); //TODO 2010 Not working 
 
-            _sourceClientContext.Load(sourceAssetFile);
-            _sourceClientContext.ExecuteQueryRetry();
+            // Test ByPass
+            //if 2010 then
 
-            using (Stream sourceFileStream = sourceAssetFileData.Value)
+            if (_sourceContextSPVersion == SPVersion.SP2010)
             {
+                sourceStream = new MemoryStream();
 
-                string fileName = sourceAssetFile.Name;
-
-                // New File object.
-                Microsoft.SharePoint.Client.File uploadFile;
-
-                // Get the information about the folder that will hold the file.
-                // Add the file to the target site
-                Folder targetFolder = _targetClientContext.Web.GetFolderByServerRelativeUrl(targetLocationUrl);
-                _targetClientContext.Load(targetFolder);
-                _targetClientContext.ExecuteQueryRetry();
-
-                // Get the file size
-                long fileSize = sourceFileStream.Length;
-
-                // Process with two approaches
-                if (fileSize <= blockSize)
+                if (_sourceClientContext.HasPendingRequest)
                 {
-
-                    // Use regular approach.
-
-                    FileCreationInformation fileInfo = new FileCreationInformation();
-                    fileInfo.ContentStream = sourceFileStream;
-                    fileInfo.Url = fileName;
-                    fileInfo.Overwrite = fileOverwrite;
-
-                    uploadFile = targetFolder.Files.Add(fileInfo);
-                    _targetClientContext.Load(uploadFile);
-                    _targetClientContext.ExecuteQuery();
-
-                    // Return the file object for the uploaded file.
-                    return uploadFile.EnsureProperty(o => o.ServerRelativeUrl);
-
+                    _sourceClientContext.ExecuteQuery();
                 }
-                else
+                var fileBinary = File.OpenBinaryDirect(_sourceClientContext, sourceFileUrl);
+                _sourceClientContext.ExecuteQueryRetry();
+                Stream tempSourceStream = fileBinary.Stream;
+
+                CopyStream(tempSourceStream, sourceStream);
+
+                //Fix: https://stackoverflow.com/questions/47510815/sharepoint-uploadfile-specified-argument-was-out-of-range-of-valid-values
+                sourceStream.Seek(0, SeekOrigin.Begin);
+
+            }
+            else
+            {
+                // Get the file from SharePoint
+
+                ClientResult<System.IO.Stream> sourceAssetFileData = sourceAssetFile.OpenBinaryStream();
+                _sourceClientContext.Load(sourceAssetFile);
+                _sourceClientContext.ExecuteQueryRetry();
+                sourceStream = sourceAssetFileData.Value;
+
+            }
+
+            using (Stream sourceFileStream = sourceStream)
                 {
-                    // Use large file upload approach.
-                    ClientResult<long> bytesUploaded = null;
 
-                    using (BinaryReader br = new BinaryReader(sourceFileStream))
+                    string fileName = sourceAssetFile.EnsureProperty(p => p.Name);
+
+                    // New File object.
+                    Microsoft.SharePoint.Client.File uploadFile;
+
+                    // Get the information about the folder that will hold the file.
+                    // Add the file to the target site
+                    Folder targetFolder = _targetClientContext.Web.GetFolderByServerRelativeUrl(targetLocationUrl);
+                    _targetClientContext.Load(targetFolder);
+                    _targetClientContext.ExecuteQueryRetry();
+
+                    // Get the file size
+                    long fileSize = sourceFileStream.Length;
+
+                    // Process with two approaches
+                    if (fileSize <= blockSize)
                     {
-                        byte[] buffer = new byte[blockSize];
-                        Byte[] lastBuffer = null;
-                        long fileoffset = 0;
-                        long totalBytesRead = 0;
-                        int bytesRead;
-                        bool first = true;
-                        bool last = false;
 
-                        // Read data from file system in blocks. 
-                        while ((bytesRead = br.Read(buffer, 0, buffer.Length)) > 0)
+                        // Use regular approach.
+
+                        FileCreationInformation fileInfo = new FileCreationInformation();
+                        fileInfo.ContentStream = sourceFileStream;
+                        fileInfo.Url = fileName;
+                        fileInfo.Overwrite = fileOverwrite;
+
+                        uploadFile = targetFolder.Files.Add(fileInfo);
+                        _targetClientContext.Load(uploadFile);
+                        _targetClientContext.ExecuteQuery();
+
+                        // Return the file object for the uploaded file.
+                        return uploadFile.EnsureProperty(o => o.ServerRelativeUrl);
+
+                    }
+                    else
+                    {
+                        // Use large file upload approach.
+                        ClientResult<long> bytesUploaded = null;
+
+                        using (BinaryReader br = new BinaryReader(sourceFileStream))
                         {
-                            totalBytesRead = totalBytesRead + bytesRead;
+                            byte[] buffer = new byte[blockSize];
+                            Byte[] lastBuffer = null;
+                            long fileoffset = 0;
+                            long totalBytesRead = 0;
+                            int bytesRead;
+                            bool first = true;
+                            bool last = false;
 
-                            // You've reached the end of the file.
-                            if (totalBytesRead == fileSize)
+                            // Read data from file system in blocks. 
+                            while ((bytesRead = br.Read(buffer, 0, buffer.Length)) > 0)
                             {
-                                last = true;
-                                // Copy to a new buffer that has the correct size.
-                                lastBuffer = new byte[bytesRead];
-                                Array.Copy(buffer, 0, lastBuffer, 0, bytesRead);
-                            }
+                                totalBytesRead = totalBytesRead + bytesRead;
 
-                            if (first)
-                            {
-                                using (MemoryStream contentStream = new MemoryStream())
+                                // You've reached the end of the file.
+                                if (totalBytesRead == fileSize)
                                 {
-                                    // Add an empty file.
-                                    FileCreationInformation fileInfo = new FileCreationInformation();
-                                    fileInfo.ContentStream = contentStream;
-                                    fileInfo.Url = fileName;
-                                    fileInfo.Overwrite = fileOverwrite;
-                                    uploadFile = targetFolder.Files.Add(fileInfo);
-
-                                    // Start upload by uploading the first slice. 
-                                    using (MemoryStream s = new MemoryStream(buffer))
-                                    {
-                                        // Call the start upload method on the first slice.
-                                        bytesUploaded = uploadFile.StartUpload(uploadId, s);
-                                        _targetClientContext.ExecuteQueryRetry();
-                                        // fileoffset is the pointer where the next slice will be added.
-                                        fileoffset = bytesUploaded.Value;
-                                    }
-
-                                    // You can only start the upload once.
-                                    first = false;
+                                    last = true;
+                                    // Copy to a new buffer that has the correct size.
+                                    lastBuffer = new byte[bytesRead];
+                                    Array.Copy(buffer, 0, lastBuffer, 0, bytesRead);
                                 }
-                            }
-                            else
-                            {
-                                // Get a reference to your file.
-                                var fileUrl = targetFolder.ServerRelativeUrl + System.IO.Path.AltDirectorySeparatorChar + fileName;
-                                uploadFile = _targetClientContext.Web.GetFileByServerRelativeUrl(fileUrl);
 
-                                if (last)
+                                if (first)
                                 {
-                                    // Is this the last slice of data?
-                                    using (MemoryStream s = new MemoryStream(lastBuffer))
+                                    using (MemoryStream contentStream = new MemoryStream())
                                     {
-                                        // End sliced upload by calling FinishUpload.
-                                        uploadFile = uploadFile.FinishUpload(uploadId, fileoffset, s);
-                                        _targetClientContext.ExecuteQuery();
+                                        // Add an empty file.
+                                        FileCreationInformation fileInfo = new FileCreationInformation();
+                                        fileInfo.ContentStream = contentStream;
+                                        fileInfo.Url = fileName;
+                                        fileInfo.Overwrite = fileOverwrite;
+                                        uploadFile = targetFolder.Files.Add(fileInfo);
 
-                                        // Return the file object for the uploaded file.
-                                        return fileUrl;
+                                        // Start upload by uploading the first slice. 
+                                        using (MemoryStream s = new MemoryStream(buffer))
+                                        {
+                                            // Call the start upload method on the first slice.
+                                            bytesUploaded = uploadFile.StartUpload(uploadId, s);
+                                            _targetClientContext.ExecuteQueryRetry();
+                                            // fileoffset is the pointer where the next slice will be added.
+                                            fileoffset = bytesUploaded.Value;
+                                        }
+
+                                        // You can only start the upload once.
+                                        first = false;
                                     }
                                 }
                                 else
                                 {
-                                    using (MemoryStream s = new MemoryStream(buffer))
+                                    // Get a reference to your file.
+                                    var fileUrl = targetFolder.ServerRelativeUrl + System.IO.Path.AltDirectorySeparatorChar + fileName;
+                                    uploadFile = _targetClientContext.Web.GetFileByServerRelativeUrl(fileUrl);
+
+                                    if (last)
                                     {
-                                        // Continue sliced upload.
-                                        bytesUploaded = uploadFile.ContinueUpload(uploadId, fileoffset, s);
-                                        _targetClientContext.ExecuteQuery();
-                                        // Update fileoffset for the next slice.
-                                        fileoffset = bytesUploaded.Value;
+                                        // Is this the last slice of data?
+                                        using (MemoryStream s = new MemoryStream(lastBuffer))
+                                        {
+                                            // End sliced upload by calling FinishUpload.
+                                            uploadFile = uploadFile.FinishUpload(uploadId, fileoffset, s);
+                                            _targetClientContext.ExecuteQuery();
+
+                                            // Return the file object for the uploaded file.
+                                            return fileUrl;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        using (MemoryStream s = new MemoryStream(buffer))
+                                        {
+                                            // Continue sliced upload.
+                                            bytesUploaded = uploadFile.ContinueUpload(uploadId, fileoffset, s);
+                                            _targetClientContext.ExecuteQuery();
+                                            // Update fileoffset for the next slice.
+                                            fileoffset = bytesUploaded.Value;
+                                        }
                                     }
                                 }
                             }
                         }
+
                     }
 
                 }
 
+                return null;
             }
 
-            return null;
-        }
-
-        /// <summary>
-        /// Stores an asset transfer reference
-        /// </summary>
-        /// <param name="assetTransferReferenceEntity"></param>
-        /// <param name="update"></param>
-        public void StoreAssetTransferred(AssetTransferredEntity assetTransferredEntity)
-        {
-            // Using the Cache Manager store the asset transfer references
-            // If update - treat the source URL as unique, if multiple web parts reference to this, then it will still refer to the single resource
-            var cache = Cache.CacheManager.Instance;
-            if (!cache.AssetsTransfered.Any(asset =>
-                 string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
+            /// <summary>
+            /// Stores an asset transfer reference
+            /// </summary>
+            /// <param name="assetTransferReferenceEntity"></param>
+            /// <param name="update"></param>
+            public void StoreAssetTransferred(AssetTransferredEntity assetTransferredEntity)
             {
-                cache.AssetsTransfered.Add(assetTransferredEntity);
-            }
-
-        }
-
-        /// <summary>
-        /// Get asset transfer details if they already exist
-        /// </summary>
-        public AssetTransferredEntity GetAssetTransferredIfExists(AssetTransferredEntity assetTransferredEntity)
-        {
-            try
-            {
-                // Using the Cache Manager retrieve asset transfer references (all)
+                // Using the Cache Manager store the asset transfer references
+                // If update - treat the source URL as unique, if multiple web parts reference to this, then it will still refer to the single resource
                 var cache = Cache.CacheManager.Instance;
-
-                var result = cache.AssetsTransfered.SingleOrDefault(
-                    asset => string.Equals(asset.TargetAssetFolderUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
-                    string.Equals(asset.SourceAssetUrl, assetTransferredEntity.SourceAssetUrl, StringComparison.InvariantCultureIgnoreCase));
-
-                // Return the cached details if found, if not return original search 
-                return result != default(AssetTransferredEntity) ? result : assetTransferredEntity;
-            }
-            catch (Exception ex)
-            {
-                LogError(LogStrings.Error_AssetTransferCheckingIfAssetExists, LogStrings.Heading_AssetTransfer, ex);
-            }
-
-            // Fallback in case of error - this will trigger a transfer of the asset
-            return assetTransferredEntity;
-
-        }
-
-        /// <summary>
-        /// Converts the file name into a friendly format
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public string ConvertFileToFolderFriendlyName(string fileName)
-        {
-            // This is going to need some heavy testing
-            var justFileName = Path.GetFileNameWithoutExtension(fileName);
-            var friendlyName = justFileName.Replace(" ", "-");
-            return friendlyName;
-        }
-
-
-        /// <summary>
-        /// Ensures that we have context of the source site collection
-        /// </summary>
-        internal void EnsureAssetContextIfRequired(string sourceUrl)
-        {
-            EnsureAssetContextIfRequired(_sourceClientContext, sourceUrl);
-        }
-
-
-        /// <summary>
-        /// Ensures that we have context of the source site collection
-        /// </summary>
-        /// <param name="context">Source site context</param>
-        internal void EnsureAssetContextIfRequired(ClientContext context, string sourceUrl)
-        {
-            // There is two scenarios to check
-            //  - If the asset resides on the root site collection
-            //  - If the asset resides on another subsite
-            //  - If the asset resides on a subsite below this context
-            
-            try
-            {
-                context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url, o => o.RootWeb.Id);
-                context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url, o => o.Id);
-
-                string match = string.Empty;
-
-                // Break the URL into segments and deteremine which URL detects the file in the structure.
-                // Use Web IDs to validate content isnt the same on the root
-                                
-                var fullSiteCollectionUrl = context.Site.Url;
-                var relativeSiteCollUrl = context.Site.ServerRelativeUrl;
-                var sourceCtxUrl = context.Web.GetUrl();
-
-                // Lets break into segments
-                var fileName = Path.GetFileName(sourceUrl);
-
-                // Could already be relative
-                //var sourceUrlWithOutBaseAddr = sourceUrl.Replace(fullSiteCollectionUrl, "").Replace(relativeSiteCollUrl,"");
-                var urlSegments = sourceUrl.Split('/');
-                                                             
-                // Need null tests
-                var filteredUrlSegments = urlSegments.Where(o => !string.IsNullOrEmpty(o) && o != fileName).Reverse();
-                
-                //Assume the last segment is the filename
-                //Assume the segment before the last is either a folder or library
-
-                //Url to strip back until detected as subweb
-                var remainingUrl = sourceUrl.Replace(fileName, ""); //remove file name
-
-                //Urls to try to determine web
-                foreach (var segment in filteredUrlSegments) //Assume the segment before the last is either a folder or library
+                if (!cache.AssetsTransfered.Any(asset =>
+                     string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    try
-                    {
-                        var testUrl = UrlUtility.Combine(fullSiteCollectionUrl.ToLower(), remainingUrl.ToLower().Replace(relativeSiteCollUrl.ToLower(), ""));
-
-                        //No need to recurse this
-                        var exists = context.WebExistsFullUrl(testUrl);
-
-                        if (exists)
-                        {
-                            //winner
-                            match = testUrl;
-                            break;
-                        }
-                        else
-                        {
-                            remainingUrl = remainingUrl.TrimEnd('/').TrimEnd($"{segment}".ToCharArray());
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Nope not the right web - Swallow
-                    }
+                    cache.AssetsTransfered.Add(assetTransferredEntity);
                 }
 
-                if (match != string.Empty && !match.Equals(context.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
-                {
+            }
 
-                    _sourceClientContext = context.Clone(match);
-                    LogDebug("Source Context Switched", "EsureAssetContextIfRequired");
+            /// <summary>
+            /// Get asset transfer details if they already exist
+            /// </summary>
+            public AssetTransferredEntity GetAssetTransferredIfExists(AssetTransferredEntity assetTransferredEntity)
+            {
+                try
+                {
+                    // Using the Cache Manager retrieve asset transfer references (all)
+                    var cache = Cache.CacheManager.Instance;
+
+                    var result = cache.AssetsTransfered.SingleOrDefault(
+                        asset => string.Equals(asset.TargetAssetFolderUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
+                        string.Equals(asset.SourceAssetUrl, assetTransferredEntity.SourceAssetUrl, StringComparison.InvariantCultureIgnoreCase));
+
+                    // Return the cached details if found, if not return original search 
+                    return result != default(AssetTransferredEntity) ? result : assetTransferredEntity;
+                }
+                catch (Exception ex)
+                {
+                    LogError(LogStrings.Error_AssetTransferCheckingIfAssetExists, LogStrings.Heading_AssetTransfer, ex);
+                }
+
+                // Fallback in case of error - this will trigger a transfer of the asset
+                return assetTransferredEntity;
+
+            }
+
+            /// <summary>
+            /// Converts the file name into a friendly format
+            /// </summary>
+            /// <param name="fileName"></param>
+            /// <returns></returns>
+            public string ConvertFileToFolderFriendlyName(string fileName)
+            {
+                // This is going to need some heavy testing
+                var justFileName = Path.GetFileNameWithoutExtension(fileName);
+                var friendlyName = justFileName.Replace(" ", "-");
+                return friendlyName;
+            }
+
+
+            /// <summary>
+            /// Ensures that we have context of the source site collection
+            /// </summary>
+            internal void EnsureAssetContextIfRequired(string sourceUrl)
+            {
+                EnsureAssetContextIfRequired(_sourceClientContext, sourceUrl);
+            }
+
+
+            /// <summary>
+            /// Ensures that we have context of the source site collection
+            /// </summary>
+            /// <param name="context">Source site context</param>
+            internal void EnsureAssetContextIfRequired(ClientContext context, string sourceUrl)
+            {
+                // There is two scenarios to check
+                //  - If the asset resides on the root site collection
+                //  - If the asset resides on another subsite
+                //  - If the asset resides on a subsite below this context
+
+                try
+                {
+                    context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url, o => o.RootWeb.Id);
+                    context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Id);
+
+                    string match = string.Empty;
+
+                    // Break the URL into segments and deteremine which URL detects the file in the structure.
+                    // Use Web IDs to validate content isnt the same on the root
+
+                    var fullSiteCollectionUrl = context.Site.Url;
+                    var relativeSiteCollUrl = context.Site.ServerRelativeUrl;
+                    var sourceCtxUrl = context.Web.GetUrl();
+
+                    // Lets break into segments
+                    var fileName = Path.GetFileName(sourceUrl);
+
+                    // Could already be relative
+                    //var sourceUrlWithOutBaseAddr = sourceUrl.Replace(fullSiteCollectionUrl, "").Replace(relativeSiteCollUrl,"");
+                    var urlSegments = sourceUrl.Split('/');
+
+                    // Need null tests
+                    var filteredUrlSegments = urlSegments.Where(o => !string.IsNullOrEmpty(o) && o != fileName).Reverse();
+
+                    //Assume the last segment is the filename
+                    //Assume the segment before the last is either a folder or library
+
+                    //Url to strip back until detected as subweb
+                    var remainingUrl = sourceUrl.Replace(fileName, ""); //remove file name
+
+                    //Urls to try to determine web
+                    foreach (var segment in filteredUrlSegments) //Assume the segment before the last is either a folder or library
+                    {
+                        try
+                        {
+                            var testUrl = UrlUtility.Combine(fullSiteCollectionUrl.ToLower(), remainingUrl.ToLower().Replace(relativeSiteCollUrl.ToLower(), ""));
+
+                            //No need to recurse this
+                            var exists = context.WebExistsFullUrl(testUrl);
+
+                            if (exists)
+                            {
+                                //winner
+                                match = testUrl;
+                                break;
+                            }
+                            else
+                            {
+                                remainingUrl = remainingUrl.TrimEnd('/').TrimEnd($"{segment}".ToCharArray());
+                            }
+                        }
+                        catch
+                        {
+                            // Nope not the right web - Swallow
+                        }
+                    }
+
+                    if (match != string.Empty && !match.Equals(context.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+
+                        _sourceClientContext = context.Clone(match);
+                        LogDebug("Source Context Switched", "EsureAssetContextIfRequired");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_AssetTransfer, ex);
                 }
             }
-            catch (Exception ex)
+
+            public static void CopyStream(Stream input, Stream output)
             {
-                LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_AssetTransfer, ex);
+                byte[] buffer = new byte[16 * 1024];
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    output.Write(buffer, 0, read);
+                }
             }
         }
-
-
     }
-}

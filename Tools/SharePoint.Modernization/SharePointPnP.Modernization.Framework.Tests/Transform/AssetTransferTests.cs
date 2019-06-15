@@ -438,6 +438,70 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
             }
         }
 
+        /// <summary>
+        /// This test validates with SharePoint the entire operation
+        /// </summary>
+        [TestMethod]
+        public void AssetTransfer_TransferAsset_OnPrem_Test()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    // Needs valid client contexts as they are part of the checks.
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
+
+                    var targetWebUrl = targetClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+                    var sourceWebUrl = sourceClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+
+                    var sourceFile = "shutterstock_113327035.jpg";
+
+                    // Very crude test - ensure the site is setup for this ahead of the test
+                    var sourceFileServerRelativeUrl = $"{sourceWebUrl}PublishingImages/{sourceFile}";
+                    var targetLocation = $"{targetWebUrl}/Shared%20Documents"; //Shared Documents for example, Site Assets may not exist on vanilla sites
+
+                    var result = assetTransfer.TransferAsset(sourceFileServerRelativeUrl, "This is a unit test page.aspx"); //Page shouldnt need to exist at this point
+                    var expected = $"{targetWebUrl}/SiteAssets/SitePages/This-is-a-unit-test-page/{sourceFile}";
+
+                    Assert.AreEqual(expected, result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This test validates with SharePoint the entire operation
+        /// </summary>
+        [TestMethod]
+        public void AssetTransfer_TransferAsset_OnPrem_Large_Test()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    // Needs valid client contexts as they are part of the checks.
+                    AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
+
+                    var targetWebUrl = targetClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+                    var sourceWebUrl = sourceClientContext.Web.EnsureProperty(o => o.ServerRelativeUrl);
+
+                    var sourceFile = "shutterstock_171790418.jpg";
+
+                    // Very crude test - ensure the site is setup for this ahead of the test
+                    var sourceFileServerRelativeUrl = $"{sourceWebUrl}PublishingImages/{sourceFile}";
+                    var targetLocation = $"{targetWebUrl}/Shared%20Documents"; //Shared Documents for example, Site Assets may not exist on vanilla sites
+
+                    var result = assetTransfer.TransferAsset(sourceFileServerRelativeUrl, "This is a unit test page.aspx"); //Page shouldnt need to exist at this point
+                    var expected = $"{targetWebUrl}/SiteAssets/SitePages/This-is-a-unit-test-page/{sourceFile}";
+
+                    Assert.AreEqual(expected, result);
+                }
+            }
+        }
+
         [TestMethod]
         public void AssetTransfer_TransferAsset_ContextSiteImageOnSubSiteAcceptTest()
         {
