@@ -225,6 +225,7 @@
     <Compile Include="Analyzers\PublishingAnalyzer.cs" />
     <Compile Include="Analyzers\SiteAnalyzer.cs" />
     <Compile Include="Analyzers\WebAnalyzer.cs" />
+    <Compile Include="Analyzers\WorkflowAnalyzer.cs" />
     <Compile Include="Extensions\FieldExtensions.cs" />
     <Compile Include="Extensions\FileExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
@@ -256,6 +257,7 @@
     <Compile Include="Results\SiteScanResult.cs" />
     <Compile Include="Results\UserCustomActionResult.cs" />
     <Compile Include="Results\WebScanResult.cs" />
+    <Compile Include="Results\WorkflowScanResult.cs" />
     <Compile Include="Results\XsltViewWebPartCompatability.cs" />
     <Compile Include="Telemetry\ScannerTelemetry.cs" />
     <Compile Include="Telemetry\TelemetryEvents.cs" />

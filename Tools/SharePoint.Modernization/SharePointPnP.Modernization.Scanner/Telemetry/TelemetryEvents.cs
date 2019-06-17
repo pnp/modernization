@@ -11,7 +11,9 @@
         GroupConnect,
         List,
         Pages,
-        PublishingPortals
+        PublishingPortals,
+        Workflows,
+        InfoPath
     }
 
     /// <summary>
@@ -122,6 +124,13 @@
         VariationLabels,
         WebPartMapping,
         UnMappedWebParts
+    }
+
+    public enum WorkflowResults
+    {
+        Workflows,
+        Version,
+        Scope
     }
 
 }

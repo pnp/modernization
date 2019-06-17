@@ -265,6 +265,46 @@ namespace SharePoint.Modernization.Scanner.Telemetry
             }
         }
 
+        public void LogWorkflowScan(ConcurrentDictionary<string, WorkflowScanResult> worklflowScanResults)
+        {
+            if (this.telemetryClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Prepare event data
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                Dictionary<string, double> metrics = new Dictionary<string, double>();
+
+                properties.Add(WorkflowResults.Workflows.ToString(), worklflowScanResults.Count.ToString());
+
+                this.telemetryClient.TrackEvent(TelemetryEvents.Workflows.ToString(), properties, metrics);
+
+                this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Workflows.ToString()}").TrackValue(worklflowScanResults.Count);
+
+                Metric version = this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Version.ToString()}", "Workflow.Version");
+                Metric scope = this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Scope.ToString()}", "Workflow.Scope");
+
+                foreach(var item in worklflowScanResults)
+                {
+                    WriteMetric(version, item.Value.Version);
+                    WriteMetric(scope, item.Value.Scope);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                // Eat all exceptions 
+            }
+            finally
+            {
+                this.telemetryClient.Flush();
+            }
+
+        }
+
         /// <summary>
         /// Log group connnect results
         /// </summary>

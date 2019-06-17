@@ -361,6 +361,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     this.MasterPageGalleryCustomization = publishingAnalyzer.MasterPageGalleryCustomization;
                 }
 
+                if (Options.IncludeWorkflow(this.ScanJob.Mode))
+                {
+                    // Kick off workflow analysis
+                    var workflowAnalyzer = new WorkflowAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
+                    workflowAnalyzer.Analyze(cc);
+                }
+
             }
             finally
             {

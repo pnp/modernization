@@ -36,6 +36,7 @@ namespace SharePoint.Modernization.Scanner
         public Dictionary<string, PublishingSiteScanResult> PublishingSiteScanResults;
         public ConcurrentDictionary<string, PublishingWebScanResult> PublishingWebScanResults;
         public ConcurrentDictionary<string, PublishingPageScanResult> PublishingPageScanResults;
+        public ConcurrentDictionary<string, WorkflowScanResult> WorkflowScanResults;
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
         public ScannerTelemetry ScannerTelemetry;
@@ -62,6 +63,7 @@ namespace SharePoint.Modernization.Scanner
             this.WebScanResults = new ConcurrentDictionary<string, WebScanResult>(options.Threads, 50000);
             this.ListScanResults = new ConcurrentDictionary<string, ListScanResult>(options.Threads, 100000);
             this.PageScanResults = new ConcurrentDictionary<string, PageScanResult>(options.Threads, 1000000);
+            this.WorkflowScanResults = new ConcurrentDictionary<string, WorkflowScanResult>(options.Threads, 100000);
 
             // Publishing portal scan results
             this.PublishingSiteScanResults = new Dictionary<string, PublishingSiteScanResult>(500);
@@ -735,7 +737,34 @@ namespace SharePoint.Modernization.Scanner
                         }
                     }
                 }
+            }
 
+            if (Options.IncludeWorkflow(this.Mode))
+            {
+                // Telemetry
+                if (this.ScannerTelemetry != null)
+                {
+                    this.ScannerTelemetry.LogWorkflowScan(this.WorkflowScanResults);
+                }
+
+                outputfile = string.Format("{0}\\ModernizationWorkflowScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "List Title", "List Url", "List Id",
+                                                   "Version", "Scope", "Definition Name", "Definition Id", "Subscription Name", "Subscription Id", "Has subscriptions"  };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var workflow in this.WorkflowScanResults)
+                    {
+
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(),
+                                                                                           ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), ToCsv(workflow.Value.DefinitionName), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(), workflow.Value.HasSubscriptions
+                                                     )));
+                    }
+                }
+
+
+                Console.WriteLine("Outputting scan results to {0}", outputfile);
             }
 
             VersionWarning();
