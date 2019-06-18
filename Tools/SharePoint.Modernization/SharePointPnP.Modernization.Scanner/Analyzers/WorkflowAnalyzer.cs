@@ -333,6 +333,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             {
                                 processedWorkflowAssociations.Add(associatedWorkflow.WorkflowAssociation.Id);
 
+                                // Skip previous versions of a workflow
+                                // todo: non-english sites will use another string
+                                if (associatedWorkflow.WorkflowAssociation.Name.Contains("(Previous Version:"))
+                                {
+                                    continue;
+                                }
+
                                 WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
                                     SiteColUrl = this.SiteCollectionUrl,
@@ -373,6 +380,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             // Only add non OOB workflow templates when there's no associated workflow - makes the dataset smaller
                             if (!IsOOBWorkflow(workflowTemplate.Id.ToString()))
                             {
+
                                 WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
                                     SiteColUrl = this.SiteCollectionUrl,
@@ -416,6 +424,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 {
                     if (!processedWorkflowAssociations.Contains(associatedWorkflow.WorkflowAssociation.Id))
                     {
+                        // Skip previous versions of a workflow
+                        // todo: non-english sites will use another string
+                        if (associatedWorkflow.WorkflowAssociation.Name.Contains("(Previous Version:"))
+                        {
+                            continue;
+                        }
+
                         WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                         {
                             SiteColUrl = this.SiteCollectionUrl,
