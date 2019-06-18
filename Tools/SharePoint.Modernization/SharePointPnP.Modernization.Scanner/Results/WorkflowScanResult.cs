@@ -27,6 +27,8 @@ namespace SharePoint.Modernization.Scanner.Results
         /// </summary>
         public string Version { get; set; }
 
+        public bool IsOOBWorkflow { get; set; }
+
         /// <summary>
         /// Site, List, ContentType
         /// </summary>

@@ -13,7 +13,6 @@ namespace SharePoint.Modernization.Scanner.Analyzers
     /// </summary>
     public class WorkflowAnalyzer: BaseAnalyzer
     {
-
         private class SP2010WorkFlowAssociation
         {
             public string Scope { get; set; }
@@ -22,7 +21,21 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             public ContentType AssociatedContentType { get; set; }
         }
 
-        System.Collections.Generic.List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
+        private static readonly string[] OOBWorkflowIDStarts = new string[] 
+        {
+            "e43856d2-1bb4-40ef-b08b-016d89a00", //Publishing approval
+            "3bfb07cb-5c6a-4266-849b-8d6711700409", // Collect feedback - 2010
+            "46c389a4-6e18-476c-aa17-289b0c79fb8f", // Collect feedback
+            "77c71f43-f403-484b-bcb2-303710e00409", // Collect signatures - 2010
+            "2f213931-3b93-4f81-b021-3022434a3114", // Collect signatures
+            "8ad4d8f0-93a7-4941-9657-cf3706f00409", // Approval - 2010
+            "b4154df4-cc53-4c4f-adef-1ecf0b7417f6", // Translation management
+            "c6964bff-bf8d-41ac-ad5e-b61ec111731a", // Three state
+            "c6964bff-bf8d-41ac-ad5e-b61ec111731c", // Approval
+            "dd19a800-37c1-43c0-816d-f8eb5f4a4145", // Disposition approval
+        };
+
+        private System.Collections.Generic.List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
 
         #region Construction
         /// <summary>
@@ -118,6 +131,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     HasSubscriptions = true,
                                     Enabled = siteWorkflowSubscription.Enabled,
                                     DefinitionId = siteDefinition.Id,
+                                    IsOOBWorkflow = false,
                                     SubscriptionId = siteWorkflowSubscription.Id,
                                 };
 
@@ -153,6 +167,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 HasSubscriptions = false,
                                 Enabled = false,
                                 DefinitionId = siteDefinition.Id,
+                                IsOOBWorkflow = false,
                                 SubscriptionId = Guid.Empty,
                             };
 
@@ -217,6 +232,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     HasSubscriptions = true,
                                     Enabled = listWorkflowSubscription.Enabled,
                                     DefinitionId = listDefinition.Id,
+                                    IsOOBWorkflow = false,
                                     SubscriptionId = listWorkflowSubscription.Id,
                                 };
 
@@ -253,6 +269,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 HasSubscriptions = false,
                                 Enabled = false,
                                 DefinitionId = listDefinition.Id,
+                                IsOOBWorkflow = false,
                                 SubscriptionId = Guid.Empty,
 
                             };
@@ -276,6 +293,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 // Site, list and content type level 2010 workflow
                 // ***********************************************
 
+                // Find all places where we have workflows associated (=subscribed) to SharePoint objects
                 if (web.WorkflowAssociations.Count > 0)
                 {
                     foreach (var workflowAssociation in web.WorkflowAssociations)
@@ -301,6 +319,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 }
 
                 // Process 2010 worflows
+                System.Collections.Generic.List<Guid> processedWorkflowAssociations = new System.Collections.Generic.List<Guid>(this.sp2010WorkflowAssociations.Count);
                 if (web.WorkflowTemplates.Count > 0)
                 {
                     foreach (var workflowTemplate in web.WorkflowTemplates)
@@ -312,6 +331,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         {
                             foreach(var associatedWorkflow in associatedWorkflows)
                             {
+                                processedWorkflowAssociations.Add(associatedWorkflow.WorkflowAssociation.Id);
+
                                 WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
                                     SiteColUrl = this.SiteCollectionUrl,
@@ -330,6 +351,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     HasSubscriptions = true,
                                     Enabled = associatedWorkflow.WorkflowAssociation.Enabled,
                                     DefinitionId = workflowTemplate.Id,
+                                    IsOOBWorkflow = IsOOBWorkflow(workflowTemplate.Id.ToString()),
                                     SubscriptionId = associatedWorkflow.WorkflowAssociation.Id,
                                 };
 
@@ -348,40 +370,85 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         }
                         else
                         {
-                            WorkflowScanResult workflowScanResult = new WorkflowScanResult()
+                            // Only add non OOB workflow templates when there's no associated workflow - makes the dataset smaller
+                            if (!IsOOBWorkflow(workflowTemplate.Id.ToString()))
                             {
-                                SiteColUrl = this.SiteCollectionUrl,
-                                SiteURL = this.SiteUrl,
-                                ListTitle = "",
-                                ListUrl = "",
-                                ListId = Guid.Empty,
-                                ContentTypeId = "",
-                                ContentTypeName = "",
-                                Version = "2010",
-                                Scope = "",
-                                RestrictToType = "N/A",
-                                DefinitionName = workflowTemplate.Name,
-                                DefinitionDescription = workflowTemplate.Description,
-                                SubscriptionName = "",
-                                HasSubscriptions = false,
-                                Enabled = false,
-                                DefinitionId = workflowTemplate.Id,
-                                SubscriptionId = Guid.Empty,
-                            };
-
-                            if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
-                            {
-                                ScanError error = new ScanError()
+                                WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
-                                    Error = $"Could not add 2010 type workflow scan result for {workflowScanResult.SiteColUrl}",
                                     SiteColUrl = this.SiteCollectionUrl,
                                     SiteURL = this.SiteUrl,
-                                    Field1 = "WorkflowAnalyzer",
+                                    ListTitle = "",
+                                    ListUrl = "",
+                                    ListId = Guid.Empty,
+                                    ContentTypeId = "",
+                                    ContentTypeName = "",
+                                    Version = "2010",
+                                    Scope = "",
+                                    RestrictToType = "N/A",
+                                    DefinitionName = workflowTemplate.Name,
+                                    DefinitionDescription = workflowTemplate.Description,
+                                    SubscriptionName = "",
+                                    HasSubscriptions = false,
+                                    Enabled = false,
+                                    DefinitionId = workflowTemplate.Id,
+                                    IsOOBWorkflow = IsOOBWorkflow(workflowTemplate.Id.ToString()),
+                                    SubscriptionId = Guid.Empty,
                                 };
-                                this.ScanJob.ScanErrors.Push(error);
+
+                                if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
+                                {
+                                    ScanError error = new ScanError()
+                                    {
+                                        Error = $"Could not add 2010 type workflow scan result for {workflowScanResult.SiteColUrl}",
+                                        SiteColUrl = this.SiteCollectionUrl,
+                                        SiteURL = this.SiteUrl,
+                                        Field1 = "WorkflowAnalyzer",
+                                    };
+                                    this.ScanJob.ScanErrors.Push(error);
+                                }
                             }
                         }
+                    }
+                }
 
+                // Are there associated workflows for which we did not find a template
+                foreach(var associatedWorkflow in this.sp2010WorkflowAssociations)
+                {
+                    if (!processedWorkflowAssociations.Contains(associatedWorkflow.WorkflowAssociation.Id))
+                    {
+                        WorkflowScanResult workflowScanResult = new WorkflowScanResult()
+                        {
+                            SiteColUrl = this.SiteCollectionUrl,
+                            SiteURL = this.SiteUrl,
+                            ListTitle = associatedWorkflow.AssociatedList != null ? associatedWorkflow.AssociatedList.Title : "",
+                            ListUrl = associatedWorkflow.AssociatedList != null ? associatedWorkflow.AssociatedList.RootFolder.ServerRelativeUrl : "",
+                            ListId = associatedWorkflow.AssociatedList != null ? associatedWorkflow.AssociatedList.Id : Guid.Empty,
+                            ContentTypeId = associatedWorkflow.AssociatedContentType != null ? associatedWorkflow.AssociatedContentType.StringId : "",
+                            ContentTypeName = associatedWorkflow.AssociatedContentType != null ? associatedWorkflow.AssociatedContentType.Name : "",
+                            Version = "2010",
+                            Scope = associatedWorkflow.Scope,
+                            RestrictToType = "N/A",
+                            DefinitionName = associatedWorkflow.WorkflowAssociation.Name,
+                            DefinitionDescription = "",
+                            SubscriptionName = associatedWorkflow.WorkflowAssociation.Name,
+                            HasSubscriptions = true,
+                            Enabled = associatedWorkflow.WorkflowAssociation.Enabled,
+                            DefinitionId = Guid.Empty,
+                            IsOOBWorkflow = false,
+                            SubscriptionId = associatedWorkflow.WorkflowAssociation.Id,
+                        };
+
+                        if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
+                        {
+                            ScanError error = new ScanError()
+                            {
+                                Error = $"Could not add 2010 {associatedWorkflow.Scope} type workflow scan result for {workflowScanResult.SiteColUrl}",
+                                SiteColUrl = this.SiteCollectionUrl,
+                                SiteURL = this.SiteUrl,
+                                Field1 = "WorkflowAnalyzer",
+                            };
+                            this.ScanJob.ScanErrors.Push(error);
+                        }
                     }
                 }
             }
@@ -404,6 +471,22 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             }
 
             return "";
+        }
+
+        private bool IsOOBWorkflow(string workflowTemplateId)
+        {
+            if (!string.IsNullOrEmpty(workflowTemplateId))
+            {
+                foreach(var oobId in WorkflowAnalyzer.OOBWorkflowIDStarts)
+                {
+                    if (workflowTemplateId.StartsWith(oobId))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
         #endregion
     }
