@@ -611,7 +611,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 {
                                     return SPVersion.SP2016;
                                 }
-                                else if (v.MinorRevision > 10300)
+                                // As of July 2019 SPO buildnumbers will be higher than 18000 
+                                else if (v.MinorRevision > 10300 && v.MinorRevision < 18000)
                                 {
                                     return SPVersion.SP2019;
                                 }
