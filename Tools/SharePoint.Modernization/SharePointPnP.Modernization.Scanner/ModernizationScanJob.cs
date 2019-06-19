@@ -765,6 +765,31 @@ namespace SharePoint.Modernization.Scanner
                     }
                 }
 
+                Console.WriteLine("Outputting scan results to {0}", outputfile);
+            }
+
+            if (Options.IncludeInfoPath(this.Mode))
+            {
+                // Telemetry
+                if (this.ScannerTelemetry != null)
+                {
+                    this.ScannerTelemetry.LogInfoPathScan(this.InfoPathScanResults);
+                }
+
+                outputfile = string.Format("{0}\\ModernizationInfoPathScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", 
+                                               "List Title", "List Url", "List Id", "Template"  };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var infoPath in this.InfoPathScanResults)
+                    {
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, 
+                                                                                           ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate)
+                                                     )));
+                    }
+                }
 
                 Console.WriteLine("Outputting scan results to {0}", outputfile);
             }

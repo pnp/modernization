@@ -126,11 +126,23 @@
         UnMappedWebParts
     }
 
+    /// <summary>
+    /// Measures collected for workflows
+    /// </summary>
     public enum WorkflowResults
     {
         Workflows,
         Version,
         Scope
+    }
+
+    /// <summary>
+    /// Measures collected for InfoPath
+    /// </summary>
+    public enum InfoPathResults
+    {
+        FormsFound,
+        Usage
     }
 
 }

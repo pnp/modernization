@@ -28,7 +28,18 @@ namespace Microsoft.SharePoint.Client
             listCollection.EnsureProperties(coll => coll.Include(li=>li.Id, li => li.ForceCheckout, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder, li => li.ListExperienceOptions, li => li.ItemCount, li => li.UserCustomActions));
 
             // Let's process the visible lists
-            foreach (List list in listCollection.Where(p => p.Hidden == showHidden))
+            IQueryable<List> listsToReturn = null;
+
+            if (showHidden)
+            {
+                listsToReturn = listCollection;
+            }
+            else
+            {
+                listsToReturn = listCollection.Where(p => p.Hidden == false);
+            }
+
+            foreach (List list in listsToReturn)
             {
                 if (list.DefaultViewUrl.Contains("_catalogs"))
                 {

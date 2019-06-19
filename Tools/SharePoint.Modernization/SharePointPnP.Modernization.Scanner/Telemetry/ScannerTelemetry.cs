@@ -265,6 +265,10 @@ namespace SharePoint.Modernization.Scanner.Telemetry
             }
         }
 
+        /// <summary>
+        /// Log workflow scanning results
+        /// </summary>
+        /// <param name="worklflowScanResults">Scanned workflows</param>
         public void LogWorkflowScan(ConcurrentDictionary<string, WorkflowScanResult> worklflowScanResults)
         {
             if (this.telemetryClient == null)
@@ -302,7 +306,47 @@ namespace SharePoint.Modernization.Scanner.Telemetry
             {
                 this.telemetryClient.Flush();
             }
+        }
 
+        /// <summary>
+        /// InfoPath scanning results
+        /// </summary>
+        /// <param name="infoPathScanResults">Scanned InfoPath usage</param>
+        public void LogInfoPathScan(ConcurrentDictionary<string, InfoPathScanResult> infoPathScanResults)
+        {
+            if (this.telemetryClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Prepare event data
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                Dictionary<string, double> metrics = new Dictionary<string, double>();
+
+                properties.Add(InfoPathResults.FormsFound.ToString(), infoPathScanResults.Count.ToString());
+
+                this.telemetryClient.TrackEvent(TelemetryEvents.Workflows.ToString(), properties, metrics);
+
+                this.telemetryClient.GetMetric($"InfoPath.{InfoPathResults.FormsFound.ToString()}").TrackValue(infoPathScanResults.Count);
+
+                Metric usage = this.telemetryClient.GetMetric($"InfoPath.{InfoPathResults.Usage.ToString()}", "InfoPath.Usage");
+
+                foreach (var item in infoPathScanResults)
+                {
+                    WriteMetric(usage, item.Value.InfoPathUsage);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                // Eat all exceptions 
+            }
+            finally
+            {
+                this.telemetryClient.Flush();
+            }
         }
 
         /// <summary>

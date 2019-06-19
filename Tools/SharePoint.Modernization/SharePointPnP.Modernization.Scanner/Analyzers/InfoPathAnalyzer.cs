@@ -37,6 +37,9 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             {
                 base.Analyze(cc);
 
+                var baseUri = new Uri(this.SiteUrl);
+                var webAppUrl = baseUri.Scheme + "://" + baseUri.Host;
+
                 var lists = cc.Web.GetListsToScan(showHidden: true);
 
                 foreach (var list in lists)
@@ -119,7 +122,24 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             }
                             else
                             {
-                                throw;
+                                ScanError error = new ScanError()
+                                {
+                                    Error = ex.Message,
+                                    SiteColUrl = this.SiteCollectionUrl,
+                                    SiteURL = this.SiteUrl,
+                                    Field1 = "InfoPathAnalyzer",
+                                    Field2 = ex.StackTrace,
+                                    Field3 = $"{webAppUrl}{list.DefaultViewUrl}"
+                                };
+
+                                // Send error to telemetry to make scanner better
+                                if (this.ScanJob.ScannerTelemetry != null)
+                                {
+                                    this.ScanJob.ScannerTelemetry.LogScanError(ex, error);
+                                }
+
+                                this.ScanJob.ScanErrors.Push(error);
+                                Console.WriteLine("Error during InfoPath analysis for list {1}: {0}", ex.Message, $"{webAppUrl}{list.DefaultViewUrl}");
                             }
                         }
                     }
