@@ -368,6 +368,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     workflowAnalyzer.Analyze(cc);
                 }
 
+                if (Options.IncludeInfoPath(this.ScanJob.Mode))
+                {
+                    // Kick off InfoPath analysis
+                    var infoPathAnalyzer = new  InfoPathAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
+                    infoPathAnalyzer.Analyze(cc);
+                }
+
             }
             finally
             {

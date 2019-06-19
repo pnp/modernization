@@ -37,6 +37,7 @@ namespace SharePoint.Modernization.Scanner
         public ConcurrentDictionary<string, PublishingWebScanResult> PublishingWebScanResults;
         public ConcurrentDictionary<string, PublishingPageScanResult> PublishingPageScanResults;
         public ConcurrentDictionary<string, WorkflowScanResult> WorkflowScanResults;
+        public ConcurrentDictionary<string, InfoPathScanResult> InfoPathScanResults;
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
         public ScannerTelemetry ScannerTelemetry;
@@ -58,14 +59,13 @@ namespace SharePoint.Modernization.Scanner
             CurrentVersion = options.CurrentVersion;
             NewVersion = options.NewVersion;
 
-            // Site scan results
+            // Scan results
             this.SiteScanResults = new ConcurrentDictionary<string, SiteScanResult>(options.Threads, 10000);
             this.WebScanResults = new ConcurrentDictionary<string, WebScanResult>(options.Threads, 50000);
             this.ListScanResults = new ConcurrentDictionary<string, ListScanResult>(options.Threads, 100000);
             this.PageScanResults = new ConcurrentDictionary<string, PageScanResult>(options.Threads, 1000000);
             this.WorkflowScanResults = new ConcurrentDictionary<string, WorkflowScanResult>(options.Threads, 100000);
-
-            // Publishing portal scan results
+            this.InfoPathScanResults = new ConcurrentDictionary<string, InfoPathScanResult>(options.Threads, 10000);
             this.PublishingSiteScanResults = new Dictionary<string, PublishingSiteScanResult>(500);
             this.PublishingWebScanResults = new ConcurrentDictionary<string, PublishingWebScanResult>(options.Threads, 1000);
             this.PublishingPageScanResults = new ConcurrentDictionary<string, PublishingPageScanResult>(options.Threads, 10000);

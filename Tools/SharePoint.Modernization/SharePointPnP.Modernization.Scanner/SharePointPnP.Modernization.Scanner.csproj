@@ -220,6 +220,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyzers\IBaseAnalyzer.cs" />
+    <Compile Include="Analyzers\InfoPathAnalyzer.cs" />
     <Compile Include="Analyzers\ListAnalyzer.cs" />
     <Compile Include="Analyzers\PageAnalyzer.cs" />
     <Compile Include="Analyzers\PublishingAnalyzer.cs" />
@@ -249,6 +250,7 @@
     </Compile>
     <Compile Include="Reports\Generator.cs" />
     <Compile Include="Reports\ScanSummary.cs" />
+    <Compile Include="Results\InfoPathScanResult.cs" />
     <Compile Include="Results\ListScanResult.cs" />
     <Compile Include="Results\PageScanResult.cs" />
     <Compile Include="Results\PublishingPageScanResult.cs" />
