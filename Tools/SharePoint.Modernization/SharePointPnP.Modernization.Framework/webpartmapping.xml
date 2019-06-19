@@ -16,7 +16,7 @@ configure the page transformation engine to use the community script editor. You
 - Using the needed switch in PnP PowerShell
 -->
 
-<PageTransformation xmlns="http://schemas.dev.office.com/PnP/2018/01/PageTransformationSchema">
+<PageTransformation xmlns="http://schemas.dev.office.com/PnP/2018/01/PageTransformationSchema" Version="1.0.1907.0">
     <!-- Information that applies to all web parts listed in this file -->
     <BaseWebPart>
       <Properties>

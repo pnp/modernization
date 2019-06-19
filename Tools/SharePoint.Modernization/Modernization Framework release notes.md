@@ -19,6 +19,7 @@
 ## Changed
 
 - User fields are now correctly copied over in cross site publishing transformation scenarios #184
+- Mapping Files Version Change Notice #188
 
 ## [June release - version 1.0.1906.0]
 

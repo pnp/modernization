@@ -28,6 +28,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private PageLayout[] pageLayoutsField;
         
+        private string versionField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
         public AddOn[] AddOns {
@@ -47,6 +49,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.pageLayoutsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Version {
+            get {
+                return this.versionField;
+            }
+            set {
+                this.versionField = value;
             }
         }
     }

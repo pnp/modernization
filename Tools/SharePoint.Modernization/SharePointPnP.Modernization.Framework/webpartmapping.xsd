@@ -158,6 +158,7 @@
       <xs:element name="AddOns" type="AddOns" minOccurs="0" maxOccurs="1" />
       <xs:element name="WebParts" type="WebParts" minOccurs="1" maxOccurs="1" />
     </xs:sequence>
+    <xs:attribute name="Version" type="xs:string" use="optional" />
   </xs:complexType>
   
 </xs:schema>
