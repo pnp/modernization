@@ -220,6 +220,9 @@
     <None Include="App.config.sample" />
     <None Include="packages.config" />
     <None Include="Provision\Documents\Contoso_Report.pptx" />
+    <Content Include="Provision\Publishing\ArticleCustomSP2010.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Provision\Publishing\ArticleCustomSP2013.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>

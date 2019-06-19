@@ -1,8 +1,11 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Publishing;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using System;
+using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
@@ -22,11 +25,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    //Quick test if SP2010 has this API property.
-                    sourceClientContext.ExecuteQuery();
-                    Console.WriteLine(sourceClientContext.ServerLibraryVersion);
-
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
@@ -59,6 +58,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             // Callout to your custom content transformator...in case you fully want replace the model
                             //ContentTransformatorOverride = contentOverride,
                         };
+
+                        Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
 
                         pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
                         pti.MappingProperties["UseCommunityScriptEditor"] = "true";
@@ -111,6 +112,47 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
             }
         }
 
+        [TestMethod]
+        public void BasePage_ExtractWebPartDocumentViaWebServicesFromPageTest()
+        {
+            string url = "http://portal2010/pages/article-2010-custom.aspx";
+            //string url = "/pages/article-2010-custom.aspx";
+
+            using (var context = TestCommon.CreateOnPremisesClientContext())
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File);
+
+                    List<string> search = new List<string>()
+                    {
+                        "WebPartZone"
+                    };
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    var result = testBase.ExtractWebPartDocumentViaWebServicesFromPage(url);
+
+                    Assert.IsTrue(result.Length > 0);
+
+                    break;
+
+                }
+            }
+
+        }
 
     }
+
+    public class TestBasePage : BasePage
+    {
+        public TestBasePage(ListItem item, File file, PageTransformation pt, IList<ILogObserver> logObservers):base(item, file, pt, logObservers)
+        {
+
+        }
+    }
+
 }

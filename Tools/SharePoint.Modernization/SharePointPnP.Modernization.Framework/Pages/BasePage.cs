@@ -9,9 +9,11 @@ using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
@@ -21,7 +23,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
     /// <summary>
     /// Base class for the page analyzers
     /// </summary>
-    public abstract class BasePage: BaseTransform
+    public abstract class BasePage : BaseTransform
     {
         internal class WebPartPlaceHolder
         {
@@ -107,7 +109,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         }
 
         internal void AnalyzeWikiContentBlock(List<WebPartEntity> webparts, IHtmlDocument htmlDoc, List<WebPartPlaceHolder> webPartsToRetrieve, int rowCount, int colCount, int startOrder, IElement content)
-        {           
+        {
             // Drop elements which we anyhow can't transform and/or which are stripped out from RTE
             CleanHtml(content, htmlDoc);
 
@@ -450,7 +452,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public string GetTypeFromProperties(PropertyValues properties)
         {
             // Check for XSLTListView web part
-            string[] xsltWebPart = new string[] { "ListUrl", "ListId", "Xsl", "JSLink", "ShowTimelineIfAvailable" };                        
+            string[] xsltWebPart = new string[] { "ListUrl", "ListId", "Xsl", "JSLink", "ShowTimelineIfAvailable" };
             if (CheckWebPartProperties(xsltWebPart, properties))
             {
                 return WebParts.XsltListView;
@@ -506,7 +508,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             // check for Script Editor web part
-            string[] scriptEditorWebPart = new string[] { "Content"};
+            string[] scriptEditorWebPart = new string[] { "Content" };
             if (CheckWebPartProperties(scriptEditorWebPart, properties))
             {
                 return WebParts.ScriptEditor;
@@ -566,7 +568,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 if (webPartType == WebParts.Client)
                 {
                     // Special case since we don't know upfront which properties are relevant here...so let's take them all
-                    foreach(var prop in properties.FieldValues)
+                    foreach (var prop in properties.FieldValues)
                     {
                         if (!propertiesToKeep.ContainsKey(prop.Key))
                         {
@@ -664,7 +666,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                 {
                                     if (property.Name.Equals("ContentLink", StringComparison.InvariantCultureIgnoreCase) ||
                                         property.Name.Equals("Content", StringComparison.InvariantCultureIgnoreCase) ||
-                                        property.Name.Equals("PartStorage", StringComparison.InvariantCultureIgnoreCase) )
+                                        property.Name.Equals("PartStorage", StringComparison.InvariantCultureIgnoreCase))
                                     {
                                         XNamespace xmlcontentns = "http://schemas.microsoft.com/WebPart/v2/ContentEditor";
                                         v2Element = xml.Descendants(xmlcontentns + property.Name).FirstOrDefault();
@@ -722,6 +724,75 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return propertiesToKeep;
         }
 
+        /// <summary>
+        /// Call SharePoint Web Services to extract web part properties not exposed by CSOM
+        /// </summary>
+        /// <returns></returns>
+        public string ExtractWebPartDocumentViaWebServicesFromPage(string fullDocumentUrl)
+        {
+            try
+            {
+                string webPartPageContents = String.Empty;
+                string webUrl = cc.Web.GetUrl();
+                string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
+            
+                StringBuilder soapEnvelope = new StringBuilder();
 
+                soapEnvelope.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                soapEnvelope.Append("<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">");
+
+                soapEnvelope.Append(String.Format(
+                 "<soap:Body>" +
+                     "<GetWebPartPage xmlns=\"http://microsoft.com/sharepoint/webpartpages\">" +
+                         "<documentName>{0}</documentName>" +
+                         "<behavior>Version3</behavior>" +
+                     "</GetWebPartPage>" +
+                 "</soap:Body>"
+                 , fullDocumentUrl));
+
+                soapEnvelope.Append("</soap:Envelope>");
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
+                request.Credentials = cc.Credentials;
+                request.Method = "POST";
+                request.ContentType = "text/xml; charset=\"utf-8\"";
+                request.Accept = "text/xml";
+                request.Headers.Add("SOAPAction", "\"http://microsoft.com/sharepoint/webpartpages/GetWebPartPage\"");
+                
+                using (System.IO.Stream stream = request.GetRequestStream())
+                {
+                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(stream))
+                    {
+                        writer.Write(soapEnvelope.ToString());
+                    }
+                }
+
+                var response = request.GetResponse();
+                using (var dataStream = response.GetResponseStream())
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load(dataStream);
+
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerText.Length > 0)
+                    {
+                        webPartPageContents = xDoc.DocumentElement.InnerText;
+                        //Remove the junk from the result
+                        var tag = "<HasByteOrderMark/>";
+                        var marker = webPartPageContents.IndexOf(tag);
+                        if (marker > -1) {
+                            webPartPageContents = webPartPageContents.Substring(marker).Replace(tag,"");
+                        }
+
+                        return webPartPageContents;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                // todo
+            }
+
+            return string.Empty;
+        }
     }
 }
