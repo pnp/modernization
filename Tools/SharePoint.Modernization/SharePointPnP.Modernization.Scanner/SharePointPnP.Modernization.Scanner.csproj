@@ -283,6 +283,7 @@
     <EmbeddedResource Include="Reports\pagemaster.xlsx" />
     <EmbeddedResource Include="Reports\publishingmaster.xlsx" />
     <EmbeddedResource Include="Reports\listmaster.xlsx" />
+    <EmbeddedResource Include="Reports\workflowmaster.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml" />

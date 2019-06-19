@@ -9,6 +9,7 @@ See https://aka.ms/sppnp-modernizationscanner
 ### Added
 
 - Publishing page report now shows "web part transformation compatibility" graphs
+- New scan component: classic workflow inventory as preparation for Microsoft Flow migrations
 
 ### Changed
 

@@ -1,9 +1,5 @@
 ﻿using SharePoint.Scanning.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePoint.Modernization.Scanner.Results
 {
@@ -48,8 +44,5 @@ namespace SharePoint.Modernization.Scanner.Results
         public string SubscriptionName { get; set; }
 
         public bool HasSubscriptions { get; set; }
-
-
-
     }
 }
