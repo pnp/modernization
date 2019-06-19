@@ -777,7 +777,7 @@ namespace SharePoint.Modernization.Scanner
                 }
 
                 outputfile = string.Format("{0}\\ModernizationInfoPathScanResults.csv", this.OutputFolder);
-                outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", 
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", 
                                                "List Title", "List Url", "List Id", "Template"  };
 
                 using (StreamWriter outfile = new StreamWriter(outputfile))
@@ -785,7 +785,7 @@ namespace SharePoint.Modernization.Scanner
                     outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
                     foreach (var infoPath in this.InfoPathScanResults)
                     {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, 
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, infoPath.Value.LastItemUserModifiedDate, infoPath.Value.ItemCount,
                                                                                            ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate)
                                                      )));
                     }

@@ -56,7 +56,9 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             ListId = list.Id,
                             ListUrl = list.RootFolder.ServerRelativeUrl,
                             Enabled = true,
-                            InfoPathTemplate = ""
+                            InfoPathTemplate = "",
+                            ItemCount = list.ItemCount,
+                            LastItemUserModifiedDate = list.LastItemUserModifiedDate,
                         };
 
                         if (!this.ScanJob.InfoPathScanResults.TryAdd($"{infoPathScanResult.SiteURL}.{Guid.NewGuid()}", infoPathScanResult))
@@ -99,6 +101,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     ListUrl = list.RootFolder.ServerRelativeUrl,
                                     Enabled = infoPathEnabled,
                                     InfoPathTemplate = folder.Properties.FieldValues["_ipfs_solutionName"].ToString(),
+                                    ItemCount = list.ItemCount,
+                                    LastItemUserModifiedDate = list.LastItemUserModifiedDate,
                                 };
 
                                 if (!this.ScanJob.InfoPathScanResults.TryAdd($"{infoPathScanResult.SiteURL}.{Guid.NewGuid()}", infoPathScanResult))

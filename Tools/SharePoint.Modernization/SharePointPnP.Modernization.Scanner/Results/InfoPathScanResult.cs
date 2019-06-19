@@ -19,5 +19,9 @@ namespace SharePoint.Modernization.Scanner.Results
         public string InfoPathTemplate { get; set; }
 
         public bool Enabled { get; set; }
+
+        public int ItemCount { get; set; }
+
+        public DateTime LastItemUserModifiedDate { get; set; }
     }
 }
