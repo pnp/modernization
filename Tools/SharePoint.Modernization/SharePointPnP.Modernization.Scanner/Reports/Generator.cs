@@ -35,11 +35,14 @@ namespace SharePoint.Modernization.Scanner.Reports
         private const string PublishingPageCSV = "ModernizationPublishingPageScanResults.csv";
         private const string PublishingMasterFile = "publishingmaster.xlsx";
         private const string PublishingReport = "Office 365 Publishing Portal Transformation Readiness.xlsx";
-
         // Workflow report variables
         private const string WorkflowCSV = "ModernizationWorkflowScanResults.csv";
         private const string WorkflowMasterFile = "workflowmaster.xlsx";
         private const string WorkflowReport = "Office 365 Classic workflow inventory.xlsx";
+        // InfoPath report variables
+        private const string InfoPathCSV = "ModernizationInfoPathScanResults.csv";
+        private const string InfoPathMasterFile = "infopathmaster.xlsx";
+        private const string InfoPathReport = "Office 365 InfoPath inventory.xlsx";
 
         /// <summary>
         /// Create the list dashboard
@@ -786,6 +789,157 @@ namespace SharePoint.Modernization.Scanner.Reports
             {
                 Task.Delay(2000).Wait();
                 File.Delete($"{outputfolder}\\{WorkflowMasterFile}");
+            }
+        }
+
+        /// <summary>
+        /// Create the InfoPath dashboard
+        /// </summary>
+        /// <param name="exportPaths">Paths to read data from</param>
+        public void CreateInfoPathReport(IList<string> exportPaths)
+        {
+            DataTable infoPathTable = null;
+            ScanSummary scanSummary = null;
+
+            var outputfolder = ".";
+            DateTime dateCreationTime = DateTime.MinValue;
+            if (exportPaths.Count == 1)
+            {
+                outputfolder = new DirectoryInfo(exportPaths[0]).FullName;
+                var pathToUse = exportPaths[0].TrimEnd(new char[] { '\\' });
+                dateCreationTime = File.GetCreationTime($"{pathToUse}\\{InfoPathCSV}");
+            }
+
+            // import the data and "clean" it
+            var fileLoaded = false;
+            foreach (var path in exportPaths)
+            {
+                var pathToUse = Path.GetFullPath(path.Trim()).TrimEnd(new char[] { '\\' });
+
+                string csvToLoad = $"{pathToUse}\\{InfoPathCSV}";
+
+                if (!File.Exists(csvToLoad))
+                {
+                    // Skipping as one does not always have this report 
+                    continue;
+                }
+                fileLoaded = true;
+
+                Console.WriteLine($"Generating InfoPath report based upon data coming from {path}");
+
+                using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
+                {
+                    parser.FirstRowHasHeader = true;
+                    parser.MaxBufferSize = 2000000;
+                    parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
+
+                    // Read the file                    
+                    var baseTable = parser.GetDataTable();
+
+                    // Table 1
+                    var infoPathTable1 = baseTable.Copy();
+                    // clean table
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", "List Title", "List Url", "List Id", "Template" };
+                    infoPathTable1 = DropTableColumns(infoPathTable1, columnsToKeep);
+
+                    if (infoPathTable == null)
+                    {
+                        infoPathTable = infoPathTable1;
+                    }
+                    else
+                    {
+                        infoPathTable.Merge(infoPathTable1);
+                    }
+
+                    // Read scanner summary data
+                    var scanSummary1 = DetectScannerSummary($"{pathToUse}\\{ScannerSummaryCSV}");
+
+                    if (scanSummary == null)
+                    {
+                        scanSummary = scanSummary1;
+                    }
+                    else
+                    {
+                        MergeScanSummaries(scanSummary, scanSummary1);
+                    }
+                }
+            }
+
+            if (!fileLoaded)
+            {
+                // nothing loaded, so nothing to use for report generation
+                return;
+            }
+
+            // Get the template Excel file
+            using (Stream stream = typeof(Generator).Assembly.GetManifestResourceStream($"SharePoint.Modernization.Scanner.Reports.{InfoPathMasterFile}"))
+            {
+                if (File.Exists($"{outputfolder}\\{InfoPathMasterFile}"))
+                {
+                    File.Delete($"{outputfolder}\\{InfoPathMasterFile}");
+                }
+
+                using (var fileStream = File.Create($"{outputfolder}\\{InfoPathMasterFile}"))
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+                    stream.CopyTo(fileStream);
+                }
+            }
+
+            // Push the data to Excel, starting from an Excel template
+            //using (var excel = new ExcelPackage(new FileInfo(WorkflowMasterFile)))
+            using (var excel = new ExcelPackage(new FileInfo($"{outputfolder}\\{InfoPathMasterFile}"), false))
+            {
+                var dashboardSheet = excel.Workbook.Worksheets["Dashboard"];
+                if (scanSummary != null)
+                {
+                    if (scanSummary.SiteCollections.HasValue)
+                    {
+                        dashboardSheet.SetValue("S7", scanSummary.SiteCollections.Value);
+                    }
+                    if (scanSummary.Webs.HasValue)
+                    {
+                        dashboardSheet.SetValue("U7", scanSummary.Webs.Value);
+                    }
+                    if (scanSummary.Lists.HasValue)
+                    {
+                        dashboardSheet.SetValue("W7", scanSummary.Lists.Value);
+                    }
+                    if (scanSummary.Duration != null)
+                    {
+                        dashboardSheet.SetValue("S8", scanSummary.Duration);
+                    }
+                    if (scanSummary.Version != null)
+                    {
+                        dashboardSheet.SetValue("S9", scanSummary.Version);
+                    }
+                }
+
+                if (dateCreationTime > DateTime.Now.Subtract(new TimeSpan(5 * 365, 0, 0, 0, 0)))
+                {
+                    dashboardSheet.SetValue("S6", dateCreationTime.ToString("G", DateTimeFormatInfo.InvariantInfo));
+                }
+                else
+                {
+                    dashboardSheet.SetValue("S6", "-");
+                }
+
+                var workflowSheet = excel.Workbook.Worksheets["InfoPath"];
+                InsertTableData(workflowSheet.Tables[0], infoPathTable);
+
+                // Save the resulting file
+                if (File.Exists($"{outputfolder}\\{InfoPathReport}"))
+                {
+                    File.Delete($"{outputfolder}\\{InfoPathReport}");
+                }
+                excel.SaveAs(new FileInfo($"{outputfolder}\\{InfoPathReport}"));
+            }
+
+            // Clean the template file
+            if (File.Exists($"{outputfolder}\\{InfoPathMasterFile}"))
+            {
+                Task.Delay(2000).Wait();
+                File.Delete($"{outputfolder}\\{InfoPathMasterFile}");
             }
         }
 

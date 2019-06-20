@@ -10,6 +10,7 @@ See https://aka.ms/sppnp-modernizationscanner
 
 - Publishing page report now shows "web part transformation compatibility" graphs
 - New scan component: classic workflow inventory as preparation for Microsoft Flow migrations
+- New scan component: InfoPath usage inventory as preparation for Microsoft PowerApps migrations
 
 ### Changed
 

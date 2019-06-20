@@ -49,6 +49,7 @@ namespace SharePoint.Modernization.Scanner
                 generator.CreatePageReport(options.ExportPaths);
                 generator.CreatePublishingReport(options.ExportPaths);
                 generator.CreateWorkflowReport(options.ExportPaths);
+                generator.CreateInfoPathReport(options.ExportPaths);
             }
             else
             {
@@ -102,6 +103,11 @@ namespace SharePoint.Modernization.Scanner
                         if (Options.IncludeWorkflow(options.Mode))
                         {
                             generator.CreateWorkflowReport(paths);
+                        }
+
+                        if (Options.IncludeInfoPath(options.Mode))
+                        {
+                            generator.CreateInfoPathReport(paths);
                         }
                     }
 
