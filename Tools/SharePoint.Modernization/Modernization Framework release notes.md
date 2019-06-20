@@ -21,6 +21,7 @@
 - User fields are now correctly copied over in cross site publishing transformation scenarios #184
 - Mapping Files Version Change Notice #188
 - Set TargetPageName is now used to construct the return URL value #194
+- Correctly detect 'empty' text parts #192
 
 ## [June release - version 1.0.1906.0]
 
