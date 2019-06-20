@@ -546,11 +546,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         private string ReturnModernPageServerRelativeUrl(PublishingPageTransformationInformation publishingPageTransformationInformation)
         {
-            string returnUrl = null;
-
-            string originalSourcePageName = publishingPageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString().ToLower();
-            string sourcePath = publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower().Replace(originalSourcePageName, "");
-            string targetPath = sourcePath;
+            string originalSourcePageName = publishingPageTransformationInformation.TargetPageName.ToLower();
+            string sourcePath = publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower().Replace(publishingPageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString().ToLower(), "");
+            string targetPath;
 
             // Cross site collection transfer, new page always takes the name of the old page
             if (!sourcePath.Contains($"/{this.publishingPagesLibrary}"))
@@ -566,8 +564,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
             }
 
-            returnUrl = $"{targetPath}{originalSourcePageName}";
-
+            string returnUrl = $"{targetPath}{originalSourcePageName}";
+          
             LogInfo($"{returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
             return returnUrl;
         }
