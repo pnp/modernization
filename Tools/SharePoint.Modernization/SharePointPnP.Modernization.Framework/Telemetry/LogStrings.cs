@@ -293,6 +293,7 @@
 
         public const string LoadingUrlMappingFile = "Loading URL mapping file {0}";
         public const string UrlMappingLoaded = "Mapping from {0} to {1} loaded";
+        public const string UrlRewritten = "ULR rewritten from: {0} to: {1}";
         #endregion
     }
 }

@@ -186,7 +186,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var regex = new Regex($"{from}", RegexOptions.IgnoreCase);
             if (regex.IsMatch(input))
             {
+                string before = input;
                 input = regex.Replace(input, to);
+                LogDebug(string.Format(LogStrings.UrlRewritten, before, input), LogStrings.Heading_UrlRewriter);
             }
 
             return input;

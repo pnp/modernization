@@ -32,13 +32,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// <param name="clientSidePage">Reference to the client side page</param>
         public BuiltIn(BaseTransformationInformation baseTransformationInformation, ClientContext pageClientContext, ClientContext sourceClientContext = null, ClientSidePage clientSidePage = null, IList<ILogObserver> logObservers = null) : base(pageClientContext)
         {
-            // This is an optional property, in cross site transfer the two contexts would be different.
-            this.sourceClientContext = sourceClientContext;
-            this.targetClientContext = pageClientContext;
-            this.clientSidePage = clientSidePage;
-            this.baseTransformationInformation = baseTransformationInformation;
-            this.urlTransformator = new UrlTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
-
             if (logObservers != null)
             {
                 foreach (var observer in logObservers)
@@ -46,6 +39,13 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     base.RegisterObserver(observer);
                 }
             }
+
+            // This is an optional property, in cross site transfer the two contexts would be different.
+            this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = pageClientContext;
+            this.clientSidePage = clientSidePage;
+            this.baseTransformationInformation = baseTransformationInformation;
+            this.urlTransformator = new UrlTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
         }
         #endregion
 
