@@ -1246,13 +1246,14 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// <param name="text">Original wiki html content</param>
         /// <returns>Properties collection for the quicklinks web part</returns>
         [FunctionDocumentation(Description = "Maps summarylinks web part data into a properties collection and supporting serverProcessedContent nodes for the quicklinks web part",
-                               Example = "SummaryLinksToQuickLinksProperties({Text})")]
+                               Example = "SummaryLinksToQuickLinksProperties({Text},{QuickLinksJsonProperties})")]
         [InputDocumentation(Name = "{Text}", Description = "Original wiki html content")]
+        [InputDocumentation(Name = "{QuickLinksJsonProperties}", Description = "QuickLinks JSON properties blob (optional)")]
         [OutputDocumentation(Name = "JsonProperties", Description = "Properties collection for the quicklinks web part")]
         [OutputDocumentation(Name = "SearchablePlainTexts", Description = "SearchablePlainTexts nodes to be added in the serverProcessedContent node")]
         [OutputDocumentation(Name = "Links", Description = "Links nodes to be added in the serverProcessedContent node")]
         [OutputDocumentation(Name = "ImageSources", Description = "ImageSources nodes to be added in the serverProcessedContent node")]
-        public Dictionary<string, string> SummaryLinksToQuickLinksProperties(string text)
+        public Dictionary<string, string> SummaryLinksToQuickLinksProperties(string text, string quickLinksJsonProperties = "")
         {
             Dictionary<string, string> results = new Dictionary<string, string>();
 
@@ -1292,8 +1293,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
             }
 
-            QuickLinksTransformator qlt = new QuickLinksTransformator(this.clientContext);
-            var res = qlt.Transform(links);
+            QuickLinksTransformator qlt = new QuickLinksTransformator(this.clientContext, base.RegisteredLogObservers);
+            var res = qlt.Transform(links, quickLinksJsonProperties);
 
             // Output the calculated properties so then can be used in the mapping
             results.Add("JsonProperties", res.Properties);

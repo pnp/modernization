@@ -187,7 +187,6 @@
         public const string AddedClientSideTextWebPart = "Added 'Client Side Text Web Part' to target page";
         public const string UsingCustomModernWebPart = "Using 'custom' modern web part ";
 
-
         public const string Error_NotValidForTargetSiteCollection = "NotAvailableAtTargetException is used to \"skip\" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)";
         public const string Error_NoDefaultMappingFound = "No default mapping was found int the provided mapping file";
         public const string Error_AnErrorOccurredFunctions = "An error occurred processing functions";
@@ -217,6 +216,11 @@
         #region Built In Functions
 
         public const string Heading_BuiltInFunctions = "Built-in Function";
+
+        public const string OverridingQuickLinksDefaults = "Overriding QuickLinks properties via this JSON: {0}";
+
+        public const string Warning_OverridingQuickLinksDefaultsFailed = "Overriding QuickLinks properties failed: {0}";
+
         public const string Error_ReturnCrossSiteRelativePath = "An error occurred in ReturnCrossSiteRelativePath function";
         public const string Error_DocumentEmbedLookup = "An error occurred in DocumentEmbedLookup function";
         public const string Error_DocumentEmbedLookupFileNotRetrievable = "An error occurred in DocumentEmbedLookup function - file not retrievable";

@@ -17,6 +17,7 @@
 ## Added
 
 - Custom URL mapping logic: provide a csv file with source and target values and these will be used by the url mapper #135
+- Option to override default QuicklLinks configuration in publishing page transformation scenarios #191
 
 ## Changed
 

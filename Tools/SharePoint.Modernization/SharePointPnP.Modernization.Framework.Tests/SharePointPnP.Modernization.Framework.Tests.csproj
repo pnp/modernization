@@ -311,6 +311,8 @@
     <Content Include="Transform\Publishing\custompagelayoutmapping.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Transform\Publishing\mappingalltest.xml" />
+    <Content Include="Transform\Publishing\mappingtest.xml" />
     <Content Include="Transform\RichText\richtext_1.html" />
     <Content Include="Transform\Wp\wp_1.html" />
   </ItemGroup>
