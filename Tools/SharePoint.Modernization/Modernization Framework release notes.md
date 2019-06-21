@@ -16,6 +16,8 @@
 
 ## Added
 
+- Custom URL mapping logic: provide a csv file with source and target values and these will be used by the url mapper #135
+
 ## Changed
 
 - User fields are now correctly copied over in cross site publishing transformation scenarios #184

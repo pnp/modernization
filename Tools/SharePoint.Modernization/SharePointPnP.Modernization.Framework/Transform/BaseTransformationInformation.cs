@@ -70,6 +70,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Skip URL rewriting
         /// </summary>
         public bool SkipUrlRewrite { get; set; }
+
+        /// <summary>
+        /// Url to an URL mapping file
+        /// </summary>
+        public string UrlMappingFile { get; set; }
         #endregion
 
         #region Override properties

@@ -37,7 +37,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             this.targetClientContext = pageClientContext;
             this.clientSidePage = clientSidePage;
             this.baseTransformationInformation = baseTransformationInformation;
-            this.urlTransformator = new UrlTransformator(this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
+            this.urlTransformator = new UrlTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
 
             if (logObservers != null)
             {

@@ -3,7 +3,9 @@ using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Publishing;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
+using SharePointPnP.Modernization.Framework.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,6 +34,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, string> contentTypes;
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
         private BasePageTransformator lastUsedTransformator;
+        private List<UrlMapping> urlMapping;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -435,7 +438,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
             this.AssetsTransfered.Clear();
             ClearClientSideComponents();
             ClearBaseTemplate();
-            ClearFieldsToCopy();            
+            ClearFieldsToCopy();
+            this.urlMapping = null;
         }
         #endregion
 
@@ -575,6 +579,21 @@ namespace SharePointPnP.Modernization.Framework.Cache
         public BasePageTransformator GetLastUsedTransformator()
         {
             return this.lastUsedTransformator;
+        }
+        #endregion
+
+        #region URL rewriting
+        public List<UrlMapping> GetUrlMapping(string urlMappingFile, IList<ILogObserver> logObservers = null)
+        {
+            if (this.urlMapping != null && this.urlMapping.Count > 0)
+            {
+                return this.urlMapping;
+            }
+
+            FileManager fileManager = new FileManager(logObservers);
+            this.urlMapping = fileManager.LoadUrlMappingFile(urlMappingFile);
+
+            return this.urlMapping;
         }
         #endregion
 

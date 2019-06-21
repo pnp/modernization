@@ -194,6 +194,7 @@
     <Compile Include="Transform\Publishing\PublishingPageTests.cs" />
     <Compile Include="Transform\ReportingTests.cs" />
     <Compile Include="Transform\ContextTests.cs" />
+    <Compile Include="Transform\Mapping\UrlMappingTests.cs" />
     <Compile Include="Transform\Utility\StringExtensionTests.cs" />
     <Compile Include="UnitTestLogObserver.cs" />
     <Compile Include="Transform\LoggingTests.cs" />
@@ -224,6 +225,7 @@
     </Content>
     <Content Include="Provision\Publishing\ArticleTopic.aspx" />
     <None Include="Provision\Readme.md" />
+    <None Include="Transform\Mapping\urlmapping_sample.csv" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Provision\ClassicTeamSite-SampleData.xml" />

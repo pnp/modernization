@@ -285,5 +285,14 @@
         #endregion
 
         #endregion
+
+        #region Url rewriting
+        public const string Heading_UrlRewriter = "URL rewriter";
+
+        public const string Error_UrlMappingFileNotFound = "URL mapping file {0} was not found";
+
+        public const string LoadingUrlMappingFile = "Loading URL mapping file {0}";
+        public const string UrlMappingLoaded = "Mapping from {0} to {1} loaded";
+        #endregion
     }
 }
