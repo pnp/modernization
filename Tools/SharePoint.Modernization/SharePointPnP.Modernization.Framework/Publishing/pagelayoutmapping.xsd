@@ -36,7 +36,42 @@
     <xs:attribute name="ShowInPageProperties" use="optional" type="xs:boolean" />
   </xs:complexType>
 
+  <xs:complexType name="WebPartOccurance">
+    <xs:attribute name="Type" type="xs:string" use="required" />
+    <xs:attribute name="Row" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="Column" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+          <xs:maxInclusive value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="Order" use="optional">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+  
+  <xs:complexType name="WebPartZoneLayout">
+    <xs:sequence>
+      <xs:element name="WebPartOccurance" type="WebPartOccurance" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  
   <xs:complexType name="WebPartZone">
+    <xs:sequence>
+      <xs:element name="WebPartZoneLayout" type="WebPartZoneLayout" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
     <xs:attribute name="ZoneIndex" type="xs:int" use="required" />
     <xs:attribute name="ZoneId" type="xs:string" use="required" />
     <xs:attribute name="Row" use="required">
@@ -60,7 +95,7 @@
           <xs:minInclusive value="1" />
         </xs:restriction>
       </xs:simpleType>
-    </xs:attribute>
+    </xs:attribute>    
   </xs:complexType>
 
   <xs:complexType name="FixedWebPart">
