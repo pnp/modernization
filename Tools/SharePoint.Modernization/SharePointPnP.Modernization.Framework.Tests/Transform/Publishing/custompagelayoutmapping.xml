@@ -43,9 +43,9 @@
       <WebPartZones>
         <WebPartZone Row="2" Column="1" ZoneId="g_0C7F16935FAC4709915E2D77092A90DE" ZoneIndex="0">
           <WebPartZoneLayout>
-            <WebPartOccurence Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="3" Column="2"/>
-            <WebPartOccurence Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="3" Column="1" Order="2"/>
-            <WebPartOccurence Type="Microsoft.SharePoint.WebPartPages.XsltListViewWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="3" Column="1" Order="1"/>
+            <WebPartOccurrence Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="3" Column="2"/>
+            <WebPartOccurrence Type="Microsoft.SharePoint.WebPartPages.ContentEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="3" Column="1" Order="2"/>
+            <WebPartOccurrence Type="Microsoft.SharePoint.WebPartPages.XsltListViewWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="3" Column="1" Order="1"/>
           </WebPartZoneLayout>
         </WebPartZone>
       </WebPartZones>
