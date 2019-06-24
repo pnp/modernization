@@ -275,7 +275,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
-    public partial class WebPartOccurance {
+    public partial class WebPartOccurence {
         
         private string typeField;
         
@@ -351,7 +351,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
     public partial class WebPartZone {
         
-        private WebPartOccurance[] webPartZoneLayoutField;
+        private WebPartOccurence[] webPartZoneLayoutField;
         
         private int zoneIndexField;
         
@@ -367,7 +367,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public WebPartOccurance[] WebPartZoneLayout {
+        public WebPartOccurence[] WebPartZoneLayout {
             get {
                 return this.webPartZoneLayoutField;
             }
