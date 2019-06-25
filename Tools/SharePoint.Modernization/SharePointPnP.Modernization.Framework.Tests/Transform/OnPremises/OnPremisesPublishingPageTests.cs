@@ -6,6 +6,7 @@ using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 {
@@ -21,8 +22,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\onprem-mapping-all-test.xml.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\temp\onprem-mapping-all-test.xml");
-                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\onprem-mapping-all-test.xml");
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
                     var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom");
@@ -36,11 +37,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             Overwrite = true,
 
                             // Don't log test runs
-                            SkipTelemetry = true,      
+                            SkipTelemetry = true,
 
                             //Permissions are unlikely to work given cross domain
                             KeepPageSpecificPermissions = false,
-                            
+
                             //RemoveEmptySectionsAndColumns = false,
 
                             // Configure the page header, empty value means ClientSidePageHeaderType.None
@@ -104,9 +105,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         {
             using (var context = TestCommon.CreateOnPremisesClientContext())
             {
-                
+
                 var analyzer = new PageLayoutAnalyser(context);
-                analyzer.AnalyseAll();                
+                analyzer.AnalyseAll();
 
                 analyzer.GenerateMappingFile("c:\\temp", "onprem-mapping-all-test.xml");
             }
@@ -145,14 +146,83 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
         }
 
-    }
-
-    public class TestBasePage : BasePage
-    {
-        public TestBasePage(ListItem item, File file, PageTransformation pt, IList<ILogObserver> logObservers):base(item, file, pt, logObservers)
+        [TestMethod]
+        public void BasePage_LoadWebPartDocumentViaWebServicesTest()
         {
+            //string url = "http://portal2010/pages/article-2010-custom.aspx";
+            string url = "/pages/article-2010-custom.aspx";
+            //string url = "/pages/article-2010-custom.aspx";
+
+            using (var context = TestCommon.CreateOnPremisesClientContext())
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File);
+
+                    List<string> search = new List<string>()
+                    {
+                        "WebPartZone"
+                    };
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    testBase.LoadWebPartPageFromWebServices(url);
+
+
+                    break;
+
+                }
+            }
 
         }
+
+
+
+        [TestMethod]
+        public void BasePage_ExportWebPartByWorkaround()
+        {
+            //string url = "http://portal2010/pages/article-2010-custom.aspx";
+            string url = "/pages/article-2010-custom.aspx";
+            //string url = "/pages/article-2010-custom.aspx";
+
+            using (var context = TestCommon.CreateOnPremisesClientContext())
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File);
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    var webPartEntities = testBase.LoadWebPartPageFromWebServices(url);
+                    var wp = webPartEntities.FirstOrDefault();
+
+                    var result = testBase.ExportWebPartXmlWorkaround(url, wp.Id.ToString());
+
+                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+
+                    break;
+
+                }
+            }
+
+        }
+    
+
+}
+
+
+public class TestBasePage : BasePage
+{
+    public TestBasePage(ListItem item, File file, PageTransformation pt, IList<ILogObserver> logObservers) : base(item, file, pt, logObservers)
+    {
+
     }
+}
 
 }

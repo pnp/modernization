@@ -797,6 +797,56 @@ namespace SharePointPnP.Modernization.Framework.Pages
         }
 
         /// <summary>
+        /// Exports Web Part XML via an older workround
+        /// </summary>
+        /// <param name="pageUrl"></param>
+        /// <param name="webPartGuid"></param>
+        /// <returns></returns>
+        public string ExportWebPartXmlWorkaround(string pageUrl, string webPartGuid)
+        {
+            // Issue hints and Credit: 
+            //      https://blog.mastykarz.nl/export-web-parts-csom/ 
+            //      https://sharepoint.stackexchange.com/questions/30865/missing-export-option-for-sharepoint-2010-webparts
+            //      https://github.com/SharePoint/PnP-Sites-Core/pull/908/files
+
+            try
+            {
+                string webPartXml = String.Empty;
+                string serverRelativeUrl = cc.Web.EnsureProperty(w => w.ServerRelativeUrl);
+                var uri = new Uri(cc.Site.Url);
+
+                var fullWebUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}{serverRelativeUrl }";
+                var fullPageUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}{pageUrl}";
+
+                string webServiceUrl = string.Format("{0}_vti_bin/exportwp.aspx?pageurl={1}&guidstring={2}", fullWebUrl, fullPageUrl, webPartGuid);
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
+                request.Credentials = cc.Credentials;
+                request.Method = "GET";
+                
+                var response = request.GetResponse();
+                using (var dataStream = response.GetResponseStream())
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load(dataStream);
+
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerText.Length > 0)
+                    {
+                        webPartXml = xDoc.DocumentElement.InnerXml;
+
+                        return webPartXml;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                // todo
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Loads and Parses Web Part Page from Web Services
         /// </summary>
         /// <param name="fullUrl"></param>
