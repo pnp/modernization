@@ -176,11 +176,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
             if (publishingPageTransformationModel.MetaData.ShowPageProperties)
             {
                 List<string> pagePropertiesFields = new List<string>();
-               
+
                 var fieldsToProcess = publishingPageTransformationModel.MetaData.Field.Where(p => p.ShowInPageProperties == true && !string.IsNullOrEmpty(p.TargetFieldName));
 
                 if (fieldsToProcess.Any())
-                {                    
+                {
                     // Loop over the fields that are defined to be shown in the page properties and that have a target field name set
                     foreach (var fieldToProcess in fieldsToProcess)
                     {
@@ -240,8 +240,26 @@ namespace SharePointPnP.Modernization.Framework.Pages
             var limitedWPManager = publishingPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
             cc.Load(limitedWPManager);
 
-            IEnumerable<WebPartDefinition> webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.ZoneId, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties));
-            cc.ExecuteQueryRetry();
+            IEnumerable<WebPartDefinition> webPartsViaManager = null;
+            List<WebServiceWebPartEntity> webServiceWebPartEntities = null;
+
+            // May need adjusting for SharePoint 2013
+            if (GetVersion(cc) == SPVersion.SP2010)
+            {
+                //Properties, ExportMode and ZoneId - not Supported in 2010,
+                webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
+                cc.ExecuteQueryRetry();
+
+                webServiceWebPartEntities = LoadWebPartPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
+
+                // Add the metadata as required
+            }
+            else
+            {
+                webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.ExportMode, wp => wp.ZoneId, wp => wp.WebPart.Properties));
+                cc.ExecuteQueryRetry();
+
+            }
 
             if (webPartsViaManager.Count() > 0)
             {
@@ -266,7 +284,20 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 bool isDirty = false;
                 foreach (var foundWebPart in webPartsToRetrieve)
                 {
-                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
+                    WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.IsObjectPropertyInstantiated("ExportMode") ?foundWebPart.WebPartDefinition.WebPart.ExportMode : default(WebPartExportMode);
+
+                    if (webServiceWebPartEntities != null)
+                    {
+                        // If the web service call includes the export mode value then set the export options
+                        var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                        var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
+                        if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.Equals("all", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            exportMode = WebPartExportMode.All;
+                        }
+                    }
+
+                    if (exportMode == WebPartExportMode.All)
                     {
                         foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
                         isDirty = true;
@@ -306,6 +337,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     // Determine order already taken
                     int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, wpStartOrder, webparts);
+                    string zoneId = foundWebPart.WebPartDefinition.ZoneId;
+
+                    if(webServiceWebPartEntities != null)
+                    {
+                        var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                        var wsZoneId = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("zoneid", StringComparison.InvariantCultureIgnoreCase));
+                        if (!string.IsNullOrEmpty(wsZoneId.Value))
+                        {
+                            zoneId = wsZoneId.Value;
+                        }
+                    }
 
                     webparts.Add(new WebPartEntity()
                     {
@@ -316,7 +358,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Row = wpInZoneRow,
                         Column = wpInZoneCol,
                         Order = wpInZoneOrderUsed + foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
-                        ZoneId = foundWebPart.WebPartDefinition.ZoneId,
+                        ZoneId = zoneId,
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
                         Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,

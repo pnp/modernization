@@ -4,6 +4,7 @@ using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -728,7 +729,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Call SharePoint Web Services to extract web part properties not exposed by CSOM
         /// </summary>
         /// <returns></returns>
-        public string ExtractWebPartDocumentViaWebServicesFromPage(string fullDocumentUrl)
+        internal string ExtractWebPartDocumentViaWebServicesFromPage(string fullDocumentUrl)
         {
             try
             {
@@ -793,6 +794,129 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Loads and Parses Web Part Page from Web Services
+        /// </summary>
+        /// <param name="fullUrl"></param>
+        public List<WebServiceWebPartEntity> LoadWebPartPageFromWebServices(string fullUrl)
+        {
+            var webParts = new List<WebServiceWebPartEntity>();
+
+            var wsWebParts = ExtractWebPartDocumentViaWebServicesFromPage(fullUrl);
+            if (!string.IsNullOrEmpty(wsWebParts))
+            {
+                var doc = parser.Parse(wsWebParts);
+
+                List<Tuple<string, string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(doc);
+                List<Tuple<string, string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
+
+                prefixesAndNameSpaces.ForEach(p =>
+                {
+                    var possibleParts = WebParts.GetListOfWebParts(p.Item2);
+                    foreach (var part in possibleParts)
+                    {
+                        var webPartName = part.Substring(0, part.IndexOf(",")).Replace($"{p.Item2}.", "");
+                        possibleWebPartsUsed.Add(new Tuple<string, string>(webPartName, part));
+                    }
+                });
+
+                // So this is part XML and part HTML, lets grab the HTML part to get the XML sections then 
+                // switch to XML processing.
+                // Cycle through all the nodes in the document
+                foreach (var docNode in doc.All)
+                {
+                    foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
+                    {
+                        if (docNode.TagName.Contains(prefixAndNameSpace.Item1.ToUpper()))
+                        {
+                            //This should only find one match
+                            var matchedParts = possibleWebPartsUsed.Where(o => o.Item1.ToUpper() == docNode.TagName.Replace($"{prefixAndNameSpace.Item1.ToUpper()}:", ""));
+
+                            if (matchedParts.Any())
+                            {
+                                var match = matchedParts.FirstOrDefault();
+                                if (match != default(Tuple<string, string>))
+                                {
+                                    //Remove child nodes for now.
+                                    for (var i = 0; i < docNode.ChildNodes.Count(); i++)
+                                    {
+                                        docNode.RemoveChild(docNode.ChildNodes[i]);
+                                    }
+
+                                    // There is an invalid < and > in the attributes that is causing issues.
+                                    var cleanedNode = docNode.OuterHtml.Replace("\"<", "\"&lt;").Replace("\">", "\"&gt;");
+                                    
+                                    // Need to remove some characters not suitable for XML parsing.
+                                    // Extract the attributes from the web part into the entity object
+                                    Regex regex = new Regex("([\\w\\-.:]+)\\s*=\\s*(\"[^\"]*\"|'[^']*'|[\\w\\-.:]+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                                    var results = regex.Matches(cleanedNode);
+
+                                    WebServiceWebPartEntity webPart = new WebServiceWebPartEntity();
+                                    webPart.Type = match.Item2;
+
+                                    foreach (Match result in results)
+                                    {
+                                        var splitParam = result.Value.Split('=');
+                                        var key = splitParam[0];
+                                        var value = splitParam[1].Trim('"'); // Remove the " from the string
+                                        
+                                        if(key.Equals("__webpartid", StringComparison.InvariantCultureIgnoreCase))
+                                        {
+                                            webPart.Id = Guid.Parse(value);
+                                        }
+
+                                        webPart.Properties.Add(key, value);
+                                    }
+
+                                    webParts.Add(webPart);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return webParts;
+        }
+
+        /// <summary>
+        /// Gets the tag prefixes from the document
+        /// </summary>
+        /// <param name="webPartPage"></param>
+        /// <returns></returns>
+        internal List<Tuple<string, string>> ExtractWebPartPrefixesFromNamespaces(IHtmlDocument webPartPage)
+        {
+            var tagPrefixes = new List<Tuple<string, string>>();
+
+            Regex regex = new Regex("&lt;%@(.*?)%&gt;", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            var aspxHeader = webPartPage.All.Where(o => o.TagName == "HTML").FirstOrDefault();
+            var results = regex.Matches(aspxHeader?.InnerHtml);
+
+            StringBuilder blockHtml = new StringBuilder();
+            foreach (var match in results)
+            {
+                var matchString = match.ToString().Replace("&lt;%@ ", "<").Replace("%&gt;", " />");
+                blockHtml.AppendLine(matchString);
+            }
+
+            var fullBlock = blockHtml.ToString();
+            using (var subDocument = this.parser.Parse(fullBlock))
+            {
+                var registers = subDocument.All.Where(o => o.TagName == "REGISTER");
+
+                foreach (var register in registers)
+                {
+                    var prefix = register.GetAttribute("Tagprefix");
+                    var nameSpace = register.GetAttribute("Namespace");
+                    tagPrefixes.Add(new Tuple<string, string>(prefix, nameSpace));
+                }
+
+            }
+            
+            return tagPrefixes;
         }
     }
 }
