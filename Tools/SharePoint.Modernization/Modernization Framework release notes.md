@@ -17,7 +17,7 @@
 ## Added
 
 - Custom URL mapping logic: provide a csv file with source and target values and these will be used by the url mapper #135
-- Option to override default QuicklLinks configuration in publishing page transformation scenarios #191
+- Option to override default QuickLinks configuration in publishing page transformation scenarios #191
 - Option to "map" web parts inside a web part zone #167
 
 ## Changed
