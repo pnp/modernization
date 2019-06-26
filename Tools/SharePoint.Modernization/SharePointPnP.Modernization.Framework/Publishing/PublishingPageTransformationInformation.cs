@@ -89,11 +89,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             return this.SourcePage.FieldExistsAndUsed(fieldName);
         }
-
-        public virtual bool AlwaysTrue()
-        {
-            return true;
-        }
         #endregion
 
         #region Page Properties

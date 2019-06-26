@@ -3,7 +3,6 @@ using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
-using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;

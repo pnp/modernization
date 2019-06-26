@@ -7,7 +7,8 @@
     <!-- To test contentype handling, set AssociatedContentType to CustomPage1 + adjust the metadata -->
     <PageLayout Name="VolvoArticleLeft" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
-        <Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />
+        <Field Name="PublishingRollupImage;PublishingPageImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({@name})" />
+        <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />-->
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="StaticString('/sites/ModernizationTarget/SiteAssets/sitepages/Michael-Freedman/ms-stories-station-q-freedman-michael-12-1024x683.jpg')" />-->
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="StaticString('/sites/devPortal/publishingiMages/Page-travel-instructions.jpg')" />-->
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PreviewImage})" />-->
@@ -19,7 +20,7 @@
         <!-- Use Custom1 field when AssociatedContentType is set to CustomPage1 -->
         <!--<Field Name="PublishingContactEmail" TargetFieldName="BannerImageUrl" Functions="StaticString('https://bertonline.sharepoint.com/_layouts/15/getpreview.ashx?guidSite=88eebac1710b464cb6816639340fac55&amp;guidWeb=277fe40db9d24da5bbc6827714184958&amp;guidFile=91bf17fd54e849149a3ad6b4f006304e&amp;ext=jpg')" />-->
         <!--<Field Name="PreviewImage" TargetFieldName="BannerImageUrl" Functions="ToPreviewImageUrl({PreviewImage})" />-->
-        <Field Name="PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
+        <Field Name="PublishingContactName;PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
         <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" ShowInPageProperties="true" />
         <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" ShowInPageProperties="true"/>
         <Field Name="Person" TargetFieldName="Person" Functions="" ShowInPageProperties="true"/>

@@ -19,6 +19,7 @@
 - Custom URL mapping logic: provide a csv file with source and target values and these will be used by the url mapper #135
 - Option to override default QuickLinks configuration in publishing page transformation scenarios #191
 - Option to "map" web parts inside a web part zone #167
+- Support for multiple source field "name" values in page layout mapping files, allows to define "overrides" if a given field is not populated in the source page #201 [MartinHatch]
 
 ## Changed
 
