@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
@@ -20,6 +21,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             Integer = 3,
             DateTime = 4,
             User = 5,
+        }
+
+        public string NameAttributeToken
+        {
+            get { return "{@Name}"; }
         }
 
         private PublishingPageTransformation publishingPageTransformation;
@@ -48,11 +54,27 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.targetClientContext = targetClientContext;
             this.baseTransformationInformation = baseTransformationInformation;
 
-            RegisterAddons();
+            // we may have null values being passed over from unit tests
+            if (this.sourceClientContext != null && this.targetClientContext != null && this.baseTransformationInformation != null)
+            {
+                RegisterAddons();
+            }
         }
         #endregion
 
         #region Public methods
+
+        /// <summary>
+        /// Replaces instances of the NameAttributeToken with the provided PropertyName
+        /// </summary>
+        /// <param name="functions">A string value containing the function definition</param>
+        /// <param name="propertyName">The property to replace it with</param>
+        /// <returns>The newly formatted function value.</returns>
+        public string ResolveFunctionToken(string functions, string propertyName)
+        {
+            return Regex.Replace(functions, NameAttributeToken, propertyName, RegexOptions.IgnoreCase);
+        }
+
         public Tuple<string, string> Process(string functions, string propertyName, FieldType propertyType)
         {
             string propertyKey = "";
@@ -60,6 +82,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             if (!string.IsNullOrEmpty(functions))
             {
+                // Updating parsing logic to allow use of {@Name} token value in the function definition
+                functions = ResolveFunctionToken(functions, propertyName);
+                
                 var functionDefinition = ParseFunctionDefinition(functions, propertyName, propertyType, this.page);
 
                 // Execute function

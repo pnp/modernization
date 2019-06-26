@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.SharePoint.Client;
 using SharePoint.Modernization.Scanner.Results;
 using SharePoint.Scanning.Framework;
+using SharePointPnP.Modernization.Framework.Extensions;
 
 namespace SharePoint.Modernization.Scanner.Analyzers
 {
