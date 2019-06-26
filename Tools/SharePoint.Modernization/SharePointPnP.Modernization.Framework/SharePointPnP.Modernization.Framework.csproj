@@ -296,9 +296,7 @@
     <Compile Include="WebParts.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="App.config" />
     <None Include="PublishingPagesClassDiagram.cd" />
     <None Include="packages.config">
       <SubType>Designer</SubType>

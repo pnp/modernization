@@ -76,6 +76,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Copy the field metadata
                 foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
                 {
+
+                    // check if the source field name attribute contains a delimiter value
+                    if(fieldToProcess.Name.Contains(";"))
+                    {
+                        // extract the array of field names to process, and trims each one
+                        string[] sourceFieldNames = fieldToProcess.Name.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
+
+                        // sets the field name to the first "valid" entry
+                        fieldToProcess.Name = this.publishingPageTransformationInformation.GetFirstNonEmptyFieldName(sourceFieldNames);
+                    }
+
                     // Process only fields which have a target field set...
                     if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
                     {

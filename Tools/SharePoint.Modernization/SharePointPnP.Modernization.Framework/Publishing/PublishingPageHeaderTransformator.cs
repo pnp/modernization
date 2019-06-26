@@ -160,6 +160,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         private string GetFieldValue(HeaderField headerField, PublishingFunctionProcessor.FieldType fieldType = PublishingFunctionProcessor.FieldType.String)
         {
+            // check if the target field name contains a delimiter value
+            if (headerField.Name.Contains(";"))
+            {
+                // extract the array of field names to process, and trims each one
+                string[] targetFieldNames = headerField.Name.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
+
+                // sets the field name to the first "valid" entry
+                headerField.Name = this.publishingPageTransformationInformation.GetFirstNonEmptyFieldName(targetFieldNames);
+            }
+
             string fieldValue = null;
             if (!string.IsNullOrEmpty(headerField.Functions))
             {

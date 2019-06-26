@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using SharePointPnP.Modernization.Framework.Extensions;
 
 namespace SharePoint.Modernization.Scanner.Analyzers
 {
