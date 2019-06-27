@@ -16,6 +16,6 @@ Page Transformation allows you to transform classic wiki, webpart and publishing
 
 - [Page transformation documentation](https://aka.ms/sppnp-pagetransformation)
 - [Getting started with page transformation videos](https://aka.ms/sppnp-pagetransformationvideos)
-- [Page transformation release notes](Modernization%20framework%20release%20notes.md)
+- [Page transformation release notes](Modernization%20Framework%20release%20notes.md)
 
 <img src="https://telemetry.sharepointpnp.com/sp-dev-modernization/Tools/sharepoint-modernization" />
