@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharePointPnP.Modernization.Framework", "SharePointPnP.Modernization.Framework\SharePointPnP.Modernization.Framework.csproj", "{2C80435C-340A-4E6B-B4E3-F13451ABB6C9}"
 EndProject
@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 	ProjectSection(SolutionItems) = preProject
 		Modernization Framework release notes.md = Modernization Framework release notes.md
 		Modernization Scanner release notes.md = Modernization Scanner release notes.md
+		Modernization Scanner.md = Modernization Scanner.md
 		README.md = README.md
 		TransformationModel.md = TransformationModel.md
 	EndProjectSection
@@ -26,9 +27,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharePoint.Scanning.Framework", "SharePoint.Scanning.Framework\SharePoint.Scanning.Framework.csproj", "{024BC1C5-2892-43B5-AF34-D85AE595A2BA}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -68,6 +66,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1D95235B-C088-4A4A-8719-B9026897FF50}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
