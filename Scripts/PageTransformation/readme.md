@@ -2,7 +2,7 @@
 
 ## Summary
 
-The page transformation engine can also be used from PowerShell. This allows it to be integrated in a site modernization script that besides page transformation also does other things like installing solution, connecting the site to an Office 365 group and applying tenant branding. Below sample shows how to get started.
+The page transformation engine can also be used from PowerShell. This allows it to be integrated in a site modernization script that besides page transformation also does other things like installing solution, connecting the site to an Office 365 group and applying tenant branding. Below samples shows how to get started.
 
 ## Applies to
 
