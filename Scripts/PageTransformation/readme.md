@@ -17,12 +17,14 @@ The page transformation engine can also be used from PowerShell. This allows it 
 Solution|Author(s)
 --------|---------
 TransformPages.ps1 | Bert Jansen (**Microsoft**)
+Convert-PublishingPages.ps1 | Paul Bullock (CaPa Creative Ltd)
 
 ## Version history
 
 Version|Date|Comments
 -------|----|--------
 1.0 | November 1st 2018 | Initial commit
+1.1 | June 26th 2019 | Added new sample
 
 ## Disclaimer
 
