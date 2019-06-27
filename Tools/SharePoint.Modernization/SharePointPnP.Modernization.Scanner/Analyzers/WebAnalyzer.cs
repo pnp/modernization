@@ -361,20 +361,20 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     this.MasterPageGalleryCustomization = publishingAnalyzer.MasterPageGalleryCustomization;
                 }
 
+                if (Options.IncludeInfoPath(this.ScanJob.Mode))
+                {
+                    // Kick off InfoPath analysis
+                    var infoPathAnalyzer = new InfoPathAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
+                    infoPathAnalyzer.Analyze(cc);
+                }
+
+                // Place workflow as last scan as it's reloading the web.Lists with different properties. The GetListsToScan method will not reload and hence cause missing properties otherwise
                 if (Options.IncludeWorkflow(this.ScanJob.Mode))
                 {
                     // Kick off workflow analysis
                     var workflowAnalyzer = new WorkflowAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
                     workflowAnalyzer.Analyze(cc);
                 }
-
-                if (Options.IncludeInfoPath(this.ScanJob.Mode))
-                {
-                    // Kick off InfoPath analysis
-                    var infoPathAnalyzer = new  InfoPathAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
-                    infoPathAnalyzer.Analyze(cc);
-                }
-
             }
             finally
             {
