@@ -1,4 +1,5 @@
-﻿using SharePointPnP.Modernization.Framework.Telemetry;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,11 @@ namespace SharePointPnP.Modernization.Framework.Tests
         {
             var error = entry.Exception != null ? entry.Exception.Message : "No error logged";
             Console.WriteLine($"ERROR: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Error: { error }");
+
+            if(entry.IsCriticalException)
+            {
+                Assert.Fail(entry.Message);
+            }
         }
 
         public void Flush()
