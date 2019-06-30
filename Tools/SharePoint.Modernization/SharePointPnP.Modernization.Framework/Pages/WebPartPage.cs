@@ -93,7 +93,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
                     {
-                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
+                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id)?.Value;
                         isDirty = true;
                     }
                 }
@@ -120,7 +120,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                     else
                     {
-                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
+                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml);
                     }
 
                     webparts.Add(new WebPartEntity()
@@ -136,7 +136,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
                         Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties, foundWebPart.WebPartType, foundWebPart.WebPartXml==null ? "" : foundWebPart.WebPartXml.Value),
+                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties, foundWebPart.WebPartType, foundWebPart.WebPartXml==null ? "" : foundWebPart.WebPartXml),
                     });
                 }
             }

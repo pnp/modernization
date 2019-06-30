@@ -34,7 +34,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             public int Column { get; set; }
             public int Order { get; set; }
             public WebPartDefinition WebPartDefinition { get; set; }
-            public ClientResult<string> WebPartXml { get; set; }
+            public string WebPartXml { get; set; }
             public string WebPartType { get; set; }
         }
 
@@ -265,7 +265,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     if (webPartToRetrieve.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
                     {
-                        webPartToRetrieve.WebPartXml = limitedWPManager.ExportWebPart(webPartToRetrieve.WebPartDefinition.Id);
+                        webPartToRetrieve.WebPartXml = limitedWPManager.ExportWebPart(webPartToRetrieve.WebPartDefinition.Id)?.Value;
                         isDirty = true;
                     }
                 }
@@ -288,7 +288,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                     else
                     {
-                        webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXml.Value);
+                        webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXml);
                     }
 
                     webparts.Add(new WebPartEntity()
@@ -304,7 +304,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)webPartToRetrieve.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = webPartToRetrieve.WebPartDefinition.WebPart.IsClosed,
                         Hidden = webPartToRetrieve.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml.Value),
+                        Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml),
                     });
                 }
             }
@@ -785,6 +785,72 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         }
 
                         return webPartPageContents;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                // todo
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Call SharePoint Web Services to extract web part properties not exposed by CSOM
+        /// </summary>
+        /// <returns></returns>
+        internal string ExtractWebPartPropertiesViaWebServicesFromPage(string pageUrl)
+        {
+            try
+            {
+                string webPartProperties = String.Empty;
+                string webUrl = cc.Web.GetUrl();
+                string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
+
+                StringBuilder soapEnvelope = new StringBuilder();
+
+                soapEnvelope.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                soapEnvelope.Append("<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">");
+
+                soapEnvelope.Append(String.Format(
+                 "<soap:Body>" +
+                     "<GetWebPartProperties2 xmlns=\"http://microsoft.com/sharepoint/webpartpages\">" +
+                         "<pageUrl>{0}</pageUrl>" +
+                         "<storage>Shared</storage>" + 
+                         "<behavior>Version3</behavior>" +
+                     "</GetWebPartProperties2>" +
+                 "</soap:Body>"
+                 , pageUrl));
+
+                soapEnvelope.Append("</soap:Envelope>");
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
+                request.Credentials = cc.Credentials;
+                request.Method = "POST";
+                request.ContentType = "text/xml; charset=\"utf-8\"";
+                request.Accept = "text/xml";
+                request.Headers.Add("SOAPAction", "\"http://microsoft.com/sharepoint/webpartpages/GetWebPartProperties2\"");
+
+                using (System.IO.Stream stream = request.GetRequestStream())
+                {
+                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(stream))
+                    {
+                        writer.Write(soapEnvelope.ToString());
+                    }
+                }
+
+                var response = request.GetResponse();
+                using (var dataStream = response.GetResponseStream())
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load(dataStream);
+
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerText.Length > 0)
+                    {
+                        webPartProperties = xDoc.DocumentElement.InnerXml;
+                        
+                        return webPartProperties;
                     }
                 }
             }

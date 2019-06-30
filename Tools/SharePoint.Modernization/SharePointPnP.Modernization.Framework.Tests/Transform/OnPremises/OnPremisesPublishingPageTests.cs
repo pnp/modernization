@@ -69,6 +69,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     }
 
                     pageTransformator.FlushObservers();
+                    
                 }
             }
         }
@@ -136,6 +137,39 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     //Should be one
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
                     var result = testBase.ExtractWebPartDocumentViaWebServicesFromPage(url);
+
+                    Assert.IsTrue(result.Length > 0);
+
+                    break;
+
+                }
+            }
+
+        }
+
+        [TestMethod]
+        public void BasePage_ExtractWebPartPropertiesViaWebServicesFromPageTest()
+        {
+            string url = "/pages/article-2010-custom.aspx";
+            //string url = "/pages/article-2010-custom.aspx";
+
+            using (var context = TestCommon.CreateOnPremisesClientContext())
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File);
+
+                    List<string> search = new List<string>()
+                    {
+                        "WebPartZone"
+                    };
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    var result = testBase.ExtractWebPartPropertiesViaWebServicesFromPage(url);
 
                     Assert.IsTrue(result.Length > 0);
 
