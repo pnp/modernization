@@ -284,7 +284,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     if (webPartToRetrieve.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
                     {
                         // Use different approach to determine type as we can't export the web part XML without indroducing a change
-                        webPartToRetrieve.WebPartType = GetTypeFromProperties(webPartToRetrieve.WebPartDefinition.WebPart.Properties);
+                        webPartToRetrieve.WebPartType = GetTypeFromProperties(webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues);
                     }
                     else
                     {
@@ -304,7 +304,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)webPartToRetrieve.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = webPartToRetrieve.WebPartDefinition.WebPart.IsClosed,
                         Hidden = webPartToRetrieve.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml),
+                        Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml),
                     });
                 }
             }
@@ -450,7 +450,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="properties">Web part properties to analyze</param>
         /// <returns>Type of the web part as fully qualified name</returns>
-        public string GetTypeFromProperties(PropertyValues properties)
+        public string GetTypeFromProperties(Dictionary<string,object> properties)
         {
             // Check for XSLTListView web part
             string[] xsltWebPart = new string[] { "ListUrl", "ListId", "Xsl", "JSLink", "ShowTimelineIfAvailable" };
@@ -525,12 +525,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return "NonExportable_Unidentified";
         }
 
-        private bool CheckWebPartProperties(string[] propertiesToCheck, PropertyValues properties)
+        private bool CheckWebPartProperties(string[] propertiesToCheck, Dictionary<string, object> properties)
         {
             bool isWebPart = true;
             foreach (var wpProp in propertiesToCheck)
             {
-                if (!properties.FieldValues.ContainsKey(wpProp))
+                if (!properties.ContainsKey(wpProp))
                 {
                     isWebPart = false;
                     break;
@@ -547,7 +547,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="webPartType">Type of the web part</param>
         /// <param name="webPartXml">Web part XML</param>
         /// <returns>Collection of the requested property/value pairs</returns>
-        public Dictionary<string, string> Properties(PropertyValues properties, string webPartType, string webPartXml)
+        public Dictionary<string, string> Properties(Dictionary<string,object> properties, string webPartType, string webPartXml)
         {
             Dictionary<string, string> propertiesToKeep = new Dictionary<string, string>();
 
@@ -569,7 +569,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 if (webPartType == WebParts.Client)
                 {
                     // Special case since we don't know upfront which properties are relevant here...so let's take them all
-                    foreach (var prop in properties.FieldValues)
+                    foreach (var prop in properties)
                     {
                         if (!propertiesToKeep.ContainsKey(prop.Key))
                         {
@@ -582,7 +582,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     // Special case where we did not have export rights for the web part XML, assume this is a V3 web part
                     foreach (var property in propertiesToRetrieve)
                     {
-                        if (!string.IsNullOrEmpty(property.Name) && properties.FieldValues.ContainsKey(property.Name))
+                        if (!string.IsNullOrEmpty(property.Name) && properties.ContainsKey(property.Name))
                         {
                             if (!propertiesToKeep.ContainsKey(property.Name))
                             {
@@ -601,7 +601,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     if (webPartType == WebParts.Client)
                     {
                         // Special case since we don't know upfront which properties are relevant here...so let's take them all
-                        foreach (var prop in properties.FieldValues)
+                        foreach (var prop in properties)
                         {
                             if (!propertiesToKeep.ContainsKey(prop.Key))
                             {
@@ -614,7 +614,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         // the retrieved properties are sufficient
                         foreach (var property in propertiesToRetrieve)
                         {
-                            if (!string.IsNullOrEmpty(property.Name) && properties.FieldValues.ContainsKey(property.Name))
+                            if (!string.IsNullOrEmpty(property.Name) && properties.ContainsKey(property.Name))
                             {
                                 if (!propertiesToKeep.ContainsKey(property.Name))
                                 {
@@ -630,7 +630,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     {
                         if (!string.IsNullOrEmpty(property.Name))
                         {
-                            if (properties.FieldValues.ContainsKey(property.Name))
+                            if (properties.ContainsKey(property.Name))
                             {
                                 if (!propertiesToKeep.ContainsKey(property.Name))
                                 {
