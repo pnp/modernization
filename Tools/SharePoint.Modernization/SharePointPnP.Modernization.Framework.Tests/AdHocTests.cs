@@ -4,12 +4,63 @@ using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Transform;
 using AngleSharp.Parser.Html;
 using System.Linq;
+using Microsoft.SharePoint.Client.Workflow;
+using System.IO;
 
 namespace SharePointPnP.Modernization.Framework.Tests
 {
     [TestClass]
     public class AdHocTests
     {
+/**
+        [TestMethod]
+        public void Workflowtest()
+        {
+            using (var cc = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/temp2"))
+            {
+                cc.Load(cc.Web, p => p.WorkflowTemplates, p => p.WorkflowAssociations, p => p.WorkflowTemplates);
+                cc.ExecuteQueryRetry();
+
+                var wf = cc.Web.WorkflowTemplates.Where(p => p.Name.StartsWith("demo")).FirstOrDefault();
+                if (wf != null)
+                {
+                    var workflowList = cc.Web.GetListByTitle("Workflows");
+
+                    if (workflowList != null)
+                    {
+                        workflowList.EnsureProperty(p => p.RootFolder);
+
+                        var file = workflowList.RootFolder.GetFile($"{wf.Name}/{wf.Name}.xoml");
+
+                        ClientResult<System.IO.Stream> xomlFile = file.OpenBinaryStream();
+
+                        cc.Load(file);
+                        cc.ExecuteQueryRetry();
+
+                        string text;
+                        using (Stream sourceFileStream = xomlFile.Value)
+                        {
+                            StreamReader reader = new StreamReader(sourceFileStream);
+                            text = reader.ReadToEnd();
+                        }
+
+
+
+
+                    }
+                }
+
+
+                //var wfAssoc = cc.Web.WorkflowAssociations.FirstOrDefault();
+                //if (wfAssoc != null)
+                //{
+
+                //}
+
+
+            }
+        }
+    **/
 
         [TestMethod]
         public void TestMethod1()
