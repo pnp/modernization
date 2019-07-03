@@ -450,7 +450,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="properties">Web part properties to analyze</param>
         /// <returns>Type of the web part as fully qualified name</returns>
-        public string GetTypeFromProperties(Dictionary<string,object> properties)
+        public string GetTypeFromProperties(Dictionary<string, object> properties)
         {
             // Check for XSLTListView web part
             string[] xsltWebPart = new string[] { "ListUrl", "ListId", "Xsl", "JSLink", "ShowTimelineIfAvailable" };
@@ -547,7 +547,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="webPartType">Type of the web part</param>
         /// <param name="webPartXml">Web part XML</param>
         /// <returns>Collection of the requested property/value pairs</returns>
-        public Dictionary<string, string> Properties(Dictionary<string,object> properties, string webPartType, string webPartXml)
+        public Dictionary<string, string> Properties(Dictionary<string, object> properties, string webPartType, string webPartXml)
         {
             Dictionary<string, string> propertiesToKeep = new Dictionary<string, string>();
 
@@ -736,7 +736,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 string webPartPageContents = String.Empty;
                 string webUrl = cc.Web.GetUrl();
                 string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
-            
+
                 StringBuilder soapEnvelope = new StringBuilder();
 
                 soapEnvelope.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
@@ -759,7 +759,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 request.ContentType = "text/xml; charset=\"utf-8\"";
                 request.Accept = "text/xml";
                 request.Headers.Add("SOAPAction", "\"http://microsoft.com/sharepoint/webpartpages/GetWebPartPage\"");
-                
+
                 using (System.IO.Stream stream = request.GetRequestStream())
                 {
                     using (System.IO.StreamWriter writer = new System.IO.StreamWriter(stream))
@@ -780,8 +780,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         //Remove the junk from the result
                         var tag = "<HasByteOrderMark/>";
                         var marker = webPartPageContents.IndexOf(tag);
-                        if (marker > -1) {
-                            webPartPageContents = webPartPageContents.Substring(marker).Replace(tag,"");
+                        if (marker > -1)
+                        {
+                            webPartPageContents = webPartPageContents.Substring(marker).Replace(tag, "");
                         }
 
                         return webPartPageContents;
@@ -817,7 +818,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                  "<soap:Body>" +
                      "<GetWebPartProperties2 xmlns=\"http://microsoft.com/sharepoint/webpartpages\">" +
                          "<pageUrl>{0}</pageUrl>" +
-                         "<storage>Shared</storage>" + 
+                         "<storage>Shared</storage>" +
                          "<behavior>Version3</behavior>" +
                      "</GetWebPartProperties2>" +
                  "</soap:Body>"
@@ -846,10 +847,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     XmlDocument xDoc = new XmlDocument();
                     xDoc.Load(dataStream);
 
-                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerText.Length > 0)
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
                     {
                         webPartProperties = xDoc.DocumentElement.InnerXml;
-                        
+
                         return webPartProperties;
                     }
                 }
@@ -889,14 +890,14 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
                 request.Credentials = cc.Credentials;
                 request.Method = "GET";
-                
+
                 var response = request.GetResponse();
                 using (var dataStream = response.GetResponseStream())
                 {
                     XmlDocument xDoc = new XmlDocument();
                     xDoc.Load(dataStream);
 
-                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerText.Length > 0)
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
                     {
                         webPartXml = xDoc.DocumentElement.InnerXml;
 
@@ -963,7 +964,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                                     // There is an invalid < and > in the attributes that is causing issues.
                                     var cleanedNode = docNode.OuterHtml.Replace("\"<", "\"&lt;").Replace("\">", "\"&gt;");
-                                    
+
                                     // Need to remove some characters not suitable for XML parsing.
                                     // Extract the attributes from the web part into the entity object
                                     Regex regex = new Regex("([\\w\\-.:]+)\\s*=\\s*(\"[^\"]*\"|'[^']*'|[\\w\\-.:]+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
@@ -977,8 +978,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         var splitParam = result.Value.Split('=');
                                         var key = splitParam[0];
                                         var value = splitParam[1].Trim('"'); // Remove the " from the string
-                                        
-                                        if(key.Equals("__webpartid", StringComparison.InvariantCultureIgnoreCase))
+
+                                        if (key.Equals("__webpartid", StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             webPart.Id = Guid.Parse(value);
                                         }
@@ -996,6 +997,68 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             return webParts;
+        }
+
+        /// <summary>
+        /// Loads Web Part Properties from web services
+        /// </summary>
+        /// <param name="pageUrl">Server Relative Page Url</param>
+        /// <returns></returns>
+        public List<WebServiceWebPartProperties> LoadWebPartPropertiesFromWebServices(string pageUrl)
+
+        {
+            // This may contain references to multiple web part
+            var webPartProperties = new List<WebServiceWebPartProperties>();
+            var wsWebPartProps = ExtractWebPartPropertiesViaWebServicesFromPage(pageUrl);
+
+            if (!string.IsNullOrEmpty(wsWebPartProps))
+            {
+                try
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.LoadXml(wsWebPartProps);
+                    var namespaceManager = new XmlNamespaceManager(xDoc.NameTable);
+                    namespaceManager.AddNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/");
+                    namespaceManager.AddNamespace("wpp", "http://microsoft.com/sharepoint/webpartpages");
+                    namespaceManager.AddNamespace("wpv3", "http://schemas.microsoft.com/WebPart/v3");
+
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
+                    {
+                        var xPath = "//soap:Body/wpp:GetWebPartProperties2Response/wpp:GetWebPartProperties2Result/wpp:WebParts/wpp:WebPart/wpv3:webPart";
+                        var webParts = xDoc.SelectNodes(xPath, namespaceManager);
+
+                        foreach (XmlNode webPartNode in webParts)
+                        {
+                            WebServiceWebPartProperties wsWebPartPropertiesEntity = new WebServiceWebPartProperties();
+
+                            // Get Parent Node for Web Part ID
+                            var parentNodeIdAttribute = webPartNode.ParentNode.Attributes.GetNamedItem("ID");
+                            wsWebPartPropertiesEntity.Id = Guid.Parse(parentNodeIdAttribute.Value);
+
+                            // Get the type from a child node
+                            var metaNode = webPartNode.SelectSingleNode("//wpv3:type", namespaceManager);
+                            var typeAttrNode = metaNode?.Attributes.GetNamedItem("name");
+                            wsWebPartPropertiesEntity.Type = typeAttrNode?.Value;
+
+                            //Get the properties
+                            var propertyNodes = webPartNode.SelectNodes("//wpv3:property", namespaceManager);
+
+                            foreach(XmlNode propertyNode in propertyNodes)
+                            {
+                                wsWebPartPropertiesEntity.Properties.Add(propertyNode.Attributes.GetNamedItem("name")?.Value, propertyNode.InnerText);
+                            }
+
+                            webPartProperties.Add(wsWebPartPropertiesEntity);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Catch exceptions during processing of Web Service Responses
+                }
+            }
+
+            return webPartProperties;
         }
 
         /// <summary>
@@ -1031,7 +1094,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 }
 
             }
-            
+
             return tagPrefixes;
         }
     }

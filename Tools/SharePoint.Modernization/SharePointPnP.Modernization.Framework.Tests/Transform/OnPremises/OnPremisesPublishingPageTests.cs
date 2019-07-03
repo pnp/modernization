@@ -205,7 +205,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
                     testBase.LoadWebPartPageFromWebServices(url);
 
-
+                    //TODO: Finish Test
                     break;
 
                 }
@@ -213,6 +213,38 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
         }
 
+        [TestMethod]
+        public void BasePage_LoadWebPartPropertiesViaWebServicesTest()
+        {
+            //string url = "http://portal2010/pages/article-2010-custom.aspx";
+            string url = "/pages/article-2010-custom.aspx";
+            //string url = "/pages/article-2010-custom.aspx";
+
+            using (var context = TestCommon.CreateOnPremisesClientContext())
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File);
+
+                    List<string> search = new List<string>()
+                    {
+                        "WebPartZone"
+                    };
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    testBase.LoadWebPartPropertiesFromWebServices(url);
+                    
+                    break;
+                    //TODO: Finish Test
+
+                }
+            }
+
+        }
 
 
         [TestMethod]
