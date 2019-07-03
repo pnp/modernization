@@ -242,16 +242,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             IEnumerable<WebPartDefinition> webPartsViaManager = null;
             List<WebServiceWebPartEntity> webServiceWebPartEntities = null;
+            List<WebServiceWebPartProperties> webServiceWebPartProperties = null;
 
             // May need adjusting for SharePoint 2013
             if (GetVersion(cc) == SPVersion.SP2010)
             {
-                //Properties, ExportMode and ZoneId - not Supported in 2010,
+                //Properties, ExportMode and ZoneId - not Supported in 2010, Web Services are used to compensate for the missing properties
                 webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
                 cc.ExecuteQueryRetry();
 
                 webServiceWebPartEntities = LoadWebPartPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
-
+                webServiceWebPartProperties = LoadWebPartPropertiesFromWebServices(publishingPage.EnsureProperty(p => p.ServerRelativeUrl));
                 // Add the metadata as required
             }
             else
@@ -320,7 +321,24 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                 foreach (var foundWebPart in webPartsToRetrieve.OrderBy(p=> p.WebPartDefinition.WebPart.ZoneIndex))
                 {
-                    WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.IsObjectPropertyInstantiated("ExportMode") ? foundWebPart.WebPartDefinition.WebPart.ExportMode : default(WebPartExportMode);
+                    WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.IsObjectPropertyInstantiated("ExportMode") ? foundWebPart.WebPartDefinition.WebPart.ExportMode : default;
+
+                    Dictionary<string, object> webPartProperties = null;
+
+                    //Determine if web calls have been made and use those properties in preference to the CSOM calls 
+
+                   if (webServiceWebPartProperties != null)
+                    {
+                        var wsFoundWebPartProperties = webServiceWebPartProperties.SingleOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                        if(wsFoundWebPartProperties != default(WebServiceWebPartProperties))
+                        {
+                            webPartProperties = wsFoundWebPartProperties.Properties;
+                        }
+                    }
+                    else
+                    {
+                        webPartProperties = foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues;
+                    }
                     
                     if (webServiceWebPartEntities != null)
                     {
@@ -389,7 +407,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
                         Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml),
+                        Properties = Properties(webPartProperties, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml),
                     });
                 }
             }
