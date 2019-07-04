@@ -170,13 +170,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo($"{targetClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
 
                 // Need to add further validation for target template
-                //TODO 2010 Fix
-                //if (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP")
-                //{
+                targetClientContext.Web.EnsureProperty(o => o.WebTemplate);
+                if (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP")
+                {
 
-                //    LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);
-                //    throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
-                //}
+                    LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);
+                    throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
+                }
 
                 LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 

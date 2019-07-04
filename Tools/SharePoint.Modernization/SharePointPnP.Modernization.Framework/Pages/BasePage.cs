@@ -553,7 +553,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             List<Property> propertiesToRetrieve = this.pageTransformation.BaseWebPart.Properties.ToList<Property>();
 
-            //TODO: For older versions of SharePoint the type in the mapping would not match. Use the TypeShort Comparison. 
+            //For older versions of SharePoint the type in the mapping would not match. Use the TypeShort Comparison. 
             var webPartProperties = this.pageTransformation.WebParts.Where(p => p.Type.GetTypeShort().Equals(webPartType.GetTypeShort(), StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             if (webPartProperties != null && webPartProperties.Properties != null)
             {
@@ -735,6 +735,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             try
             {
+                LogInfo(LogStrings.CallingWebServicesToExtractWebPartsFromPage, LogStrings.Heading_ContentTransform);
                 string webPartPageContents = String.Empty;
                 string webUrl = cc.Web.GetUrl();
                 string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
@@ -755,7 +756,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                 soapEnvelope.Append("</soap:Envelope>");
 
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl);
                 request.Credentials = cc.Credentials;
                 request.Method = "POST";
                 request.ContentType = "text/xml; charset=\"utf-8\"";
@@ -793,7 +794,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
             catch (WebException ex)
             {
-                // todo
+                LogError(LogStrings.Error_CallingWebServicesToExtractWebPartsFromPage,LogStrings.Heading_ContentTransform, ex);
             }
 
             return string.Empty;
@@ -807,6 +808,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
             try
             {
+                LogInfo(LogStrings.CallingWebServicesToExtractWebPartPropertiesFromPage, LogStrings.Heading_ContentTransform);
                 string webPartProperties = String.Empty;
                 string webUrl = cc.Web.GetUrl();
                 string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
@@ -859,7 +861,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
             catch (WebException ex)
             {
-                // todo
+                LogError(LogStrings.Error_ExtractWebPartPropertiesViaWebServicesFromPage, LogStrings.Heading_ContentTransform, ex);
             }
 
             return string.Empty;
@@ -880,6 +882,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             try
             {
+                LogInfo(LogStrings.RetreivingExportWebPartXmlWorkaround, LogStrings.Heading_ContentTransform);
                 string webPartXml = String.Empty;
                 string serverRelativeUrl = cc.Web.EnsureProperty(w => w.ServerRelativeUrl);
                 var uri = new Uri(cc.Site.Url);
@@ -909,7 +912,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
             catch (WebException ex)
             {
-                // todo
+                LogError(LogStrings.Error_ExportWebPartXmlWorkaround, LogStrings.Heading_ContentTransform, ex);
             }
 
             return string.Empty;
