@@ -7,7 +7,6 @@ using System.Collections.Concurrent;
 using SharePoint.Modernization.Scanner.Results;
 using SharePoint.Modernization.Scanner.Analyzers;
 using Microsoft.Online.SharePoint.TenantAdministration;
-using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
 using SharePointPnP.Modernization.Framework;
@@ -37,6 +36,8 @@ namespace SharePoint.Modernization.Scanner
         public Dictionary<string, PublishingSiteScanResult> PublishingSiteScanResults;
         public ConcurrentDictionary<string, PublishingWebScanResult> PublishingWebScanResults;
         public ConcurrentDictionary<string, PublishingPageScanResult> PublishingPageScanResults;
+        public ConcurrentDictionary<string, WorkflowScanResult> WorkflowScanResults;
+        public ConcurrentDictionary<string, InfoPathScanResult> InfoPathScanResults;
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
         public ScannerTelemetry ScannerTelemetry;
@@ -58,13 +59,13 @@ namespace SharePoint.Modernization.Scanner
             CurrentVersion = options.CurrentVersion;
             NewVersion = options.NewVersion;
 
-            // Site scan results
+            // Scan results
             this.SiteScanResults = new ConcurrentDictionary<string, SiteScanResult>(options.Threads, 10000);
             this.WebScanResults = new ConcurrentDictionary<string, WebScanResult>(options.Threads, 50000);
             this.ListScanResults = new ConcurrentDictionary<string, ListScanResult>(options.Threads, 100000);
             this.PageScanResults = new ConcurrentDictionary<string, PageScanResult>(options.Threads, 1000000);
-
-            // Publishing portal scan results
+            this.WorkflowScanResults = new ConcurrentDictionary<string, WorkflowScanResult>(options.Threads, 100000);
+            this.InfoPathScanResults = new ConcurrentDictionary<string, InfoPathScanResult>(options.Threads, 10000);
             this.PublishingSiteScanResults = new Dictionary<string, PublishingSiteScanResult>(500);
             this.PublishingWebScanResults = new ConcurrentDictionary<string, PublishingWebScanResult>(options.Threads, 1000);
             this.PublishingPageScanResults = new ConcurrentDictionary<string, PublishingPageScanResult>(options.Threads, 10000);
@@ -318,38 +319,8 @@ namespace SharePoint.Modernization.Scanner
                 this.SPOTenant = new Tenant(ccAdmin);
             }
 
-            // Load xml mapping data
-            XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
-
-            // If there's a webpartmapping file in the .exe folder then use that
-            if (System.IO.File.Exists("webpartmapping.xml"))
-            {
-                using (var stream = new FileStream("webpartmapping.xml", FileMode.Open))
-                {
-                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
-                }
-            }
-            else
-            {
-                // No webpartmapping file found, let's grab the embedded one
-                string webpartMappingString = WebpartMappingLoader.LoadFile("SharePoint.Modernization.Scanner.webpartmapping.xml");
-                using (var stream = WebpartMappingLoader.GenerateStreamFromString(webpartMappingString))
-                {
-                    this.PageTransformation = (PageTransformation)xmlMapping.Deserialize(stream);
-
-                    // Drop web parts that have community mappings as we're not sure if that mapping will be used. This is 
-                    // needed to align with the older model where the community mapping was in comments in the standard
-                    // mapping file.
-                    var webPartsWithMappingsToRemove = this.PageTransformation.WebParts.Where(p => p.Type.Equals(WebParts.ScriptEditor) || p.Type.Equals(WebParts.SimpleForm));
-                    if (webPartsWithMappingsToRemove.Any())
-                    {
-                        foreach(var webPart in webPartsWithMappingsToRemove)
-                        {
-                            webPart.Mappings = null;
-                        }
-                    }
-                }
-            }
+            // Load the pagetransformation model that the scanner will use
+            this.PageTransformation = new PageTransformationManager().LoadPageTransformationModel();
 
             return sites;
         }
@@ -628,7 +599,7 @@ namespace SharePoint.Modernization.Scanner
                 // Telemetry
                 if (this.ScannerTelemetry != null)
                 {
-                    this.ScannerTelemetry.LogPublishingScan(this.PublishingSiteScanResults, this.PublishingWebScanResults, this.PublishingPageScanResults);
+                    this.ScannerTelemetry.LogPublishingScan(this.PublishingSiteScanResults, this.PublishingWebScanResults, this.PublishingPageScanResults, this.PageTransformation);
                 }
 
                 // Export the site publishing data
@@ -695,7 +666,7 @@ namespace SharePoint.Modernization.Scanner
                     outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "PageRelativeUrl", "PageName",
                                                    "ContentType", "ContentTypeId", "PageLayout", "PageLayoutFile", "PageLayoutWasCustomized",
                                                    "GlobalAudiences", "SecurityGroupAudiences", "SharePointGroupAudiences",
-                                                   "ModifiedAt", "ModifiedBy", "Mapping %"
+                                                   "ModifiedAt", "ModifiedBy", "Mapping %", "Unmapped web parts"
                                                  };
 
                     string header1 = string.Join(this.Separator, outputHeaders);
@@ -721,7 +692,7 @@ namespace SharePoint.Modernization.Scanner
                             var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.PageRelativeUrl), ToCsv(item.Value.PageName),
                                                                     ToCsv(item.Value.ContentType), ToCsv(item.Value.ContentTypeId), ToCsv(item.Value.PageLayout), ToCsv(item.Value.PageLayoutFile), item.Value.PageLayoutWasCustomized,
                                                                     ToCsv(PublishingPageScanResult.FormatList(item.Value.GlobalAudiences)), ToCsv(PublishingPageScanResult.FormatList(item.Value.SecurityGroupAudiences, "|")), ToCsv(PublishingPageScanResult.FormatList(item.Value.SharePointGroupAudiences)),
-                                                                    item.Value.ModifiedAt, ToCsv(item.Value.ModifiedBy), "{MappingPercentage}"
+                                                                    item.Value.ModifiedAt, ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
                                 );
 
                             string part2 = "";
@@ -766,7 +737,61 @@ namespace SharePoint.Modernization.Scanner
                         }
                     }
                 }
+            }
 
+            if (Options.IncludeWorkflow(this.Mode))
+            {
+                // Telemetry
+                if (this.ScannerTelemetry != null)
+                {
+                    this.ScannerTelemetry.LogWorkflowScan(this.WorkflowScanResults);
+                }
+
+                outputfile = string.Format("{0}\\ModernizationWorkflowScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB",
+                                               "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id",
+                                               "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id"  };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var workflow in this.WorkflowScanResults)
+                    {
+
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
+                                                                                           ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
+                                                                                           ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString()
+                                                     )));
+                    }
+                }
+
+                Console.WriteLine("Outputting scan results to {0}", outputfile);
+            }
+
+            if (Options.IncludeInfoPath(this.Mode))
+            {
+                // Telemetry
+                if (this.ScannerTelemetry != null)
+                {
+                    this.ScannerTelemetry.LogInfoPathScan(this.InfoPathScanResults);
+                }
+
+                outputfile = string.Format("{0}\\ModernizationInfoPathScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", 
+                                               "List Title", "List Url", "List Id", "Template"  };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var infoPath in this.InfoPathScanResults)
+                    {
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, infoPath.Value.LastItemUserModifiedDate, infoPath.Value.ItemCount,
+                                                                                           ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate)
+                                                     )));
+                    }
+                }
+
+                Console.WriteLine("Outputting scan results to {0}", outputfile);
             }
 
             VersionWarning();

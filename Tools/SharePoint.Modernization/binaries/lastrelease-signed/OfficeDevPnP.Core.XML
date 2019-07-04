@@ -15085,6 +15085,11 @@
             using OAuth for AuthN/AuthZ
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateApplyingInformation.DelayAfterModernSiteCreation">
+            <summary>
+            Defines a delay to wait for after modern site creation
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Extensions.LocalizationExtensions.CanUseAcceptLanguageHeaderForLocalization(Microsoft.SharePoint.Client.Web)">
             <summary>
             Checks if replacing the "Accept-Language" header is allowed. This approach does not work when the user that's
@@ -39780,6 +39785,14 @@
             <param name="rowLimit">&lt;RowLimit&gt; node.</param>
             <returns>String to be used in CAML queries</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.CAML.Value(System.String,System.String)">
+            <summary>
+            Creates a &lt;Value&gt; node for In comparison clauses.
+            </summary>
+            <param name="value">Value of the field</param>
+            <param name="fieldValueType">Value type of the field</param>
+            <returns>Value string to be used for In comparisions in CAML queries</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Utilities.CAML.FieldValue(System.String,System.String,System.String,System.String)">
             <summary>
             Creates both a &lt;FieldRef&gt; and &lt;Value&gt; nodes combination for Where clauses.
@@ -39891,6 +39904,14 @@
             Creates &lt;In&gt; node for Comparison
             </summary>
             <param name="fieldValue">Value of the field</param>
+            <returns>Returns Comparison string to be used in CAML queries</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.CAML.In(System.String,System.String[])">
+            <summary>
+            Creates &lt;In&gt; node for Comparison
+            </summary>
+            <param name="fieldRef">Field Reference</param>
+            <param name="values">Value strings to be included inside the &lt;In&gt;-clause</param>
             <returns>Returns Comparison string to be used in CAML queries</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Utilities.CAML.Includes(System.String)">
@@ -43299,36 +43320,40 @@
             This class can be used to create modern site collections
             </summary>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32)">
             <summary>
             Creates a new Communication Site Collection and waits for it to be created
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32)">
             <summary>
             Creates a new Team Site Collection and waits for it to be created
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32)">
             <summary>
             Creates a new Communication Site Collection
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32)">
             <summary>
             Creates a new Modern Team Site Collection
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GroupifyAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionGroupifyInformation)">

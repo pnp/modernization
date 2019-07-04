@@ -11,7 +11,9 @@
         GroupConnect,
         List,
         Pages,
-        PublishingPortals
+        PublishingPortals,
+        Workflows,
+        InfoPath
     }
 
     /// <summary>
@@ -119,7 +121,28 @@
         ScheduledPublishing,
         AudienceTargeting,
         Languages,
-        VariationLabels
+        VariationLabels,
+        WebPartMapping,
+        UnMappedWebParts
+    }
+
+    /// <summary>
+    /// Measures collected for workflows
+    /// </summary>
+    public enum WorkflowResults
+    {
+        Workflows,
+        Version,
+        Scope
+    }
+
+    /// <summary>
+    /// Measures collected for InfoPath
+    /// </summary>
+    public enum InfoPathResults
+    {
+        FormsFound,
+        Usage
     }
 
 }

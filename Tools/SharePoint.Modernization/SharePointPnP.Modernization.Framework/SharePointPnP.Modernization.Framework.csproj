@@ -189,6 +189,7 @@
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Entities\TransformationLogAnalysis.cs" />
+    <Compile Include="Entities\UrlMapping.cs" />
     <Compile Include="Entities\UserEntity.cs" />
     <Compile Include="Entities\WebServiceWebPartProperties.cs" />
     <Compile Include="Entities\WebServiceWebPartEntity.cs" />
@@ -290,15 +291,14 @@
     <Compile Include="Transform\TokenParser.cs" />
     <Compile Include="Transform\UrlTransformator.cs" />
     <Compile Include="Transform\WikiHtmlTransformator.cs" />
+    <Compile Include="Utilities\FileManager.cs" />
     <Compile Include="webpartmapping.cs">
       <DependentUpon>webpartmapping.xsd</DependentUpon>
     </Compile>
     <Compile Include="WebParts.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="App.config" />
     <None Include="PublishingPagesClassDiagram.cd" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -306,6 +306,7 @@
     <EmbeddedResource Include="Publishing\pagelayoutmapping.xsd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="Samples\urlmapping_sample.csv" />
     <None Include="webpartmapping.xsc">
       <DependentUpon>webpartmapping.xsd</DependentUpon>
     </None>
@@ -318,14 +319,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Caml\credits.txt" />
-    <Content Include="Functions\HighlightedContent.txt" />
-    <Content Include="Functions\sourcetext.html" />
-    <Content Include="Functions\targettext.html" />
     <Content Include="Nuget\webpartmapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="Publishing\pagelayoutmapping.xml" />
-    <Content Include="Publishing\pagelayoutmapping_sample.xml" />
+    <Content Include="Samples\pagelayoutmapping_sample.xml" />
     <Content Include="webpartmapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

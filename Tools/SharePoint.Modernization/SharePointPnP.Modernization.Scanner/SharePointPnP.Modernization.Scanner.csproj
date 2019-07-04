@@ -220,11 +220,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyzers\IBaseAnalyzer.cs" />
+    <Compile Include="Analyzers\InfoPathAnalyzer.cs" />
     <Compile Include="Analyzers\ListAnalyzer.cs" />
     <Compile Include="Analyzers\PageAnalyzer.cs" />
     <Compile Include="Analyzers\PublishingAnalyzer.cs" />
     <Compile Include="Analyzers\SiteAnalyzer.cs" />
     <Compile Include="Analyzers\WebAnalyzer.cs" />
+    <Compile Include="Analyzers\WorkflowAnalyzer.cs" />
     <Compile Include="Extensions\FieldExtensions.cs" />
     <Compile Include="Extensions\FileExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
@@ -248,6 +250,7 @@
     </Compile>
     <Compile Include="Reports\Generator.cs" />
     <Compile Include="Reports\ScanSummary.cs" />
+    <Compile Include="Results\InfoPathScanResult.cs" />
     <Compile Include="Results\ListScanResult.cs" />
     <Compile Include="Results\PageScanResult.cs" />
     <Compile Include="Results\PublishingPageScanResult.cs" />
@@ -256,10 +259,12 @@
     <Compile Include="Results\SiteScanResult.cs" />
     <Compile Include="Results\UserCustomActionResult.cs" />
     <Compile Include="Results\WebScanResult.cs" />
+    <Compile Include="Results\WorkflowScanResult.cs" />
     <Compile Include="Results\XsltViewWebPartCompatability.cs" />
     <Compile Include="Telemetry\ScannerTelemetry.cs" />
     <Compile Include="Telemetry\TelemetryEvents.cs" />
     <Compile Include="Telemetry\VersionCheck.cs" />
+    <Compile Include="Utilities\PageTransformationManager.cs" />
     <Compile Include="Utilities\WebpartMappingLoader.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +285,8 @@
     <EmbeddedResource Include="Reports\pagemaster.xlsx" />
     <EmbeddedResource Include="Reports\publishingmaster.xlsx" />
     <EmbeddedResource Include="Reports\listmaster.xlsx" />
+    <EmbeddedResource Include="Reports\workflowmaster.xlsx" />
+    <EmbeddedResource Include="Reports\infopathmaster.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml" />

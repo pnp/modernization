@@ -2,7 +2,7 @@
 
 ## Summary
 
-The page transformation engine can also be used from PowerShell. This allows it to be integrated in a site modernization script that besides page transformation also does other things like installing solution, connecting the site to an Office 365 group and applying tenant branding. Below sample shows how to get started.
+The page transformation engine can also be used from PowerShell. This allows it to be integrated in a site modernization script that besides page transformation also does other things like installing solution, connecting the site to an Office 365 group and applying tenant branding. Below samples shows how to get started.
 
 ## Applies to
 
@@ -17,12 +17,14 @@ The page transformation engine can also be used from PowerShell. This allows it 
 Solution|Author(s)
 --------|---------
 TransformPages.ps1 | Bert Jansen (**Microsoft**)
+Convert-PublishingPages.ps1 | Paul Bullock (CaPa Creative Ltd)
 
 ## Version history
 
 Version|Date|Comments
 -------|----|--------
 1.0 | November 1st 2018 | Initial commit
+1.1 | June 26th 2019 | Added new sample
 
 ## Disclaimer
 

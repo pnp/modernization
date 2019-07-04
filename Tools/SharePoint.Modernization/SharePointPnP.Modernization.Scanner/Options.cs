@@ -16,7 +16,9 @@ namespace SharePoint.Modernization.Scanner
         PageOnly,
         PublishingOnly,
         PublishingWithPagesOnly,
-        ListOnly
+        ListOnly,
+        WorkflowOnly,
+        InfoPathOnly
     }
 
     /// <summary>
@@ -167,6 +169,47 @@ namespace SharePoint.Modernization.Scanner
             }
 
             if (mode == Mode.ListOnly)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Include workflow analysis
+        /// </summary>
+        /// <param name="mode">mode that was provided</param>
+        /// <returns>True if included, false otherwise</returns>
+        public static bool IncludeWorkflow(Mode mode)
+        {
+            if (mode == Mode.Full)
+            {
+                return true;
+            }
+
+            if (mode == Mode.WorkflowOnly)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Include InfoPath analysis
+        /// </summary>
+        /// <param name="mode">mode that was provided</param>
+        /// <returns>True if included, false otherwise</returns>
+        public static bool IncludeInfoPath(Mode mode)
+        {
+            if (mode == Mode.Full)
+            {
+                return true;
+            }
+
+            if (mode == Mode.InfoPathOnly)
             {
                 return true;
             }

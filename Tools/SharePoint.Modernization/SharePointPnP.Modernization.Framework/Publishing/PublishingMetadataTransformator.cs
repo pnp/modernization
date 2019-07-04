@@ -76,6 +76,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Copy the field metadata
                 foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
                 {
+
+                    // check if the source field name attribute contains a delimiter value
+                    if(fieldToProcess.Name.Contains(";"))
+                    {
+                        // extract the array of field names to process, and trims each one
+                        string[] sourceFieldNames = fieldToProcess.Name.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
+
+                        // sets the field name to the first "valid" entry
+                        fieldToProcess.Name = this.publishingPageTransformationInformation.GetFirstNonEmptyFieldName(sourceFieldNames);
+                    }
+
                     // Process only fields which have a target field set...
                     if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
                     {
@@ -132,34 +143,42 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 if (fieldValueToSet is FieldUserValue)
                                                 {
                                                     // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
-                                                    var user = targetClientContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
-                                                    targetClientContext.Load(user);
-                                                    targetClientContext.ExecuteQueryRetry();
-
-                                                    // Prep a new FieldUserValue object instance and update the list item
-                                                    var newUser = new FieldUserValue()
+                                                    // Important to use a cloned context to not mess up with the pending list item updates
+                                                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
                                                     {
-                                                        LookupId = user.Id
-                                                    };
-                                                    this.page.PageListItem[targetFieldData.FieldName] = newUser;
+                                                        var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
+                                                        clonedTargetContext.Load(user);
+                                                        clonedTargetContext.ExecuteQueryRetry();
+
+                                                        // Prep a new FieldUserValue object instance and update the list item
+                                                        var newUser = new FieldUserValue()
+                                                        {
+                                                            LookupId = user.Id
+                                                        };
+
+                                                        this.page.PageListItem[targetFieldData.FieldName] = newUser;
+                                                    }
                                                 }
                                                 else
                                                 {
                                                     List<FieldUserValue> userValues = new List<FieldUserValue>();
                                                     foreach (var currentUser in (fieldValueToSet as Array))
                                                     {
-                                                        // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
-                                                        var user = targetClientContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
-                                                        targetClientContext.Load(user);
-                                                        targetClientContext.ExecuteQueryRetry();
-
-                                                        // Prep a new FieldUserValue object instance
-                                                        var newUser = new FieldUserValue()
+                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
                                                         {
-                                                            LookupId = user.Id
-                                                        };
+                                                            // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                            var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
+                                                            clonedTargetContext.Load(user);
+                                                            clonedTargetContext.ExecuteQueryRetry();
 
-                                                        userValues.Add(newUser);
+                                                            // Prep a new FieldUserValue object instance
+                                                            var newUser = new FieldUserValue()
+                                                            {
+                                                                LookupId = user.Id
+                                                            };
+
+                                                            userValues.Add(newUser);
+                                                        }
                                                     }
 
                                                     this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();

@@ -1,5 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Web;
@@ -458,7 +460,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Class used to generate quicklinks web part properties
     /// </summary>
-    public class QuickLinksTransformator
+    public class QuickLinksTransformator: BaseTransform
     {
         private QuickLinksWebPartProperties properties;
         private ClientContext clientContext;
@@ -468,42 +470,22 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Instantiates the class
         /// </summary>
         /// <param name="cc">Client context for the web holding the source page</param>
-        public QuickLinksTransformator(ClientContext cc)
+        public QuickLinksTransformator(ClientContext cc, IList<ILogObserver> logObservers = null): base()
         {
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
             this.clientContext = cc;
             this.properties = new QuickLinksWebPartProperties();
 
             cc.Web.EnsureProperties(p => p.Id, p => p.Url);
             cc.Site.EnsureProperties(p => p.Id, p => p.RootWeb);
             cc.Site.RootWeb.EnsureProperties(p => p.Url);
-
-            // base properties setup
-            this.properties.LayoutId = QuickLinksLayout.List.ToString();
-            this.properties.ShouldShowThumbnail = true;
-            this.properties.IsMigrated = true;
-            this.properties.HideWebPartWhenEmpty = true;
-            this.properties.DataProviderId = "QuickLinks";
-            this.properties.WebId = cc.Web.Id.ToString();
-            this.properties.SiteId = cc.Site.Id.ToString();
-            this.properties.ButtonLayoutOptions = new ButtonLayoutOptions()
-            {
-                ShowDescription = false,
-                ButtonTreatment = ButtonTreatment.Outline,
-                IconPositionType = IconPositionType.IconToLeft,
-                TextAlignmentVertical = ContentAlignment.Center,
-                TextAlignmentHorizontal = ContentAlignment.Center,
-                LinesOfText = LinesOfText.TwoLines,
-            };
-            this.properties.ListLayoutOptions = new ListLayoutOptions()
-            {
-                ShowDescription = true,
-                ShowIcon = true,
-            };
-            this.properties.WaffleLayoutOptions = new WaffleLayoutOptions()
-            {
-                IconSize = IconSize.Medium,
-                OnlyShowThumbnail = true,
-            };
         }
         #endregion
 
@@ -511,8 +493,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Generate quick links web part properties coming from a list of links
         /// </summary>
         /// <param name="summaryLinks">Links coming from the summarylink web part</param>
+        /// <param name="quickLinksJsonProperties">Json properties blob for QuickLinks web part tailoring</param>
         /// <returns>Properties for highlighted content web part</returns>
-        public QuickLinksTransformatorResult Transform(List<SummaryLink> summaryLinks)
+        public QuickLinksTransformatorResult Transform(List<SummaryLink> summaryLinks, string quickLinksJsonProperties)
         {
             QuickLinksTransformatorResult result = new QuickLinksTransformatorResult()
             {
@@ -521,6 +504,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 SearchablePlainTexts = "",
                 Links = ""
             };
+
+            SetupQuickLinksProperties(quickLinksJsonProperties);
 
             // Rationalize links
             foreach (var link in summaryLinks)
@@ -646,6 +631,119 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
+        private void SetupQuickLinksProperties(string quickLinksJsonProperties)
+        {
+            // Do default setup
+            // base properties setup
+            this.properties.LayoutId = QuickLinksLayout.List.ToString();
+            this.properties.ShouldShowThumbnail = true;
+            this.properties.IsMigrated = true;
+            this.properties.HideWebPartWhenEmpty = true;
+            this.properties.DataProviderId = "QuickLinks";
+            this.properties.WebId = this.clientContext.Web.Id.ToString();
+            this.properties.SiteId = this.clientContext.Site.Id.ToString();
+            this.properties.ButtonLayoutOptions = new ButtonLayoutOptions()
+            {
+                ShowDescription = false,
+                ButtonTreatment = ButtonTreatment.Outline,
+                IconPositionType = IconPositionType.IconToLeft,
+                TextAlignmentVertical = ContentAlignment.Center,
+                TextAlignmentHorizontal = ContentAlignment.Center,
+                LinesOfText = LinesOfText.TwoLines,
+            };
+            this.properties.ListLayoutOptions = new ListLayoutOptions()
+            {
+                ShowDescription = true,
+                ShowIcon = true,
+            };
+            this.properties.WaffleLayoutOptions = new WaffleLayoutOptions()
+            {
+                IconSize = IconSize.Medium,
+                OnlyShowThumbnail = true,
+            };
+
+            if (!string.IsNullOrEmpty(quickLinksJsonProperties))
+            {
+                // Override defaults with properties obtained from the JSON blob
+                LogDebug(string.Format(LogStrings.OverridingQuickLinksDefaults, quickLinksJsonProperties), LogStrings.Heading_BuiltInFunctions);
+                try
+                {
+                    var parsedJson = JObject.Parse(quickLinksJsonProperties);
+
+                    if (parsedJson["isMigrated"] != null)
+                    {
+                        this.properties.IsMigrated = ((JValue)parsedJson["isMigrated"]).Value<bool>();
+                    }
+                    if (parsedJson["layoutId"] != null)
+                    {
+                        this.properties.LayoutId = ((JValue)parsedJson["layoutId"]).Value<string>();
+                    }
+                    if (parsedJson["shouldShowThumbnail"] != null)
+                    {
+                        this.properties.ShouldShowThumbnail = ((JValue)parsedJson["shouldShowThumbnail"]).Value<bool>();
+                    }
+                    if (parsedJson["hideWebPartWhenEmpty"] != null)
+                    {
+                        this.properties.HideWebPartWhenEmpty = ((JValue)parsedJson["hideWebPartWhenEmpty"]).Value<bool>();
+                    }
+                    if (parsedJson["buttonLayoutOptions"] != null)
+                    {
+                        if (parsedJson["buttonLayoutOptions"]["showDescription"] != null)
+                        {
+                            this.properties.ButtonLayoutOptions.ShowDescription = ((JValue)parsedJson["buttonLayoutOptions"]["showDescription"]).Value<bool>();
+                        }
+                        if (parsedJson["buttonLayoutOptions"]["buttonTreatment"] != null)
+                        {
+                            this.properties.ButtonLayoutOptions.ButtonTreatment = (ButtonTreatment)Enum.Parse(typeof(ButtonTreatment), ((JValue)parsedJson["buttonLayoutOptions"]["buttonTreatment"]).Value<string>());
+                        }
+                        if (parsedJson["buttonLayoutOptions"]["iconPositionType"] != null)
+                        {
+                            this.properties.ButtonLayoutOptions.IconPositionType = (IconPositionType)Enum.Parse(typeof(IconPositionType), ((JValue)parsedJson["buttonLayoutOptions"]["iconPositionType"]).Value<string>());
+                        }
+                        if (parsedJson["buttonLayoutOptions"]["textAlignmentVertical"] != null)
+                        {
+                            this.properties.ButtonLayoutOptions.TextAlignmentVertical = (ContentAlignment)Enum.Parse(typeof(ContentAlignment), ((JValue)parsedJson["buttonLayoutOptions"]["textAlignmentVertical"]).Value<string>());
+                        }
+                        if (parsedJson["buttonLayoutOptions"]["textAlignmentHorizontal"] != null)
+                        {
+                            this.properties.ButtonLayoutOptions.TextAlignmentHorizontal = (ContentAlignment)Enum.Parse(typeof(ContentAlignment), ((JValue)parsedJson["buttonLayoutOptions"]["textAlignmentHorizontal"]).Value<string>());
+                        }
+                        if (parsedJson["buttonLayoutOptions"]["linesOfText"] != null)
+                        {
+                            this.properties.ButtonLayoutOptions.LinesOfText = (LinesOfText)Enum.Parse(typeof(LinesOfText), ((JValue)parsedJson["buttonLayoutOptions"]["linesOfText"]).Value<string>());
+                        }
+                    }
+                    if (parsedJson["listLayoutOptions"] != null)
+                    {
+                        if (parsedJson["listLayoutOptions"]["showDescription"] != null)
+                        {
+                            this.properties.ListLayoutOptions.ShowDescription = ((JValue)parsedJson["listLayoutOptions"]["showDescription"]).Value<bool>();
+                        }
+                        if (parsedJson["listLayoutOptions"]["showIcon"] != null)
+                        {
+                            this.properties.ListLayoutOptions.ShowIcon = ((JValue)parsedJson["listLayoutOptions"]["showIcon"]).Value<bool>();
+                        }
+                    }
+                    if (parsedJson["waffleLayoutOptions"] != null)
+                    {
+                        if (parsedJson["waffleLayoutOptions"]["iconSize"] != null)
+                        {
+                            this.properties.WaffleLayoutOptions.IconSize = (IconSize)Enum.Parse(typeof(IconSize), ((JValue)parsedJson["waffleLayoutOptions"]["iconSize"]).Value<string>());
+                        }
+                        if (parsedJson["waffleLayoutOptions"]["onlyShowThumbnail"] != null)
+                        {
+                            this.properties.WaffleLayoutOptions.OnlyShowThumbnail = ((JValue)parsedJson["waffleLayoutOptions"]["onlyShowThumbnail"]).Value<bool>();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Let's not fail transformation in this case but do log this
+                    LogWarning(string.Format(LogStrings.Warning_OverridingQuickLinksDefaultsFailed, ex.Message), LogStrings.Heading_BuiltInFunctions);
+                }
+            }
+        }
+
         private string JsonEncode(string input)
         {
             return HttpUtility.JavaScriptStringEncode(input);

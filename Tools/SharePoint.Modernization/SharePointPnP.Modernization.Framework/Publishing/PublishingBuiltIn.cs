@@ -28,12 +28,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <param name="clientSidePage">Reference to the client side page</param>
         public PublishingBuiltIn(BaseTransformationInformation baseTransformationInformation, ClientContext sourceClientContext, ClientContext targetClientContext, IList<ILogObserver> logObservers = null) : base(sourceClientContext)
         {
-            this.sourceClientContext = sourceClientContext;
-            this.targetClientContext = targetClientContext;
-            this.baseTransformationInformation = baseTransformationInformation;
-            this.parser = new HtmlParser();
-            this.builtIn = new BuiltIn(this.baseTransformationInformation, targetClientContext, sourceClientContext, logObservers: logObservers);
-
             if (logObservers != null)
             {
                 foreach (var observer in logObservers)
@@ -41,6 +35,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     base.RegisterObserver(observer);
                 }
             }
+
+            this.sourceClientContext = sourceClientContext;
+            this.targetClientContext = targetClientContext;
+            this.baseTransformationInformation = baseTransformationInformation;
+            this.parser = new HtmlParser();
+            this.builtIn = new BuiltIn(this.baseTransformationInformation, targetClientContext, sourceClientContext, logObservers: logObservers);
         }
         #endregion
 

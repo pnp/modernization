@@ -158,7 +158,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             using (var document = this.parser.Parse(text))
             {
-                if (document.Body.InnerHtml.ToLower() == "<p></p>")
+                if (document.Body.InnerHtml.ToLower() == "<p></p>" ||
+                    document.Body.InnerHtml.ToLower() == "<span><p></p></span>")
                 {
                     return true;
                 }

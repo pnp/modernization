@@ -12,13 +12,21 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [Unreleased]
+## [July release - version 1.0.1907.0]
 
 ## Added
+
+- Custom URL mapping logic: provide a csv file with source and target values and these will be used by the url mapper #135
+- Option to override default QuickLinks configuration in publishing page transformation scenarios #191
+- Option to "map" web parts inside a web part zone #167
+- Support for multiple source field "name" values in page layout mapping files, allows to define "overrides" if a given field is not populated in the source page #201 [MartinHatch]
 
 ## Changed
 
 - User fields are now correctly copied over in cross site publishing transformation scenarios #184
+- Mapping Files Version Change Notice #188
+- Set TargetPageName is now used to construct the return URL value #194
+- Correctly detect 'empty' text parts #192
 
 ## [June release - version 1.0.1906.0]
 

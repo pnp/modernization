@@ -28,6 +28,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private PageLayout[] pageLayoutsField;
         
+        private string versionField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
         public AddOn[] AddOns {
@@ -47,6 +49,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.pageLayoutsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Version {
+            get {
+                return this.versionField;
+            }
+            set {
+                this.versionField = value;
             }
         }
     }
@@ -262,7 +275,83 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public partial class WebPartOccurrence {
+        
+        private string typeField;
+        
+        private int rowField;
+        
+        private int columnField;
+        
+        private int orderField;
+        
+        private bool orderFieldSpecified;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Type {
+            get {
+                return this.typeField;
+            }
+            set {
+                this.typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Row {
+            get {
+                return this.rowField;
+            }
+            set {
+                this.rowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Column {
+            get {
+                return this.columnField;
+            }
+            set {
+                this.columnField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Order {
+            get {
+                return this.orderField;
+            }
+            set {
+                this.orderField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool OrderSpecified {
+            get {
+                return this.orderFieldSpecified;
+            }
+            set {
+                this.orderFieldSpecified = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
     public partial class WebPartZone {
+        
+        private WebPartOccurrence[] webPartZoneLayoutField;
         
         private int zoneIndexField;
         
@@ -275,6 +364,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         private int orderField;
         
         private bool orderFieldSpecified;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public WebPartOccurrence[] WebPartZoneLayout {
+            get {
+                return this.webPartZoneLayoutField;
+            }
+            set {
+                this.webPartZoneLayoutField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]

@@ -266,6 +266,90 @@ namespace SharePoint.Modernization.Scanner.Telemetry
         }
 
         /// <summary>
+        /// Log workflow scanning results
+        /// </summary>
+        /// <param name="worklflowScanResults">Scanned workflows</param>
+        public void LogWorkflowScan(ConcurrentDictionary<string, WorkflowScanResult> worklflowScanResults)
+        {
+            if (this.telemetryClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Prepare event data
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                Dictionary<string, double> metrics = new Dictionary<string, double>();
+
+                properties.Add(WorkflowResults.Workflows.ToString(), worklflowScanResults.Count.ToString());
+
+                this.telemetryClient.TrackEvent(TelemetryEvents.Workflows.ToString(), properties, metrics);
+
+                this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Workflows.ToString()}").TrackValue(worklflowScanResults.Count);
+
+                Metric version = this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Version.ToString()}", "Workflow.Version");
+                Metric scope = this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Scope.ToString()}", "Workflow.Scope");
+
+                foreach(var item in worklflowScanResults)
+                {
+                    WriteMetric(version, item.Value.Version);
+                    WriteMetric(scope, item.Value.Scope);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                // Eat all exceptions 
+            }
+            finally
+            {
+                this.telemetryClient.Flush();
+            }
+        }
+
+        /// <summary>
+        /// InfoPath scanning results
+        /// </summary>
+        /// <param name="infoPathScanResults">Scanned InfoPath usage</param>
+        public void LogInfoPathScan(ConcurrentDictionary<string, InfoPathScanResult> infoPathScanResults)
+        {
+            if (this.telemetryClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Prepare event data
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                Dictionary<string, double> metrics = new Dictionary<string, double>();
+
+                properties.Add(InfoPathResults.FormsFound.ToString(), infoPathScanResults.Count.ToString());
+
+                this.telemetryClient.TrackEvent(TelemetryEvents.Workflows.ToString(), properties, metrics);
+
+                this.telemetryClient.GetMetric($"InfoPath.{InfoPathResults.FormsFound.ToString()}").TrackValue(infoPathScanResults.Count);
+
+                Metric usage = this.telemetryClient.GetMetric($"InfoPath.{InfoPathResults.Usage.ToString()}", "InfoPath.Usage");
+
+                foreach (var item in infoPathScanResults)
+                {
+                    WriteMetric(usage, item.Value.InfoPathUsage);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                // Eat all exceptions 
+            }
+            finally
+            {
+                this.telemetryClient.Flush();
+            }
+        }
+
+        /// <summary>
         /// Log group connnect results
         /// </summary>
         /// <param name="siteScanResults">Scanned sites results</param>
@@ -349,9 +433,11 @@ namespace SharePoint.Modernization.Scanner.Telemetry
         /// <param name="publishingSiteScanResults">Scanned publishing portals</param>
         /// <param name="publishingWebScanResults">Scanned publishing webs</param>
         /// <param name="publishingPageScanResults">Scanned publishing pages</param>
+        /// <param name="pageTransformation">Page transformation data</param>
         public void LogPublishingScan(Dictionary<string, PublishingSiteScanResult> publishingSiteScanResults, 
                                       ConcurrentDictionary<string, PublishingWebScanResult> publishingWebScanResults,
-                                      ConcurrentDictionary<string, PublishingPageScanResult> publishingPageScanResults)
+                                      ConcurrentDictionary<string, PublishingPageScanResult> publishingPageScanResults,
+                                      PageTransformation pageTransformation)
         {
             if (this.telemetryClient == null)
             {
@@ -390,6 +476,9 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Metric audienceTargeting = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.AudienceTargeting.ToString()}", "Publishing.AudienceTargeting");
                 Metric languages = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.Languages.ToString()}", "Publishing.Languages");
                 Metric variationLabels = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.VariationLabels.ToString()}", "Publishing.VariationLabels");
+                Metric webPartMapping = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.WebPartMapping.ToString()}", "Publishing.WebPartMapping");
+                Metric unMappedWebParts = this.telemetryClient.GetMetric($"Publishing.{PublishingResults.UnMappedWebParts.ToString()}", "Publishing.UnMappedWebParts");
+
 
                 // The metrics automatically aggregate and only send once a minute to app insights...so this approach does not result in extra traffic
                 foreach (var item in publishingWebScanResults)
@@ -418,6 +507,35 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                         WriteMetric(audienceTargeting, (item.Value.SecurityGroupAudiences != null && item.Value.SecurityGroupAudiences.Count > 0) ||
                                                        (item.Value.SharePointGroupAudiences != null && item.Value.SharePointGroupAudiences.Count > 0) ||
                                                        (item.Value.GlobalAudiences != null && item.Value.GlobalAudiences.Count > 0));
+
+                        if (item.Value.WebParts != null)
+                        {
+                            int webPartsOnPage = item.Value.WebParts.Count();
+                            int webPartsOnPageMapped = 0;
+                            List<string> nonMappedWebParts = new List<string>();
+                            foreach (var webPart in item.Value.WebParts.OrderBy(p => p.Row).ThenBy(p => p.Column).ThenBy(p => p.Order))
+                            {
+                                var found = pageTransformation.WebParts.Where(p => p.Type.Equals(webPart.Type, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                                if (found != null && found.Mappings != null)
+                                {
+                                    webPartsOnPageMapped++;
+                                }
+                                else
+                                {
+                                    var t = webPart.Type.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0];
+                                    if (!nonMappedWebParts.Contains(t))
+                                    {
+                                        nonMappedWebParts.Add(t);
+                                    }
+                                }
+                            }
+
+                            WriteMetric(webPartMapping, String.Format("{0:0}", (((double)webPartsOnPageMapped / (double)webPartsOnPage) * 100)));
+                            foreach (var w in nonMappedWebParts)
+                            {
+                                WriteMetric(unMappedWebParts, w);
+                            }
+                        }
                     }
                 }
             }

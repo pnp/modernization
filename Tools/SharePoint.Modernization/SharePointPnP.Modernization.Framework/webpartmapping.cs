@@ -30,6 +30,8 @@ namespace SharePointPnP.Modernization.Framework {
         
         private WebPart[] webPartsField;
         
+        private string versionField;
+        
         /// <remarks/>
         public BaseWebPart BaseWebPart {
             get {
@@ -59,6 +61,17 @@ namespace SharePointPnP.Modernization.Framework {
             }
             set {
                 this.webPartsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Version {
+            get {
+                return this.versionField;
+            }
+            set {
+                this.versionField = value;
             }
         }
     }

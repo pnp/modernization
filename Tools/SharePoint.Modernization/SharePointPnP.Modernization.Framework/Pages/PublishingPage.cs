@@ -21,6 +21,15 @@ namespace SharePointPnP.Modernization.Framework.Pages
         private BaseTransformationInformation baseTransformationInformation;
         private ClientContext targetContext = null;
 
+        #region Internal classes
+        internal class WebPartZoneLayoutMap
+        {
+            public string ZoneId { get; set; }
+            public string Type { get; set; }
+            public int Occurances { get; set; }
+        }
+        #endregion
+
         #region Construction
         /// <summary>
         /// Instantiates a publishing page object
@@ -319,6 +328,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     cc.ExecuteQueryRetry();
                 }
 
+                List<WebPartZoneLayoutMap> webPartZoneLayoutMap = new List<WebPartZoneLayoutMap>();
                 foreach (var foundWebPart in webPartsToRetrieve.OrderBy(p=> p.WebPartDefinition.WebPart.ZoneIndex))
                 {
                     WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.IsObjectPropertyInstantiated("ExportMode") ? foundWebPart.WebPartDefinition.WebPart.ExportMode : default;
@@ -385,9 +395,63 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                         if (wpZoneFromTemplate != null)
                         {
-                            wpInZoneRow = wpZoneFromTemplate.Row;
-                            wpInZoneCol = wpZoneFromTemplate.Column;
-                            wpStartOrder = wpZoneFromTemplate.Order;
+                            // Was there a webpart zone layout specified? If so then use that information to correctly position the webparts on the target page
+                            if (wpZoneFromTemplate.WebPartZoneLayout != null && wpZoneFromTemplate.WebPartZoneLayout.Count() > 0)
+                            {
+                                // Did we already map a web part of this type?
+                                var webPartZoneLayoutMapEntry = webPartZoneLayoutMap.Where(p => p.ZoneId.Equals(wpZoneFromTemplate.ZoneId, StringComparison.InvariantCultureIgnoreCase) &&
+                                                                                                p.Type.Equals(foundWebPart.WebPartType, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+                                // What's the expected occurance for this web part in the mapping?
+                                int webPartOccuranceInZoneLayout = 1;
+                                if (webPartZoneLayoutMapEntry != null)
+                                {
+                                    webPartOccuranceInZoneLayout += webPartZoneLayoutMapEntry.Occurances;
+                                }
+
+                                // Get the webpart from the webpart zone layout mapping
+                                int occuranceCounter = 0;
+                                bool occuranceFound = false;
+                                foreach(var wpInWebPartZoneLayout in wpZoneFromTemplate.WebPartZoneLayout.Where(p=>p.Type.Equals(foundWebPart.WebPartType, StringComparison.InvariantCultureIgnoreCase)))
+                                {
+                                    occuranceCounter++;
+
+                                    if (occuranceCounter == webPartOccuranceInZoneLayout)
+                                    {
+                                        occuranceFound = true;
+                                        wpInZoneRow = wpInWebPartZoneLayout.Row;
+                                        wpInZoneCol = wpInWebPartZoneLayout.Column;
+                                        wpStartOrder = wpInWebPartZoneLayout.Order;
+                                        break;
+                                    }
+                                }
+
+                                if (occuranceFound)
+                                {
+                                    // Update the WebPartZoneLayoutMap
+                                    if (webPartZoneLayoutMapEntry != null)
+                                    {
+                                        webPartZoneLayoutMapEntry.Occurances = webPartOccuranceInZoneLayout;
+                                    }
+                                    else
+                                    {
+                                        webPartZoneLayoutMap.Add(new WebPartZoneLayoutMap() { ZoneId = wpZoneFromTemplate.ZoneId, Type = foundWebPart.WebPartType, Occurances = webPartOccuranceInZoneLayout });
+                                    }
+                                }
+                                else
+                                {
+                                    // fall back to the defaults from the zone definition
+                                    wpInZoneRow = wpZoneFromTemplate.Row;
+                                    wpInZoneCol = wpZoneFromTemplate.Column;
+                                    wpStartOrder = wpZoneFromTemplate.Order;
+                                }
+                            }
+                            else
+                            {
+                                wpInZoneRow = wpZoneFromTemplate.Row;
+                                wpInZoneCol = wpZoneFromTemplate.Column;
+                                wpStartOrder = wpZoneFromTemplate.Order;
+                            }
                         }
                     }
 
@@ -441,6 +505,91 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
         }
+
+        /// <summary>
+        /// Analyses a publishing page for scanner usage
+        /// </summary>
+        /// <returns>Information about the analyzed publishing page</returns>
+        public Tuple<PageLayout, List<WebPartEntity>> GetWebPartsForScanner()
+        {
+            List<WebPartEntity> webparts = new List<WebPartEntity>();
+
+            //Load the page
+            var publishingPageUrl = page[Constants.FileRefField].ToString();
+            var publishingPage = cc.Web.GetFileByServerRelativeUrl(publishingPageUrl);
+
+            // Load relevant model data for the used page layout in case not already provided - safetynet for calls from modernization scanner
+            string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(page.PageLayoutFile());
+
+            // Map layout
+            PageLayout layout = PageLayout.PublishingPage_AutoDetect;
+
+            // Load web parts put in web part zones on the publishing page
+            // Note: Web parts placed outside of a web part zone using SPD are not picked up by the web part manager. 
+            var limitedWPManager = publishingPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
+            cc.Load(limitedWPManager);
+
+            IEnumerable<WebPartDefinition> webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.ZoneId, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties));
+            cc.ExecuteQueryRetry();
+
+            if (webPartsViaManager.Count() > 0)
+            {
+                List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
+
+                foreach (var foundWebPart in webPartsViaManager)
+                {
+                    webPartsToRetrieve.Add(new WebPartPlaceHolder()
+                    {
+                        WebPartDefinition = foundWebPart,
+                        WebPartXml = null,
+                        WebPartType = "",
+                    });
+                }
+
+                bool isDirty = false;
+                foreach (var foundWebPart in webPartsToRetrieve)
+                {
+                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
+                    {
+                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
+                        isDirty = true;
+                    }
+                }
+                if (isDirty)
+                {
+                    cc.ExecuteQueryRetry();
+                }
+
+                foreach (var foundWebPart in webPartsToRetrieve.OrderBy(p => p.WebPartDefinition.WebPart.ZoneIndex))
+                {
+                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
+                    {
+                        // Use different approach to determine type as we can't export the web part XML without indroducing a change
+                        foundWebPart.WebPartType = GetTypeFromProperties(foundWebPart.WebPartDefinition.WebPart.Properties);
+                    }
+                    else
+                    {
+                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
+                    }
+
+                    webparts.Add(new WebPartEntity()
+                    {
+                        Title = foundWebPart.WebPartDefinition.WebPart.Title,
+                        Type = foundWebPart.WebPartType,
+                        Id = foundWebPart.WebPartDefinition.Id,
+                        ServerControlId = foundWebPart.WebPartDefinition.Id.ToString(),
+                        ZoneId = foundWebPart.WebPartDefinition.ZoneId,
+                        ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
+                        IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
+                        Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
+                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value),
+                    });
+                }
+            }
+
+            return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
+        }
+
 
         #region Helper methods
         private T GetFixedWebPartProperty<T>(FixedWebPart webPart, string name, T defaultValue)
