@@ -298,44 +298,76 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns>Translated name of the pages library</returns>
         public string GetPublishingPagesLibraryName(ClientContext context)
         {
-            return "pages"; //TODO 2010 Fix
+            // Simplier implementation - Get the Pages library then get the relative URL of the rootfolder of the library
 
-            //if (context == null)
-            //{
-            //    return "pages";
-            //}
+            //Keys: 
+            //  Web Property: __PagesListId
+            //  Found in 2010, SPO
 
-            //uint lcid = context.Web.EnsureProperty(p => p.Language);
+            string pagesLibraryName = "pages";
 
-            //if (publishingPagesLibraryNames.ContainsKey(lcid))
-            //{
-            //    if (publishingPagesLibraryNames.TryGetValue(lcid, out string name))
-            //    {
-            //        return name;
-            //    }
-            //    else
-            //    {
-            //        // let's fallback to the default...we should never get here unless there's some threading issue
-            //        return "pages";
-            //    }
-            //}
-            //else
-            //{
-            //    ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:List_Pages_UrlName", "osrvcore", int.Parse(lcid.ToString()));
-            //    context.ExecuteQueryRetry();
+            if (context == null)
+            {
+                return pagesLibraryName;
+            }
 
-            //    string pagesLibraryName = new Regex(@"['´`]").Replace(result.Value, "");
+            uint lcid = context.Web.EnsureProperty(p => p.Language);
 
-            //    if (string.IsNullOrEmpty(pagesLibraryName))
-            //    {
-            //        return "pages";
-            //    }
+            var propertyBagKey = "__PagesListId";
 
-            //    // add to cache
-            //    publishingPagesLibraryNames.TryAdd(lcid, pagesLibraryName.ToLower());
+            if (publishingPagesLibraryNames.ContainsKey(lcid))
+            {
+                if (publishingPagesLibraryNames.TryGetValue(lcid, out string name))
+                {
+                    return name;
+                }
+                else
+                {
+                    // let's fallback to the default...we should never get here unless there's some threading issue
+                    return pagesLibraryName;
+                }
+            }
+            else
+            {
+             
+                if (context.Web.PropertyBagContainsKey(propertyBagKey))
+                {
+                    var keyVal = context.Web.GetPropertyBagValueString("__PagesListId", string.Empty);
+                    if (!string.IsNullOrEmpty(keyVal))
+                    {
+                        var list = context.Web.GetListById(Guid.Parse(keyVal), o => o.RootFolder.ServerRelativeUrl);
+                        var webServerRelativeUrl = context.Web.ServerRelativeUrl;
+                        context.ExecuteQueryRetry();
 
-            //    return pagesLibraryName.ToLower();
-            //}
+                        pagesLibraryName = list.RootFolder.ServerRelativeUrl.Replace(webServerRelativeUrl, "").Trim('/').ToLower();
+
+                        // add to cache
+                        publishingPagesLibraryNames.TryAdd(lcid, pagesLibraryName);
+
+                        return pagesLibraryName;
+                    }
+                }
+                else
+                {
+                    // Fall back to older logic
+                    ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:List_Pages_UrlName", "osrvcore", int.Parse(lcid.ToString()));
+                    context.ExecuteQueryRetry();
+
+                    var altPagesLibraryName = new Regex(@"['´`]").Replace(result.Value, "");
+
+                    if (string.IsNullOrEmpty(altPagesLibraryName))
+                    {
+                        return pagesLibraryName;
+                    }
+
+                    // add to cache
+                    publishingPagesLibraryNames.TryAdd(lcid, altPagesLibraryName.ToLower());
+
+                    return altPagesLibraryName.ToLower();
+                }
+            }
+
+            return pagesLibraryName;
         }
         #endregion
 

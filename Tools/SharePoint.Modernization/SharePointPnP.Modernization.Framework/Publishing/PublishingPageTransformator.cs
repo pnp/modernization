@@ -21,7 +21,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
     {
         private PublishingPageTransformation publishingPageTransformation;
         private PageLayoutManager pageLayoutManager;
-        private string publishingPagesLibrary = null;
+        private string publishingPagesLibraryName = null;
 
         #region Construction
         public PublishingPageTransformator(ClientContext sourceClientContext, ClientContext targetClientContext) : this(sourceClientContext, targetClientContext, "webpartmapping.xml", null)
@@ -191,15 +191,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 string pageFolder = "";
 
                 // Get the publishing pages library name
-                this.publishingPagesLibrary = CacheManager.Instance.GetPublishingPagesLibraryName(this.sourceClientContext);
+                this.publishingPagesLibraryName = CacheManager.Instance.GetPublishingPagesLibraryName(this.sourceClientContext);
 
                 if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
                 {
                     var fileRefFieldValue = publishingPageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString().ToLower();
 
-                    if (fileRefFieldValue.Contains($"/{this.publishingPagesLibrary}"))
+                    if (fileRefFieldValue.Contains($"/{this.publishingPagesLibraryName}"))
                     {
-                        string pagesLibraryRelativeUrl = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibrary}";
+                        string pagesLibraryRelativeUrl = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibraryName}";
                         pageFolder = fileRefFieldValue.Replace(pagesLibraryRelativeUrl.ToLower(), "").Trim();
                     }
                     else
@@ -552,7 +552,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             string targetPath;
 
             // Cross site collection transfer, new page always takes the name of the old page
-            if (!sourcePath.Contains($"/{this.publishingPagesLibrary}"))
+            if (!sourcePath.Contains($"/{this.publishingPagesLibraryName}"))
             {
                 // Source file was living outside of the site pages library
                 targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
@@ -561,7 +561,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             else
             {
                 // Page was living inside the sitepages library
-                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibrary}".ToLower(), "");
+                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibraryName}".ToLower(), "");
                 targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
             }
 
@@ -598,7 +598,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             targetContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
             // Load the pages library and page file (if exists) in one go 
-            var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, this.publishingPagesLibrary);
+            var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, this.publishingPagesLibraryName);
             var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
 
             pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl); //TODO: Not Supported in 2010 calls
