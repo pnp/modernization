@@ -594,14 +594,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private Microsoft.SharePoint.Client.File Load(ClientContext sourceContext, ClientContext targetContext, PublishingPageTransformationInformation publishingPageTransformationInformation, out List pagesLibrary)
         {
             sourceContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
-            sourceContext.Site.EnsureProperty(w => w.Url);  //TODO 2010 Fix
+            sourceContext.Site.EnsureProperty(w => w.Url); 
             targetContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
             // Load the pages library and page file (if exists) in one go 
-            var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, this.publishingPagesLibraryName);
-            var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
-
-            pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl); //TODO: Not Supported in 2010 calls
+            pagesLibrary = sourceContext.Web.GetListById(Guid.Parse(sourceContext.Web.GetPagesLibraryId())); 
 
             sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title,
                                               l => l.Hidden, l => l.EffectiveBasePermissions, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
@@ -610,7 +607,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 sourceContext.Load(publishingPageTransformationInformation.SourcePage, p => p.HasUniqueRoleAssignments);
             }
-
             try
             {
                 sourceClientContext.ExecuteQueryRetry();
@@ -627,6 +623,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 }
             }
 
+            var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
             var file = targetClientContext.Web.GetFileByServerRelativeUrl($"{sitePagesServerRelativeUrl}/{publishingPageTransformationInformation.Folder}{publishingPageTransformationInformation.TargetPageName}");
             targetClientContext.Web.Context.Load(file, f => f.Exists, f => f.ListItemAllFields);
             targetClientContext.ExecuteQueryRetry();

@@ -465,5 +465,23 @@ namespace Microsoft.SharePoint.Client
 
         }
 
+        /// <summary>
+        /// Get Pages Library ID for the Web
+        /// </summary>
+        /// <param name="web"></param>
+        /// <returns></returns>
+        public static string GetPagesLibraryId(this Web web)
+        {
+            if (web.PropertyBagContainsKey(Constants.WebPropertyKeyPagesListId))
+            {
+                var keyVal = web.GetPropertyBagValueString(Constants.WebPropertyKeyPagesListId, string.Empty);
+                if (!string.IsNullOrEmpty(keyVal))
+                {
+                    return keyVal;
+                }
+            }
+
+            return string.Empty;
+        }
     }
 }

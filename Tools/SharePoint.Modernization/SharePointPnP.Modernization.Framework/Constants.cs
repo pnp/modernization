@@ -7,6 +7,9 @@ namespace SharePointPnP.Modernization.Framework
     /// </summary>
     public static class Constants
     {
+        //Web Properties
+        public const string WebPropertyKeyPagesListId = "__PagesListId";
+
         //Schemas
         public const string PageTransformationSchema = "http://schemas.dev.office.com/PnP/2018/01/PageTransformationSchema";
         public const string PageLayoutMappingSchema = "http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema";

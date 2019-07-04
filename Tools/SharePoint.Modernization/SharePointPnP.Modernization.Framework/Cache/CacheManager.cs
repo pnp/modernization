@@ -290,7 +290,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
         #endregion
 
-        #region Publishing Pages library name
+        #region Publishing Pages Library
         /// <summary>
         /// Get translation for the publishing pages library
         /// </summary>
@@ -313,7 +313,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             uint lcid = context.Web.EnsureProperty(p => p.Language);
 
-            var propertyBagKey = "__PagesListId";
+            var propertyBagKey = Constants.WebPropertyKeyPagesListId;
 
             if (publishingPagesLibraryNames.ContainsKey(lcid))
             {
@@ -332,7 +332,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
              
                 if (context.Web.PropertyBagContainsKey(propertyBagKey))
                 {
-                    var keyVal = context.Web.GetPropertyBagValueString("__PagesListId", string.Empty);
+                    var keyVal = context.Web.GetPropertyBagValueString(propertyBagKey, string.Empty);
                     if (!string.IsNullOrEmpty(keyVal))
                     {
                         var list = context.Web.GetListById(Guid.Parse(keyVal), o => o.RootFolder.ServerRelativeUrl);
@@ -369,6 +369,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             return pagesLibraryName;
         }
+
         #endregion
 
         #region Resource strings
