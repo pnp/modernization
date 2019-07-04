@@ -96,5 +96,21 @@ namespace SharePointPnP.Modernization.Framework.Extensions
             return string.Empty;
         }
 
+        /// <summary>
+        /// Get type in short form
+        /// </summary>
+        /// <param name="typeValue"></param>
+        /// <returns></returns>
+        public static string GetTypeShort(this string typeValue)
+        {
+            string name = typeValue;
+            var typeSplit = typeValue.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            if (typeSplit.Length > 0)
+            {
+                name = typeSplit[0];
+            }
+
+            return $"{name}";
+        }
     }
 }

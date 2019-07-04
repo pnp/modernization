@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SharePointPnP.Modernization.Framework.Extensions;
 using System;
 using System.Collections.Generic;
 
@@ -33,14 +34,7 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// <returns></returns>
         public string TypeShort()
         {
-            string name = Type;
-            var typeSplit = Type.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            if (typeSplit.Length > 0)
-            {
-                name = typeSplit[0];
-            }
-
-            return $"{name}";
+            return Type.GetTypeShort();
         }
 
         /// <summary>

@@ -552,7 +552,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
             Dictionary<string, string> propertiesToKeep = new Dictionary<string, string>();
 
             List<Property> propertiesToRetrieve = this.pageTransformation.BaseWebPart.Properties.ToList<Property>();
-            var webPartProperties = this.pageTransformation.WebParts.Where(p => p.Type.Equals(webPartType, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+            //TODO: For older versions of SharePoint the type in the mapping would not match. Use the TypeShort Comparison. 
+            var webPartProperties = this.pageTransformation.WebParts.Where(p => p.Type.GetTypeShort().Equals(webPartType.GetTypeShort(), StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             if (webPartProperties != null && webPartProperties.Properties != null)
             {
                 foreach (var p in webPartProperties.Properties.ToList<Property>())
