@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
@@ -116,8 +117,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 
                 // Assign the default mapping, if we're a more specific mapping than that will overwrite this mapping
                 Mapping mapping = defaultMapping;
+
                 // Does the web part have a mapping defined?
-                var webPartData = pageTransformation.WebParts.Where(p => p.Type == webPart.Type).FirstOrDefault();
+                // Older version of SharePoint 
+                var webPartData = pageTransformation.WebParts.Where(p => p.Type.GetTypeShort() == webPart.Type.GetTypeShort()).FirstOrDefault();
 
                 // Check for cross site transfer support
                 if (webPartData != null && this.isCrossSiteTransfer)

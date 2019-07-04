@@ -352,7 +352,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     
                     if (webServiceWebPartEntities != null)
                     {
-                        // TODO - This needs caching...
                         // If the web service call includes the export mode value then set the export options
                         var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
                         var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
@@ -512,6 +511,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <returns>Information about the analyzed publishing page</returns>
         public Tuple<PageLayout, List<WebPartEntity>> GetWebPartsForScanner()
         {
+
+            //TODO: Upgrade this new code for SharePoint 2010 support
+
             List<WebPartEntity> webparts = new List<WebPartEntity>();
 
             //Load the page
@@ -551,7 +553,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
                     {
-                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
+                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id)?.Value;
                         isDirty = true;
                     }
                 }
@@ -565,11 +567,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     if (foundWebPart.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
                     {
                         // Use different approach to determine type as we can't export the web part XML without indroducing a change
-                        foundWebPart.WebPartType = GetTypeFromProperties(foundWebPart.WebPartDefinition.WebPart.Properties);
+                        foundWebPart.WebPartType = GetTypeFromProperties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues);
                     }
                     else
                     {
-                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
+                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml);
                     }
 
                     webparts.Add(new WebPartEntity()
@@ -582,7 +584,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
                         Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value),
+                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml),
                     });
                 }
             }

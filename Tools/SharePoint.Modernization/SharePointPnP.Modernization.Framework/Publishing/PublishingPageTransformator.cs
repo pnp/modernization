@@ -601,7 +601,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, this.publishingPagesLibrary);
             var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
 
-            pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl);
+            pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl); //TODO: Not Supported in 2010 calls
 
             sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title,
                                               l => l.Hidden, l => l.EffectiveBasePermissions, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
