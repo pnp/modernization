@@ -212,6 +212,7 @@
     <Compile Include="Transform\ReportingTests.cs" />
     <Compile Include="Transform\ContextTests.cs" />
     <Compile Include="Transform\Mapping\UrlMappingTests.cs" />
+    <Compile Include="Transform\UrlTransformTests.cs" />
     <Compile Include="Transform\Utility\StringExtensionTests.cs" />
     <Compile Include="Transform\Utility\WebExtensionsTest.cs" />
     <Compile Include="UnitTestLogObserver.cs" />
