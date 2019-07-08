@@ -800,73 +800,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return string.Empty;
         }
 
-        /// <summary>
-        /// Call SharePoint Web Services to extract web part properties not exposed by CSOM
-        /// </summary>
-        /// <returns></returns>
-        internal string ExtractWebPartPropertiesViaWebServicesFromPage(string pageUrl)
-        {
-            try
-            {
-                LogInfo(LogStrings.CallingWebServicesToExtractWebPartPropertiesFromPage, LogStrings.Heading_ContentTransform);
-                string webPartProperties = String.Empty;
-                string webUrl = cc.Web.GetUrl();
-                string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
-
-                StringBuilder soapEnvelope = new StringBuilder();
-
-                soapEnvelope.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-                soapEnvelope.Append("<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">");
-
-                soapEnvelope.Append(String.Format(
-                 "<soap:Body>" +
-                     "<GetWebPartProperties2 xmlns=\"http://microsoft.com/sharepoint/webpartpages\">" +
-                         "<pageUrl>{0}</pageUrl>" +
-                         "<storage>Shared</storage>" +
-                         "<behavior>Version3</behavior>" +
-                     "</GetWebPartProperties2>" +
-                 "</soap:Body>"
-                 , pageUrl));
-
-                soapEnvelope.Append("</soap:Envelope>");
-
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
-                request.Credentials = cc.Credentials;
-                request.Method = "POST";
-                request.ContentType = "text/xml; charset=\"utf-8\"";
-                request.Accept = "text/xml";
-                request.Headers.Add("SOAPAction", "\"http://microsoft.com/sharepoint/webpartpages/GetWebPartProperties2\"");
-
-                using (System.IO.Stream stream = request.GetRequestStream())
-                {
-                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(stream))
-                    {
-                        writer.Write(soapEnvelope.ToString());
-                    }
-                }
-
-                var response = request.GetResponse();
-                using (var dataStream = response.GetResponseStream())
-                {
-                    XmlDocument xDoc = new XmlDocument();
-                    xDoc.Load(dataStream);
-
-                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
-                    {
-                        webPartProperties = xDoc.DocumentElement.InnerXml;
-
-                        return webPartProperties;
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                LogError(LogStrings.Error_ExtractWebPartPropertiesViaWebServicesFromPage, LogStrings.Heading_ContentTransform, ex);
-            }
-
-            return string.Empty;
-        }
-
+        
         /// <summary>
         /// Exports Web Part XML via an older workround
         /// </summary>
@@ -902,9 +836,15 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     XmlDocument xDoc = new XmlDocument();
                     xDoc.Load(dataStream);
 
-                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.OuterXml.Length > 0)
                     {
-                        webPartXml = xDoc.DocumentElement.InnerXml;
+                        webPartXml = xDoc.DocumentElement.OuterXml;
+
+                        // Not sure what causes the web parts to switch from singular to multiple
+                        if(xDoc.DocumentElement.LocalName == "webParts")
+                        {
+                            webPartXml = xDoc.DocumentElement.InnerXml;
+                        }
 
                         return webPartXml;
                     }
@@ -925,8 +865,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
         public List<WebServiceWebPartEntity> LoadWebPartPageFromWebServices(string fullUrl)
         {
             var webParts = new List<WebServiceWebPartEntity>();
-
             var wsWebParts = ExtractWebPartDocumentViaWebServicesFromPage(fullUrl);
+
             if (!string.IsNullOrEmpty(wsWebParts))
             {
                 var doc = parser.Parse(wsWebParts);
@@ -944,127 +884,72 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                 });
 
-                // So this is part XML and part HTML, lets grab the HTML part to get the XML sections then 
-                // switch to XML processing.
-                // Cycle through all the nodes in the document
-                foreach (var docNode in doc.All)
+                var xmlBlock = wsWebParts;
+                var tag = "</head>";
+                var marker = xmlBlock.IndexOf(tag);
+                if (marker > -1)
                 {
-                    foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
-                    {
-                        if (docNode.TagName.Contains(prefixAndNameSpace.Item1.ToUpper()))
-                        {
-                            //This should only find one match
-                            var matchedParts = possibleWebPartsUsed.Where(o => o.Item1.ToUpper() == docNode.TagName.Replace($"{prefixAndNameSpace.Item1.ToUpper()}:", ""));
-
-                            if (matchedParts.Any())
-                            {
-                                var match = matchedParts.FirstOrDefault();
-                                if (match != default(Tuple<string, string>))
-                                {
-                                    //Remove child nodes for now.
-                                    for (var i = 0; i < docNode.ChildNodes.Count(); i++)
-                                    {
-                                        docNode.RemoveChild(docNode.ChildNodes[i]);
-                                    }
-
-                                    // There is an invalid < and > in the attributes that is causing issues.
-                                    var cleanedNode = docNode.OuterHtml.Replace("\"<", "\"&lt;").Replace("\">", "\"&gt;");
-
-                                    // Need to remove some characters not suitable for XML parsing.
-                                    // Extract the attributes from the web part into the entity object
-                                    Regex regex = new Regex("([\\w\\-.:]+)\\s*=\\s*(\"[^\"]*\"|'[^']*'|[\\w\\-.:]+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-                                    var results = regex.Matches(cleanedNode);
-
-                                    WebServiceWebPartEntity webPart = new WebServiceWebPartEntity();
-                                    webPart.Type = match.Item2;
-
-                                    foreach (Match result in results)
-                                    {
-                                        var splitParam = result.Value.Split('=');
-                                        var key = splitParam[0];
-                                        var value = splitParam[1].Trim('"'); // Remove the " from the string
-
-                                        if (key.Equals("__webpartid", StringComparison.InvariantCultureIgnoreCase))
-                                        {
-                                            webPart.Id = Guid.Parse(value);
-                                        }
-
-                                        webPart.Properties.Add(key, value);
-                                    }
-
-                                    webParts.Add(webPart);
-                                }
-                            }
-                        }
-                    }
+                    xmlBlock = xmlBlock.Substring(marker).Replace(tag, "");
                 }
 
+                // Clean prefixes
+                xmlBlock = xmlBlock.Replace("__designer:", "Designer");
+                foreach(var prefix in prefixesAndNameSpaces)
+                {
+                    xmlBlock = xmlBlock.Replace($"{prefix.Item1}:", "");
+                }
+                
+                XmlDocument xDoc = new XmlDocument();
+                xDoc.LoadXml(xmlBlock);
+
+                if (xDoc.DocumentElement != null)
+                {
+                    var childNodes = xDoc.SelectNodes("//ZoneTemplate/*");
+                    foreach (XmlNode node in childNodes)
+                    {
+                        XmlNode nodeToExtractProperties = node;
+                        WebServiceWebPartEntity webPart = new WebServiceWebPartEntity();
+
+                        //This should only find one match
+                        var matchWebPart = possibleWebPartsUsed.FirstOrDefault(o => o.Item1.ToUpper() == nodeToExtractProperties.LocalName.ToUpper());
+
+                        if (matchWebPart != default)
+                        {
+                            webPart.Type = matchWebPart.Item2;
+                        }
+
+                        var wpId = nodeToExtractProperties.Attributes.GetNamedItem("__WebPartId");
+                        webPart.Id = Guid.Parse(wpId?.Value);
+
+                        // In the case of Content Editor web parts
+                        if (node.HasChildNodes && node.FirstChild.LocalName == "WebPart")
+                        {
+                            // Some web parts store properties as child nodes
+                            nodeToExtractProperties = node.FirstChild;
+
+                            foreach (XmlNode wpChildNodes in nodeToExtractProperties.ChildNodes)
+                            {
+                                webPart.Properties.Add(wpChildNodes.LocalName, wpChildNodes.InnerText);
+                            }
+                        }
+                        else
+                        {
+                            // Some web parts store properties by attributes
+                            foreach (XmlAttribute attr in nodeToExtractProperties.Attributes)
+                            {
+                               webPart.Properties.Add(attr.Name, attr.Value);
+                            }
+                        }
+
+                        webParts.Add(webPart);
+                    }
+                }
             }
 
             return webParts;
         }
 
-        /// <summary>
-        /// Loads Web Part Properties from web services
-        /// </summary>
-        /// <param name="pageUrl">Server Relative Page Url</param>
-        /// <returns></returns>
-        public List<WebServiceWebPartProperties> LoadWebPartPropertiesFromWebServices(string pageUrl)
-
-        {
-            // This may contain references to multiple web part
-            var webPartProperties = new List<WebServiceWebPartProperties>();
-            var wsWebPartProps = ExtractWebPartPropertiesViaWebServicesFromPage(pageUrl);
-
-            if (!string.IsNullOrEmpty(wsWebPartProps))
-            {
-                try
-                {
-                    XmlDocument xDoc = new XmlDocument();
-                    xDoc.LoadXml(wsWebPartProps);
-                    var namespaceManager = new XmlNamespaceManager(xDoc.NameTable);
-                    namespaceManager.AddNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/");
-                    namespaceManager.AddNamespace("wpp", "http://microsoft.com/sharepoint/webpartpages");
-                    namespaceManager.AddNamespace("wpv3", "http://schemas.microsoft.com/WebPart/v3");
-
-                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
-                    {
-                        var xPath = "//soap:Body/wpp:GetWebPartProperties2Response/wpp:GetWebPartProperties2Result/wpp:WebParts/wpp:WebPart/wpv3:webPart";
-                        var webParts = xDoc.SelectNodes(xPath, namespaceManager);
-
-                        foreach (XmlNode webPartNode in webParts)
-                        {
-                            WebServiceWebPartProperties wsWebPartPropertiesEntity = new WebServiceWebPartProperties();
-
-                            // Get Parent Node for Web Part ID
-                            var parentNodeIdAttribute = webPartNode.ParentNode.Attributes.GetNamedItem("ID");
-                            wsWebPartPropertiesEntity.Id = Guid.Parse(parentNodeIdAttribute.Value);
-
-                            // Get the type from a child node
-                            var metaNode = webPartNode.SelectSingleNode("//wpv3:type", namespaceManager);
-                            var typeAttrNode = metaNode?.Attributes.GetNamedItem("name");
-                            wsWebPartPropertiesEntity.Type = typeAttrNode?.Value;
-
-                            //Get the properties
-                            var propertyNodes = webPartNode.SelectNodes("//wpv3:property", namespaceManager);
-
-                            foreach(XmlNode propertyNode in propertyNodes)
-                            {
-                                wsWebPartPropertiesEntity.Properties.Add(propertyNode.Attributes.GetNamedItem("name")?.Value, propertyNode.InnerText);
-                            }
-
-                            webPartProperties.Add(wsWebPartPropertiesEntity);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Catch exceptions during processing of Web Service Responses
-                }
-            }
-
-            return webPartProperties;
-        }
+       
 
         /// <summary>
         /// Gets the tag prefixes from the document

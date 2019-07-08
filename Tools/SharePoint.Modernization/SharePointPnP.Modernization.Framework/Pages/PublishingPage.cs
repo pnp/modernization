@@ -251,8 +251,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             IEnumerable<WebPartDefinition> webPartsViaManager = null;
             List<WebServiceWebPartEntity> webServiceWebPartEntities = null;
-            List<WebServiceWebPartProperties> webServiceWebPartProperties = null;
-
+            
             // May need adjusting for SharePoint 2013
             if (GetVersion(cc) == SPVersion.SP2010)
             {
@@ -261,8 +260,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 cc.ExecuteQueryRetry();
 
                 webServiceWebPartEntities = LoadWebPartPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
-                webServiceWebPartProperties = LoadWebPartPropertiesFromWebServices(publishingPage.EnsureProperty(p => p.ServerRelativeUrl));
-                // Add the metadata as required
             }
             else
             {
@@ -335,14 +332,16 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     Dictionary<string, object> webPartProperties = null;
 
-                    //Determine if web calls have been made and use those properties in preference to the CSOM calls 
-
-                   if (webServiceWebPartProperties != null)
+                    if (webServiceWebPartEntities != null)
                     {
-                        var wsFoundWebPartProperties = webServiceWebPartProperties.SingleOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
-                        if(wsFoundWebPartProperties != default(WebServiceWebPartProperties))
+                        // If the web service call includes the export mode value then set the export options
+                        var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                        webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
+                                               
+                        var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
+                        if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.ToString().Equals("all", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            webPartProperties = wsFoundWebPartProperties.Properties;
+                            exportMode = WebPartExportMode.All;
                         }
                     }
                     else
@@ -350,21 +349,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         webPartProperties = foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues;
                     }
                     
-                    if (webServiceWebPartEntities != null)
-                    {
-                        // If the web service call includes the export mode value then set the export options
-                        var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
-                        var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
-                        if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.Equals("all", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            exportMode = WebPartExportMode.All;
-                        }
-                    }
-                    
                     if (exportMode != WebPartExportMode.All)
                     {
                         // Use different approach to determine type as we can't export the web part XML without indroducing a change
-                        foundWebPart.WebPartType = GetTypeFromProperties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues);
+                        foundWebPart.WebPartType = GetTypeFromProperties(webPartProperties);
                     }
                     else
                     {
@@ -633,6 +621,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             return props;
         }
+
+        
 
         private int GetNextOrder(int row, int col, int order, List<WebPartEntity> webparts)
         {

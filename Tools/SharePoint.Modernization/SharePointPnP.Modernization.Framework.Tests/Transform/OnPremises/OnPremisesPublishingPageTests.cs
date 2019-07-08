@@ -26,7 +26,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test2");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test3");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
@@ -58,6 +60,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                             // Callout to your custom content transformator...in case you fully want replace the model
                             //ContentTransformatorOverride = contentOverride,
+                            //SkipUrlRewrite = true
                         };
 
                         Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
@@ -148,39 +151,6 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
         }
 
         [TestMethod]
-        public void BasePage_ExtractWebPartPropertiesViaWebServicesFromPageTest()
-        {
-            string url = "/pages/article-2010-custom.aspx";
-            //string url = "/pages/article-2010-custom.aspx";
-
-            using (var context = TestCommon.CreateOnPremisesClientContext())
-            {
-
-                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
-
-                foreach (var page in pages)
-                {
-                    page.EnsureProperties(p => p.File);
-
-                    List<string> search = new List<string>()
-                    {
-                        "WebPartZone"
-                    };
-
-                    //Should be one
-                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
-                    var result = testBase.ExtractWebPartPropertiesViaWebServicesFromPage(url);
-
-                    Assert.IsTrue(result.Length > 0);
-
-                    break;
-
-                }
-            }
-
-        }
-
-        [TestMethod]
         public void BasePage_LoadWebPartDocumentViaWebServicesTest()
         {
             //string url = "http://portal2010/pages/article-2010-custom.aspx";
@@ -190,7 +160,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
             using (var context = TestCommon.CreateOnPremisesClientContext())
             {
 
-                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test2");
 
                 foreach (var page in pages)
                 {
@@ -203,61 +173,29 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                     //Should be one
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
-                    testBase.LoadWebPartPageFromWebServices(url);
+                    var result = testBase.LoadWebPartPageFromWebServices(url);
 
-                    //TODO: Finish Test
-                    break;
-
-                }
-            }
-
-        }
-
-        [TestMethod]
-        public void BasePage_LoadWebPartPropertiesViaWebServicesTest()
-        {
-            //string url = "http://portal2010/pages/article-2010-custom.aspx";
-            string url = "/pages/article-2010-custom.aspx";
-            //string url = "/pages/article-2010-custom.aspx";
-
-            using (var context = TestCommon.CreateOnPremisesClientContext())
-            {
-
-                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
-
-                foreach (var page in pages)
-                {
-                    page.EnsureProperties(p => p.File);
-
-                    List<string> search = new List<string>()
-                    {
-                        "WebPartZone"
-                    };
-
-                    //Should be one
-                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
-                    testBase.LoadWebPartPropertiesFromWebServices(url);
-                    
-                    break;
-                    //TODO: Finish Test
+                    Assert.IsTrue(result.Count > 0);
 
                 }
             }
 
         }
+
+       
 
 
         [TestMethod]
         public void BasePage_ExportWebPartByWorkaround()
         {
             //string url = "http://portal2010/pages/article-2010-custom.aspx";
-            string url = "/pages/article-2010-custom.aspx";
+            string url = "/pages/article-2010-custom-test2.aspx";
             //string url = "/pages/article-2010-custom.aspx";
 
             using (var context = TestCommon.CreateOnPremisesClientContext())
             {
 
-                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+                var pages = context.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test2");
 
                 foreach (var page in pages)
                 {
@@ -266,13 +204,14 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     //Should be one
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
                     var webPartEntities = testBase.LoadWebPartPageFromWebServices(url);
-                    var wp = webPartEntities.FirstOrDefault();
 
-                    var result = testBase.ExportWebPartXmlWorkaround(url, wp.Id.ToString());
+                    foreach (var webPart in webPartEntities)
+                    {
+                        var result = testBase.ExportWebPartXmlWorkaround(url, webPart.Id.ToString());
 
-                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+                        Assert.IsTrue(!string.IsNullOrEmpty(result));
 
-                    break;
+                    }
 
                 }
             }

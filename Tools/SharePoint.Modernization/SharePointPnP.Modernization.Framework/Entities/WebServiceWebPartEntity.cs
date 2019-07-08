@@ -37,5 +37,17 @@ namespace SharePointPnP.Modernization.Framework.Entities
             return $"{name}";
         }
 
+        public  Dictionary<string, object> PropertiesAsStringObjectDictionary()
+        {
+            Dictionary<string, object> castedCollection = new Dictionary<string, object>();
+
+            foreach (var item in this.Properties)
+            {
+                castedCollection.Add(item.Key, (object)item.Value);
+            }
+
+            return castedCollection;
+        }
+
     }
 }
