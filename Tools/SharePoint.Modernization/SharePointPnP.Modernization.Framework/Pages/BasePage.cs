@@ -34,7 +34,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
             public int Column { get; set; }
             public int Order { get; set; }
             public WebPartDefinition WebPartDefinition { get; set; }
-            public string WebPartXml { get; set; }
+            public string WebPartXml2010 { get; set; }
+            public ClientResult<string> WebPartXml { get; set; }
+
             public string WebPartType { get; set; }
         }
 
@@ -265,7 +267,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     if (webPartToRetrieve.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
                     {
-                        webPartToRetrieve.WebPartXml = limitedWPManager.ExportWebPart(webPartToRetrieve.WebPartDefinition.Id)?.Value;
+                        webPartToRetrieve.WebPartXml = limitedWPManager.ExportWebPart(webPartToRetrieve.WebPartDefinition.Id);
                         isDirty = true;
                     }
                 }
@@ -288,7 +290,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                     else
                     {
-                        webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXml);
+                        webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXml.Value);
                     }
 
                     webparts.Add(new WebPartEntity()
@@ -304,7 +306,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)webPartToRetrieve.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = webPartToRetrieve.WebPartDefinition.WebPart.IsClosed,
                         Hidden = webPartToRetrieve.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml),
+                        Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml.Value),
                     });
                 }
             }

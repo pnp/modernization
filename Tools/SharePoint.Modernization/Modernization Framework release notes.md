@@ -12,16 +12,26 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
+## [Unreleased]
+
+### Added
+
+- SharePoint 2010 Preview Support #204 [pkbullock]
+
+### Changed
+
+- Url Rewrite - Issue with root addresses #205 [pkbullock]
+
 ## [July release - version 1.0.1907.0]
 
-## Added
+### Added
 
 - Custom URL mapping logic: provide a csv file with source and target values and these will be used by the url mapper #135
 - Option to override default QuickLinks configuration in publishing page transformation scenarios #191
 - Option to "map" web parts inside a web part zone #167
 - Support for multiple source field "name" values in page layout mapping files, allows to define "overrides" if a given field is not populated in the source page #201 [MartinHatch]
 
-## Changed
+### Changed
 
 - User fields are now correctly copied over in cross site publishing transformation scenarios #184
 - Mapping Files Version Change Notice #188
@@ -30,13 +40,13 @@
 
 ## [June release - version 1.0.1906.0]
 
-## Added
+### Added
 
 - Preview On-Premises publishing page to SharePoint Online modern page support #165 [pkbullock]
 - Support for transforming web part pages living outside of a library (so in the root folder of the site)
 - Support for provisioning the Page Properties web part on a page (only for publishing page transformation). #171
 
-## Changed
+### Changed
 
 - Reporting improvements for on-premises as source + correct log level for some log entries #169 [pkbullock]
 - Logic added that disables item level permissions copy in cross-farm scenarios #178 [pkbullock]
@@ -56,7 +66,7 @@
 
 ## [May release (prod) - version 1.0.1905.0]
 
-## Added
+### Added
 
 - Support for static parameter values in function definitions. Use the new StaticString function, e.g. StaticString('your static string') to define a static value. Fixes #119
 - Support for running a function on MetaData field mappings (single function can be added per field, not supported for taxonomy fields)
@@ -65,7 +75,7 @@
 - Simple URL rewrite engine for publishing page transformation
 - Summary report generation #141 [pkbullock]
 
-## Changed
+### Changed
 
 - Added filter for ASPX files and additional error handling #102 [pkbullock]
 - Duplicate analyser mappings produced #100 [pkbullock]

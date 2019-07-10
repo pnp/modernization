@@ -291,7 +291,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 bool isDirty = false;
                 foreach (var foundWebPart in webPartsToRetrieve)
                 {
-                    WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.IsObjectPropertyInstantiated("ExportMode") ?foundWebPart.WebPartDefinition.WebPart.ExportMode : default(WebPartExportMode);
+                    WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.ExportMode;
 
                     if (webServiceWebPartEntities != null)
                     {
@@ -310,11 +310,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         if(GetVersion(cc) == SPVersion.SP2010)
                         {
                             var webPartXml = base.ExportWebPartXmlWorkaround(publishingPageUrl, foundWebPart.WebPartDefinition.Id.ToString());
-                            foundWebPart.WebPartXml = webPartXml;
+                            foundWebPart.WebPartXml2010 = webPartXml;
                         }
                         else
                         {
-                            foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id)?.Value;
+                            foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
                         }
                         
                         isDirty = true;
@@ -328,7 +328,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 List<WebPartZoneLayoutMap> webPartZoneLayoutMap = new List<WebPartZoneLayoutMap>();
                 foreach (var foundWebPart in webPartsToRetrieve.OrderBy(p=> p.WebPartDefinition.WebPart.ZoneIndex))
                 {
-                    WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.IsObjectPropertyInstantiated("ExportMode") ? foundWebPart.WebPartDefinition.WebPart.ExportMode : default;
+                    WebPartExportMode exportMode = foundWebPart.WebPartDefinition.WebPart.ExportMode;
 
                     Dictionary<string, object> webPartProperties = null;
 
@@ -356,11 +356,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                     else
                     {
-                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml);
+                        if (GetVersion(cc) == SPVersion.SP2010)
+                        {
+                            foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml2010);
+                        }
+                        else
+                        {
+                            foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
+                        }
                     }
 
-                    string zoneId = foundWebPart.WebPartDefinition.IsObjectPropertyInstantiated("ZoneId") ? 
-                        foundWebPart.WebPartDefinition.ZoneId : string.Empty;
+                    string zoneId = foundWebPart.WebPartDefinition.ZoneId;
 
                     if (webServiceWebPartEntities != null)
                     {
@@ -445,6 +451,16 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     // Determine order already taken
                     int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, wpStartOrder, webparts);
 
+                    string webPartXmlForPropertiesMethod = null;
+                    if (GetVersion(cc) == SPVersion.SP2010)
+                    {
+                        webPartXmlForPropertiesMethod = foundWebPart.WebPartXml2010;
+                    }
+                    else
+                    {
+                        webPartXmlForPropertiesMethod = foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value;
+                    }
+
                     webparts.Add(new WebPartEntity()
                     {
                         Title = foundWebPart.WebPartDefinition.WebPart.Title,
@@ -458,7 +474,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
                         Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(webPartProperties, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml),
+                        Properties = Properties(webPartProperties, foundWebPart.WebPartType, webPartXmlForPropertiesMethod),
                     });
                 }
             }
@@ -541,7 +557,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
                     {
-                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id)?.Value;
+                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
                         isDirty = true;
                     }
                 }
@@ -559,7 +575,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                     else
                     {
-                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml);
+                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
                     }
 
                     webparts.Add(new WebPartEntity()
@@ -572,7 +588,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
                         Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml),
+                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value),
                     });
                 }
             }
