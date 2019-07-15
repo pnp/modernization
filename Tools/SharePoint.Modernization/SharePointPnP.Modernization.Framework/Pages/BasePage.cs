@@ -34,7 +34,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             public int Column { get; set; }
             public int Order { get; set; }
             public WebPartDefinition WebPartDefinition { get; set; }
-            public string WebPartXml2010 { get; set; }
+            public string WebPartXmlOnPremises { get; set; }
             public ClientResult<string> WebPartXml { get; set; }
 
             public string WebPartType { get; set; }

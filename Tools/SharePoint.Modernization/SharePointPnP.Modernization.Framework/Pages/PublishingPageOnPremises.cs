@@ -14,34 +14,18 @@ namespace SharePointPnP.Modernization.Framework.Pages
     /// <summary>
     /// Analyzes a publishing page
     /// </summary>
-    public class PublishingPage : BasePage
+    public class PublishingPageOnPremises : PublishingPage
     {
-        internal PublishingPageTransformation publishingPageTransformation;
-        internal PublishingFunctionProcessor functionProcessor;
-        internal BaseTransformationInformation baseTransformationInformation;
-        internal ClientContext targetContext = null;
-
-        #region Internal classes
-        internal class WebPartZoneLayoutMap
-        {
-            public string ZoneId { get; set; }
-            public string Type { get; set; }
-            public int Occurances { get; set; }
-        }
-        #endregion
-
+        
         #region Construction
         /// <summary>
         /// Instantiates a publishing page object
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation, BaseTransformationInformation baseTransformationInformation, IList<ILogObserver> logObservers = null) : base(page, null, pageTransformation, logObservers)
+        public PublishingPageOnPremises(ListItem page, PageTransformation pageTransformation, BaseTransformationInformation baseTransformationInformation, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, baseTransformationInformation, logObservers)
         {
-            // no PublishingPageTransformation specified, fall back to default
-            this.publishingPageTransformation = new PageLayoutManager(base.RegisteredLogObservers).LoadDefaultPageLayoutMappingFile();
-            this.baseTransformationInformation = baseTransformationInformation;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, null, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);
+           
         }
 
         /// <summary>
@@ -49,12 +33,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public PublishingPage(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation, ClientContext targetContext = null, IList<ILogObserver> logObservers = null) : base(page, null, pageTransformation, logObservers)
+        public PublishingPageOnPremises(ListItem page, PageTransformation pageTransformation, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation, ClientContext targetContext = null, IList<ILogObserver> logObservers = null) : base(page, pageTransformation, publishingPageTransformation,  baseTransformationInformation, targetContext, logObservers = null)
         {
-            this.publishingPageTransformation = publishingPageTransformation;
-            this.baseTransformationInformation = baseTransformationInformation;
-            this.targetContext = targetContext;
-            this.functionProcessor = new PublishingFunctionProcessor(page, cc, targetContext, this.publishingPageTransformation, baseTransformationInformation, base.RegisteredLogObservers);
+
         }
         #endregion
 
@@ -62,7 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Analyses a publishing page
         /// </summary>
         /// <returns>Information about the analyzed publishing page</returns>
-        public virtual Tuple<PageLayout, List<WebPartEntity>> Analyze(Publishing.PageLayout publishingPageTransformationModel)
+        public override Tuple<PageLayout, List<WebPartEntity>> Analyze(Publishing.PageLayout publishingPageTransformationModel)
         {
             List<WebPartEntity> webparts = new List<WebPartEntity>();
 
@@ -249,9 +230,16 @@ namespace SharePointPnP.Modernization.Framework.Pages
             var limitedWPManager = publishingPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
             cc.Load(limitedWPManager);
 
-            IEnumerable<WebPartDefinition> webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.ZoneId, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties));
-            cc.ExecuteQueryRetry();
+            IEnumerable<WebPartDefinition> webPartsViaManager = null;
+            List<WebServiceWebPartEntity> webServiceWebPartEntities = null;
             
+            //Properties, ExportMode and ZoneId - not Supported in 2010, Web Services are used to compensate for the missing properties
+            webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
+            cc.ExecuteQueryRetry();
+
+            webServiceWebPartEntities = LoadWebPartPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
+           
+
             if (webPartsViaManager.Count() > 0)
             {
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
@@ -271,39 +259,53 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         WebPartType = "",
                     });
                 }
-
-                bool isDirty = false;
+                               
                 foreach (var foundWebPart in webPartsToRetrieve)
                 {
-                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
+                    // If the web service call includes the export mode value then set the export options
+                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
+                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.Equals("all", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
-                        isDirty = true;
+                        var webPartXml = base.ExportWebPartXmlWorkaround(publishingPageUrl, foundWebPart.WebPartDefinition.Id.ToString());
+                        foundWebPart.WebPartXmlOnPremises = webPartXml;
                     }
                 }
-                if (isDirty)
-                {
-                    cc.ExecuteQueryRetry();
-                }
-
+               
                 List<WebPartZoneLayoutMap> webPartZoneLayoutMap = new List<WebPartZoneLayoutMap>();
                 foreach (var foundWebPart in webPartsToRetrieve.OrderBy(p=> p.WebPartDefinition.WebPart.ZoneIndex))
                 {
-                    Dictionary<string, object> webPartProperties = foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues; ;
+                    bool isExportable = false;
 
-                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
+                    Dictionary<string, object> webPartProperties = null;
+
+                    // If the web service call includes the export mode value then set the export options
+                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                    webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
+                                               
+                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
+                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.ToString().Equals("all", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        isExportable = true;
+                    }
+                    
+                    if (!isExportable)
                     {
                         // Use different approach to determine type as we can't export the web part XML without indroducing a change
                         foundWebPart.WebPartType = GetTypeFromProperties(webPartProperties);
                     }
                     else
                     {
-                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
+                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXmlOnPremises);
                     }
 
-                    string zoneId = foundWebPart.WebPartDefinition.ZoneId;
-                                      
-
+                    string zoneId = string.Empty;
+                    var wsZoneId = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("zoneid", StringComparison.InvariantCultureIgnoreCase));
+                    if (!string.IsNullOrEmpty(wsZoneId.Value))
+                    {
+                        zoneId = wsZoneId.Value;
+                    }
+                    
                     int wpInZoneRow = 1;
                     int wpInZoneCol = 1;
                     int wpStartOrder = 0;
@@ -377,8 +379,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     // Determine order already taken
                     int wpInZoneOrderUsed = GetNextOrder(wpInZoneRow, wpInZoneCol, wpStartOrder, webparts);
 
-                    string webPartXmlForPropertiesMethod = foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value;
+                    string webPartXmlForPropertiesMethod = null;
+                    webPartXmlForPropertiesMethod = foundWebPart.WebPartXmlOnPremises;
                     
+
                     webparts.Add(new WebPartEntity()
                     {
                         Title = foundWebPart.WebPartDefinition.WebPart.Title,
@@ -427,190 +431,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
         }
 
-        /// <summary>
-        /// Analyses a publishing page for scanner usage
-        /// </summary>
-        /// <returns>Information about the analyzed publishing page</returns>
-        public Tuple<PageLayout, List<WebPartEntity>> GetWebPartsForScanner()
-        {
-
-            //TODO: Upgrade this new code for SharePoint 2010 support
-
-            List<WebPartEntity> webparts = new List<WebPartEntity>();
-
-            //Load the page
-            var publishingPageUrl = page[Constants.FileRefField].ToString();
-            var publishingPage = cc.Web.GetFileByServerRelativeUrl(publishingPageUrl);
-
-            // Load relevant model data for the used page layout in case not already provided - safetynet for calls from modernization scanner
-            string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(page.PageLayoutFile());
-
-            // Map layout
-            PageLayout layout = PageLayout.PublishingPage_AutoDetect;
-
-            // Load web parts put in web part zones on the publishing page
-            // Note: Web parts placed outside of a web part zone using SPD are not picked up by the web part manager. 
-            var limitedWPManager = publishingPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
-            cc.Load(limitedWPManager);
-
-            IEnumerable<WebPartDefinition> webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.ZoneId, wp => wp.WebPart.ExportMode, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties));
-            cc.ExecuteQueryRetry();
-
-            if (webPartsViaManager.Count() > 0)
-            {
-                List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
-
-                foreach (var foundWebPart in webPartsViaManager)
-                {
-                    webPartsToRetrieve.Add(new WebPartPlaceHolder()
-                    {
-                        WebPartDefinition = foundWebPart,
-                        WebPartXml = null,
-                        WebPartType = "",
-                    });
-                }
-
-                bool isDirty = false;
-                foreach (var foundWebPart in webPartsToRetrieve)
-                {
-                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
-                    {
-                        foundWebPart.WebPartXml = limitedWPManager.ExportWebPart(foundWebPart.WebPartDefinition.Id);
-                        isDirty = true;
-                    }
-                }
-                if (isDirty)
-                {
-                    cc.ExecuteQueryRetry();
-                }
-
-                foreach (var foundWebPart in webPartsToRetrieve.OrderBy(p => p.WebPartDefinition.WebPart.ZoneIndex))
-                {
-                    if (foundWebPart.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
-                    {
-                        // Use different approach to determine type as we can't export the web part XML without indroducing a change
-                        foundWebPart.WebPartType = GetTypeFromProperties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues);
-                    }
-                    else
-                    {
-                        foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
-                    }
-
-                    webparts.Add(new WebPartEntity()
-                    {
-                        Title = foundWebPart.WebPartDefinition.WebPart.Title,
-                        Type = foundWebPart.WebPartType,
-                        Id = foundWebPart.WebPartDefinition.Id,
-                        ServerControlId = foundWebPart.WebPartDefinition.Id.ToString(),
-                        ZoneId = foundWebPart.WebPartDefinition.ZoneId,
-                        ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
-                        IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
-                        Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
-                        Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues, foundWebPart.WebPartType, foundWebPart.WebPartXml == null ? "" : foundWebPart.WebPartXml.Value),
-                    });
-                }
-            }
-
-            return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);
-        }
-
-
-        #region Helper methods
-        internal T GetFixedWebPartProperty<T>(FixedWebPart webPart, string name, T defaultValue)
-        {
-            var property = webPart.Property.Where(p => p.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-            if (property != null)
-            {
-
-                if (property.Value.StartsWith("$Resources:"))
-                {
-                    property.Value = CacheManager.Instance.GetResourceString(this.cc, property.Value);
-                }
-
-                if (property.Value is T)
-                {
-                    return (T)(object)property.Value;
-                }
-                try
-                {
-                    return (T)Convert.ChangeType(property.Value, typeof(T));
-                }
-                catch (InvalidCastException)
-                {
-                    return defaultValue;
-                }
-            }
-
-            return defaultValue;
-        }
-
-        internal Dictionary<string, string> CastAsPropertiesDictionary(FixedWebPart webPart)
-        {
-            Dictionary<string, string> props = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-
-            foreach(var prop in webPart.Property)
-            {
-                props.Add(prop.Name, prop.Value);
-            }
-
-            return props;
-        }
-               
-        internal int GetNextOrder(int row, int col, int order, List<WebPartEntity> webparts)
-        {
-            // do we already have web parts in the same row and column
-            var wp = webparts.Where(p => p.Row == row && p.Column == col);
-
-            if (order > 0)
-            {
-                // Multiply with 100 to leave space for possible multiple web parts living in an ordered web part zone
-                return order * 100;
-            }
-            else
-            {
-                if (wp != null && wp.Any())
-                {
-                    var lastWp = wp.OrderBy(p => p.Order).Last();
-                    return lastWp.Order + 1;
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-        }
-
-        internal PageLayout MapToLayout(PageLayoutPageLayoutTemplate layoutFromTemplate)
-        {
-            switch (layoutFromTemplate)
-            {
-                case PageLayoutPageLayoutTemplate.OneColumn: return PageLayout.Wiki_OneColumn;
-                case PageLayoutPageLayoutTemplate.TwoColumns: return PageLayout.Wiki_TwoColumns;
-                case PageLayoutPageLayoutTemplate.TwoColumnsWithSidebarLeft:return PageLayout.Wiki_TwoColumnsWithSidebar;
-                case PageLayoutPageLayoutTemplate.TwoColumnsWithSidebarRight: return PageLayout.Wiki_TwoColumnsWithSidebar;
-                case PageLayoutPageLayoutTemplate.TwoColumnsWithHeader: return PageLayout.Wiki_TwoColumnsWithHeader;
-                case PageLayoutPageLayoutTemplate.TwoColumnsWithHeaderAndFooter: return PageLayout.Wiki_TwoColumnsWithHeaderAndFooter;
-                case PageLayoutPageLayoutTemplate.ThreeColumns: return PageLayout.Wiki_ThreeColumns;
-                case PageLayoutPageLayoutTemplate.ThreeColumnsWithHeader: return PageLayout.Wiki_ThreeColumnsWithHeader;
-                case PageLayoutPageLayoutTemplate.ThreeColumnsWithHeaderAndFooter: return PageLayout.Wiki_ThreeColumnsWithHeaderAndFooter;
-                case PageLayoutPageLayoutTemplate.AutoDetect: return PageLayout.PublishingPage_AutoDetect;
-                default: return PageLayout.Wiki_OneColumn;
-            }
-        }
-
-        internal PublishingFunctionProcessor.FieldType MapToFunctionProcessorFieldType(WebPartProperyType propertyType)
-        {
-            switch (propertyType)
-            {
-                case WebPartProperyType.@string: return PublishingFunctionProcessor.FieldType.String;
-                case WebPartProperyType.@bool: return PublishingFunctionProcessor.FieldType.Bool;
-                case WebPartProperyType.guid:return PublishingFunctionProcessor.FieldType.Guid;
-                case WebPartProperyType.integer: return PublishingFunctionProcessor.FieldType.Integer;
-                case WebPartProperyType.datetime: return PublishingFunctionProcessor.FieldType.DateTime;
-            }
-
-            return PublishingFunctionProcessor.FieldType.String;
-        }
-        #endregion
+  
     }
 }

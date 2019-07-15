@@ -195,6 +195,7 @@
     <Compile Include="Entities\WebServiceWebPartEntity.cs" />
     <Compile Include="Extensions\FileFolderExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Pages\PublishingPageOnPremises.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutHeaderFieldEntity.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutMetadataEntity.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutFieldControlEntity.cs" />
