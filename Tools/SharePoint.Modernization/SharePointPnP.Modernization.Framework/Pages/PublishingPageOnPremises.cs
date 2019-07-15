@@ -292,7 +292,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     if (!isExportable)
                     {
                         // Use different approach to determine type as we can't export the web part XML without indroducing a change
-                        foundWebPart.WebPartType = GetTypeFromProperties(webPartProperties);
+                        foundWebPart.WebPartType = GetTypeFromProperties(webPartProperties, true);
                     }
                     else
                     {

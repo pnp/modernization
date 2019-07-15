@@ -452,7 +452,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="properties">Web part properties to analyze</param>
         /// <returns>Type of the web part as fully qualified name</returns>
-        public string GetTypeFromProperties(Dictionary<string, object> properties)
+        public string GetTypeFromProperties(Dictionary<string, object> properties, bool isLegacy = false)
         {
             // Check for XSLTListView web part
             string[] xsltWebPart = new string[] { "ListUrl", "ListId", "Xsl", "JSLink", "ShowTimelineIfAvailable" };
@@ -508,6 +508,15 @@ namespace SharePointPnP.Modernization.Framework.Pages
             if (CheckWebPartProperties(addinPartWebPart, properties))
             {
                 return WebParts.Client;
+            }
+
+            if (isLegacy)
+            {
+                string[] contentEditorWebPart = new string[] { "Content", "ContentLink", "PartStorage" };
+                if (CheckWebPartProperties(contentEditorWebPart, properties))
+                {
+                    return WebParts.ContentEditor;
+                }
             }
 
             // check for Script Editor web part
