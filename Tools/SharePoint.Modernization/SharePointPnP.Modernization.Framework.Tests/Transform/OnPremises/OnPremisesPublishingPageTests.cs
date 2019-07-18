@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
+namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 {
     [TestClass]
     public class OnPremisesPublishingPageTests
