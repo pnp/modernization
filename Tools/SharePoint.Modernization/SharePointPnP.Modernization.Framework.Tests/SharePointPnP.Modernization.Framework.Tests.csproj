@@ -203,6 +203,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestExtensions.cs" />
     <Compile Include="Transform\OnPremises\OnPremisesPublishingPageTests.cs" />
     <Compile Include="Transform\Publishing\AdHocTests.cs" />
     <Compile Include="Transform\Publishing\PageLayoutAnalyserTests.cs" />

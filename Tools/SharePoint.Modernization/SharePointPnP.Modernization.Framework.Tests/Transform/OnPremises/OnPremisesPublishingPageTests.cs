@@ -27,9 +27,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom");
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test2");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "ArticlePage-2010-Multiple");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test3");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
+
+                    pages.FailTestIfZero();
 
                     foreach (var page in pages)
                     {
