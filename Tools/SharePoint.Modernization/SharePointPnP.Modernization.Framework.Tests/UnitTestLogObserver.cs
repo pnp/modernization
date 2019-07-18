@@ -19,8 +19,9 @@ namespace SharePointPnP.Modernization.Framework.Tests
         {
             var error = entry.Exception != null ? entry.Exception.Message : "No error logged";
             Console.WriteLine($"ERROR: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Error: { error }");
+            Console.WriteLine($"ERROR: Stack Trace: {entry.Exception.StackTrace}");
 
-            if(entry.IsCriticalException)
+            if (entry.IsCriticalException)
             {
                 Assert.Fail(entry.Message);
             }
