@@ -10,7 +10,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
     public class OnPremisesWebPartPageTests
     {
         [TestMethod]
-        public void BasicOnPremWikiPageTest()
+        public void OnPremises_BasicWikiPageTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
@@ -68,5 +68,22 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
             }
 
         }
+
+        [TestMethod]
+        public void OnPremises_WebExtensions_GetSitePages()
+        {
+            using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext(TestCommon.AppSetting("SPOnPremTeamSiteUrl")))
+            {
+
+                var result = sourceClientContext.Web.GetSitePagesLibrary();
+
+                Assert.IsNotNull(result);
+                Assert.AreNotEqual(default(List), result);
+
+            }
+        }
+
     }
+
+    
 }

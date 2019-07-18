@@ -482,5 +482,20 @@ namespace Microsoft.SharePoint.Client
 
             return string.Empty;
         }
+
+        /// <summary>
+        /// Gets site pages library from web
+        /// </summary>
+        /// <param name="web"></param>
+        /// <returns></returns>
+        public static List GetSitePagesLibrary(this Web web)
+        {
+            //TemplateFeatureId - 00bfea71-c796-4402-9f2f-0eb9a6e71b18
+            var lists = web.Lists;
+            web.Context.Load(lists, list => list.Where(l => l.RootFolder.Name == "SitePages").Include(l => l.Id));
+            web.Context.ExecuteQuery();
+
+            return lists.SingleOrDefault();
+        }
     }
 }
