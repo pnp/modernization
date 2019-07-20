@@ -237,7 +237,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
             cc.ExecuteQueryRetry();
 
-            webServiceWebPartEntities = LoadWebPartPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
+            webServiceWebPartEntities = LoadPublishingPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
            
 
             if (webPartsViaManager.Count() > 0)

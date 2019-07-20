@@ -4,6 +4,7 @@ using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,7 +86,14 @@ namespace SharePointPnP.Modernization.Framework.Pages
             // Bulk load the needed web part information
             if (webPartsToRetrieve.Count > 0)
             {
-                LoadWebPartsInWikiContentFromServer(webparts, wikiPage, webPartsToRetrieve);
+                if (GetVersion(cc) == SPVersion.SP2010)
+                {
+                    LoadWebPartsInWikiContentFromOnPremisesServer(webparts, wikiPage, webPartsToRetrieve);
+                }
+                else
+                {
+                    LoadWebPartsInWikiContentFromServer(webparts, wikiPage, webPartsToRetrieve);
+                }    
             }
 
             // Somehow the wiki was not standard formatted, so lets wrap its contents in a text block

@@ -16,7 +16,7 @@ namespace SharePointPnP.Modernization.Framework
         /// <param name="collection"></param>
         public static void FailTestIfZero(this ListItemCollection collection)
         {
-            if (collection.Count == 0)
+            if (collection == null || collection.Count == 0)
             {
                 Assert.Fail("No pages found");
             }

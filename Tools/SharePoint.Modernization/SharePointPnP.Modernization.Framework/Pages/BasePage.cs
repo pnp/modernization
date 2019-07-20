@@ -220,6 +220,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
         }
 
+        /// <summary>
+        /// Load Web Parts from Wiki Content page on Online Server
+        /// </summary>
+        /// <param name="webparts"></param>
+        /// <param name="wikiPage"></param>
+        /// <param name="webPartsToRetrieve"></param>
         internal void LoadWebPartsInWikiContentFromServer(List<WebPartEntity> webparts, File wikiPage, List<WebPartPlaceHolder> webPartsToRetrieve)
         {
             // Load web part manager and use it to load each web part
@@ -307,6 +313,141 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         IsClosed = webPartToRetrieve.WebPartDefinition.WebPart.IsClosed,
                         Hidden = webPartToRetrieve.WebPartDefinition.WebPart.Hidden,
                         Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml.Value),
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load Web Parts from Wiki Content page on On-Premises Server
+        /// </summary>
+        /// <param name="webparts"></param>
+        /// <param name="wikiPage"></param>
+        /// <param name="webPartsToRetrieve"></param>
+        internal void LoadWebPartsInWikiContentFromOnPremisesServer(List<WebPartEntity> webparts, File wikiPage, List<WebPartPlaceHolder> webPartsToRetrieve)
+        {
+            // Load web part manager and use it to load each web part
+            LimitedWebPartManager limitedWPManager = wikiPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
+            cc.Load(limitedWPManager);
+
+            List<WebServiceWebPartEntity> webServiceWebPartEntities = LoadPublishingPageFromWebServices(wikiPage.EnsureProperty(p => p.ServerRelativeUrl)); ;
+            var pageUrl = page[Constants.FileRefField].ToString();
+
+            foreach (var webPartToRetrieve in webPartsToRetrieve)
+            {
+                // Check if the web part was loaded when we loaded the web parts collection via the web part manager
+                if (!Guid.TryParse(webPartToRetrieve.Id, out Guid webPartToRetrieveGuid))
+                {
+                    // Skip since guid is not valid
+                    continue;
+                }
+
+                // Sometimes the returned wiki html contains web parts which are not anymore on the page...using the ExceptionHandlingScope 
+                // we can handle these errors server side while just doing a single roundtrip
+                var scope = new ExceptionHandlingScope(cc);
+                using (scope.StartScope())
+                {
+                    using (scope.StartTry())
+                    {
+                        webPartToRetrieve.WebPartDefinition = limitedWPManager.WebParts.GetByControlId(webPartToRetrieve.ControlId);
+                        cc.Load(webPartToRetrieve.WebPartDefinition, wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden);
+                    }
+                    using (scope.StartCatch())
+                    {
+                        //TODO: Consider logging here
+                    }
+                }
+            }
+            cc.ExecuteQueryRetry();
+
+
+            // Load the web part XML for the web parts that do allow it
+            //bool isDirty = false;
+            foreach (var webPartToRetrieve in webPartsToRetrieve)
+            {
+                // Important to only process the web parts that did not return an error in the previous server call
+                if (webPartToRetrieve.WebPartDefinition != null && (webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.HasValue && webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.Value == false))
+                {
+                    //// Retry to load the properties, sometimes they're not retrieved
+                    //webPartToRetrieve.WebPartDefinition.EnsureProperty(wp => wp.Id);
+                    //webPartToRetrieve.WebPartDefinition.WebPart.EnsureProperties(wp => wp.ExportMode, wp => wp.Title, wp => wp.ZoneIndex, wp => wp.IsClosed, wp => wp.Hidden, wp => wp.Properties);
+
+                    //if (webPartToRetrieve.WebPartDefinition.WebPart.ExportMode == WebPartExportMode.All)
+                    //{
+                    //    webPartToRetrieve.WebPartXml = limitedWPManager.ExportWebPart(webPartToRetrieve.WebPartDefinition.Id);
+                    //    isDirty = true;
+                    //}
+
+                    // If the web service call includes the export mode value then set the export options
+                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == webPartToRetrieve.WebPartDefinition.Id);
+                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
+                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.Equals("all", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var webPartXml = ExportWebPartXmlWorkaround(pageUrl, webPartToRetrieve.WebPartDefinition.Id.ToString());
+                        webPartToRetrieve.WebPartXmlOnPremises = webPartXml;
+                    }
+
+                }
+            }
+            //if (isDirty)
+            //{
+            //    cc.ExecuteQueryRetry();
+            //}
+
+            // Determine the web part type and store it in the web parts array
+            foreach (var webPartToRetrieve in webPartsToRetrieve)
+            {
+                if (webPartToRetrieve.WebPartDefinition != null && (webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.HasValue && webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.Value == false))
+                {
+                    //// Important to only process the web parts that did not return an error in the previous server call
+                    //if (webPartToRetrieve.WebPartDefinition.WebPart.ExportMode != WebPartExportMode.All)
+                    //{
+                    //    // Use different approach to determine type as we can't export the web part XML without indroducing a change
+                    //    webPartToRetrieve.WebPartType = GetTypeFromProperties(webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues);
+                    //}
+                    //else
+                    //{
+                    //    webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXml.Value);
+                    //}
+
+                    bool isExportable = false;
+
+                    Dictionary<string, object> webPartProperties = null;
+
+                    // If the web service call includes the export mode value then set the export options
+                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == webPartToRetrieve.WebPartDefinition.Id);
+                    webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
+
+                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
+                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.ToString().Equals("all", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        isExportable = true;
+                    }
+
+                    if (!isExportable)
+                    {
+                        // Use different approach to determine type as we can't export the web part XML without indroducing a change
+                        webPartToRetrieve.WebPartType = GetTypeFromProperties(webPartProperties, true);
+                    }
+                    else
+                    {
+                        webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXmlOnPremises);
+                    }
+
+                    webparts.Add(new WebPartEntity()
+                    {
+                        Title = webPartToRetrieve.WebPartDefinition.WebPart.Title,
+                        Type = webPartToRetrieve.WebPartType,
+                        Id = webPartToRetrieve.WebPartDefinition.Id,
+                        ServerControlId = webPartToRetrieve.Id,
+                        Row = webPartToRetrieve.Row,
+                        Column = webPartToRetrieve.Column,
+                        Order = webPartToRetrieve.Order,
+                        ZoneId = "",
+                        ZoneIndex = (uint)webPartToRetrieve.WebPartDefinition.WebPart.ZoneIndex,
+                        IsClosed = webPartToRetrieve.WebPartDefinition.WebPart.IsClosed,
+                        Hidden = webPartToRetrieve.WebPartDefinition.WebPart.Hidden,
+                        Properties = Properties(webPartProperties, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXmlOnPremises),
                     });
                 }
             }
@@ -810,8 +951,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             return string.Empty;
         }
-
-        
+                
         /// <summary>
         /// Exports Web Part XML via an older workround
         /// </summary>
@@ -873,7 +1013,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Loads and Parses Web Part Page from Web Services
         /// </summary>
         /// <param name="fullUrl"></param>
-        public List<WebServiceWebPartEntity> LoadWebPartPageFromWebServices(string fullUrl)
+        public List<WebServiceWebPartEntity> LoadPublishingPageFromWebServices(string fullUrl)
         {
             var webParts = new List<WebServiceWebPartEntity>();
             var wsWebParts = ExtractWebPartDocumentViaWebServicesFromPage(fullUrl);
@@ -960,8 +1100,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return webParts;
         }
 
-       
-
         /// <summary>
         /// Gets the tag prefixes from the document
         /// </summary>
@@ -998,5 +1136,136 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             return tagPrefixes;
         }
+
+        /// <summary>
+        /// Loads Web Part Properties from web services
+        /// </summary>
+        /// <param name="pageUrl">Server Relative Page Url</param>
+        /// <returns></returns>
+        public List<WebServiceWebPartProperties> LoadWebPartPropertiesFromWebServices(string pageUrl)
+
+        {
+            // This may contain references to multiple web part
+            var webPartProperties = new List<WebServiceWebPartProperties>();
+            var wsWebPartProps = ExtractWebPartPropertiesViaWebServicesFromPage(pageUrl);
+
+            if (!string.IsNullOrEmpty(wsWebPartProps))
+            {
+                try
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.LoadXml(wsWebPartProps);
+                    var namespaceManager = new XmlNamespaceManager(xDoc.NameTable);
+                    namespaceManager.AddNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/");
+                    namespaceManager.AddNamespace("wpp", "http://microsoft.com/sharepoint/webpartpages");
+                    namespaceManager.AddNamespace("wpv3", "http://schemas.microsoft.com/WebPart/v3");
+                    namespaceManager.AddNamespace("wpv2", "http://schemas.microsoft.com/WebPart/v2");
+
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
+                    {
+                        var xPath = "//soap:Body/wpp:GetWebPartProperties2Response/wpp:GetWebPartProperties2Result/wpp:WebParts/wpv2:WebPart";
+                        var webParts = xDoc.SelectNodes(xPath, namespaceManager);
+
+                        foreach (XmlNode webPartNode in webParts)
+                        {
+                            WebServiceWebPartProperties wsWebPartPropertiesEntity = new WebServiceWebPartProperties();
+
+                            // Get Parent Node for Web Part ID
+                            var parentNodeIdAttribute = webPartNode.Attributes.GetNamedItem("ID");
+                            wsWebPartPropertiesEntity.Id = Guid.Parse(parentNodeIdAttribute.Value);
+
+                            // Get the type from a child node
+                            var typeNode = webPartNode.SelectSingleNode("wpv2:TypeName", namespaceManager);
+                            var typeAttrNode = typeNode?.InnerText;
+                            wsWebPartPropertiesEntity.Type = typeAttrNode;
+
+                            //Get the properties
+                            var propertyNodes = webPartNode.ChildNodes;
+
+                            foreach (XmlNode propertyNode in propertyNodes)
+                            {
+                                wsWebPartPropertiesEntity.Properties.Add(propertyNode.LocalName, propertyNode.InnerText);
+                            }
+
+                            webPartProperties.Add(wsWebPartPropertiesEntity);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Catch exceptions during processing of Web Service Responses
+                }
+            }
+
+            return webPartProperties;
+        }
+
+        /// <summary>
+        /// Call SharePoint Web Services to extract web part properties not exposed by CSOM
+        /// </summary>
+        /// <returns></returns>
+        internal string ExtractWebPartPropertiesViaWebServicesFromPage(string pageUrl)
+        {
+            try
+            {
+                LogInfo(LogStrings.CallingWebServicesToExtractWebPartPropertiesFromPage, LogStrings.Heading_ContentTransform);
+                string webPartProperties = String.Empty;
+                string webUrl = cc.Web.GetUrl();
+                string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
+
+                StringBuilder soapEnvelope = new StringBuilder();
+
+                soapEnvelope.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                soapEnvelope.Append("<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">");
+
+                soapEnvelope.Append(String.Format(
+                 "<soap:Body>" +
+                     "<GetWebPartProperties2 xmlns=\"http://microsoft.com/sharepoint/webpartpages\">" +
+                         "<pageUrl>{0}</pageUrl>" +
+                         "<storage>Shared</storage>" +
+                         "<behavior>Version3</behavior>" +
+                     "</GetWebPartProperties2>" +
+                 "</soap:Body>"
+                 , pageUrl));
+
+                soapEnvelope.Append("</soap:Envelope>");
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
+                request.Credentials = cc.Credentials;
+                request.Method = "POST";
+                request.ContentType = "text/xml; charset=\"utf-8\"";
+                request.Accept = "text/xml";
+                request.Headers.Add("SOAPAction", "\"http://microsoft.com/sharepoint/webpartpages/GetWebPartProperties2\"");
+
+                using (System.IO.Stream stream = request.GetRequestStream())
+                {
+                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(stream))
+                    {
+                        writer.Write(soapEnvelope.ToString());
+                    }
+                }
+
+                var response = request.GetResponse();
+                using (var dataStream = response.GetResponseStream())
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load(dataStream);
+
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
+                    {
+                        webPartProperties = xDoc.DocumentElement.InnerXml;
+
+                        return webPartProperties;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogError(LogStrings.Error_ExtractWebPartPropertiesViaWebServicesFromPage, LogStrings.Heading_ContentTransform, ex);
+            }
+
+            return string.Empty;
+        }
+
     }
 }

@@ -175,7 +175,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                     //Should be one
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
-                    var result = testBase.LoadWebPartPageFromWebServices(url);
+                    var result = testBase.LoadPublishingPageFromWebServices(url);
 
                     Assert.IsTrue(result.Count > 0);
 
@@ -205,7 +205,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                     //Should be one
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
-                    var webPartEntities = testBase.LoadWebPartPageFromWebServices(url);
+                    var webPartEntities = testBase.LoadPublishingPageFromWebServices(url);
 
                     foreach (var webPart in webPartEntities)
                     {
