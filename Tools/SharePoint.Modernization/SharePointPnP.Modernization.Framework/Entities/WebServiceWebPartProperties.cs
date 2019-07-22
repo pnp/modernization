@@ -11,14 +11,16 @@ namespace SharePointPnP.Modernization.Framework.Entities
     {
         public WebServiceWebPartProperties()
         {
-            this.Properties = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            this.Properties = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public string Type { get; set; }
         
         public Guid Id { get; set; }
+
+        public string ControlId { get; set; }
         
-        public Dictionary<string, object> Properties { get; set; }
+        public Dictionary<string, string> Properties { get; set; }
 
         /// <summary>
         /// Shortened web part type name
@@ -34,6 +36,18 @@ namespace SharePointPnP.Modernization.Framework.Entities
             }
 
             return $"{name}";
+        }
+
+        public Dictionary<string, object> PropertiesAsStringObjectDictionary()
+        {
+            Dictionary<string, object> castedCollection = new Dictionary<string, object>();
+
+            foreach (var item in this.Properties)
+            {
+                castedCollection.Add(item.Key, (object)item.Value);
+            }
+
+            return castedCollection;
         }
 
     }
