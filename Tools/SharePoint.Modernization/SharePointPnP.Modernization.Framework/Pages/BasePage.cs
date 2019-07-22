@@ -617,10 +617,18 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             if (isLegacy)
             {
+                // Content Editor Web Part
                 string[] contentEditorWebPart = new string[] { "Content", "ContentLink", "PartStorage" };
                 if (CheckWebPartProperties(contentEditorWebPart, properties))
                 {
                     return WebParts.ContentEditor;
+                }
+
+                // Image Viewer Web Part
+                string[] imageViewerWebPart = new string[] { "ImageLink", "AlternativeText", "VerticalAlignment", "HorizontalAlignment" };
+                if (CheckWebPartProperties(imageViewerWebPart, properties))
+                {
+                    return WebParts.Image;
                 }
             }
 
