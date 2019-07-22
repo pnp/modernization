@@ -485,7 +485,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         LogInfo($"{LogStrings.TransformSourcePageIsWebPartPage} {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
 
-                        pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation).Analyze(true);
+                        if (GetVersion(sourceClientContext) == SPVersion.SP2010)
+                        {
+                            pageData = new WebPartPageOnPremises(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation).Analyze(true);
+                        }
+                        else
+                        {
+                            pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation).Analyze(true);
+                        }
                     }
 
                     // Analyze the "text" parts (wikitext parts and text in content editor web parts)

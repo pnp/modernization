@@ -143,7 +143,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
                     var result = testBase.ExtractWebPartDocumentViaWebServicesFromPage(url);
 
-                    Assert.IsTrue(result.Length > 0);
+                    Assert.IsTrue(result.Item1.Length > 0);
+                    Assert.IsTrue(result.Item2.Length > 0);
 
                     break;
 

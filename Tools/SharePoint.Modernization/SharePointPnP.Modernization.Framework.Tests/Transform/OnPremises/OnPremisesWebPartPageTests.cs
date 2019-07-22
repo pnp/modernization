@@ -109,7 +109,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
                     TestBasePage testBase = new TestBasePage(page, page.File, null, null);
                     var result = testBase.ExtractWebPartPropertiesViaWebServicesFromPage(url);
 
-                    Assert.IsTrue(result.Length > 0);
+                 Assert.IsTrue(result.Length > 0);
 
                     break;
 
@@ -117,6 +117,43 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
             }
 
         }
+
+        [TestMethod]
+        public void BasePage_ExtractWebPartDocumentViaWebServicesFromWebPartPageTest()
+        {
+            string url = "/sites/teamsite/SitePages/WPP-2010-Quantum.aspx";
+            //string url = "/pages/article-2010-custom.aspx";
+
+            using (var context = TestCommon.CreateOnPremisesClientContext(TestCommon.AppSetting("SPOnPremTeamSiteUrl")))
+            {
+
+                var pages = context.Web.GetPages("WPP-2010-Quantum");
+
+                pages.FailTestIfZero();
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File);
+
+                    List<string> search = new List<string>()
+                    {
+                        "WebPartZone"
+                    };
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    var result = testBase.ExtractWebPartDocumentViaWebServicesFromPage(url);
+
+                    Assert.IsTrue(result.Item1.Length > 0);
+                    Assert.IsTrue(result.Item2.Length > 0);
+
+                    break;
+
+                }
+            }
+
+        }
+
 
         [TestMethod]
         public void BasePage_LoadWebPartPropertiesViaWebServicesTest()

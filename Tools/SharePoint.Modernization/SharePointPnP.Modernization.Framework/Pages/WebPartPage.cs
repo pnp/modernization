@@ -30,7 +30,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="includeTitleBarWebPart">Include the TitleBar web part</param>
         /// <returns>Information about the analyzed webpart page</returns>
-        public Tuple<PageLayout, List<WebPartEntity>> Analyze(bool includeTitleBarWebPart = false)
+        public virtual Tuple<PageLayout, List<WebPartEntity>> Analyze(bool includeTitleBarWebPart = false)
         {
             List<WebPartEntity> webparts = new List<WebPartEntity>();
 
@@ -150,7 +150,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="zoneId">Web part zone id</param>
         /// <param name="layout">Layout of the web part page</param>
         /// <returns>Column value</returns>
-        private int GetColumn(string zoneId, PageLayout layout)
+        internal int GetColumn(string zoneId, PageLayout layout)
         {
             switch (layout)
             {
@@ -300,7 +300,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="zoneId">Web part zone id</param>
         /// <param name="layout">Layout of the web part page</param>
         /// <returns>Row value</returns>
-        private int GetRow(string zoneId, PageLayout layout)
+        internal int GetRow(string zoneId, PageLayout layout)
         {
             switch (layout)
             {
@@ -467,7 +467,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="pageProperties">Properties of the web part page file</param>
         /// <returns>Used layout</returns>
-        private PageLayout GetLayout(PropertyValues pageProperties)
+        internal PageLayout GetLayout(PropertyValues pageProperties)
         {
             if (pageProperties.FieldValues.ContainsKey("vti_setuppath"))
             {

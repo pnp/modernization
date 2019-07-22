@@ -337,7 +337,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
             List<WebServiceWebPartProperties> webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(wikiPage.EnsureProperty(p => p.ServerRelativeUrl)); ;
             var pageUrl = page[Constants.FileRefField].ToString();
 
-            //TODO: Finish this, need to reconcile the control ID from the web service calls....
             foreach(var foundWebPart in webPartsViaManager)
             {
                 var wsWpProps = webServiceWebPartEntities.SingleOrDefault(o => o.Id == foundWebPart.Id);
@@ -378,10 +377,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     Dictionary<string, object> webPartProperties = null;
 
-                    // If the web service call includes the export mode value then set the export options
                     var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == webPartToRetrieve.WebPartDefinition.Id);
                     webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
 
+                    // If the web service call includes the export mode value then set the export options
                     var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
                     if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.ToString().Equals("all", StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -855,12 +854,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Call SharePoint Web Services to extract web part properties not exposed by CSOM
         /// </summary>
         /// <returns></returns>
-        internal string ExtractWebPartDocumentViaWebServicesFromPage(string fullDocumentUrl)
+        internal Tuple<string,string> ExtractWebPartDocumentViaWebServicesFromPage(string fullDocumentUrl)
         {
             try
             {
                 LogInfo(LogStrings.CallingWebServicesToExtractWebPartsFromPage, LogStrings.Heading_ContentTransform);
-                string webPartPageContents = String.Empty;
+                
                 string webUrl = cc.Web.GetUrl();
                 string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
 
@@ -903,16 +902,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerText.Length > 0)
                     {
-                        webPartPageContents = xDoc.DocumentElement.InnerText;
+                        var webPartPageContents = xDoc.DocumentElement.InnerText;
                         //Remove the junk from the result
                         var tag = "<HasByteOrderMark/>";
                         var marker = webPartPageContents.IndexOf(tag);
+                        var partDocument = string.Empty;
                         if (marker > -1)
                         {
-                            webPartPageContents = webPartPageContents.Substring(marker).Replace(tag, "");
+                            partDocument = webPartPageContents.Substring(marker).Replace(tag, "");
                         }
 
-                        return webPartPageContents;
+                        return new Tuple<string, string>(webPartPageContents, partDocument);
                     }
                 }
             }
@@ -921,7 +921,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 LogError(LogStrings.Error_CallingWebServicesToExtractWebPartsFromPage,LogStrings.Heading_ContentTransform, ex);
             }
 
-            return string.Empty;
+            return new Tuple<string, string>(string.Empty, string.Empty);
         }
                 
         /// <summary>
@@ -990,9 +990,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
             var webParts = new List<WebServiceWebPartEntity>();
             var wsWebParts = ExtractWebPartDocumentViaWebServicesFromPage(fullUrl);
 
-            if (!string.IsNullOrEmpty(wsWebParts))
+            if (!string.IsNullOrEmpty(wsWebParts.Item2))
             {
-                var doc = parser.Parse(wsWebParts);
+                var doc = parser.Parse(wsWebParts.Item2);
 
                 List<Tuple<string, string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(doc);
                 List<Tuple<string, string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
@@ -1007,7 +1007,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                 });
 
-                var xmlBlock = wsWebParts;
+                var xmlBlock = wsWebParts.Item2;
                 var tag = "</head>";
                 var marker = xmlBlock.IndexOf(tag);
                 if (marker > -1)
@@ -1154,6 +1154,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                             var typeNode = webPartNode.SelectSingleNode("wpv2:TypeName", namespaceManager);
                             wsWebPartPropertiesEntity.Type = typeNode?.InnerText;
 
+                            // Get the type from a child node
+                            var zoneIDNode = webPartNode.SelectSingleNode("wpv2:ZoneID", namespaceManager);
+                            wsWebPartPropertiesEntity.ZoneId = zoneIDNode?.InnerText;
+                            
                             //Get the properties
                             var propertyNodes = webPartNode.ChildNodes;
 

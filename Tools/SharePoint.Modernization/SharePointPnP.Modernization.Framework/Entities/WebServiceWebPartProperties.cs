@@ -22,6 +22,8 @@ namespace SharePointPnP.Modernization.Framework.Entities
         
         public Dictionary<string, string> Properties { get; set; }
 
+        public string ZoneId { get; set; }
+
         /// <summary>
         /// Shortened web part type name
         /// </summary>
