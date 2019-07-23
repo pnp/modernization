@@ -43,7 +43,7 @@ namespace SharePointPnP.Modernization.Framework.Extensions
 
                 if (context.HasPendingRequest)
                 {
-                    context.ExecuteQuery();
+                    context.ExecuteQueryRetry();
                 }
                 var fileBinary = File.OpenBinaryDirect((ClientContext)context, serverRelativeUrl);
                 context.ExecuteQueryRetry();

@@ -241,7 +241,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if (_sourceClientContext.HasPendingRequest)
                 {
-                    _sourceClientContext.ExecuteQuery();
+                    _sourceClientContext.ExecuteQueryRetry();
                 }
                 var fileBinary = File.OpenBinaryDirect(_sourceClientContext, sourceFileUrl);
                 _sourceClientContext.ExecuteQueryRetry();
@@ -294,7 +294,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         uploadFile = targetFolder.Files.Add(fileInfo);
                         _targetClientContext.Load(uploadFile);
-                        _targetClientContext.ExecuteQuery();
+                        _targetClientContext.ExecuteQueryRetry();
 
                         // Return the file object for the uploaded file.
                         return uploadFile.EnsureProperty(o => o.ServerRelativeUrl);
@@ -367,7 +367,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         {
                                             // End sliced upload by calling FinishUpload.
                                             uploadFile = uploadFile.FinishUpload(uploadId, fileoffset, s);
-                                            _targetClientContext.ExecuteQuery();
+                                            _targetClientContext.ExecuteQueryRetry();
 
                                             // Return the file object for the uploaded file.
                                             return fileUrl;
@@ -379,7 +379,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         {
                                             // Continue sliced upload.
                                             bytesUploaded = uploadFile.ContinueUpload(uploadId, fileoffset, s);
-                                            _targetClientContext.ExecuteQuery();
+                                            _targetClientContext.ExecuteQueryRetry();
                                             // Update fileoffset for the next slice.
                                             fileoffset = bytesUploaded.Value;
                                         }

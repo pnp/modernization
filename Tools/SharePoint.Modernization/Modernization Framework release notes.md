@@ -16,7 +16,7 @@
 
 ### Added
 
-- SharePoint 2010 Preview Support #204 [pkbullock]
+- SharePoint 2010 Preview Support #204, #209 [pkbullock]
 
 ### Changed
 

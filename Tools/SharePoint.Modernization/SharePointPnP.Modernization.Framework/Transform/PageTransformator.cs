@@ -252,7 +252,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 // Need to add further validation for target template
-                targetClientContext.Web.EnsureProperty(o => o.WebTemplate);
                 if (hasTargetContext &&
                    (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP"))
                 {
@@ -1075,7 +1074,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
             sourceContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
             // Load the pages library and page file (if exists) in one go 
-            pagesLibrary = sourceContext.Web.GetSitePagesLibrary(); 
+            if (GetVersion(sourceClientContext) == SPVersion.SP2010)
+            {
+                pagesLibrary = sourceContext.Web.GetSitePagesLibrary();
+            }
+            else
+            {
+                var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, "SitePages");
+                pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl);
+            }
 
             if (pageTransformationInformation.CopyPageMetadata)
             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SharePointPnP.Modernization.Framework;
 using OfficeDevPnP.Core.Utilities;
+using SharePointPnP.Modernization.Framework.Transform;
 
 namespace Microsoft.SharePoint.Client
 {
@@ -449,19 +450,23 @@ namespace Microsoft.SharePoint.Client
         /// <returns>Url</returns>
         public static string GetUrl(this Web web)
         {
-            
-            var siteCtx = web.Context.GetSiteCollectionContext();
-            siteCtx.Site.EnsureProperties(p => p.ServerRelativeUrl,p => p.Url);
-            web.EnsureProperties(p => p.ServerRelativeUrl);
+            if (BaseTransform.GetVersion(web.Context) == SPVersion.SP2010)
+            {
+                var siteCtx = web.Context.GetSiteCollectionContext();
+                siteCtx.Site.EnsureProperties(p => p.ServerRelativeUrl, p => p.Url);
+                web.EnsureProperties(p => p.ServerRelativeUrl);
 
-            var siteUri = new Uri(siteCtx.Site.Url);
-            string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
+                var siteUri = new Uri(siteCtx.Site.Url);
+                string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";
 
-            var serverRelativeUrl = web.ServerRelativeUrl;
+                var serverRelativeUrl = web.ServerRelativeUrl;
 
-            return UrlUtility.Combine(host, serverRelativeUrl);
-
-
+                return UrlUtility.Combine(host, serverRelativeUrl);
+            }
+            else
+            {
+                return web.EnsureProperty(p => p.Url);
+            }
         }
 
         /// <summary>
@@ -493,7 +498,7 @@ namespace Microsoft.SharePoint.Client
             //TemplateFeatureId - 00bfea71-c796-4402-9f2f-0eb9a6e71b18
             var lists = web.Lists;
             web.Context.Load(lists, list => list.Where(l => l.RootFolder.Name == "SitePages").Include(l => l.Id));
-            web.Context.ExecuteQuery();
+            web.Context.ExecuteQueryRetry();
 
             return lists.SingleOrDefault();
         }
