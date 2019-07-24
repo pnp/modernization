@@ -153,12 +153,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 DateTime transformationStartDateTime = DateTime.Now;
 
                 LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
-                LoadClientObject(sourceClientContext);
+                LoadClientObject(sourceClientContext, false);
 
                 LogInfo($"{sourceClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
 
                 LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
-                LoadClientObject(targetClientContext);
+                LoadClientObject(targetClientContext, true);
 
                 if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
                 {
@@ -170,7 +170,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo($"{targetClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
 
                 // Need to add further validation for target template
-                targetClientContext.Web.EnsureProperty(o => o.WebTemplate);
                 if (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP")
                 {
 
