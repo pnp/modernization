@@ -225,14 +225,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 DateTime transformationStartDateTime = DateTime.Now;
 
                 LogDebug(LogStrings.LoadingClientContextObjects, LogStrings.Heading_SharePointConnection);
-                LoadClientObject(sourceClientContext);
+                LoadClientObject(sourceClientContext, false);
 
                 LogInfo($"{sourceClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.SourceSiteUrl);
 
                 if (hasTargetContext)
                 {
                     LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
-                    LoadClientObject(targetClientContext);
+                    LoadClientObject(targetClientContext,true);
 
                     if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
                     {
