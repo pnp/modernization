@@ -21,6 +21,7 @@
 ### Changed
 
 - Url Rewrite - Issue with root addresses #205 [pkbullock]
+- Fix item level permission copy for cross site collection scenarios (groups are only assigned when the group already exists in the target site) #212
 
 ## [July release - version 1.0.1907.0]
 

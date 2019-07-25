@@ -180,7 +180,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (alwaysBreakItemLevelPermissions || !item.HasUniqueRoleAssignments)
             {
                 item.BreakRoleInheritance(false, false);
-                //this.sourceClientContext.ExecuteQueryRetry();
                 item.Context.ExecuteQueryRetry();
             }
 
@@ -188,9 +187,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 // Ensure principals are available in the target site
                 Dictionary<string, Principal> targetPrincipals = new Dictionary<string, Principal>(lip.Principals.Count);
+
                 foreach (var principal in lip.Principals)
                 {
-                    var targetPrincipal = GetPrincipal(this.targetClientContext.Web, principal.Key);
+                    var targetPrincipal = GetPrincipal(this.targetClientContext.Web, principal.Key, hasTargetContext);
                     if (targetPrincipal != null)
                     {
                         if (!targetPrincipals.ContainsKey(principal.Key))
@@ -268,6 +268,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         {
                             this.targetClientContext.Load(target, p => p.HasUniqueRoleAssignments, p => p.RoleAssignments);
                             this.targetClientContext.Load(this.targetClientContext.Web, p => p.RoleDefinitions);
+                            this.targetClientContext.Load(this.targetClientContext.Web.SiteGroups, p => p.Include(g => g.LoginName));
                         }
                         else
                         {
@@ -309,9 +310,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return lip;
         }
 
-        internal Principal GetPrincipal(Web web, string principalInput)
+        internal Principal GetPrincipal(Web web, string principalInput, bool hasTargetContext = false)
         {
-            Principal principal = this.sourceClientContext.Web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
+            Principal principal = web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
 
             if (principal == null)
             {
@@ -333,8 +334,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                     catch (Exception ex)
                     {
-                        //Failed to EnsureUser
-                        LogError(LogStrings.Error_GetPrincipalFailedEnsureUser, LogStrings.Heading_GetPrincipal, ex);
+                        if (!hasTargetContext)
+                        {
+                            //Failed to EnsureUser, we're not failing for this, only log as error when doing an in site transformation as it's not expected to fail here
+                            LogError(LogStrings.Error_GetPrincipalFailedEnsureUser, LogStrings.Heading_GetPrincipal, ex);
+                        }
+
+                        principal = null;
                     }
                 }
             }
