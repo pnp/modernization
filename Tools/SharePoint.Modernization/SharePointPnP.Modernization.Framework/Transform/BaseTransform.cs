@@ -239,7 +239,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016);
                                         return SPVersion.SP2016;
                                     }
-                                    else if (v.MinorRevision > 10300)
+                                    else if (v.MinorRevision > 10300 && v.MinorRevision < 19000)
                                     {
                                         CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2019);
                                         return SPVersion.SP2019;
