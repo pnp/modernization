@@ -43347,13 +43347,15 @@
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32)">
             <summary>
             Creates a new Modern Team Site Collection
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
+            <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GroupifyAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionGroupifyInformation)">
