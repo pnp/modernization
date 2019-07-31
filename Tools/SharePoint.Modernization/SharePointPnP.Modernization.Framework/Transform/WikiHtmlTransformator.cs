@@ -57,7 +57,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="wikiPageWebParts">List of web parts on the page</param>
         /// <returns>Updated list of web parts</returns>
-        public List<WebPartEntity> TransformPlusSplit(List<WebPartEntity> wikiPageWebParts, bool handleWikiImagesAndVideos)
+        public List<WebPartEntity> TransformPlusSplit(List<WebPartEntity> wikiPageWebParts, bool handleWikiImagesAndVideos, bool addTableListImageAsImageWebPart)
         {
             List<WebPartEntity> updatedWebParts = new List<WebPartEntity>(wikiPageWebParts.Count + 10);
             List<WebPartEntity> replacedWebParts = new List<WebPartEntity>(10);
@@ -177,9 +177,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             if (element is IHtmlImageElement)
                             {
                                 bool split = true;
+                                bool inUnSplitableElement = InUnSplitableElement(element);
 
                                 // Only split if the image was not living in a table or list
-                                if (handleWikiImagesAndVideos && !InUnSplitableElement(element))
+                                if (handleWikiImagesAndVideos && !inUnSplitableElement)
                                 {
                                     // Get the current html tree from this element up and add as text part
                                     props.Add("Title", "Wiki text");
@@ -231,16 +232,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     props.Add("AlternativeText", alt.Value.ToString());
                                 }
 
-                                // Add image part
-                                replacedWebParts.Add(new WebPartEntity()
+                                if (!inUnSplitableElement || addTableListImageAsImageWebPart)
                                 {
-                                    Type = WebParts.WikiImage,
-                                    Title = "Image in wiki text",
-                                    Row = split ? lastRow : lastRow2,
-                                    Column = split ? lastColum : lastColum2,
-                                    Order = split ? extraWebPartCounter : extraWebPartCounter2,
-                                    Properties = props
-                                });
+                                    // Add image part
+                                    replacedWebParts.Add(new WebPartEntity()
+                                    {
+                                        Type = WebParts.WikiImage,
+                                        Title = "Image in wiki text",
+                                        Row = split ? lastRow : lastRow2,
+                                        Column = split ? lastColum : lastColum2,
+                                        Order = split ? extraWebPartCounter : extraWebPartCounter2,
+                                        Properties = props
+                                    });
+                                }
 
                                 if (split)
                                 {
@@ -270,8 +274,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             else if (element is IHtmlInlineFrameElement)
                             {
                                 bool split = true;
+                                bool inUnSplitableElement = InUnSplitableElement(element);
+
                                 // Only split if the iframe was not living in a table or list
-                                if (handleWikiImagesAndVideos && !InUnSplitableElement(element))
+                                if (handleWikiImagesAndVideos && !inUnSplitableElement)
                                 {
                                     // Get the current html tree from this element up and add as text part
                                     props.Add("Title", "Wiki text");
@@ -321,7 +327,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     props.Add("Height", size.Value.ToString());
                                 }
 
-                                // Add video part
+                                // Add video part, in contrast with the image we're always adding the video as a separate web part as the modern text editor strips out embedded videos
                                 replacedWebParts.Add(new WebPartEntity()
                                 {
                                     Type = WebParts.WikiVideo,

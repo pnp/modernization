@@ -39,6 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             TargetPageName = targetPageName;
             Overwrite = overwrite;
             HandleWikiImagesAndVideos = true;
+            AddTableListImageAsImageWebPart = false;
             TargetPageTakesSourcePageName = false;
             KeepPageSpecificPermissions = true;
             CopyPageMetadata = false;

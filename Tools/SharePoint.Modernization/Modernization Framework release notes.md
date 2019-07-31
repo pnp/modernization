@@ -18,7 +18,8 @@
 
 ### Changed
 
-- Changed default to not insert a placeholder message anymore above an image inside a table as nowadays images are not dropped from the editor anymore ==> default web part mapping file bumped to version 1.0.1909.0
+- Changed default to not insert a placeholder message anymore above an image inside a table/list as nowadays images are not dropped from the editor anymore ==> default web part mapping file bumped to version 1.0.1909.0
+- Images embedded in a table/list are not added as separate image web parts anymore, you can use the AddTableListImageAsImageWebPart PageTransformationInformation property if you still require want this to happen
 
 ## [August release - version 1.0.1908.0]
 

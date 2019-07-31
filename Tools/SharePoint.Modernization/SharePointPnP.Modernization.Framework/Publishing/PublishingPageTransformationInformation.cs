@@ -39,6 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             SourcePage = sourcePage;
             Overwrite = overwrite;
             HandleWikiImagesAndVideos = true;
+            AddTableListImageAsImageWebPart = false;
             KeepPageSpecificPermissions = true;
             SkipTelemetry = false;
             RemoveEmptySectionsAndColumns = true;

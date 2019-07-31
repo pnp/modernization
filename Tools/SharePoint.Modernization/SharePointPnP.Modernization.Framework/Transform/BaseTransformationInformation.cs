@@ -51,6 +51,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public bool HandleWikiImagesAndVideos { get; set; }
 
         /// <summary>
+        /// When an image lives inside a table (or list) then also add it as a separate image web part
+        /// </summary>
+        public bool AddTableListImageAsImageWebPart { get; set; }
+
+        /// <summary>
         /// Property bag for adding properties that will be exposed to the functions and selectors in the web part mapping file.
         /// These properties are used to condition the transformation process.
         /// </summary>
