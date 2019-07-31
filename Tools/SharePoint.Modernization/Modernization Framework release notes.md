@@ -18,6 +18,8 @@
 
 ### Changed
 
+- Changed default to not insert a placeholder message anymore above an image inside a table as nowadays images are not dropped from the editor anymore ==> default web part mapping file bumped to version 1.0.1909.0
+
 ## [August release - version 1.0.1908.0]
 
 ### Added

@@ -16,7 +16,7 @@ configure the page transformation engine to use the community script editor. You
 - Using the needed switch in PnP PowerShell
 -->
 
-<PageTransformation xmlns="http://schemas.dev.office.com/PnP/2018/01/PageTransformationSchema" Version="1.0.1907.0">
+<PageTransformation xmlns="http://schemas.dev.office.com/PnP/2018/01/PageTransformationSchema" Version="1.0.1909.0">
     <!-- Information that applies to all web parts listed in this file -->
     <BaseWebPart>
       <Properties>
@@ -43,7 +43,7 @@ configure the page transformation engine to use the community script editor. You
       <WebPart Type="SharePointPnP.Modernization.WikiTextPart" CrossSiteTransformationSupported="true">
         <Properties>
           <!-- To turn off placeholders set the UsePlaceHolders property to false via the ReturnFalse() function. Set to true using the ReturnTrue() function -->          
-          <Property Name="Text" Type="string" Functions="{UsePlaceHolders} = ReturnTrue(); {CleanedText} = TextCleanup({Text},{UsePlaceHolders})" />
+          <Property Name="Text" Type="string" Functions="{UsePlaceHolders} = ReturnFalse(); {CleanedText} = TextCleanup({Text},{UsePlaceHolders})" />
         </Properties>        
         <!-- TextSelector does check the received html and if it's considered empty (e.g. <p></p>) it returns the value "Spacer", else "Text" is returned -->
         <Mappings Selector="TextSelector({CleanedText})">
