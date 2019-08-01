@@ -508,7 +508,7 @@ namespace Microsoft.SharePoint.Client
         /// </summary>
         /// <param name="web"></param>
         /// <returns></returns>
-        public static List GetList(this Web web, string listname)
+        public static List GetListByName(this Web web, string listname)
         {
             var lists = web.Lists;
             web.Context.Load(lists, list => list.Where(l => l.RootFolder.Name.Equals(listname, StringComparison.InvariantCultureIgnoreCase)).Include(l => l.Id));
