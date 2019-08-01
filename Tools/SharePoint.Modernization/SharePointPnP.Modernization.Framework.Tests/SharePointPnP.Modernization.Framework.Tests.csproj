@@ -206,6 +206,7 @@
     <Compile Include="TestExtensions.cs" />
     <Compile Include="Transform\OnPremises\OnPremisesPublishingPageTests.cs" />
     <Compile Include="Transform\OnPremises\OnPremisesWebPartPageTests.cs" />
+    <Compile Include="Transform\OnPremises\OnPremisesUtilityTests.cs" />
     <Compile Include="Transform\Publishing\AdHocTests.cs" />
     <Compile Include="Transform\Publishing\PageLayoutAnalyserTests.cs" />
     <Compile Include="Transform\Publishing\PublishingFunctionProcessorTests.cs" />
