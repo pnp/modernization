@@ -329,15 +329,13 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
             else
             {
-             
-                if (context.Web.PropertyBagContainsKey(propertyBagKey))
+                if (BaseTransform.GetVersion(context) == SPVersion.SP2010)
                 {
                     var keyVal = context.Web.GetPropertyBagValueString(propertyBagKey, string.Empty);
                     if (!string.IsNullOrEmpty(keyVal))
                     {
                         var list = context.Web.GetListById(Guid.Parse(keyVal), o => o.RootFolder.ServerRelativeUrl);
-                        var webServerRelativeUrl = context.Web.ServerRelativeUrl;
-                        context.ExecuteQueryRetry();
+                        var webServerRelativeUrl = context.Web.EnsureProperty(w => w.ServerRelativeUrl);                        
 
                         pagesLibraryName = list.RootFolder.ServerRelativeUrl.Replace(webServerRelativeUrl, "").Trim('/').ToLower();
 
