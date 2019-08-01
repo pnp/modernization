@@ -502,5 +502,19 @@ namespace Microsoft.SharePoint.Client
 
             return lists.SingleOrDefault();
         }
+
+        /// <summary>
+        /// Gets list from web in an SP2010 compatible fashion
+        /// </summary>
+        /// <param name="web"></param>
+        /// <returns></returns>
+        public static List GetList(this Web web, string listname)
+        {
+            var lists = web.Lists;
+            web.Context.Load(lists, list => list.Where(l => l.RootFolder.Name.Equals(listname, StringComparison.InvariantCultureIgnoreCase)).Include(l => l.Id));
+            web.Context.ExecuteQueryRetry();
+
+            return lists.SingleOrDefault();
+        }
     }
 }
