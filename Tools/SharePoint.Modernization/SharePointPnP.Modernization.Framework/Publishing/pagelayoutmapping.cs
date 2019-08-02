@@ -997,6 +997,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         
         private string nameField;
         
+        private string alsoAppliesToField;
+        
         private string associatedContentTypeField;
         
         private PageLayoutPageLayoutTemplate pageLayoutTemplateField;
@@ -1064,6 +1066,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
             }
             set {
                 this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string AlsoAppliesTo {
+            get {
+                return this.alsoAppliesToField;
+            }
+            set {
+                this.alsoAppliesToField = value;
             }
         }
         

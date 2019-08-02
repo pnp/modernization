@@ -261,6 +261,7 @@
       <xs:element name="FixedWebParts" type="FixedWebParts" minOccurs="0" maxOccurs="1" />
     </xs:sequence>
     <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="AlsoAppliesTo" type="xs:string" use="optional" />
     <xs:attribute name="AssociatedContentType" type="xs:string" use="optional" />
     <xs:attribute name="PageLayoutTemplate" use="required">
       <xs:simpleType>

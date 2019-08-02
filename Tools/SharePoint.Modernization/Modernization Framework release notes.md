@@ -16,6 +16,8 @@
 
 ### Added
 
+- A page layout mapping can be reused for multiple, similar, page layouts by specifying the additional page layouts as a semi colon separated list in the AlsoAppliesTo attribute #217
+
 ### Changed
 
 - Changed default to not insert a placeholder message anymore above an image inside a table/list as nowadays images are not dropped from the editor anymore ==> default web part mapping file bumped to version 1.0.1909.0

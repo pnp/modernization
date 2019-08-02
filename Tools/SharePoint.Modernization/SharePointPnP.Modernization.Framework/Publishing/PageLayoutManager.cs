@@ -102,6 +102,36 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             string usedPageLayout = Path.GetFileNameWithoutExtension(page.PageLayoutFile());
             var publishingPageTransformationModel = publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
+            // No dedicated layout mapping found, let's see if there's an other page layout mapping that also applies for this page layout
+            if (publishingPageTransformationModel == null)
+            {
+                // Fill a list of additional page layout mappings that can be used
+                Dictionary<string, string> additionalMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+                foreach(var pageLayout in publishingPageTransformation.PageLayouts.Where(p=>!String.IsNullOrEmpty(p.AlsoAppliesTo)))
+                {
+                    var possiblePageLayouts = pageLayout.AlsoAppliesTo.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (possiblePageLayouts.Length > 0)
+                    {
+                        foreach(var possiblePageLayout in possiblePageLayouts)
+                        {
+                            // Only add the first possible page layout mapping, if a given page layout is defined multiple times then the first reference wins
+                            if (!additionalMappings.ContainsKey(possiblePageLayout))
+                            {
+                                additionalMappings.Add(possiblePageLayout, pageLayout.Name);
+                            }
+                        }
+                    }
+                }
+
+                if (additionalMappings.Count > 0)
+                {
+                    if (additionalMappings.ContainsKey(usedPageLayout))
+                    {
+                        publishingPageTransformationModel = publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(additionalMappings[usedPageLayout], StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    }
+                }
+            }
+
             // No layout provided via either the default mapping or custom mapping file provided
             if (publishingPageTransformationModel == null)
             {
