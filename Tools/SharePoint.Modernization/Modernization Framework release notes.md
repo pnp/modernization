@@ -17,6 +17,7 @@
 ### Added
 
 - A page layout mapping can be reused for multiple, similar, page layouts by specifying the additional page layouts as a semi colon separated list in the AlsoAppliesTo attribute #217
+- SkipDefaultUrlRewrite pageTransformationInformation property that allows one to skip the default URL rewriting logic while still applying a possible provided custom URL mapping #219
 
 ### Changed
 

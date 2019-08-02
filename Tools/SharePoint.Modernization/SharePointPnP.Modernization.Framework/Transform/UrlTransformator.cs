@@ -20,6 +20,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private string targetWebUrl;
         private string pagesLibrary;
 
+        private bool skipDefaultUrlRewrite;
+
         private List<UrlMapping> urlMapping;
 
         #region Construction
@@ -70,6 +72,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 this.urlMapping = CacheManager.Instance.GetUrlMapping(baseTransformationInformation.UrlMappingFile, logObservers);
             }
+
+            this.skipDefaultUrlRewrite = baseTransformationInformation.SkipDefaultUrlRewrite;
         }
         #endregion
 
@@ -105,88 +109,91 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
             }
 
-            // ********************************************
-            // Default URL rewriting logic
-            // ********************************************            
-            //
-            // Root site collection URL rewriting:
-            // http://contoso.com/sites/portal -> https://contoso.sharepoint.com/sites/hr
-            // http://contoso.com/sites/portal/pages -> https://contoso.sharepoint.com/sites/hr/sitepages
-            // /sites/portal -> /sites/hr
-            // /sites/portal/pages -> /sites/hr/sitepages
-            //
-            // If site is a sub site then we also by rewrite the sub URL's
-            // http://contoso.com/sites/portal/hr -> https://contoso.sharepoint.com/sites/hr
-            // http://contoso.com/sites/portal/hr/pages -> https://contoso.sharepoint.com/sites/hr/sitepages
-            // /sites/portal/hr -> /sites/hr
-            // /sites/portal/hr/pages -> /sites/hr/sitepages
-
-             
-            // Rewrite url's from pages library to sitepages
-            if (!string.IsNullOrEmpty(pagesLibrary))
+            if (!this.skipDefaultUrlRewrite)
             {
-                string pagesSourceWebUrl = UrlUtility.Combine(sourceWebUrl, pagesLibrary);
-                string sitePagesTargetWebUrl = UrlUtility.Combine(targetWebUrl, "sitepages");
+                // ********************************************
+                // Default URL rewriting logic
+                // ********************************************            
+                //
+                // Root site collection URL rewriting:
+                // http://contoso.com/sites/portal -> https://contoso.sharepoint.com/sites/hr
+                // http://contoso.com/sites/portal/pages -> https://contoso.sharepoint.com/sites/hr/sitepages
+                // /sites/portal -> /sites/hr
+                // /sites/portal/pages -> /sites/hr/sitepages
+                //
+                // If site is a sub site then we also by rewrite the sub URL's
+                // http://contoso.com/sites/portal/hr -> https://contoso.sharepoint.com/sites/hr
+                // http://contoso.com/sites/portal/hr/pages -> https://contoso.sharepoint.com/sites/hr/sitepages
+                // /sites/portal/hr -> /sites/hr
+                // /sites/portal/hr/pages -> /sites/hr/sitepages
 
-                if (pagesSourceWebUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || pagesSourceWebUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    input = RewriteUrl(input, pagesSourceWebUrl, sitePagesTargetWebUrl);
-
-                    // Make relative for next replacement attempt
-                    pagesSourceWebUrl = MakeRelative(pagesSourceWebUrl);
-                    sitePagesTargetWebUrl = MakeRelative(sitePagesTargetWebUrl);
-                }
-
-                input = RewriteUrl(input, pagesSourceWebUrl, sitePagesTargetWebUrl);
-            }
-
-            // Rewrite web urls
-            if (sourceWebUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || sourceWebUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
-            {
-                input = RewriteUrl(input, sourceWebUrl, targetWebUrl);
-
-                // Make relative for next replacement attempt
-                sourceWebUrl = MakeRelative(sourceWebUrl);
-                targetWebUrl = MakeRelative(targetWebUrl);
-            }
-
-            input = RewriteUrl(input, sourceWebUrl, targetWebUrl);
-            
-            if (isSubSite)
-            {
-                // reset URLs
-                sourceSiteUrl = origSourceSiteUrl;
-                targetWebUrl = origTargetWebUrl;
 
                 // Rewrite url's from pages library to sitepages
                 if (!string.IsNullOrEmpty(pagesLibrary))
                 {
-                    string pagesSourceSiteUrl = UrlUtility.Combine(sourceSiteUrl, pagesLibrary);
+                    string pagesSourceWebUrl = UrlUtility.Combine(sourceWebUrl, pagesLibrary);
                     string sitePagesTargetWebUrl = UrlUtility.Combine(targetWebUrl, "sitepages");
 
-                    if (pagesSourceSiteUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || pagesSourceSiteUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
+                    if (pagesSourceWebUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || pagesSourceWebUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        input = RewriteUrl(input, pagesSourceSiteUrl, sitePagesTargetWebUrl);
+                        input = RewriteUrl(input, pagesSourceWebUrl, sitePagesTargetWebUrl);
 
                         // Make relative for next replacement attempt
-                        pagesSourceSiteUrl = MakeRelative(pagesSourceSiteUrl);
+                        pagesSourceWebUrl = MakeRelative(pagesSourceWebUrl);
                         sitePagesTargetWebUrl = MakeRelative(sitePagesTargetWebUrl);
                     }
 
-                    input = RewriteUrl(input, pagesSourceSiteUrl, sitePagesTargetWebUrl);
+                    input = RewriteUrl(input, pagesSourceWebUrl, sitePagesTargetWebUrl);
                 }
 
-                // Rewrite root site urls
-                if (sourceSiteUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || sourceSiteUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
+                // Rewrite web urls
+                if (sourceWebUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || sourceWebUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    input = RewriteUrl(input, sourceSiteUrl, targetWebUrl);
+                    input = RewriteUrl(input, sourceWebUrl, targetWebUrl);
 
                     // Make relative for next replacement attempt
-                    sourceSiteUrl = MakeRelative(sourceSiteUrl);
+                    sourceWebUrl = MakeRelative(sourceWebUrl);
                     targetWebUrl = MakeRelative(targetWebUrl);
                 }
 
-                input = RewriteUrl(input, sourceSiteUrl, targetWebUrl);
+                input = RewriteUrl(input, sourceWebUrl, targetWebUrl);
+
+                if (isSubSite)
+                {
+                    // reset URLs
+                    sourceSiteUrl = origSourceSiteUrl;
+                    targetWebUrl = origTargetWebUrl;
+
+                    // Rewrite url's from pages library to sitepages
+                    if (!string.IsNullOrEmpty(pagesLibrary))
+                    {
+                        string pagesSourceSiteUrl = UrlUtility.Combine(sourceSiteUrl, pagesLibrary);
+                        string sitePagesTargetWebUrl = UrlUtility.Combine(targetWebUrl, "sitepages");
+
+                        if (pagesSourceSiteUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || pagesSourceSiteUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            input = RewriteUrl(input, pagesSourceSiteUrl, sitePagesTargetWebUrl);
+
+                            // Make relative for next replacement attempt
+                            pagesSourceSiteUrl = MakeRelative(pagesSourceSiteUrl);
+                            sitePagesTargetWebUrl = MakeRelative(sitePagesTargetWebUrl);
+                        }
+
+                        input = RewriteUrl(input, pagesSourceSiteUrl, sitePagesTargetWebUrl);
+                    }
+
+                    // Rewrite root site urls
+                    if (sourceSiteUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || sourceSiteUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        input = RewriteUrl(input, sourceSiteUrl, targetWebUrl);
+
+                        // Make relative for next replacement attempt
+                        sourceSiteUrl = MakeRelative(sourceSiteUrl);
+                        targetWebUrl = MakeRelative(targetWebUrl);
+                    }
+
+                    input = RewriteUrl(input, sourceSiteUrl, targetWebUrl);
+                }
             }
 
             return input;

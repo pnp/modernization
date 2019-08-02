@@ -77,6 +77,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public bool SkipUrlRewrite { get; set; }
 
         /// <summary>
+        /// Skip default URL rewriting, custom URL rewriting using a URL mapping file is still handled
+        /// </summary>
+        public bool SkipDefaultUrlRewrite { get; set; }
+
+        /// <summary>
         /// Url to an URL mapping file
         /// </summary>
         public string UrlMappingFile { get; set; }
