@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -87,6 +88,34 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 return (PublishingPageTransformation)xmlMapping.Deserialize(stream);
             }          
+        }
+
+        /// <summary>
+        /// Load to PageLayout that will be used to transform the given page
+        /// </summary>
+        /// <param name="publishingPageTransformation">Publishing page transformation data to get the correct page layout mapping from</param>
+        /// <param name="page">Page for which we're looking for a mapping</param>
+        /// <returns>The page layout mapping that will be used for the passed page</returns>
+        public PageLayout GetPageLayoutMappingModel(PublishingPageTransformation publishingPageTransformation, ListItem page)
+        {
+            // Load relevant model data for the used page layout
+            string usedPageLayout = Path.GetFileNameWithoutExtension(page.PageLayoutFile());
+            var publishingPageTransformationModel = publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+            // No layout provided via either the default mapping or custom mapping file provided
+            if (publishingPageTransformationModel == null)
+            {
+                publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
+            }
+
+            // Still no layout...can't continue...
+            if (publishingPageTransformationModel == null)
+            {
+                LogError(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout), LogStrings.Heading_PageLayoutManager);
+                throw new Exception(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout));
+            }
+
+            return publishingPageTransformationModel;
         }
 
         internal PublishingPageTransformation MergePageLayoutMappingFiles(PublishingPageTransformation oobMapping, PublishingPageTransformation customMapping)

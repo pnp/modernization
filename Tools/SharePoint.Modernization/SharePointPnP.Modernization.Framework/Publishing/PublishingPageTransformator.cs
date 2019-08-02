@@ -304,7 +304,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo($"{LogStrings.TransformSourcePageIsPublishingPage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
 
                 // Grab the pagelayout mapping to use:
-                var pageLayoutMappingModel = GetPageLayoutMappingModel(publishingPageTransformationInformation.SourcePage);
+                var pageLayoutMappingModel = new PageLayoutManager(this.RegisteredLogObservers).GetPageLayoutMappingModel(this.publishingPageTransformation, publishingPageTransformationInformation.SourcePage);
 
                 if (GetVersion(sourceClientContext) == SPVersion.SP2010)
                 {
@@ -528,28 +528,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         #region Helper methods
-        private PageLayout GetPageLayoutMappingModel(ListItem page)
-        {
-            // Load relevant model data for the used page layout
-            string usedPageLayout = Path.GetFileNameWithoutExtension(page.PageLayoutFile());
-            var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-
-            // No layout provided via either the default mapping or custom mapping file provided
-            if (publishingPageTransformationModel == null)
-            {
-                publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
-            }
-
-            // Still no layout...can't continue...
-            if (publishingPageTransformationModel == null)
-            {
-                LogError(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout), LogStrings.Heading_ArticlePageHandling);
-                throw new Exception(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout));
-            }
-
-            return publishingPageTransformationModel;
-        }
-
 
         private string ReturnModernPageServerRelativeUrl(PublishingPageTransformationInformation publishingPageTransformationInformation)
         {

@@ -42,14 +42,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         public void TransformHeader(ref ClientSidePage targetPage)
         {
             // Get the mapping model to use as it describes how the page header needs to be generated
-            string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(this.publishingPageTransformationInformation.SourcePage.PageLayoutFile());
-            var publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-
-            // No layout provided via either the default mapping or custom mapping file provided
-            if (publishingPageTransformationModel == null)
-            {
-                publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(publishingPageTransformationInformation.SourcePage);
-            }
+            var publishingPageTransformationModel = new PageLayoutManager(this.RegisteredLogObservers).GetPageLayoutMappingModel(this.publishingPageTransformation, publishingPageTransformationInformation.SourcePage);
 
             // Configure the page header
             if (publishingPageTransformationModel.PageHeader == PageLayoutPageHeader.None)

@@ -74,13 +74,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             string usedPageLayout = System.IO.Path.GetFileNameWithoutExtension(page.PageLayoutFile());
             if (publishingPageTransformationModel == null)
             {
-                publishingPageTransformationModel = this.publishingPageTransformation.PageLayouts.Where(p => p.Name.Equals(usedPageLayout, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-
-                // No layout provided via either the default mapping or custom mapping file provided
-                if (publishingPageTransformationModel == null)
-                {
-                    publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
-                }
+                publishingPageTransformationModel = new PageLayoutManager(this.RegisteredLogObservers).GetPageLayoutMappingModel(this.publishingPageTransformation, page);
             }
 
             // Still no layout...can't continue...
