@@ -68,7 +68,7 @@ param (
     [string]$TargetSitePartUrl,
 
     [Parameter(Mandatory = $false, HelpMessage = "Organisation Url Fragment e.g. contoso ")]
-    [string]$PartTenant = "capadevtest",
+    [string]$PartTenant = "contoso",
 
     [Parameter(Mandatory = $false, HelpMessage = "Supply Credentials for multiple runs/sites")]
     [PSCredential]$SourceCredentials,
