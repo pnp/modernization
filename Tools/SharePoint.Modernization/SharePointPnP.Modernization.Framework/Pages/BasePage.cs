@@ -629,6 +629,14 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     return WebParts.Image;
                 }
+
+                // Title Bar 
+                if(properties.ContainsKey("TypeName") && properties["TypeName"].ToString() == "Microsoft.SharePoint.WebPartPages.TitleBarWebPart")
+                {
+                    return WebParts.TitleBar;
+                }
+
+
             }
 
             // check for Script Editor web part
