@@ -1021,50 +1021,53 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     xmlBlock = xmlBlock.Replace($"{prefix.Item1}:", "");
                 }
-                
-                XmlDocument xDoc = new XmlDocument();
-                xDoc.LoadXml(xmlBlock);
 
-                if (xDoc.DocumentElement != null)
+                if (!string.IsNullOrEmpty(xmlBlock))
                 {
-                    var childNodes = xDoc.SelectNodes("//ZoneTemplate/*");
-                    foreach (XmlNode node in childNodes)
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.LoadXml(xmlBlock);
+
+                    if (xDoc.DocumentElement != null)
                     {
-                        XmlNode nodeToExtractProperties = node;
-                        WebServiceWebPartEntity webPart = new WebServiceWebPartEntity();
-
-                        //This should only find one match
-                        var matchWebPart = possibleWebPartsUsed.FirstOrDefault(o => o.Item1.ToUpper() == nodeToExtractProperties.LocalName.ToUpper());
-
-                        if (matchWebPart != default)
+                        var childNodes = xDoc.SelectNodes("//ZoneTemplate/*");
+                        foreach (XmlNode node in childNodes)
                         {
-                            webPart.Type = matchWebPart.Item2;
-                        }
+                            XmlNode nodeToExtractProperties = node;
+                            WebServiceWebPartEntity webPart = new WebServiceWebPartEntity();
 
-                        var wpId = nodeToExtractProperties.Attributes.GetNamedItem("__WebPartId");
-                        webPart.Id = Guid.Parse(wpId?.Value);
+                            //This should only find one match
+                            var matchWebPart = possibleWebPartsUsed.FirstOrDefault(o => o.Item1.ToUpper() == nodeToExtractProperties.LocalName.ToUpper());
 
-                        // In the case of Content Editor web parts
-                        if (node.HasChildNodes && node.FirstChild.LocalName == "WebPart")
-                        {
-                            // Some web parts store properties as child nodes
-                            nodeToExtractProperties = node.FirstChild;
-
-                            foreach (XmlNode wpChildNodes in nodeToExtractProperties.ChildNodes)
+                            if (matchWebPart != default)
                             {
-                                webPart.Properties.Add(wpChildNodes.LocalName, wpChildNodes.InnerText);
+                                webPart.Type = matchWebPart.Item2;
                             }
-                        }
-                        else
-                        {
-                            // Some web parts store properties by attributes
-                            foreach (XmlAttribute attr in nodeToExtractProperties.Attributes)
-                            {
-                               webPart.Properties.Add(attr.Name, attr.Value);
-                            }
-                        }
 
-                        webParts.Add(webPart);
+                            var wpId = nodeToExtractProperties.Attributes.GetNamedItem("__WebPartId");
+                            webPart.Id = Guid.Parse(wpId?.Value);
+
+                            // In the case of Content Editor web parts
+                            if (node.HasChildNodes && node.FirstChild.LocalName == "WebPart")
+                            {
+                                // Some web parts store properties as child nodes
+                                nodeToExtractProperties = node.FirstChild;
+
+                                foreach (XmlNode wpChildNodes in nodeToExtractProperties.ChildNodes)
+                                {
+                                    webPart.Properties.Add(wpChildNodes.LocalName, wpChildNodes.InnerText);
+                                }
+                            }
+                            else
+                            {
+                                // Some web parts store properties by attributes
+                                foreach (XmlAttribute attr in nodeToExtractProperties.Attributes)
+                                {
+                                    webPart.Properties.Add(attr.Name, attr.Value);
+                                }
+                            }
+
+                            webParts.Add(webPart);
+                        }
                     }
                 }
             }
