@@ -396,7 +396,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo(LogStrings.TransformingContentStart, LogStrings.Heading_ArticlePageHandling);
 
                 // Run the content transformator
-                contentTransformator.Transform(pageData.Item2);
+                contentTransformator.Transform(pageData.Item2.Where(c => !c.IsClosed).ToList());
 
                 LogInfo(LogStrings.TransformingContentEnd, LogStrings.Heading_ArticlePageHandling);
 #if DEBUG && MEASURE

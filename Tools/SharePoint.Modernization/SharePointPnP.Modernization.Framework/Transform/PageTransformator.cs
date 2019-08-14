@@ -587,7 +587,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             targetPage.Sections.Insert(0, new CanvasSection(targetPage, CanvasSectionTemplate.OneColumn, 0));
 
                             // Bump the row values for the existing web parts as we've inserted a new section
-                            foreach (var webpart in pageData.Item2)
+                            foreach (var webpart in pageData.Item2.Where(c => !c.IsClosed))
                             {
                                 webpart.Row = webpart.Row + 1;
                             }
@@ -646,7 +646,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo(LogStrings.TransformingContentStart, LogStrings.Heading_ArticlePageHandling);
 
                     // Run the content transformator
-                    contentTransformator.Transform(pageData.Item2);
+                    contentTransformator.Transform(pageData.Item2.Where(c => !c.IsClosed).ToList());
 
                     LogInfo(LogStrings.TransformingContentEnd, LogStrings.Heading_ArticlePageHandling);
 #if DEBUG && MEASURE
