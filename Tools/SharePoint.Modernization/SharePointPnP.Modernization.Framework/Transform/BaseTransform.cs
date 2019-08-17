@@ -205,8 +205,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         {
                             // Read the content.Will be in this format
                             // SPO:
-                            //vti_encoding: SR | utf8 - nl
-                            //vti_extenderversion: SR | 16.0.0.8929
+                            // vti_encoding: SR | utf8 - nl
+                            // vti_extenderversion: SR | 16.0.0.8929
                             // SP2019:
                             // vti_encoding:SR|utf8-nl
                             // vti_extenderversion:SR|16.0.0.10340
@@ -217,6 +217,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             // vti_encoding:SR|utf8-nl
                             // vti_extenderversion: SR | 15.0.0.4505
                             // Version numbers from https://buildnumbers.wordpress.com/sharepoint/
+
+                            // Microsoft Developer Blog - 
+                            //      https://developer.microsoft.com/en-us/sharepoint/blogs/updated-versions-of-the-sharepoint-on-premises-csom-nuget-packages/
+                            // Todd Klints Blog - 
+                            //      http://www.toddklindt.com/sp2010builds
+                            //      http://www.toddklindt.com/sp2013builds
+                            //      http://www.toddklindt.com/sp2016builds
+
 
                             string version = reader.ReadToEnd().Split('|')[2].Trim();
 
@@ -229,13 +237,30 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 }
                                 else if (v.Major == 15)
                                 {
-                                    CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013);
-                                    return SPVersion.SP2013;
+
+                                    if(v.Build < 5031)
+                                    {
+                                        // Pre May 2018 CU
+                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013Legacy);
+                                        return SPVersion.SP2013Legacy;
+                                    }
+                                    else
+                                    {
+                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013);
+                                        return SPVersion.SP2013;
+                                    }
                                 }
                                 else if (v.Major == 16)
                                 {
                                     if (v.MinorRevision < 6000)
                                     {
+                                        if(v.Build < 4690)
+                                        {
+                                            // Pre May 2018 CU
+                                            CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016Legacy);
+                                            return SPVersion.SP2016Legacy;
+                                        }
+                                        
                                         CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016);
                                         return SPVersion.SP2016;
                                     }

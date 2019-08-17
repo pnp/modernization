@@ -484,7 +484,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         LogInfo($"{LogStrings.TransformSourcePageIsWebPartPage} {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
 
-                        if (GetVersion(sourceClientContext) == SPVersion.SP2010)
+                        var spVersion = GetVersion(sourceClientContext);
+
+                        if (spVersion == SPVersion.SP2010 || spVersion == SPVersion.SP2013Legacy || spVersion == SPVersion.SP2016Legacy)
                         {
                             pageData = new WebPartPageOnPremises(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation).Analyze(true);
                         }

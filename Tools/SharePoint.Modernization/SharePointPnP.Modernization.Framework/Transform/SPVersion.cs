@@ -11,7 +11,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
         SPO = 0,
         SP2019 = 1,
         SP2016 = 2,
-        SP2013 = 3, 
-        SP2010 = 4
+        SP2016Legacy= 3,
+        SP2013 = 4, 
+        SP2013Legacy = 5,
+        SP2010 = 6
     }
 }
