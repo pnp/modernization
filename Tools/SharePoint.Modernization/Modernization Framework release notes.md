@@ -25,6 +25,7 @@
 - Images embedded in a table/list are not added as separate image web parts anymore, you can use the AddTableListImageAsImageWebPart PageTransformationInformation property if you still require want this to happen
 - Fixed a bug where web service not handling empty web part returns related to #232 [pkbullock]
 - Fix: Don't transform closed web parts #236 [gautamdsheth]
+- Fix: Handle the case where a calendar web part is a source page and the calendar list is not available in the target site collection #239
 
 ## [August release - version 1.0.1908.0]
 
