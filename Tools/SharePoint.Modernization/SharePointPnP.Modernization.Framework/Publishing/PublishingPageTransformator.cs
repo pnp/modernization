@@ -438,6 +438,35 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 targetPage.Save(pageName);
                 LogInfo($"{LogStrings.TransformSavedPageInCrossSiteCollection}: {pageName}", LogStrings.Heading_ArticlePageHandling);
 
+#if DEBUG && MEASURE
+            Stop("Persist page");
+#endif
+                #endregion
+
+                #region Page metadata handling
+                PublishingMetadataTransformator publishingMetadataTransformator = new PublishingMetadataTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, targetPage, pageLayoutMappingModel, this.publishingPageTransformation, base.RegisteredLogObservers);
+                publishingMetadataTransformator.Transform();
+                #endregion
+
+                #region Permission handling
+                ListItemPermission listItemPermissionsToKeep = null;
+                if (publishingPageTransformationInformation.KeepPageSpecificPermissions)
+                {
+#if DEBUG && MEASURE
+                Start();
+#endif
+                    // Check if we do have item level permissions we want to take over
+                    listItemPermissionsToKeep = GetItemLevelPermissions(true, pagesLibrary, publishingPageTransformationInformation.SourcePage, targetPage.PageListItem);
+
+                    // When creating the page in another site collection we'll always want to copy item level permissions if specified
+                    ApplyItemLevelPermissions(true, targetPage.PageListItem, listItemPermissionsToKeep);
+#if DEBUG && MEASURE
+                Stop("Permission handling");
+#endif
+                }
+                #endregion
+
+                #region Page Publishing
                 // Tag the file with a page modernization version stamp
                 string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(publishingPageTransformationInformation);
                 try
@@ -466,33 +495,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 {
                     targetPage.DisableComments();
                     LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
-                }
-
-#if DEBUG && MEASURE
-            Stop("Persist page");
-#endif
-                #endregion
-
-                #region Page metadata handling
-                PublishingMetadataTransformator publishingMetadataTransformator = new PublishingMetadataTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, targetPage, pageLayoutMappingModel, this.publishingPageTransformation, base.RegisteredLogObservers);
-                publishingMetadataTransformator.Transform();
-                #endregion
-
-                #region Permission handling
-                ListItemPermission listItemPermissionsToKeep = null;
-                if (publishingPageTransformationInformation.KeepPageSpecificPermissions)
-                {
-#if DEBUG && MEASURE
-                Start();
-#endif
-                    // Check if we do have item level permissions we want to take over
-                    listItemPermissionsToKeep = GetItemLevelPermissions(true, pagesLibrary, publishingPageTransformationInformation.SourcePage, targetPage.PageListItem);
-
-                    // When creating the page in another site collection we'll always want to copy item level permissions if specified
-                    ApplyItemLevelPermissions(true, targetPage.PageListItem, listItemPermissionsToKeep);
-#if DEBUG && MEASURE
-                Stop("Permission handling");
-#endif
                 }
                 #endregion
 

@@ -690,37 +690,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo($"{LogStrings.TransformSavedPage}: {pageName}", LogStrings.Heading_ArticlePageHandling);
                 }
 
-                // Tag the file with a page modernization version stamp
-                string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
-                try
-                {
-                    var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
-                    context.Load(targetPageFile, p => p.Properties);
-                    targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
-                    targetPageFile.Update();
-
-                    if (pageTransformationInformation.PublishCreatedPage)
-                    {
-                        // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
-                        targetPageFile.Publish("Page modernization initial publish");
-                    }
-
-                    // Send both the property update and publish as a single operation to SharePoint
-                    context.ExecuteQueryRetry();
-                }
-                catch (Exception ex)
-                {
-                    // Eat exceptions as this is not critical for the generated page
-                    LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
-                }
-
-                // Disable page comments on the create page, if needed
-                if (pageTransformationInformation.DisablePageComments)
-                {
-                    targetPage.DisableComments();
-                    LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
-                }
-
 #if DEBUG && MEASURE
             Stop("Persist page");
 #endif
@@ -761,6 +730,40 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Stop("Permission handling");
 #endif
                 }
+                #endregion
+
+                #region Page Publishing
+                // Tag the file with a page modernization version stamp
+                string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
+                try
+                {
+                    var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
+                    context.Load(targetPageFile, p => p.Properties);
+                    targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
+                    targetPageFile.Update();
+
+                    if (pageTransformationInformation.PublishCreatedPage)
+                    {
+                        // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
+                        targetPageFile.Publish("Page modernization initial publish");
+                    }
+
+                    // Send both the property update and publish as a single operation to SharePoint
+                    context.ExecuteQueryRetry();
+                }
+                catch (Exception ex)
+                {
+                    // Eat exceptions as this is not critical for the generated page
+                    LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
+                }
+
+                // Disable page comments on the create page, if needed
+                if (pageTransformationInformation.DisablePageComments)
+                {
+                    targetPage.DisableComments();
+                    LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
+                }
+
                 #endregion
 
                 #region Page name switching
