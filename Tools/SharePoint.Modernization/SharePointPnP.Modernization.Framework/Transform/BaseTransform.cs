@@ -237,32 +237,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 }
                                 else if (v.Major == 15)
                                 {
+                                    // You can change the output to SP2013 to use standard CSOM calls.
+                                    CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013Legacy);
+                                    return SPVersion.SP2013Legacy;
 
-                                    if(v.Build < 5031)
-                                    {
-                                        // Pre May 2018 CU
-                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013Legacy);
-                                        return SPVersion.SP2013Legacy;
-                                    }
-                                    else
-                                    {
-                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013);
-                                        return SPVersion.SP2013;
-                                    }
                                 }
                                 else if (v.Major == 16)
                                 {
                                     if (v.MinorRevision < 6000)
                                     {
-                                        if(v.Build < 4690)
-                                        {
-                                            // Pre May 2018 CU
-                                            CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016Legacy);
-                                            return SPVersion.SP2016Legacy;
-                                        }
+                                        //if(v.MinorRevision < 4690)
+                                        //{
+                                        //    // Pre May 2018 CU
+                                        //    CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016Legacy);
+                                        //    return SPVersion.SP2016Legacy;
+                                        //}
                                         
-                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016);
-                                        return SPVersion.SP2016;
+                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016Legacy);
+                                        return SPVersion.SP2016Legacy;
                                     }
                                     else if (v.MinorRevision > 10300 && v.MinorRevision < 19000)
                                     {
