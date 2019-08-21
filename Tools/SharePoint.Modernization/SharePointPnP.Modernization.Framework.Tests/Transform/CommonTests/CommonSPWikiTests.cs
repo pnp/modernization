@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 {
-    class CommonSP_WikiTests
+    class CommonSPWikiTests
     {
         public CommonSPWikiTests()
         {

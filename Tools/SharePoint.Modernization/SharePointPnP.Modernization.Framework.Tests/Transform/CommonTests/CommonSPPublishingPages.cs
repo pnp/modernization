@@ -6,6 +6,8 @@ using SharePointPnP.Modernization.Framework.Publishing;
 using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 using Microsoft.SharePoint.Client;
 using static SharePointPnP.Modernization.Framework.Tests.TestCommon;
+using SharePointPnP.Modernization.Framework.Pages;
+using SharePointPnP.Modernization.Framework.Telemetry;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 {
@@ -15,6 +17,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
     [TestClass]
     public class CommonSPPublishingPages
     {
+        #region Test Config
+
         public CommonSPPublishingPages()
         {
             //
@@ -62,12 +66,34 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
         //
         #endregion
 
+        #endregion
+
+        #region SharePoint 2010 Tests
+
         [TestCategory(TestCategories.SP2010)]
         [TestMethod]
         public void AllCommonPages_SP2010()
         {
             TransformPage(SPPlatformVersion.SP2010);
         }
+
+        [TestCategory(TestCategories.SP2010)]
+        [TestMethod]
+        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2010()
+        {
+            LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2010);
+        }
+
+        [TestCategory(TestCategories.SP2010)]
+        [TestMethod]
+        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2010()
+        {
+            ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2010);
+        }
+
+        #endregion
+
+        #region SharePoint 2013 Tests
 
         [TestCategory(TestCategories.SP2013)]
         [TestMethod]
@@ -76,12 +102,48 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
             TransformPage(SPPlatformVersion.SP2013);
         }
 
+        [TestCategory(TestCategories.SP2013)]
+        [TestMethod]
+        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2013()
+        {
+            LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2013);
+        }
+
+        [TestCategory(TestCategories.SP2013)]
+        [TestMethod]
+        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2013()
+        {
+            ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2013);
+        }
+
+        #endregion
+
+        #region SharePoint 2016 Tests
+
         [TestCategory(TestCategories.SP2016)]
         [TestMethod]
         public void AllCommonPages_SP2016()
         {
             TransformPage(SPPlatformVersion.SP2016);
         }
+
+        [TestCategory(TestCategories.SP2016)]
+        [TestMethod]
+        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2016()
+        {
+            LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2016);
+        }
+
+        [TestCategory(TestCategories.SP2016)]
+        [TestMethod]
+        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2016()
+        {
+            ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2016);
+        }
+
+        #endregion
+
+        #region SharePoint 2019 Tests
 
         [TestCategory(TestCategories.SP2019)]
         [TestMethod]
@@ -90,7 +152,32 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
             TransformPage(SPPlatformVersion.SP2019);
         }
 
+        [TestCategory(TestCategories.SP2019)]
+        [TestMethod]
+        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2019()
+        {
+            LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2019);
+        }
+
+        [TestCategory(TestCategories.SP2019)]
+        [TestMethod]
+        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2019()
+        {
+            ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2019);
+        }
+
+        #endregion
+
+        #region Test Code
+
         // Common Tests
+
+        /// <summary>
+        /// Standard Transform Test
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="fullPageLayoutMapping"></param>
+        /// <param name="pageNameStartsWith"></param>
         private void TransformPage(SPPlatformVersion version, string fullPageLayoutMapping = "", string pageNameStartsWith = "Common")
         {
 
@@ -108,9 +195,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
                     foreach (var page in pages)
                     {
-                        // Not great on efficiency but need the name
-                        var pageName = page.EnsureProperty(o => o.File.Name);
-                                               
+                        var pageName = page.FieldValues["FileLeafRef"].ToString();
+                            
                         PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation(page)
                         {
                             // If target page exists, then overwrite it
@@ -140,5 +226,115 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
             }
         }
 
+        /// <summary>
+        /// Standard Load Web Part Document with Web Services Test
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="pageNameStartsWith"></param>
+        private void LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion version, string pageNameStartsWith = "Common")
+        {
+            using (var context = TestCommon.CreateOnPremisesClientContext())
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", pageNameStartsWith);
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File, p => p.File.ServerRelativeUrl);
+
+                    List<string> search = new List<string>()
+                    {
+                        "WebPartZone"
+                    };
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    var result = testBase.LoadPublishingPageFromWebServices(page.File.ServerRelativeUrl);
+
+                    Assert.IsTrue(result.Count > 0);
+
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Export workaround tests
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="pageNameStartsWith"></param>
+        private void ExportWebPartByWorkaround(SPPlatformVersion version, string pageNameStartsWith = "Common")
+        {
+            using (var context = TestCommon.CreateSPPlatformClientContext(version, TransformType.PublishingPage))
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", pageNameStartsWith);
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File, p => p.File.ServerRelativeUrl);
+
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    var webPartEntities = testBase.LoadPublishingPageFromWebServices(page.File.ServerRelativeUrl);
+
+                    foreach (var webPart in webPartEntities)
+                    {
+                        var result = testBase.ExportWebPartXmlWorkaround(page.File.ServerRelativeUrl, webPart.Id.ToString());
+
+                        Assert.IsTrue(!string.IsNullOrEmpty(result));
+
+                    }
+
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Call SharePoint Web Servics for Web Part Document
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="pageNameStartsWith"></param>
+        public void ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion version, string pageNameStartsWith = "Common")
+        {
+            using (var context = TestCommon.CreateSPPlatformClientContext(version, TransformType.PublishingPage))
+            {
+
+                var pages = context.Web.GetPagesFromList("Pages", pageNameStartsWith);
+
+                foreach (var page in pages)
+                {
+                    page.EnsureProperties(p => p.File, p => p.File.ServerRelativeUrl);
+
+                    List<string> search = new List<string>()
+                    {
+                        "WebPartZone"
+                    };
+
+                    //Should be one
+                    TestBasePage testBase = new TestBasePage(page, page.File, null, null);
+                    var result = testBase.ExtractWebPartDocumentViaWebServicesFromPage(page.File.ServerRelativeUrl);
+
+                    Assert.IsTrue(result.Item1.Length > 0);
+                    Assert.IsTrue(result.Item2.Length > 0);
+                }
+            }
+        }
+
+        #endregion
+
     }
+
+    /// <summary>
+    /// Test class to access base page methods
+    /// </summary>
+    public class TestBasePage : BasePage
+    {
+        public TestBasePage(ListItem item, File file, PageTransformation pt, IList<ILogObserver> logObservers) : base(item, file, pt, logObservers)
+        {
+
+        }
+    }
+
+
 }
