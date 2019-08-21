@@ -218,6 +218,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
                         pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
                         var result = pageTransformator.Transform(pti);
+
+                        Assert.IsTrue(!string.IsNullOrEmpty(result));
                     }
 
                     pageTransformator.FlushObservers();
@@ -233,7 +235,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
         /// <param name="pageNameStartsWith"></param>
         private void LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion version, string pageNameStartsWith = "Common")
         {
-            using (var context = TestCommon.CreateOnPremisesClientContext())
+            using (var context = TestCommon.CreateSPPlatformClientContext(version, TransformType.PublishingPage))
             {
 
                 var pages = context.Web.GetPagesFromList("Pages", pageNameStartsWith);
