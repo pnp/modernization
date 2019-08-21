@@ -157,15 +157,45 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             // Handle the page layouts
             List<PageLayout> pageLayouts = new List<PageLayout>();
+            Dictionary<string, string> customPageLayoutsMapped = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+
+            // First process the ones that apply to multiple page layouts
+            foreach (var pageLayout in customMapping.PageLayouts.Where(p => !String.IsNullOrEmpty(p.AlsoAppliesTo)))
+            {
+                var possiblePageLayouts = pageLayout.AlsoAppliesTo.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                if (possiblePageLayouts.Length > 0)
+                {
+                    foreach (var possiblePageLayout in possiblePageLayouts)
+                    {
+                        // Only add the first possible page layout mapping, if a given page layout is defined multiple times then the first reference wins
+                        if (!customPageLayoutsMapped.ContainsKey(possiblePageLayout))
+                        {
+                            customPageLayoutsMapped.Add(possiblePageLayout, pageLayout.Name);
+                        }
+                    }
+                }
+            }
+
+            // Next cover the mappings that apply to a single page layout
+            foreach (var pageLayout in customMapping.PageLayouts.Where(p => String.IsNullOrEmpty(p.AlsoAppliesTo)))
+            {
+                if (!customPageLayoutsMapped.ContainsKey(pageLayout.Name))
+                {
+                    customPageLayoutsMapped.Add(pageLayout.Name, pageLayout.Name);
+                }
+            }
+
+            // Keep the custom page layouts which are not overriden by a custom mapping
             foreach (var oobPageLayout in oobMapping.PageLayouts.ToList())
             {
                 // If there's the same page layout used in the custom mapping then that one overrides the default
-                if (!customMapping.PageLayouts.Where(p=>p.Name.Equals(oobPageLayout.Name, StringComparison.InvariantCultureIgnoreCase)).Any())
+
+                if (!customPageLayoutsMapped.ContainsKey(oobPageLayout.Name))
                 {
                     pageLayouts.Add(oobPageLayout);
-                }
+                }          
             }
-            
+
             // Take over the custom ones
             pageLayouts.AddRange(customMapping.PageLayouts);
             merged.PageLayouts = pageLayouts.ToArray();
