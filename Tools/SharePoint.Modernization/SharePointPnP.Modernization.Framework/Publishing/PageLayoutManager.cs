@@ -136,6 +136,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             if (publishingPageTransformationModel == null)
             {
                 publishingPageTransformationModel = CacheManager.Instance.GetPageLayoutMapping(page);
+                LogInfo(string.Format(LogStrings.PageLayoutMappingGeneration, usedPageLayout), LogStrings.Heading_PageLayoutManager);
             }
 
             // Still no layout...can't continue...
@@ -144,6 +145,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogError(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout), LogStrings.Heading_PageLayoutManager);
                 throw new Exception(string.Format(LogStrings.Error_NoPageLayoutTransformationModel, usedPageLayout));
             }
+
+            LogInfo(string.Format(LogStrings.PageLayoutMappingBeingUsed, publishingPageTransformationModel.Name, usedPageLayout), LogStrings.Heading_PageLayoutManager);
 
             return publishingPageTransformationModel;
         }

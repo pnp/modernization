@@ -27,6 +27,7 @@
 - Fix: Don't transform closed web parts #236 [gautamdsheth]
 - Fix: Handle the case where a calendar web part is a source page and the calendar list is not available in the target site collection #239
 - Fix: Publishing of a page was "undone" by possible metadata copies or item level security handling. Publish part now is now moved to the very end of the transformation flow #242
+- Fix: Log which page layout mapping is used for the given publishing page #241
 
 ## [August release - version 1.0.1908.0]
 
