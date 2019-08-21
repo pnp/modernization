@@ -65,7 +65,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2010)]
         [TestMethod]
-        public void AllCommonPages_SP2010()
+        public void AllCommonWebPartPages_SP2010()
         {
             TransformPage(SPPlatformVersion.SP2010);
         }
@@ -76,7 +76,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2013)]
         [TestMethod]
-        public void AllCommonPages_SP2013()
+        public void AllCommonWebPartPages_SP2013()
         {
             TransformPage(SPPlatformVersion.SP2013);
         }
@@ -87,7 +87,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2016)]
         [TestMethod]
-        public void AllCommonPages_SP2016()
+        public void AllCommonWebPartPages_SP2016()
         {
             TransformPage(SPPlatformVersion.SP2016);
         }
@@ -98,9 +98,20 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2019)]
         [TestMethod]
-        public void AllCommonPages_SP2019()
+        public void AllCommonWebPartPages_SP2019()
         {
             TransformPage(SPPlatformVersion.SP2019);
+        }
+
+        #endregion
+
+        #region SharePoint Online Tests
+
+        [TestCategory(TestCategories.SPO)]
+        [TestMethod]
+        public void AllCommonWikiPages_SPO()
+        {
+            TransformPage(SPPlatformVersion.SPO);
         }
 
         #endregion

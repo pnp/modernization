@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.SharePoint.Client;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
+using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 {
-    class CommonSPWikiTests
+    [TestClass]
+    public class CommonSPWikiTests
     {
         public CommonSPWikiTests()
         {
@@ -56,12 +60,115 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
         //
         #endregion
 
+        #region SharePoint 2010 Tests
+
+        [TestCategory(TestCategories.SP2010)]
         [TestMethod]
-        public void TestMethod1()
+        public void AllCommonWikiPages_SP2010()
         {
-            //
-            // TODO: Add test logic here
-            //
+            TransformPage(SPPlatformVersion.SP2010);
         }
+
+        #endregion
+
+        #region SharePoint 2013 Tests
+
+        [TestCategory(TestCategories.SP2013)]
+        [TestMethod]
+        public void AllCommonWikiPages_SP2013()
+        {
+            TransformPage(SPPlatformVersion.SP2013);
+        }
+
+        #endregion
+
+        #region SharePoint 2016 Tests
+
+        [TestCategory(TestCategories.SP2016)]
+        [TestMethod]
+        public void AllCommonWikiPages_SP2016()
+        {
+            TransformPage(SPPlatformVersion.SP2016);
+        }
+
+        #endregion
+
+        #region SharePoint 2019 Tests
+
+        [TestCategory(TestCategories.SP2019)]
+        [TestMethod]
+        public void AllCommonWikiPages_SP2019()
+        {
+            TransformPage(SPPlatformVersion.SP2019);
+        }
+
+        #endregion
+
+        #region SharePoint Online Tests
+
+        [TestCategory(TestCategories.SPO)]
+        [TestMethod]
+        public void AllCommonWikiPages_SPO()
+        {
+            TransformPage(SPPlatformVersion.SPO);
+        }
+
+        #endregion
+
+        #region Code for Tests
+
+        /// <summary>
+        /// Different page same test conditions
+        /// </summary>
+        /// <param name="pageName"></param>
+        private void TransformPage(SPPlatformVersion version, string pageNameStartsWith = "Common-WikiPage")
+        {
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateSPPlatformClientContext(version, TransformType.WikiPage))
+                {
+                    var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
+
+                    var pages = sourceClientContext.Web.GetPages(pageNameStartsWith);
+
+                    pages.FailTestIfZero();
+
+                    foreach (var page in pages)
+                    {
+                        var pageName = page.FieldValues["FileLeafRef"].ToString();
+
+                        PageTransformationInformation pti = new PageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                            //Permissions are unlikely to work given cross domain
+                            KeepPageSpecificPermissions = false,
+
+                            //Update target to include SP version
+                            TargetPageName = TestCommon.UpdatePageToIncludeVersion(version, pageName)
+
+                        };
+
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                        var result = pageTransformator.Transform(pti);
+
+                        Assert.IsTrue(!string.IsNullOrEmpty(result));
+                    }
+
+                    pageTransformator.FlushObservers();
+                }
+            }
+        }
+
+        #endregion
     }
 }

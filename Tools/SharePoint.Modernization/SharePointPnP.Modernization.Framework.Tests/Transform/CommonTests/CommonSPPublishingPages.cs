@@ -72,21 +72,21 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2010)]
         [TestMethod]
-        public void AllCommonPages_SP2010()
+        public void AllCommonPublishingPages_SP2010()
         {
             TransformPage(SPPlatformVersion.SP2010);
         }
 
         [TestCategory(TestCategories.SP2010)]
         [TestMethod]
-        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2010()
+        public void ProcessedWebPartDocumentWebServices_SP2010()
         {
             LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2010);
         }
 
         [TestCategory(TestCategories.SP2010)]
         [TestMethod]
-        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2010()
+        public void RawExtractWebPartDocumentViaWebServices_SP2010()
         {
             ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2010);
         }
@@ -97,21 +97,21 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2013)]
         [TestMethod]
-        public void AllCommonPages_SP2013()
+        public void AllCommonPublishingPages_SP2013()
         {
             TransformPage(SPPlatformVersion.SP2013);
         }
 
         [TestCategory(TestCategories.SP2013)]
         [TestMethod]
-        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2013()
+        public void ProcessedWebPartDocumentWebServicess_SP2013()
         {
             LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2013);
         }
 
         [TestCategory(TestCategories.SP2013)]
         [TestMethod]
-        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2013()
+        public void RawExtractWebPartDocumentViaWebServices_SP2013()
         {
             ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2013);
         }
@@ -122,21 +122,21 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2016)]
         [TestMethod]
-        public void AllCommonPages_SP2016()
+        public void AllCommonPublishingPages_SP2016()
         {
             TransformPage(SPPlatformVersion.SP2016);
         }
 
         [TestCategory(TestCategories.SP2016)]
         [TestMethod]
-        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2016()
+        public void ProcessedWebPartDocumentWebServices_SP2016()
         {
             LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2016);
         }
 
         [TestCategory(TestCategories.SP2016)]
         [TestMethod]
-        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2016()
+        public void RawExtractWebPartDocumentViaWebServices_SP2016()
         {
             ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2016);
         }
@@ -147,23 +147,34 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.CommonTests
 
         [TestCategory(TestCategories.SP2019)]
         [TestMethod]
-        public void AllCommonPages_SP2019()
+        public void AllCommonPublishingPages_SP2019()
         {
             TransformPage(SPPlatformVersion.SP2019);
         }
 
         [TestCategory(TestCategories.SP2019)]
         [TestMethod]
-        public void Common_LoadWebPartDocumentViaWebServicesTest_SP2019()
+        public void ProcessedWebPartDocumentWebServices_SP2019()
         {
             LoadWebPartDocumentViaWebServicesTest(SPPlatformVersion.SP2019);
         }
 
         [TestCategory(TestCategories.SP2019)]
         [TestMethod]
-        public void Common_ExtractWebPartDocumentViaWebServicesFromPageTest_SP2019()
+        public void RawExtractWebPartDocumentViaWebServices_SP2019()
         {
             ExtractWebPartDocumentViaWebServicesFromPageTest(SPPlatformVersion.SP2019);
+        }
+
+        #endregion
+
+        #region SharePoint Online Tests
+
+        [TestCategory(TestCategories.SPO)]
+        [TestMethod]
+        public void AllCommonPublishingPages_SPO()
+        {
+            TransformPage(SPPlatformVersion.SPO);
         }
 
         #endregion
