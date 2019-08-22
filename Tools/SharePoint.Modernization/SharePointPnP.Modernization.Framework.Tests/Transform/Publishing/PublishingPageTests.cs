@@ -39,15 +39,15 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
                 //https://bertonline.sharepoint.com/sites/modernizationtestportal
-                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/sites/devportal/en-us"))
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\mappingtest.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\temp\mappingtest.xml");
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "art");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "kevin");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
@@ -58,7 +58,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             Overwrite = true,
 
                             // Don't log test runs
-                            SkipTelemetry = true,      
+                            SkipTelemetry = true,  
+                            
+                            //PublishCreatedPage = false,
                             
                             //RemoveEmptySectionsAndColumns = false,
 

@@ -5,7 +5,7 @@
   </AddOns>
   <PageLayouts>
     <!-- To test contentype handling, set AssociatedContentType to CustomPage1 + adjust the metadata -->
-    <PageLayout Name="VolvoArticleLeftXXX" AlsoAppliesTo="VolvoArticle1;VolvoArticleLeft;VolvoArticle2" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
+    <PageLayout Name="VolvoArticleLeftXXX" AlsoAppliesTo="VolvoArticle1;VolvoArticleLeft;VolvoArticle2;ArticleLeft;ArticleRight" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage;PublishingPageImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({@name})" />
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />-->
@@ -24,6 +24,10 @@
         <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" ShowInPageProperties="true" />
         <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" ShowInPageProperties="true"/>
         <Field Name="Person" TargetFieldName="Person" Functions="" ShowInPageProperties="true"/>
+        <Field Name="Created" TargetFieldName="Created" Functions="" />
+        <Field Name="Modified" TargetFieldName="Modified" Functions="" />
+        <Field Name="Author" TargetFieldName="Author" Functions="" />
+        <Field Name="Editor" TargetFieldName="Editor" Functions="" />
         <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />-->
       </MetaData>
       <WebParts>

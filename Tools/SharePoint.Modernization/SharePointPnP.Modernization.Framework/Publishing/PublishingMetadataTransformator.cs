@@ -73,6 +73,126 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     contentTypeId = this.page.PageListItem[Constants.ContentTypeIdField].ToString();
                 }
 
+                // Handle the taxonomy fields
+                bool targetSitePagesLibraryLoaded = false;
+                List targetSitePagesLibrary = null;
+                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
+                {
+                    // Process only fields which have a target field set...
+                    if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
+                    {
+                        if (!listItemWasReloaded)
+                        {
+                            // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
+                            this.targetClientContext.Load(this.page.PageListItem);
+                            this.targetClientContext.ExecuteQueryRetry();
+                            listItemWasReloaded = true;
+                        }
+
+                        // Get information about this content type field
+                        var targetFieldData = CacheManager.Instance.GetPublishingContentTypeField(this.page.PageListItem.ParentList, contentTypeId, fieldToProcess.TargetFieldName);
+
+                        if (targetFieldData == null)
+                        {
+                            LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToProcess.TargetFieldName}", LogStrings.Heading_CopyingPageMetadata);
+                        }
+                        else
+                        {
+                            if (targetFieldData.FieldType == "TaxonomyFieldTypeMulti" || targetFieldData.FieldType == "TaxonomyFieldType")
+                            {
+                                if (!targetSitePagesLibraryLoaded)
+                                {
+                                    var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
+                                    targetSitePagesLibrary = this.targetClientContext.Web.GetList(sitePagesServerRelativeUrl);
+                                    this.targetClientContext.Web.Context.Load(targetSitePagesLibrary, l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required));
+                                    this.targetClientContext.ExecuteQueryRetry();
+                                    targetSitePagesLibraryLoaded = true;
+                                }
+
+                                switch (targetFieldData.FieldType)
+                                {
+                                    case "TaxonomyFieldTypeMulti":
+                                        {
+                                            var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
+                                            if (taxFieldBeforeCast != null)
+                                            {
+                                                var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+
+                                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+                                                {
+                                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValueCollection)
+                                                    {
+                                                        var valueCollectionToCopy = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValueCollection);
+                                                        var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
+                                                        var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                        taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
+                                                    }
+                                                    else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
+                                                    {
+                                                        var taxDictionaryList = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
+                                                        var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
+
+                                                        List<string> taxonomyFieldValueArray = new List<string>();
+                                                        for (int i = 0; i < valueCollectionToCopy.Length; i++)
+                                                        {
+                                                            var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
+                                                            taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
+                                                        }
+                                                        var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                        taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
+                                                    }
+
+                                                    isDirty = true;
+                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    case "TaxonomyFieldType":
+                                        {
+                                            var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
+                                            if (taxFieldBeforeCast != null)
+                                            {
+                                                var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                                                var taxValue = new TaxonomyFieldValue();
+                                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+                                                {
+                                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValue)
+                                                    {
+
+                                                        taxValue.Label = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).Label;
+                                                        taxValue.TermGuid = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).TermGuid;
+                                                        taxValue.WssId = -1;
+                                                    }
+                                                    else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
+                                                    {
+                                                        var taxDictionary = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
+                                                        taxValue.Label = taxDictionary["Label"].ToString();
+                                                        taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
+                                                        taxValue.WssId = -1;
+                                                    }
+                                                    taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                    isDirty = true;
+                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                }
+                                            }
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Persist changes
+                if (isDirty)
+                {
+                    this.page.PageListItem.Update();
+                    targetClientContext.Load(this.page.PageListItem);
+                    targetClientContext.ExecuteQueryRetry();
+                    isDirty = false;
+                }
+
                 // Copy the field metadata
                 foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
                 {
@@ -209,125 +329,125 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     isDirty = false;
                 }
 
-                // Handle the taxonomy fields
-                bool targetSitePagesLibraryLoaded = false;
-                List targetSitePagesLibrary = null;
-                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
-                {
-                    // Process only fields which have a target field set...
-                    if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
-                    {
-                        if (!listItemWasReloaded)
-                        {
-                            // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
-                            this.targetClientContext.Load(this.page.PageListItem);
-                            this.targetClientContext.ExecuteQueryRetry();
-                            listItemWasReloaded = true;
-                        }
+                //// Handle the taxonomy fields
+                //bool targetSitePagesLibraryLoaded = false;
+                //List targetSitePagesLibrary = null;
+                //foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
+                //{
+                //    // Process only fields which have a target field set...
+                //    if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
+                //    {
+                //        if (!listItemWasReloaded)
+                //        {
+                //            // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
+                //            this.targetClientContext.Load(this.page.PageListItem);
+                //            this.targetClientContext.ExecuteQueryRetry();
+                //            listItemWasReloaded = true;
+                //        }
 
-                        // Get information about this content type field
-                        var targetFieldData = CacheManager.Instance.GetPublishingContentTypeField(this.page.PageListItem.ParentList, contentTypeId, fieldToProcess.TargetFieldName);
+                //        // Get information about this content type field
+                //        var targetFieldData = CacheManager.Instance.GetPublishingContentTypeField(this.page.PageListItem.ParentList, contentTypeId, fieldToProcess.TargetFieldName);
 
-                        if (targetFieldData == null)
-                        {
-                            LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToProcess.TargetFieldName}", LogStrings.Heading_CopyingPageMetadata);
-                        }
-                        else
-                        {
-                            if (targetFieldData.FieldType == "TaxonomyFieldTypeMulti" || targetFieldData.FieldType == "TaxonomyFieldType")
-                            {
-                                if (!targetSitePagesLibraryLoaded)
-                                {
-                                    var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
-                                    targetSitePagesLibrary = this.targetClientContext.Web.GetList(sitePagesServerRelativeUrl);
-                                    this.targetClientContext.Web.Context.Load(targetSitePagesLibrary, l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required));
-                                    this.targetClientContext.ExecuteQueryRetry();
-                                    targetSitePagesLibraryLoaded = true;
-                                }
+                //        if (targetFieldData == null)
+                //        {
+                //            LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToProcess.TargetFieldName}", LogStrings.Heading_CopyingPageMetadata);
+                //        }
+                //        else
+                //        {
+                //            if (targetFieldData.FieldType == "TaxonomyFieldTypeMulti" || targetFieldData.FieldType == "TaxonomyFieldType")
+                //            {
+                //                if (!targetSitePagesLibraryLoaded)
+                //                {
+                //                    var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
+                //                    targetSitePagesLibrary = this.targetClientContext.Web.GetList(sitePagesServerRelativeUrl);
+                //                    this.targetClientContext.Web.Context.Load(targetSitePagesLibrary, l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required));
+                //                    this.targetClientContext.ExecuteQueryRetry();
+                //                    targetSitePagesLibraryLoaded = true;
+                //                }
 
-                                switch (targetFieldData.FieldType)
-                                {
-                                    case "TaxonomyFieldTypeMulti":
-                                        {
-                                            var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
-                                            if (taxFieldBeforeCast != null)
-                                            {
-                                                var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                //                switch (targetFieldData.FieldType)
+                //                {
+                //                    case "TaxonomyFieldTypeMulti":
+                //                        {
+                //                            var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
+                //                            if (taxFieldBeforeCast != null)
+                //                            {
+                //                                var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
 
-                                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
-                                                {
-                                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValueCollection)
-                                                    {
-                                                        var valueCollectionToCopy = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValueCollection);
-                                                        var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
-                                                        var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                                        taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
-                                                    }
-                                                    else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
-                                                    {
-                                                        var taxDictionaryList = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
-                                                        var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
+                //                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+                //                                {
+                //                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValueCollection)
+                //                                    {
+                //                                        var valueCollectionToCopy = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValueCollection);
+                //                                        var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
+                //                                        var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                //                                        taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
+                //                                    }
+                //                                    else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
+                //                                    {
+                //                                        var taxDictionaryList = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
+                //                                        var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
 
-                                                        List<string> taxonomyFieldValueArray = new List<string>();
-                                                        for (int i = 0; i < valueCollectionToCopy.Length; i++)
-                                                        {
-                                                            var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
-                                                            taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
-                                                        }
-                                                        var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                                        taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
-                                                    }
+                //                                        List<string> taxonomyFieldValueArray = new List<string>();
+                //                                        for (int i = 0; i < valueCollectionToCopy.Length; i++)
+                //                                        {
+                //                                            var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
+                //                                            taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
+                //                                        }
+                //                                        var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                //                                        taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
+                //                                    }
 
-                                                    isDirty = true;
-                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                                }
-                                            }
-                                            break;
-                                        }
-                                    case "TaxonomyFieldType":
-                                        {
-                                            var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
-                                            if (taxFieldBeforeCast != null)
-                                            {
-                                                var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
-                                                var taxValue = new TaxonomyFieldValue();
-                                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
-                                                {
-                                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValue)
-                                                    {
+                //                                    isDirty = true;
+                //                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                //                                }
+                //                            }
+                //                            break;
+                //                        }
+                //                    case "TaxonomyFieldType":
+                //                        {
+                //                            var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
+                //                            if (taxFieldBeforeCast != null)
+                //                            {
+                //                                var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                //                                var taxValue = new TaxonomyFieldValue();
+                //                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+                //                                {
+                //                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValue)
+                //                                    {
 
-                                                        taxValue.Label = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).Label;
-                                                        taxValue.TermGuid = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).TermGuid;
-                                                        taxValue.WssId = -1;
-                                                    }
-                                                    else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
-                                                    {
-                                                        var taxDictionary = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
-                                                        taxValue.Label = taxDictionary["Label"].ToString();
-                                                        taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
-                                                        taxValue.WssId = -1;
-                                                    }
-                                                    taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
-                                                    isDirty = true;
-                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                                }
-                                            }
-                                            break;
-                                        }
-                                }
-                            }
-                        }
-                    }
-                }
+                //                                        taxValue.Label = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).Label;
+                //                                        taxValue.TermGuid = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).TermGuid;
+                //                                        taxValue.WssId = -1;
+                //                                    }
+                //                                    else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
+                //                                    {
+                //                                        var taxDictionary = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
+                //                                        taxValue.Label = taxDictionary["Label"].ToString();
+                //                                        taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
+                //                                        taxValue.WssId = -1;
+                //                                    }
+                //                                    taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                //                                    isDirty = true;
+                //                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                //                                }
+                //                            }
+                //                            break;
+                //                        }
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
 
-                // Persist changes
-                if (isDirty)
-                {
-                    this.page.PageListItem.Update();
-                    targetClientContext.Load(this.page.PageListItem);
-                    targetClientContext.ExecuteQueryRetry();
-                    isDirty = false;
-                }
+                //// Persist changes
+                //if (isDirty)
+                //{
+                //    this.page.PageListItem.Update();
+                //    targetClientContext.Load(this.page.PageListItem);
+                //    targetClientContext.ExecuteQueryRetry();
+                //    isDirty = false;
+                //}
 
             }
             else
