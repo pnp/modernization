@@ -589,7 +589,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             targetPage.Sections.Insert(0, new CanvasSection(targetPage, CanvasSectionTemplate.OneColumn, 0));
 
                             // Bump the row values for the existing web parts as we've inserted a new section
-                            foreach (var webpart in pageData.Item2)
+                            foreach (var webpart in pageData.Item2.Where(c => !c.IsClosed))
                             {
                                 webpart.Row = webpart.Row + 1;
                             }
@@ -648,7 +648,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo(LogStrings.TransformingContentStart, LogStrings.Heading_ArticlePageHandling);
 
                     // Run the content transformator
-                    contentTransformator.Transform(pageData.Item2);
+                    contentTransformator.Transform(pageData.Item2.Where(c => !c.IsClosed).ToList());
 
                     LogInfo(LogStrings.TransformingContentEnd, LogStrings.Heading_ArticlePageHandling);
 #if DEBUG && MEASURE
@@ -692,37 +692,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo($"{LogStrings.TransformSavedPage}: {pageName}", LogStrings.Heading_ArticlePageHandling);
                 }
 
-                // Tag the file with a page modernization version stamp
-                string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
-                try
-                {
-                    var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
-                    context.Load(targetPageFile, p => p.Properties);
-                    targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
-                    targetPageFile.Update();
-
-                    if (pageTransformationInformation.PublishCreatedPage)
-                    {
-                        // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
-                        targetPageFile.Publish("Page modernization initial publish");
-                    }
-
-                    // Send both the property update and publish as a single operation to SharePoint
-                    context.ExecuteQueryRetry();
-                }
-                catch (Exception ex)
-                {
-                    // Eat exceptions as this is not critical for the generated page
-                    LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
-                }
-
-                // Disable page comments on the create page, if needed
-                if (pageTransformationInformation.DisablePageComments)
-                {
-                    targetPage.DisableComments();
-                    LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
-                }
-
 #if DEBUG && MEASURE
             Stop("Persist page");
 #endif
@@ -763,6 +732,40 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Stop("Permission handling");
 #endif
                 }
+                #endregion
+
+                #region Page Publishing
+                // Tag the file with a page modernization version stamp
+                string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
+                try
+                {
+                    var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
+                    context.Load(targetPageFile, p => p.Properties);
+                    targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
+                    targetPageFile.Update();
+
+                    if (pageTransformationInformation.PublishCreatedPage)
+                    {
+                        // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
+                        targetPageFile.Publish("Page modernization initial publish");
+                    }
+
+                    // Send both the property update and publish as a single operation to SharePoint
+                    context.ExecuteQueryRetry();
+                }
+                catch (Exception ex)
+                {
+                    // Eat exceptions as this is not critical for the generated page
+                    LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
+                }
+
+                // Disable page comments on the create page, if needed
+                if (pageTransformationInformation.DisablePageComments)
+                {
+                    targetPage.DisableComments();
+                    LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
+                }
+
                 #endregion
 
                 #region Page name switching

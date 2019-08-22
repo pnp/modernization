@@ -66,6 +66,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string SiteId { get; set; }
         [JsonProperty(PropertyName = "baseUrl")]
         public string BaseUrl { get; set; } // base url to locate web part resources such has file icons
+        [JsonProperty(PropertyName = "queryMode")]
+        public string QueryMode { get; set; }
+        [JsonProperty(PropertyName = "audienceTarget")]
+        public bool AudienceTarget { get; set; }
 
         public ContentRollupWebPartProperties()
         {
@@ -603,9 +607,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 MapSearchQueryToFilters(ref query, queryTemplate, dataProviderJson["FallbackRefinementFilters"]);
             }
 
-            // Advanced query cannot yet be used
-            //query.AdvancedQueryText = $"{queryTemplate}";
-            query.AdvancedQueryText = "";
+            // Keep the search query if there was one set in the web part as that allows to retain the same result set
+            if (!string.IsNullOrEmpty(queryTemplate))
+            {
+                query.AdvancedQueryText = $"{queryTemplate}";
+                this.properties.QueryMode = "Advanced";
+            }
+            else
+            {
+                this.properties.QueryMode = "Basic";
+            }
 
             // assign query
             this.properties.Query = query;
@@ -741,10 +752,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if (this.properties.Query.Filters.Any())
                 {
-                    this.properties.Caml = CamlQueryBuilder(list, cbq);
-
-                    // ContentRollup web part first needs to be fixed to have it handle the CAML query generation 
-                    //this.properties.Caml = "";
+                    // Use the advanced query mode when we set the Caml query ourselves, this allows for more complex operations with freedom of choosing AND/OR operators
+                    query.AdvancedQueryText = CamlQueryBuilder(list, cbq);
+                    this.properties.QueryMode = "Advanced";
+                    this.properties.Caml = "";
                 }
             }
             else
@@ -862,6 +873,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 query.AdvancedQueryText = "";
+                this.properties.QueryMode = "Basic";
 
                 // assign query
                 this.properties.Query = query;

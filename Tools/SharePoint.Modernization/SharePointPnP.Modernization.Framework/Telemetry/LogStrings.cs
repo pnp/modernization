@@ -1,4 +1,6 @@
-﻿namespace SharePointPnP.Modernization.Framework.Telemetry
+﻿using System.Data;
+
+namespace SharePointPnP.Modernization.Framework.Telemetry
 {
     public static class LogStrings
     {
@@ -264,6 +266,8 @@
         public const string Error_PageLayoutMappingFileDoesNotExist = "File {0} does not exist";
 
         public const string CustomPageLayoutMappingFileProvided = "Custom pagelayout mapping file: {0}";
+        public const string PageLayoutMappingBeingUsed = "Page uses {1} as page layout, mapping that will be used is {0}";
+        public const string PageLayoutMappingGeneration = "Page uses {0} as page layout, no mapping was provided so auto generating a mapping";
 
         #endregion
 

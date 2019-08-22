@@ -73,142 +73,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     contentTypeId = this.page.PageListItem[Constants.ContentTypeIdField].ToString();
                 }
 
-                // Copy the field metadata
-                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
-                {
-
-                    // check if the source field name attribute contains a delimiter value
-                    if(fieldToProcess.Name.Contains(";"))
-                    {
-                        // extract the array of field names to process, and trims each one
-                        string[] sourceFieldNames = fieldToProcess.Name.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
-
-                        // sets the field name to the first "valid" entry
-                        fieldToProcess.Name = this.publishingPageTransformationInformation.GetFirstNonEmptyFieldName(sourceFieldNames);
-                    }
-
-                    // Process only fields which have a target field set...
-                    if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
-                    {
-                        if (!listItemWasReloaded)
-                        {
-                            // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
-                            this.targetClientContext.Load(this.page.PageListItem);
-                            this.targetClientContext.ExecuteQueryRetry();
-                            listItemWasReloaded = true;
-                        }
-
-                        // Get information about this content type field
-                        var targetFieldData = CacheManager.Instance.GetPublishingContentTypeField(this.page.PageListItem.ParentList, contentTypeId, fieldToProcess.TargetFieldName);
-
-                        if (targetFieldData == null)
-                        {
-                            LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToProcess.TargetFieldName}", LogStrings.Heading_CopyingPageMetadata);
-                        }
-                        else
-                        {
-                            if (targetFieldData.FieldType != "TaxonomyFieldTypeMulti" && targetFieldData.FieldType != "TaxonomyFieldType")
-                            {
-                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
-                                {
-                                    object fieldValueToSet = null;
-
-                                    if (!string.IsNullOrEmpty(fieldToProcess.Functions))
-                                    {
-                                        // execute function
-                                        var evaluatedField = this.functionProcessor.Process(fieldToProcess.Functions, fieldToProcess.Name, CastToPublishingFunctionProcessorFieldType(targetFieldData.FieldType));
-                                        if (!string.IsNullOrEmpty(evaluatedField.Item1))
-                                        {
-                                            //this.page.PageListItem[targetFieldData.FieldName] = evaluatedField.Item2;
-                                            fieldValueToSet = evaluatedField.Item2;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        //this.page.PageListItem[targetFieldData.FieldName] = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
-                                        fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
-                                    }
-
-                                    if (fieldValueToSet != null)
-                                    {
-                                        if (targetFieldData.FieldType == "User" || targetFieldData.FieldType == "UserMulti")
-                                        {
-                                            if (this.publishingPageTransformationInformation.IsCrossFarmTransformation)
-                                            {
-                                                // we can't copy these fields in a cross farm scenario as we do not yet support user account mapping
-                                                LogWarning($"{LogStrings.TransformCopyingUserMetaDataFieldSkipped} {fieldToProcess.Name}", LogStrings.Heading_CopyingPageMetadata);
-                                            }
-                                            else
-                                            {
-                                                if (fieldValueToSet is FieldUserValue)
-                                                {
-                                                    // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
-                                                    // Important to use a cloned context to not mess up with the pending list item updates
-                                                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
-                                                    {
-                                                        var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
-                                                        clonedTargetContext.Load(user);
-                                                        clonedTargetContext.ExecuteQueryRetry();
-
-                                                        // Prep a new FieldUserValue object instance and update the list item
-                                                        var newUser = new FieldUserValue()
-                                                        {
-                                                            LookupId = user.Id
-                                                        };
-
-                                                        this.page.PageListItem[targetFieldData.FieldName] = newUser;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                                    foreach (var currentUser in (fieldValueToSet as Array))
-                                                    {
-                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
-                                                        {
-                                                            // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
-                                                            var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
-                                                            clonedTargetContext.Load(user);
-                                                            clonedTargetContext.ExecuteQueryRetry();
-
-                                                            // Prep a new FieldUserValue object instance
-                                                            var newUser = new FieldUserValue()
-                                                            {
-                                                                LookupId = user.Id
-                                                            };
-
-                                                            userValues.Add(newUser);
-                                                        }
-                                                    }
-
-                                                    this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            this.page.PageListItem[targetFieldData.FieldName] = fieldValueToSet;
-                                        }
-
-                                        isDirty = true;
-
-                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Persist changes
-                if (isDirty)
-                {
-                    this.page.PageListItem.Update();
-                    targetClientContext.Load(this.page.PageListItem);
-                    targetClientContext.ExecuteQueryRetry();
-                    isDirty = false;
-                }
-
                 // Handle the taxonomy fields
                 bool targetSitePagesLibraryLoaded = false;
                 List targetSitePagesLibrary = null;
@@ -329,6 +193,139 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     isDirty = false;
                 }
 
+                // Copy the field metadata
+                foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
+                {
+
+                    // check if the source field name attribute contains a delimiter value
+                    if(fieldToProcess.Name.Contains(";"))
+                    {
+                        // extract the array of field names to process, and trims each one
+                        string[] sourceFieldNames = fieldToProcess.Name.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
+
+                        // sets the field name to the first "valid" entry
+                        fieldToProcess.Name = this.publishingPageTransformationInformation.GetFirstNonEmptyFieldName(sourceFieldNames);
+                    }
+
+                    // Process only fields which have a target field set...
+                    if (!string.IsNullOrEmpty(fieldToProcess.TargetFieldName))
+                    {
+                        if (!listItemWasReloaded)
+                        {
+                            // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
+                            this.targetClientContext.Load(this.page.PageListItem);
+                            this.targetClientContext.ExecuteQueryRetry();
+                            listItemWasReloaded = true;
+                        }
+
+                        // Get information about this content type field
+                        var targetFieldData = CacheManager.Instance.GetPublishingContentTypeField(this.page.PageListItem.ParentList, contentTypeId, fieldToProcess.TargetFieldName);
+
+                        if (targetFieldData == null)
+                        {
+                            LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToProcess.TargetFieldName}", LogStrings.Heading_CopyingPageMetadata);
+                        }
+                        else
+                        {
+                            if (targetFieldData.FieldType != "TaxonomyFieldTypeMulti" && targetFieldData.FieldType != "TaxonomyFieldType")
+                            {
+                                if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+                                {
+                                    object fieldValueToSet = null;
+
+                                    if (!string.IsNullOrEmpty(fieldToProcess.Functions))
+                                    {
+                                        // execute function
+                                        var evaluatedField = this.functionProcessor.Process(fieldToProcess.Functions, fieldToProcess.Name, CastToPublishingFunctionProcessorFieldType(targetFieldData.FieldType));
+                                        if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                                        {
+                                            fieldValueToSet = evaluatedField.Item2;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
+                                    }
+
+                                    if (fieldValueToSet != null)
+                                    {
+                                        if (targetFieldData.FieldType == "User" || targetFieldData.FieldType == "UserMulti")
+                                        {
+                                            if (this.publishingPageTransformationInformation.IsCrossFarmTransformation)
+                                            {
+                                                // we can't copy these fields in a cross farm scenario as we do not yet support user account mapping
+                                                LogWarning($"{LogStrings.TransformCopyingUserMetaDataFieldSkipped} {fieldToProcess.Name}", LogStrings.Heading_CopyingPageMetadata);
+                                            }
+                                            else
+                                            {
+                                                if (fieldValueToSet is FieldUserValue)
+                                                {
+                                                    // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                    // Important to use a cloned context to not mess up with the pending list item updates
+                                                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                                                    {
+                                                        var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
+                                                        clonedTargetContext.Load(user);
+                                                        clonedTargetContext.ExecuteQueryRetry();
+
+                                                        // Prep a new FieldUserValue object instance and update the list item
+                                                        var newUser = new FieldUserValue()
+                                                        {
+                                                            LookupId = user.Id
+                                                        };
+
+                                                        this.page.PageListItem[targetFieldData.FieldName] = newUser;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    List<FieldUserValue> userValues = new List<FieldUserValue>();
+                                                    foreach (var currentUser in (fieldValueToSet as Array))
+                                                    {
+                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                                                        {
+                                                            // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                            var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
+                                                            clonedTargetContext.Load(user);
+                                                            clonedTargetContext.ExecuteQueryRetry();
+
+                                                            // Prep a new FieldUserValue object instance
+                                                            var newUser = new FieldUserValue()
+                                                            {
+                                                                LookupId = user.Id
+                                                            };
+
+                                                            userValues.Add(newUser);
+                                                        }
+                                                    }
+
+                                                    this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            this.page.PageListItem[targetFieldData.FieldName] = fieldValueToSet;
+                                        }
+
+                                        isDirty = true;
+
+                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Persist changes
+                if (isDirty)
+                {
+                    this.page.PageListItem.Update();
+                    targetClientContext.Load(this.page.PageListItem);
+                    targetClientContext.ExecuteQueryRetry();
+                    isDirty = false;
+                }
             }
             else
             {
