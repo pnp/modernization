@@ -1112,7 +1112,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 {
                     var prefix = register.GetAttribute("Tagprefix");
                     var nameSpace = register.GetAttribute("Namespace");
+                    var className = nameSpace.InferClassNameFromNameSpace();
                     tagPrefixes.Add(new Tuple<string, string>(prefix, nameSpace));
+                    tagPrefixes.Add(new Tuple<string, string>(className, nameSpace));
                 }
 
             }

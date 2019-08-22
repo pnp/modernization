@@ -135,5 +135,29 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Utility
 
             Assert.AreEqual(expectedResult, result);
         }
+
+        [TestMethod]
+        public void StringExtension_GetClassNameFromType()
+        {
+
+            var input = "Microsoft.SharePoint.WebPartPages";
+            var expectedResult = "WebPartPages";
+
+            var result = input.InferClassNameFromNameSpace();
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StringExtension_GetClassNameFromFullType()
+        {
+
+            var input = "Microsoft.SharePoint.Publishing.TemplateRedirectionPage,Microsoft.SharePoint.Publishing,Version=16.0.0.0,Culture=neutral,PublicKeyToken=71e9bce111e9429c";
+            var expectedResult = "TemplateRedirectionPage";
+
+            var result = input.InferClassNameFromNameSpace();
+
+            Assert.AreEqual(expectedResult, result);
+        }
     }
 }
