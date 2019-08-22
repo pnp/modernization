@@ -373,13 +373,13 @@ namespace SharePointPnP.Modernization.Framework.Functions
             else
             {
                 var sourceList = this.sourceClientContext.Web.GetListById(listId);
-                sourceList.EnsureProperties(p=>p.Title);
+                sourceList.EnsureProperty(p=>p.Title);
 
                 List targetlist = null;
                 try
                 {
                     targetlist = this.clientContext.Web.GetListByTitle(sourceList.Title);
-                    targetlist.EnsureProperties(p => p.Id);
+                    targetlist.EnsureProperty(p => p.Id);
                 }
                 catch (Exception ex)
                 {
@@ -593,7 +593,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 stop = true;
             }
 
-            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
+            this.clientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
 
             // Check if this url is pointing to content living in this site
             if (!stop && !serverRelativeImagePath.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
@@ -727,7 +727,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             // Assume document lives in current web
             ClientContext contextToUse = this.clientContext;
 
-            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
+            this.clientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
             if (!serverRelativeUrl.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
             {
                 try
@@ -910,7 +910,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return "";
             }
 
-            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
+            this.clientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
             if (!contentLink.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))
             {
                 try

@@ -49,7 +49,7 @@ namespace Microsoft.SharePoint.Client
             ListScanResult result = new ListScanResult();
 
             // Load properties
-            file.EnsureProperties(p => p.PageRenderType);
+            file.EnsureProperty(p => p.PageRenderType);
 
             // If it works in modern, we're good
             if (file.PageRenderType == ListPageRenderType.Modern)

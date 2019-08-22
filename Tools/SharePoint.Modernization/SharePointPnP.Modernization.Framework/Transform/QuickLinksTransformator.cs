@@ -485,7 +485,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             cc.Web.EnsureProperties(p => p.Id, p => p.Url);
             cc.Site.EnsureProperties(p => p.Id, p => p.RootWeb);
-            cc.Site.RootWeb.EnsureProperties(p => p.Url);
+            cc.Site.RootWeb.EnsureProperty(p => p.Url);
         }
         #endregion
 
@@ -758,7 +758,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 stop = true;
             }
 
-            this.clientContext.Web.EnsureProperties(p => p.ServerRelativeUrl);
+            this.clientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
 
             // Check if this url is pointing to content living in this site
             if (!stop && !serverRelativeFilePath.StartsWith(this.clientContext.Web.ServerRelativeUrl, StringComparison.InvariantCultureIgnoreCase))

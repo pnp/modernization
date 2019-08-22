@@ -107,7 +107,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         Web web = cc.Web;
 
                         // Load additional web properties
-                        web.EnsureProperties(p => p.Language);
+                        web.EnsureProperty(p => p.Language);
                         scanResult.Language = web.Language;
 
                         // PageLayouts handling
@@ -500,7 +500,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             var variationLabels = new List<VariationLabelEntity>();
             // Get current web
             Web web = context.Web;
-            web.EnsureProperties(w => w.ServerRelativeUrl);
+            web.EnsureProperty(w => w.ServerRelativeUrl);
 
             // Try to get _VarLabelsListId property from web property bag
             string variationLabelsListId = GetPropertyBagValue<string>(web, VARIATIONLABELSLISTID, string.Empty);
@@ -537,7 +537,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
         private static T GetPropertyBagValue<T>(Web web, string key, T defaultValue)
         {
-            web.EnsureProperties(p => p.AllProperties);
+            web.EnsureProperty(p => p.AllProperties);
             
             if (web.AllProperties.FieldValues.ContainsKey(key))
             {
