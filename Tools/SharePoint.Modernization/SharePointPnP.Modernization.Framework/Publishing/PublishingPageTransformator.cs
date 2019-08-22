@@ -306,7 +306,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Grab the pagelayout mapping to use:
                 var pageLayoutMappingModel = new PageLayoutManager(this.RegisteredLogObservers).GetPageLayoutMappingModel(this.publishingPageTransformation, publishingPageTransformationInformation.SourcePage);
 
-                if (GetVersion(sourceClientContext) == SPVersion.SP2010)
+                var spVersion = GetVersion(sourceClientContext);
+
+                if (spVersion == SPVersion.SP2010 || spVersion == SPVersion.SP2013Legacy || spVersion == SPVersion.SP2016Legacy)
                 {
                     pageData = new PublishingPageOnPremises(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, targetContext: targetClientContext, logObservers: base.RegisteredLogObservers).Analyze(pageLayoutMappingModel);
                 }

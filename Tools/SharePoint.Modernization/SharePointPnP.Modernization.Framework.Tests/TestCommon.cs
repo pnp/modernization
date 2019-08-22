@@ -17,9 +17,54 @@ namespace SharePointPnP.Modernization.Framework.Tests
         public static string InconclusiveNoAutomatedChecksMessage { get { return "Does not yet have automated checks, please manually check the results of the test"; } }
 
         #endregion
-                     
+
         #region methods
-        
+
+        /// <summary>
+        /// Returns a connection based on SharePoint version
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="isPublishingSite"></param>
+        /// <returns></returns>
+        public static ClientContext CreateSPPlatformClientContext(SPPlatformVersion version, TransformType transformType)
+        {
+            
+            if (transformType == TransformType.PublishingPage)
+            {
+                switch (version)
+                {
+                    case SPPlatformVersion.SP2010:
+                        return InternalCreateContext(AppSetting("SPOnPremPublishingSite2010"), SourceContextMode.OnPremises);
+                    case SPPlatformVersion.SP2013:
+                        return InternalCreateContext(AppSetting("SPOnPremPublishingSite2013"), SourceContextMode.OnPremises);
+                    case SPPlatformVersion.SP2016:
+                        return InternalCreateContext(AppSetting("SPOnPremPublishingSite2016"), SourceContextMode.OnPremises);
+                    case SPPlatformVersion.SP2019:
+                        return InternalCreateContext(AppSetting("SPOnPremPublishingSite2019"), SourceContextMode.OnPremises);
+                    default:
+                    case SPPlatformVersion.SPO:
+                        return InternalCreateContext(AppSetting("SPOPublishingSite"), SourceContextMode.SPO);
+                }
+            }
+            else
+            {
+                switch (version)
+                {
+                    case SPPlatformVersion.SP2010:
+                        return InternalCreateContext(AppSetting("SPOnPremTeamSite2010"), SourceContextMode.OnPremises);
+                    case SPPlatformVersion.SP2013:
+                        return InternalCreateContext(AppSetting("SPOnPremTeamSite2013"), SourceContextMode.OnPremises);
+                    case SPPlatformVersion.SP2016:
+                        return InternalCreateContext(AppSetting("SPOnPremTeamSite2016"), SourceContextMode.OnPremises);
+                    case SPPlatformVersion.SP2019:
+                        return InternalCreateContext(AppSetting("SPOnPremTeamSite2019"), SourceContextMode.OnPremises);
+                    default:
+                    case SPPlatformVersion.SPO:
+                        return InternalCreateContext(AppSetting("SPOTeamSite"), SourceContextMode.SPO);
+                }
+            }
+        }
+
         public static ClientContext CreateClientContext()
         {
             return InternalCreateContext(AppSetting("SPODevSiteUrl"));
@@ -52,11 +97,11 @@ namespace SharePointPnP.Modernization.Framework.Tests
         private static ClientContext InternalCreateContext(string contextUrl, SourceContextMode sourceContextMode = SourceContextMode.SPO)
         {
             string siteUrl;
-            
+
             // Read configuration data
             // Trim trailing slashes
             siteUrl = contextUrl.TrimEnd(new[] { '/' });
-            
+
             if (string.IsNullOrEmpty(siteUrl))
             {
                 throw new ConfigurationErrorsException("Site Url in App.config are not set up.");
@@ -78,7 +123,7 @@ namespace SharePointPnP.Modernization.Framework.Tests
                     if (!String.IsNullOrEmpty(AppSetting("SPOUserName")) &&
                         !String.IsNullOrEmpty(AppSetting("SPOPassword")))
                     {
-                        context.Credentials = new SharePointOnlineCredentials(AppSetting("SPOUserName"), 
+                        context.Credentials = new SharePointOnlineCredentials(AppSetting("SPOUserName"),
                                 GetSecureString(AppSetting("SPOPassword")));
 
                     }
@@ -97,7 +142,7 @@ namespace SharePointPnP.Modernization.Framework.Tests
             }
 
 
-            if(sourceContextMode == SourceContextMode.OnPremises)
+            if (sourceContextMode == SourceContextMode.OnPremises)
             {
 
                 if (!string.IsNullOrEmpty(AppSetting("SPOnPremCredentialManagerLabel")))
@@ -136,7 +181,7 @@ namespace SharePointPnP.Modernization.Framework.Tests
                 }
 
             }
-          
+
             return context;
         }
         #endregion
@@ -160,7 +205,7 @@ namespace SharePointPnP.Modernization.Framework.Tests
 
             return secureString;
         }
-        
+
 
         /// <summary>
         /// Get Settings from Config files
@@ -182,13 +227,133 @@ namespace SharePointPnP.Modernization.Framework.Tests
             }
 #endif
         }
-               
+
         #endregion
 
-        public enum SourceContextMode
+        
+
+        /// <summary>
+        /// Get SharePoint Version
+        /// </summary>
+        /// <param name="clientContext"></param>
+        /// <returns></returns>
+        /// <remarks>
+        ///  This is a copy from the Base transform class in transform but without caching.
+        /// </remarks>
+        public static SPPlatformVersion GetVersion(ClientRuntimeContext clientContext)
         {
-            SPO,
-            OnPremises
+            Uri urlUri = new Uri(clientContext.Url);
+            
+            try
+            {
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{urlUri.Scheme}://{urlUri.DnsSafeHost}:{urlUri.Port}/_vti_pvt/service.cnf");
+                request.UseDefaultCredentials = true;
+
+                var response = request.GetResponse();
+
+                using (var dataStream = response.GetResponseStream())
+                {
+                    // Open the stream using a StreamReader for easy access.
+                    using (System.IO.StreamReader reader = new System.IO.StreamReader(dataStream))
+                    {
+                        string version = reader.ReadToEnd().Split('|')[2].Trim();
+
+                        if (Version.TryParse(version, out Version v))
+                        {
+                            if (v.Major == 14)
+                            {
+                                return SPPlatformVersion.SP2010;
+                            }
+                            else if (v.Major == 15)
+                            {
+                                return SPPlatformVersion.SP2013;
+                            }
+                            else if (v.Major == 16)
+                            {
+                                if (v.MinorRevision < 6000)
+                                {
+                                    return SPPlatformVersion.SP2016;
+                                }
+                                else if (v.MinorRevision > 10300 && v.MinorRevision < 19000)
+                                {
+                                    return SPPlatformVersion.SP2019;
+                                }
+                                else
+                                {
+                                    return SPPlatformVersion.SPO;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                // Ignore
+            }
+            
+            return SPPlatformVersion.SPO;
         }
+
+        /// <summary>
+        /// Appends SharePoint Version to ASPX pages
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string UpdatePageToIncludeVersion(SPPlatformVersion version, string fileName)
+        {
+            string versionToAppend = string.Empty;
+            switch (version)    
+            {
+                case SPPlatformVersion.SP2010:
+                    versionToAppend = "2010";
+                    break;
+                case SPPlatformVersion.SP2013:
+                    versionToAppend = "2013";
+                    break;
+                case SPPlatformVersion.SP2016:
+                    versionToAppend = "2016";
+                    break;
+                case SPPlatformVersion.SP2019:
+                    versionToAppend = "2019";
+                    break;
+                case SPPlatformVersion.SPO:
+                    versionToAppend = "SPO";
+                    break;
+                default:
+                    versionToAppend = "NA";
+                    break;
+            }
+
+            return fileName.Replace(".aspx", $"-{versionToAppend}.aspx");
+        }
+    }
+
+    public enum SourceContextMode
+    {
+        SPO,
+        OnPremises
+    }
+
+    /// <summary>
+    /// SP Version
+    /// </summary>
+    /// <remarks> Avoid clash with SPVersion enum</remarks>
+    public enum SPPlatformVersion
+    {
+        SP2010,
+        SP2013,
+        SP2016,
+        SP2019,
+        SPO
+    }
+
+    public enum TransformType
+    {
+        PublishingPage,
+        WebPartPage,
+        WikiPage
     }
 }

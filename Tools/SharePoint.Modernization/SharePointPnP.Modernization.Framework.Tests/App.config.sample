@@ -26,20 +26,37 @@
     <add key="SPOTenantUrl" value="https://tenant-admin.sharepoint.com" />
 
     <!-- Source Team Site -->
+    <!-- Adhoc Tests -->
     <add key="SPODevTeamSiteUrl" value="https://tenant.sharepoint.com/sites/sourceteamsite" />
     <add key="SPOnPremDevTeamSiteUrl" value="http://spserver/sites/sourcesite" />
 
     <!-- Source Publishing Portal -->
 
     <!-- SharePoint Online -->
+    <!-- Adhoc Tests -->
     <add key="SPODevSiteUrl" value="https://tenant.sharepoint.com/sites/sourcesite/subsite" />
     <add key="SPORootDevSiteUrl" value="https://tenant.sharepoint.com/sites/sourcesite" />
 
+    <!-- Common Tests -->
+    <add key="SPOPublishingSite" value="http://server" />
+    <add key="SPOTeamSite" value="http://server" />
 
     <!-- SharePoint On-Premises -->
+    <!-- Adhoc Tests -->
     <add key="SPOnPremDevSiteUrl" value="http://spserver/sites/portal" />
     <add key="SPOnPremRootDevSiteUrl" value="http://spserver" />
 
+    <!-- Common Tests -->
+    <add key="SPOnPremPublishingSite2010" value="http://server" />
+    <add key="SPOnPremPublishingSite2013" value="http://server" />
+    <add key="SPOnPremPublishingSite2016" value="http://server" />
+    <add key="SPOnPremPublishingSite2019" value="http://server" />
+
+    <add key="SPOnPremTeamSite2010" value="http://server" />
+    <add key="SPOnPremTeamSite2013" value="http://server" />
+    <add key="SPOnPremTeamSite2016" value="http://server" />
+    <add key="SPOnPremTeamSite2019" value="http://server" />
+    
     <!-- Target SharePoint Online -->
     <add key="SPOTargetSiteUrl" value="https://tenant.sharepoint.com/sites/targetsite" />
 

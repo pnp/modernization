@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Extensions
 {
@@ -111,6 +112,29 @@ namespace SharePointPnP.Modernization.Framework.Extensions
             }
 
             return $"{name}";
+        }
+
+        /// <summary>
+        /// Gets classname from type
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
+        public static string InferClassNameFromNameSpace(this string typeName)
+        {
+            string shortType = typeName;
+            string className = string.Empty;
+            if (typeName.Contains(","))
+            {
+                shortType = typeName.GetTypeShort();
+            }
+
+            var typeShortSplit = shortType.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            if (typeShortSplit.Length > 0)
+            {
+                className = typeShortSplit.Last();
+            }
+
+            return className;
         }
     }
 }

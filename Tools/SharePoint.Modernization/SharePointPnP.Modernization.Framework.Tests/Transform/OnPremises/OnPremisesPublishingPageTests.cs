@@ -27,9 +27,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom");
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "ArticlePage-2010-Multiple");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "ArticlePage-2010-Multiple");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test3");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Welcome-2013Legacy");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Welcome-SP2013");
 
                     pages.FailTestIfZero();
 
@@ -157,8 +159,9 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
         public void BasePage_LoadWebPartDocumentViaWebServicesTest()
         {
             //string url = "http://portal2010/pages/article-2010-custom.aspx";
-            string url = "/pages/article-2010-custom.aspx";
             //string url = "/pages/article-2010-custom.aspx";
+            //string url = "/pages/article-2010-custom.aspx";
+            string url = "/pages/welcome-2013.aspx";
 
             using (var context = TestCommon.CreateOnPremisesClientContext())
             {
