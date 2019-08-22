@@ -137,7 +137,7 @@ namespace Microsoft.SharePoint.Client
         public static List<UserEntity> GetAdmins(this Web web)
         {
             List<UserEntity> adminList = new List<UserEntity>(2);
-            web.EnsureProperties(p => p.SiteUsers);
+            web.EnsureProperty(p => p.SiteUsers);
 
             var admins = web.SiteUsers.Where(p => p.IsSiteAdmin);
             if (admins != null && admins.Count() > 0)
@@ -159,11 +159,11 @@ namespace Microsoft.SharePoint.Client
         public static List<UserEntity> GetOwners(this Web web)
         {
             List<UserEntity> ownerList = new List<UserEntity>();
-            web.EnsureProperties(p => p.AssociatedOwnerGroup);
+            web.EnsureProperty(p => p.AssociatedOwnerGroup);
 
             if (web.AssociatedOwnerGroup != null && !(web.AssociatedOwnerGroup.ServerObjectIsNull == null) && !web.AssociatedOwnerGroup.ServerObjectIsNull.Value)
             {
-                web.AssociatedOwnerGroup.EnsureProperties(p => p.Users);
+                web.AssociatedOwnerGroup.EnsureProperty(p => p.Users);
                 foreach (var owner in web.AssociatedOwnerGroup.Users)
                 {
                     ownerList.Add(new UserEntity() { LoginName = owner.LoginName, Email = owner.Email, Title = owner.Title });
@@ -180,11 +180,11 @@ namespace Microsoft.SharePoint.Client
         public static List<UserEntity> GetMembers(this Web web)
         {
             List<UserEntity> memberList = new List<UserEntity>();
-            web.EnsureProperties(p => p.AssociatedMemberGroup);
+            web.EnsureProperty(p => p.AssociatedMemberGroup);
 
             if (web.AssociatedMemberGroup != null && !(web.AssociatedMemberGroup.ServerObjectIsNull == null) && !web.AssociatedMemberGroup.ServerObjectIsNull.Value)
             {
-                web.AssociatedMemberGroup.EnsureProperties(p => p.Users);
+                web.AssociatedMemberGroup.EnsureProperty(p => p.Users);
                 foreach (var member in web.AssociatedMemberGroup.Users)
                 {
                     memberList.Add(new UserEntity() { LoginName = member.LoginName, Email = member.Email, Title = member.Title });
@@ -201,11 +201,11 @@ namespace Microsoft.SharePoint.Client
         public static List<UserEntity> GetVisitors(this Web web)
         {
             List<UserEntity> visitorList = new List<UserEntity>();
-            web.EnsureProperties(p => p.AssociatedVisitorGroup);
+            web.EnsureProperty(p => p.AssociatedVisitorGroup);
 
             if (web.AssociatedVisitorGroup != null && !(web.AssociatedVisitorGroup.ServerObjectIsNull == null) && !web.AssociatedVisitorGroup.ServerObjectIsNull.Value)
             {
-                web.AssociatedVisitorGroup.EnsureProperties(p => p.Users);
+                web.AssociatedVisitorGroup.EnsureProperty(p => p.Users);
                 foreach (var visitor in web.AssociatedVisitorGroup.Users)
                 {
                     visitorList.Add(new UserEntity() { LoginName = visitor.LoginName, Email = visitor.Email, Title = visitor.Title });
@@ -237,7 +237,7 @@ namespace Microsoft.SharePoint.Client
 
             if (!usersAreInstantiated)
             {
-                web.SiteGroups.EnsureProperties(p => p.Include(s => s.Users));
+                web.SiteGroups.EnsureProperty(p => p.Include(s => s.Users));
             }
 
             // Check grants via SharePoint groups
@@ -254,7 +254,7 @@ namespace Microsoft.SharePoint.Client
             var everyoneClaims = web.SiteUsers.Where(p => p.LoginName.Equals(claim1, StringComparison.InvariantCultureIgnoreCase) || p.LoginName.Equals(claim2, StringComparison.InvariantCultureIgnoreCase));
             if (everyoneClaims != null && everyoneClaims.Count() > 0)
             {
-                web.EnsureProperties(p => p.RoleAssignments);
+                web.EnsureProperty(p => p.RoleAssignments);
 
                 foreach (var claim in everyoneClaims)
                 {
@@ -454,7 +454,7 @@ namespace Microsoft.SharePoint.Client
             {
                 var siteCtx = web.Context.GetSiteCollectionContext();
                 siteCtx.Site.EnsureProperties(p => p.ServerRelativeUrl, p => p.Url);
-                web.EnsureProperties(p => p.ServerRelativeUrl);
+                web.EnsureProperty(p => p.ServerRelativeUrl);
 
                 var siteUri = new Uri(siteCtx.Site.Url);
                 string host = $"{siteUri.Scheme}://{siteUri.DnsSafeHost}";

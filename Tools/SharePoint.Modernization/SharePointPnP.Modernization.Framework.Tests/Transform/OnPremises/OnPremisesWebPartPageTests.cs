@@ -63,7 +63,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                 foreach (var page in pages)
                 {
-                    page.EnsureProperties(p => p.File);
+                    page.EnsureProperty(p => p.File);
 
                     List<string> search = new List<string>()
                     {
@@ -98,7 +98,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                 foreach (var page in pages)
                 {
-                    page.EnsureProperties(p => p.File);
+                    page.EnsureProperty(p => p.File);
 
                     List<string> search = new List<string>()
                     {
@@ -133,7 +133,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                 foreach (var page in pages)
                 {
-                    page.EnsureProperties(p => p.File);
+                    page.EnsureProperty(p => p.File);
 
                     List<string> search = new List<string>()
                     {
@@ -169,7 +169,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                 foreach (var page in pages)
                 {
-                    page.EnsureProperties(p => p.File);
+                    page.EnsureProperty(p => p.File);
 
                     List<string> search = new List<string>()
                     {

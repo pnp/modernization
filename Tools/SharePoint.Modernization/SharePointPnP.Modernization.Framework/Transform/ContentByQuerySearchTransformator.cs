@@ -439,7 +439,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             cc.Web.EnsureProperties(p => p.Id, p => p.Url);
             cc.Site.EnsureProperties(p => p.Id, p => p.RootWeb);
-            cc.Site.RootWeb.EnsureProperties(p => p.Url);
+            cc.Site.RootWeb.EnsureProperty(p => p.Url);
 
             // Default initialization of the configuration
             this.properties.WebId = cc.Web.Id.ToString();
@@ -1433,7 +1433,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             IEnumerable<Field> foundFields = null;
-            this.clientContext.Web.EnsureProperties(p => p.Fields);
+            this.clientContext.Web.EnsureProperty(p => p.Fields);
 
             if (Guid.TryParse(sortField, out Guid fieldId))
             {
@@ -1468,7 +1468,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             else
             {
-                this.clientContext.Web.EnsureProperties(p => p.Fields);
+                this.clientContext.Web.EnsureProperty(p => p.Fields);
 
                 if (Guid.TryParse(filterField, out Guid fieldId))
                 {

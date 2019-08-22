@@ -136,7 +136,7 @@ namespace SharePoint.Modernization.Framework.SampleAddOn
             else
             {
                 var list = this.clientContext.Web.GetListById(listId);
-                list.EnsureProperties(p => p.RootFolder.ServerRelativeUrl);
+                list.EnsureProperty(p => p.RootFolder.ServerRelativeUrl);
                 return list.RootFolder.ServerRelativeUrl;
             }
         }
