@@ -14,8 +14,9 @@
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PreviewImage})" />-->
         <Field Name="ArticleByLine" HeaderProperty="TopicHeader" Functions=""/>
         <Field Name="Comments" HeaderProperty="AlternativeText"/>
-        <!--<Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({PublishingContact})"/>-->
-        <Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({Editor})"/>
+        <!-- To ensure the right person is shown in the header is shown you need to populate the PublishingContact field. Any User field can act as source -->
+        <Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({PublishingContact})"/>
+        <!--<Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({Editor})"/>-->
       </Header>
       <MetaData ShowPageProperties="true" PagePropertiesRow="1" PagePropertiesColumn="3" PagePropertiesOrder="1">
         <!-- Use Custom1 field when AssociatedContentType is set to CustomPage1 -->
