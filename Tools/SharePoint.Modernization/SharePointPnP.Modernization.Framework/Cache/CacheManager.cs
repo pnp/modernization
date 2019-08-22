@@ -269,6 +269,30 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     });
                 }
 
+                var authorField = new FieldData()
+                {
+                    FieldId = new Guid("1df5e554-ec7e-46a6-901d-d85a3881cb18"),
+                    FieldName = "Author",
+                    FieldType = "User",
+                };
+
+                var editorField = new FieldData()
+                {
+                    FieldId = new Guid("d31655d1-1d5b-4511-95a1-7a09e9b75bf2"),
+                    FieldName = "Editor",
+                    FieldType = "User",
+                };
+
+                if (!contentTypeFields.Contains(authorField))
+                {
+                    contentTypeFields.Add(authorField);
+                }
+
+                if (!contentTypeFields.Contains(editorField))
+                {
+                    contentTypeFields.Add(editorField);
+                }
+
                 // Store in cache
                 this.publishingContentTypeFields.TryAdd(contentTypeId, contentTypeFields);
                 
