@@ -952,8 +952,13 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 string serverRelativeUrl = cc.Web.EnsureProperty(w => w.ServerRelativeUrl);
                 var uri = new Uri(cc.Site.Url);
 
-                var fullWebUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}{serverRelativeUrl }";
+                var fullWebUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}{serverRelativeUrl}";
                 var fullPageUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}{pageUrl}";
+
+                if (!fullWebUrl.EndsWith("/"))
+                {
+                    fullWebUrl = fullWebUrl + "/";
+                }
 
                 string webServiceUrl = string.Format("{0}_vti_bin/exportwp.aspx?pageurl={1}&guidstring={2}", fullWebUrl, fullPageUrl, webPartGuid);
 
