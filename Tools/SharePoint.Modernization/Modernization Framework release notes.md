@@ -29,6 +29,7 @@
 - Fix: Publishing of a page was "undone" by possible metadata copies or item level security handling. Publish part now is now moved to the very end of the transformation flow #242
 - Fix: Log which page layout mapping is used for the given publishing page #241
 - CBS/CBQ transforms now uses the custom KQL/CAML query option of the highlighted content web part whenever a KQL/CAML query is available #238
+- Fix: In the publishing page flow the created modern page can have the original page author/editor and page creation/edit date #246
 
 ## [August release - version 1.0.1908.0]
 
