@@ -30,6 +30,8 @@
 - Fix: Log which page layout mapping is used for the given publishing page #241
 - CBS/CBQ transforms now uses the custom KQL/CAML query option of the highlighted content web part whenever a KQL/CAML query is available #238
 - Fix: In the publishing page flow the created modern page can have the original page author/editor and page creation/edit date #246
+- Fix: Ensure correct usage of EnsureProperty method #248 [gautamdsheth]
+- Fix: web part handling for SP2013/2016, now uses the 2010 flow #234 [pkbullock]
 
 ## [August release - version 1.0.1908.0]
 
