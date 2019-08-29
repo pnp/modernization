@@ -278,7 +278,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (fileRefFieldValue.ToLower().Contains("/sitepages"))
                     {
-                        pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/SitePages", "").Trim();
+                        pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/SitePages", "").Trim();
                     }
                     else
                     {
