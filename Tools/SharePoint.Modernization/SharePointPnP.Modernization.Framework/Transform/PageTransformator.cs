@@ -833,7 +833,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 // Source file was living outside of the site pages library
                 targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl, "");
-                targetPath = $"{sourceClientContext.Web.ServerRelativeUrl}/SitePages{targetPath}";
+                targetPath = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/SitePages{targetPath}";
             }
 
             var sourcePage = this.sourceClientContext.Web.GetFileByServerRelativeUrl(sourcePageUrl);
@@ -1017,13 +1017,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         targetPath = targetPath + "root/";
                     }
 
-                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' }).ToLower()}/sitepages{targetPath}";
                 }
                 else
                 {
                     // Page was living inside the sitepages library
-                    targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/sitepages".ToLower(), "");
-                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                    targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/sitepages".ToLower(), "");
+                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' }).ToLower()}/sitepages{targetPath}";
                 }
 
                 returnUrl = $"{targetPath}{originalSourcePageName}";
@@ -1041,7 +1041,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         targetPath = targetPath + "root/";
                     }
 
-                    targetPath = $"{sourceClientContext.Web.ServerRelativeUrl}/sitepages{targetPath}".ToLower();
+                    targetPath = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/sitepages{targetPath}".ToLower();
                 }
 
                 if (!pageTransformationInformation.TargetPageTakesSourcePageName)
