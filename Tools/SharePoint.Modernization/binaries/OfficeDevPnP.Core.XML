@@ -5931,6 +5931,37 @@
             <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
             <returns></returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetDeletedUnifiedGroup(System.String,System.String)">
+            <summary>
+            Gets one deleted unified group based on its ID.
+            </summary>
+            <param name="groupId">The ID of the deleted group.</param>
+            <param name="accessToken">Access token for accessing Microsoft Graph</param>
+            <returns>The unified group object of the deleted group that matches the provided ID.</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.ListDeletedUnifiedGroups(System.String)">
+            <summary>
+             Lists deleted unified groups.
+            </summary>
+            <param name="accessToken">Access token for accessing Microsoft Graph</param>
+            <returns>A list of unified group objects for the deleted groups.</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.RestoreDeletedUnifiedGroup(System.String,System.String)">
+            <summary>
+            Restores one deleted unified group based on its ID.
+            </summary>
+            <param name="groupId">The ID of the deleted group.</param>
+            <param name="accessToken">Access token for accessing Microsoft Graph</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.PermanentlyDeleteUnifiedGroup(System.String,System.String)">
+            <summary>
+            Permanently deletes one deleted unified group based on its ID.
+            </summary>
+            <param name="groupId">The ID of the deleted group.</param>
+            <param name="accessToken">Access token for accessing Microsoft Graph</param>
+            <returns></returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Graph.SiteClassificationsUtility">
             <summary>
             Utility class for managing Site Classifications settings on the target tenant using Graph.
@@ -6271,7 +6302,7 @@
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Extensibility.ExtensibilityManager.ExecuteExtensibilityProvisionCallOut(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Framework.Provisioning.Model.ExtensibilityHandler,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateApplyingInformation,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope)">
             <summary>
-            Method to Invoke Custom Provisioning Handlers. 
+            Method to Invoke Custom Provisioning Handlers.
             </summary>
             <remarks>
             Ensure the ClientContext is not disposed in the custom provider.
@@ -6288,7 +6319,7 @@
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Extensibility.ExtensibilityManager.ExecuteExtensibilityExtractionCallOut(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Framework.Provisioning.Model.ExtensibilityHandler,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope)">
             <summary>
-            Method to Invoke Custom Extraction Handlers. 
+            Method to Invoke Custom Extraction Handlers.
             </summary>
             <remarks>
             Ensure the ClientContext is not disposed in the custom provider.
@@ -40743,9 +40774,24 @@
             Column size factor. Max value is 12 (= one column), other options are 8,6,4 or 0
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Pages.CanvasColumn.LayoutIndex">
+            <summary>
+            Returns the layout index. Defaults to 1, except for the vertical section column this is 2
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Pages.CanvasColumn.Controls">
             <summary>
             List of <see cref="T:OfficeDevPnP.Core.Pages.CanvasControl"/> instances that are hosted in this section
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.CanvasColumn.IsVerticalSectionColumn">
+            <summary>
+            Is this a vertical section column?
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.CanvasColumn.VerticalSectionEmphasis">
+            <summary>
+            Color emphasis of the column (used for the vertical section column) 
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Pages.CanvasColumn.ToHtml">
@@ -40941,6 +40987,11 @@
             The default <see cref="T:OfficeDevPnP.Core.Pages.CanvasColumn"/> of this section
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Pages.CanvasSection.VerticalSectionColumn">
+            <summary>
+            A page can contain one section that has a vertical section column...use this attribute to get that column
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Pages.CanvasSection.ZoneEmphasis">
             <summary>
             Color emphasis of the section 
@@ -40985,6 +41036,31 @@
         <member name="F:OfficeDevPnP.Core.Pages.CanvasSectionTemplate.TwoColumnRight">
             <summary>
             Two columns, left one is 1/3, right one 2/3
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.CanvasSectionTemplate.OneColumnVerticalSection">
+            <summary>
+            One column + one vertical section column
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.CanvasSectionTemplate.TwoColumnVerticalSection">
+            <summary>
+            Two columns of the same size + one vertical section column
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.CanvasSectionTemplate.ThreeColumnVerticalSection">
+            <summary>
+            Three columns of the size + one vertical section column
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.CanvasSectionTemplate.TwoColumnLeftVerticalSection">
+            <summary>
+            Two columns, left 2/3, right 1/3 + one vertical section column
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.CanvasSectionTemplate.TwoColumnRightVerticalSection">
+            <summary>
+            Two columns, left 1/3, right 2/3 + one vertical section column
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Pages.ClientSideCanvasControlData">
@@ -41045,6 +41121,11 @@
         <member name="P:OfficeDevPnP.Core.Pages.ClientSideCanvasPosition.SectionFactor">
             <summary>
             Gets or sets JsonProperty "sectionFactor"
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSideCanvasPosition.LayoutIndex">
+            <summary>
+            Gets or sets JsonProperty "layoutIndex"
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Pages.ClientSidePage">
@@ -43329,6 +43410,15 @@
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation,System.Int32)">
+            <summary>
+            Creates a new Team Site Collection with no group and waits for it to be created
+            </summary>
+            <param name="clientContext">ClientContext object of a regular site</param>
+            <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <returns>ClientContext object for the created site collection</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32)">
             <summary>
             Creates a new Team Site Collection and waits for it to be created
@@ -43341,6 +43431,15 @@
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32)">
             <summary>
             Creates a new Communication Site Collection
+            </summary>
+            <param name="clientContext">ClientContext object of a regular site</param>
+            <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <returns>ClientContext object for the created site collection</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation,System.Int32)">
+            <summary>
+            Creates a new Team Site Collection with no group
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
@@ -43382,6 +43481,23 @@
             <param name="alias">Alias to check</param>
             <returns>True if in use, false otherwise</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GetGroupInfoAsync(Microsoft.SharePoint.Client.ClientContext,System.String)">
+            <summary>
+            Checks if a given alias is already in use or not
+            </summary>
+            <param name="context">Context to operate against</param>
+            <param name="alias">Alias to check</param>
+            <returns>True if in use, false otherwise</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.SetGroupImageAsync(Microsoft.SharePoint.Client.ClientContext,System.Byte[],System.String)">
+            <summary>
+            Sets the image for an Office 365 group
+            </summary>
+            <param name="context">Context to operate on</param>
+            <param name="file">Byte array containing the group image</param>
+            <param name="mimeType">Image mime type</param>
+            <returns>true if succeeded</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.TeamifySiteAsync(Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             Enable Microsoft Teams team in an O365 group connected team site
@@ -43390,24 +43506,23 @@
             <param name="context"></param>
             <returns></returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.IsTeamifyPromptHiddenAsync(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Checks if the Teamify prompt/banner is displayed in the O365 group connected sites.        
+            </summary>
+            <param name="context">ClientContext of the site to operate against</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.HideTeamifyPromptAsync(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Hide the teamify prompt/banner displayed in O365 group connected sites
+            </summary>
+            <param name="context">ClientContext of the site to operate against</param>
+            <returns></returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation">
             <summary>
             Class for communication site creation information
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.Url">
-            <summary>
-            The fully qualified URL (e.g. https://yourtenant.sharepoint.com/sites/mysitecollection) of the site.
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.Title">
-            <summary>
-            The title of the site to create
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.Owner">
-            <summary>
-            The owner of the site. Reserved for future use.
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.SiteDesignId">
@@ -43418,31 +43533,6 @@
         <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.SiteDesign">
             <summary>
             The built-in site design to used. If both SiteDesignId and SiteDesign have been specified, the GUID specified as SiteDesignId will be used.
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.AllowFileSharingForGuestUsers">
-            <summary>
-            If set to true, file sharing for guest users will be allowed.
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.ShareByEmailEnabled">
-            <summary>
-            If set to true sharing files by email is enabled. Defaults to false.
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.Classification">
-            <summary>
-            The Site classification to use. For instance 'Contoso Classified'. See https://www.youtube.com/watch?v=E-8Z2ggHcS0 for more information
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.Description">
-            <summary>
-            The description to use for the site.
-            </summary>
-        </member>
-        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.Lcid">
-            <summary>
-            The language to use for the site. If not specified will default to the language setting of the clientcontext.
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.HubSiteId">
@@ -43462,6 +43552,74 @@
             <param name="fullUrl">Url for the new communication site</param>
             <param name="title">Title of the site</param>
             <param name="description">Description of the site</param>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation">
+            <summary>
+            Class for Team site with no group creation information
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation.#ctor(System.String,System.String,System.String)">
+            <summary>
+            TeamNoGroupSiteCollectionCreationInformation constructor
+            </summary>
+            <param name="fullUrl">Url for the new team site</param>
+            <param name="title">Title of the site</param>
+            <param name="description">Description of the site</param>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Sites.SiteCreationInformation">
+            <summary>
+            Class for site creation information
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Url">
+            <summary>
+            The fully qualified URL (e.g. https://yourtenant.sharepoint.com/sites/mysitecollection) of the site.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Title">
+            <summary>
+            The title of the site to create
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Owner">
+            <summary>
+            The owner of the site. Reserved for future use.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.AllowFileSharingForGuestUsers">
+            <summary>
+            If set to true, file sharing for guest users will be allowed.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.ShareByEmailEnabled">
+            <summary>
+            If set to true sharing files by email is enabled. Defaults to false.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Classification">
+            <summary>
+            The Site classification to use. For instance 'Contoso Classified'. See https://www.youtube.com/watch?v=E-8Z2ggHcS0 for more information
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Description">
+            <summary>
+            The description to use for the site.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Lcid">
+            <summary>
+            The language to use for the site. If not specified will default to the language setting of the clientcontext.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.WebTemplate">
+            <summary>
+            The Web template to use for the site.
+            </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Sites.TeamSiteCollectionGroupifyInformation">
             <summary>
@@ -43493,7 +43651,7 @@
         </member>
         <member name="T:OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation">
             <summary>
-            Class for site creation information
+            Class for group site creation information
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation.Owners">
@@ -43514,37 +43672,37 @@
             <param name="displayName">Name of the site</param>
             <param name="description">Title of the site</param>
         </member>
-        <member name="T:OfficeDevPnP.Core.Sites.SiteCreationInformation">
+        <member name="T:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation">
             <summary>
             Base class for site creation/groupify information
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Alias">
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.Alias">
             <summary>
             Alias of the underlying Office 365 Group
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.DisplayName">
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.DisplayName">
             <summary>
             The title of the site to create
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.IsPublic">
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.IsPublic">
             <summary>
             Defines whether the Office 365 Group will be public (default), or private.
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Description">
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.Description">
             <summary>
             The description of the site to be created.
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.Classification">
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.Classification">
             <summary>
             The Site classification to use. For instance 'Contoso Classified'. See https://www.youtube.com/watch?v=E-8Z2ggHcS0 for more information
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.HubSiteId">
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.HubSiteId">
             <summary>
             The Guid of the hub site to be used. If specified will associate the modern team site to the hub site.
             </summary>
@@ -44992,6 +45150,14 @@
             <param name="siteCollectionCreationInformation"></param>
             <returns></returns>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.CreateSiteAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation)">
+            <summary>
+            BETA: Creates a Team Site Collection with no group
+            </summary>
+            <param name="clientContext"></param>
+            <param name="siteCollectionCreationInformation"></param>
+            <returns></returns>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.CreateSiteAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation)">
             <summary>
             BETA: Creates a Team Site Collection
@@ -45021,6 +45187,20 @@
             Enable MS Teams team on a group connected team site
             </summary>
             <param name="clientContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.IsTeamifyPromptHidden(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Checks whether the teamify prompt is hidden in O365 Group connected sites
+            </summary>
+            <param name="clientContext">ClientContext of the site to operate against</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.HideTeamifyPrompt(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Hide the teamify prompt displayed in O365 group connected sites
+            </summary>
+            <param name="clientContext">ClientContext of the site to operate against</param>
             <returns></returns>
         </member>
         <member name="T:Microsoft.SharePoint.Client.ClientObjectExtensions">
