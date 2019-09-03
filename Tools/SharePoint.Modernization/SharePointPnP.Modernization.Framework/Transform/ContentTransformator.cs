@@ -470,21 +470,26 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 {
                                     // Find the right add-in web part via title matching...maybe not bullet proof but did find anything better for now
                                     JObject wpJObject = JObject.Parse(addin.Manifest);
-                                    if (wpJObject["preconfiguredEntries"][0]["title"]["default"].Value<string>() == webPart.Title)
+
+                                    // As there can be multiple classic web parts (via provider hosted add ins or SharePoint hosted add ins) we're looping to find the first one with a matching title
+                                    foreach(var addinEntry in wpJObject["preconfiguredEntries"])
                                     {
-                                        baseControl = addin;
+                                        if (addinEntry["title"]["default"].Value<string>() == webPart.Title)
+                                        {
+                                            baseControl = addin;
 
-                                        var jsonProperties = wpJObject["preconfiguredEntries"][0];
+                                            var jsonProperties = addinEntry;
 
-                                        // Fill custom web part properties in this json. Custom properties are listed as child elements under clientWebPartProperties, 
-                                        // replace their "default" value with the value we got from the web part's properties
-                                        jsonProperties = PopulateAddInProperties(jsonProperties, webPart);
+                                            // Fill custom web part properties in this json. Custom properties are listed as child elements under clientWebPartProperties, 
+                                            // replace their "default" value with the value we got from the web part's properties
+                                            jsonProperties = PopulateAddInProperties(jsonProperties, webPart);
 
-                                        // Override the JSON data we read from the model as this is fully dynamic due to the nature of the add-in client part
-                                        map.ClientSideWebPart.JsonControlData = jsonProperties.ToString(Newtonsoft.Json.Formatting.None);
+                                            // Override the JSON data we read from the model as this is fully dynamic due to the nature of the add-in client part
+                                            map.ClientSideWebPart.JsonControlData = jsonProperties.ToString(Newtonsoft.Json.Formatting.None);
 
-                                        LogInfo($"{LogStrings.ContentUsingAddinWebPart} '{baseControl.Name}' ", LogStrings.Heading_AddingWebPartsToPage);
-                                        break;
+                                            LogInfo($"{LogStrings.ContentUsingAddinWebPart} '{baseControl.Name}' ", LogStrings.Heading_AddingWebPartsToPage);
+                                            break;
+                                        }
                                     }
                                 }
                             }
