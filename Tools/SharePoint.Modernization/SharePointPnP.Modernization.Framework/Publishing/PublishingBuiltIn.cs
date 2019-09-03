@@ -272,6 +272,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         #endregion
 
         #region Person functions
+        [FunctionDocumentation(Description = "Looksup user information for passed user id",
+                                   Example = "ToAuthors({PublishingContact})")]
+        [InputDocumentation(Name = "{userId}", Description = "The id (int) of a user")]
+        [OutputDocumentation(Name = "return value", Description = "A formatted json blob describing the user's details")]
+
         public string ToAuthors(string userId)
         {
             if (int.TryParse(userId, out int userIdInt))
