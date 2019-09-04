@@ -18,6 +18,17 @@
 
 - A page layout mapping can be reused for multiple, similar, page layouts by specifying the additional page layouts as a semi colon separated list in the AlsoAppliesTo attribute #217
 - SkipDefaultUrlRewrite pageTransformationInformation property that allows one to skip the default URL rewriting logic while still applying a possible provided custom URL mapping #219
+- Option to insert 'hard coded' html content on the created target page (e.g. hard coded text in your page layout) by using following construct in your page layout mapping file
+
+```XML
+<WebParts>
+  ...
+  <Field Name="ID" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="3">
+    <Property Name="Text" Type="string" Functions="StaticString('&lt;H1&gt;This is some extra text&lt;/H1&gt;')" />
+  </Field>
+  ...
+</WebParts>
+```
 
 ### Changed
 
