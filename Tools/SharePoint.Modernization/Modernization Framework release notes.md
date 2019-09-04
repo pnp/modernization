@@ -36,6 +36,7 @@
 - Fix: when multiple add in web parts (provider hosted, SharePoint hosted) are available on a site then the web part match up could fail
 - Mark created pages as "MigratedFromServerRendered" via the _SPSitePageFlags field
 - Add tenantid in telemetry data
+- Configured the ClientSideWebPart and ClientWebPart as cross site supported ==> if the SPFX app or add in delivered web part is available on the target it will be put on the page #245
 
 ## [August release - version 1.0.1908.0]
 
