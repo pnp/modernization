@@ -1,14 +1,17 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace SharePointPnP.Modernization.Framework.Telemetry
 {
     public class PageTelemetry
     {
         private readonly TelemetryClient telemetryClient;
+        private Guid tenantId;
 
         #region Construction
         /// <summary>
@@ -123,5 +126,46 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                 // Eat all exceptions
             }
         }
+
+        #region Helper methods
+        internal void LoadAADTenantId(ClientContext context)
+        {
+            WebRequest request = WebRequest.Create(new Uri(context.Web.Url) + "/_vti_bin/client.svc");
+            request.Headers.Add("Authorization: Bearer ");
+
+            try
+            {
+                using (request.GetResponse())
+                {
+                }
+            }
+            catch (WebException e)
+            {
+                var bearerResponseHeader = e.Response.Headers["WWW-Authenticate"];
+
+                const string bearer = "Bearer realm=\"";
+                var bearerIndex = bearerResponseHeader.IndexOf(bearer, StringComparison.Ordinal);
+
+                var realmIndex = bearerIndex + bearer.Length;
+
+                if (bearerResponseHeader.Length >= realmIndex + 36)
+                {
+                    var targetRealm = bearerResponseHeader.Substring(realmIndex, 36);
+
+                    Guid realmGuid;
+
+                    if (Guid.TryParse(targetRealm, out realmGuid))
+                    {
+                        this.tenantId = realmGuid;
+
+                        if (!this.telemetryClient.Context.GlobalProperties.ContainsKey("AADTenantId"))
+                        {
+                            this.telemetryClient.Context.GlobalProperties.Add("AADTenantId", this.tenantId.ToString());
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

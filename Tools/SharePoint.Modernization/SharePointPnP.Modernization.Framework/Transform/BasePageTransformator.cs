@@ -526,7 +526,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
                 clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id, p => p.Url);
                 // Use regular ExecuteQuery as we want to send this custom clienttag
-                clientContext.ExecuteQuery();
+                clientContext.ExecuteQuery();                
+            }
+        }
+
+        internal void SetAADTenantId(ClientContext sourceContext, ClientContext targetContext)
+        {
+            if (targetContext != null)
+            {
+                // Cache tenant id
+                this.pageTelemetry.LoadAADTenantId(targetContext);
+            }
+            else
+            {
+                // Cache tenant id
+                this.pageTelemetry.LoadAADTenantId(sourceContext);
             }
         }
 

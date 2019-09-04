@@ -160,6 +160,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(targetClientContext, true);
 
+                SetAADTenantId(sourceClientContext, targetClientContext);
+
                 if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
                 {
                     // Oops, seems source and target point to the same site collection...that's a no go for publishing portal page transformation!                

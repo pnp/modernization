@@ -251,6 +251,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo($"{targetClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
                 }
 
+                SetAADTenantId(sourceClientContext, targetClientContext);
+
                 // Need to add further validation for target template
                 if (hasTargetContext &&
                    (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP"))
