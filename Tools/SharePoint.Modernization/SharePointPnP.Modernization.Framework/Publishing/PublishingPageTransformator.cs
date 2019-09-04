@@ -471,6 +471,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 #region Page Publishing
                 // Tag the file with a page modernization version stamp
                 string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(publishingPageTransformationInformation);
+                bool pageListItemWasReloaded = false;
                 try
                 {
                     var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
@@ -480,16 +481,50 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                     if (publishingPageTransformationInformation.PublishCreatedPage)
                     {
-                        // Try to publish, if publish is not needed then this will return an error that we'll be ignoring
+                        // Try to publish, if publish is not needed/possible (e.g. when no minor/major versioning set) then this will return an error that we'll be ignoring
                         targetPageFile.Publish("Page modernization initial publish");
                     }
+
+                    // Ensure we've the most recent page list item loaded, must be last statement before calling ExecuteQuery
+                    context.Load(targetPage.PageListItem);
                     // Send both the property update and publish as a single operation to SharePoint
                     context.ExecuteQueryRetry();
+                    pageListItemWasReloaded = true;
                 }
                 catch (Exception ex)
                 {
                     // Eat exceptions as this is not critical for the generated page
-                    LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);
+                    LogWarning(LogStrings.Warning_NonCriticalErrorDuringVersionStampAndPublish, LogStrings.Heading_ArticlePageHandling);                    
+                }
+
+                // Update flags field to indicate this is a "migrated" page
+                try
+                {
+                    // If for some reason the reload batched with the previous request did not finish then do it again
+                    if (!pageListItemWasReloaded)
+                    {
+                        context.Load(targetPage.PageListItem);
+                        context.ExecuteQueryRetry();
+                    }
+
+                    // Only perform the update when the field was not yet set
+                    bool skipSettingMigratedFromServerRendered = false;
+                    if (targetPage.PageListItem[Constants.SPSitePageFlagsField] != null)
+                    {
+                        skipSettingMigratedFromServerRendered = (targetPage.PageListItem[Constants.SPSitePageFlagsField] as string[]).Contains("MigratedFromServerRendered");
+                    }
+
+                    if (!skipSettingMigratedFromServerRendered)
+                    {
+                        targetPage.PageListItem[Constants.SPSitePageFlagsField] = ";#MigratedFromServerRendered;#";
+                        targetPage.PageListItem.Update();
+                        context.Load(targetPage.PageListItem);
+                        context.ExecuteQueryRetry();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Eat any exception
                 }
 
                 // Disable page comments on the create page, if needed

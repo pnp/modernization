@@ -34,6 +34,7 @@
 - Fix: web part handling for SP2013/2016, now uses the 2010 flow #234 [pkbullock]
 - Fix: added trailing slash to support transforming pages in the root site collection #252 [gautamdsheth]
 - Fix: when multiple add in web parts (provider hosted, SharePoint hosted) are available on a site then the web part match up could fail
+- Mark created pages as "MigratedFromServerRendered" via the _SPSitePageFlags field
 
 ## [August release - version 1.0.1908.0]
 

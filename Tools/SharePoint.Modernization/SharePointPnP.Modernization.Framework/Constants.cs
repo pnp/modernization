@@ -30,6 +30,7 @@ namespace SharePointPnP.Modernization.Framework
         public const string PublishingRollupImageField = "PublishingRollupImage";
         public const string TitleField = "Title";
         public const string PublishingAssociatedContentTypeField = "PublishingAssociatedContentType";
+        public const string SPSitePageFlagsField = "_SPSitePageFlags";
 
         // Content Type ID's
         public const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
