@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.SharePoint.Client;
+﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Pages
 {
@@ -210,6 +208,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd8.aspx"))
                     {
                         return PageLayout.WebPart_RightColumnHeaderFooterTopRow3Columns;
+                    }
+                    else if (fullDocument.ContainsIgnoringCasing(@"SiteTemplates&#92;STS&#92;default.aspx"))
+                    {
+                        return PageLayout.WebPart_2010_TwoColumnsLeft;
                     }
                 }
 

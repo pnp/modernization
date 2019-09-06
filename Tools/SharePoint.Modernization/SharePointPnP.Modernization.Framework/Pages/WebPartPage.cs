@@ -283,6 +283,18 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         }
                         break;
                     }
+                case PageLayout.WebPart_2010_TwoColumnsLeft:
+                    {
+                        if (zoneId.Equals("Left", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            return 1;
+                        }
+                        else if (zoneId.Equals("Right", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            return 2;
+                        }
+                        break;
+                    }
                 case PageLayout.WebPart_Custom:
                     {
                         return 1;
@@ -323,6 +335,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         break;
                     }
                 case PageLayout.WebPart_FullPageVertical:
+                case PageLayout.WebPart_2010_TwoColumnsLeft:
                     {
                         return 1;                        
                     }
@@ -505,6 +518,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd8.aspx", StringComparison.InvariantCultureIgnoreCase))
                     {
                         return PageLayout.WebPart_RightColumnHeaderFooterTopRow3Columns;
+                    }
+                    else if (setupPath.Equals(@"SiteTemplates\STS\default.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return PageLayout.WebPart_2010_TwoColumnsLeft;
                     }
                 }
             }

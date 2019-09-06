@@ -53,6 +53,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         return;
                     }
                 case PageLayout.Wiki_TwoColumnsWithSidebar:
+                case PageLayout.WebPart_2010_TwoColumnsLeft:
                     {
                         page.AddSection(CanvasSectionTemplate.TwoColumnLeft, 1);
                         return;

@@ -48,6 +48,7 @@
 - Mark created pages as "MigratedFromServerRendered" via the _SPSitePageFlags field
 - Add tenantid in telemetry data
 - Configured the ClientSideWebPart and ClientWebPart as cross site supported ==> if the SPFX app or add in delivered web part is available on the target it will be put on the page #245
+- Fix: handle web part page layouts that originated from SP2010 on-premises #261
 
 ## [August release - version 1.0.1908.0]
 
