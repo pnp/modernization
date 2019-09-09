@@ -14745,6 +14745,18 @@
             <param name="accessToken">The OAuth 2.0 Access Token</param>
             <returns>Whether the Channels have been provisioned or not</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetTeamTabs(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.TeamTabCollection,System.String,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="scope">The PnP Provisioning Scope</param>
+            <param name="parser">The PnP Token Parser</param>
+            <param name="tabs">A collection of Tabs to be created or updated</param>
+            <param name="teamId">The ID of the target Team</param>
+            <param name="channelId">the ID of the target Channel</param>
+            <param name="accessToken">The OAuth 2.0 Access Token</param>
+            <returns></returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetTeamApps(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.Team,System.String,System.String)">
             <summary>
             Synchronizes Team Apps settings
@@ -39161,6 +39173,11 @@
             <typeparam name="TResult">The type of the result, if any</typeparam>
             <returns>The value of the result, if any</returns>
         </member>
+        <member name="T:OfficeDevPnP.Core.Utilities.JsonConverters.EmphasisJsonConverter">
+            <summary>
+            Converts Emphasis values into the supported integer format
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Utilities.PnPCoreUtilities">
             <summary>
             Holds PnP Core library identification tag and user-agent, and a tool to get tenant administration url based the URL of the web
@@ -41910,6 +41927,11 @@
         <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.NewsReel">
             <summary>
             News Reel webpart
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.News">
+            <summary>
+            News webpart (the "new" version of NewsReel) - they look the same but this one supports filtering properly
             </summary>
         </member>
         <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.PowerBIReportEmbed">
