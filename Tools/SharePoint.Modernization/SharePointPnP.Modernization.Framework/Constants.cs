@@ -31,6 +31,8 @@ namespace SharePointPnP.Modernization.Framework
         public const string TitleField = "Title";
         public const string PublishingAssociatedContentTypeField = "PublishingAssociatedContentType";
         public const string SPSitePageFlagsField = "_SPSitePageFlags";
+        public const string IDField = "ID";
+        public const string BodyField = "Body"; // Blog pages
 
         // Content Type ID's
         public const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
@@ -72,7 +74,17 @@ namespace SharePointPnP.Modernization.Framework
                     </Where>
                   </Query>
                 </View>";
-
+        public const string CAMLQueryByNameForBlog = @"
+                <View Scope='Recursive'>
+                  <Query>
+                    <Where>
+                      <BeginsWith>
+                        <FieldRef Name='Title'/>
+                        <Value Type='text'>{0}</Value>
+                      </BeginsWith>
+                    </Where>
+                  </Query>
+                </View>";
 
         // Cross site assets transfers that are currently allowed
         public static string[] AllowedAssetFileExtensions = new string[] { "png", "jpg", "gif", "mp4", "mpeg" };

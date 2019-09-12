@@ -16,6 +16,8 @@
 
 ### Added
 
+- Support for doing cross site classic blog to modern page transformation
+
 ### Changed
 
 ## [September release - version 1.0.1909.0]

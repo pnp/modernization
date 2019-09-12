@@ -69,7 +69,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_SourcePageIsModern = "Source page is already a modern page";
         public const string Error_PageNotValidMissingFileRef = "Page is not valid due to missing FileRef or FileLeafRef value";
         public const string Error_BasicASPXPageCannotTransform = "Page is an basic aspx page...can't currently transform that one, sorry!";
-        public const string Error_PublishingPagesNotYetSupported = "Page transformation for publishing pages is currently not supported.";
+        public const string Error_PublishingPagesNotYetSupported = "Page transformation for publishing pages can only be done using the PublishingPageTransformator class";
         public const string Error_PageIsNotAPublishingPage = "Page is not a publishing page, please use the wiki and webpart page API's";
         public const string Error_CannotUsePageAcceptBannerCrossSite = "Page transformation towards a different site collection cannot use the page accept banner.";
         public const string Error_OverridingTagePageTakesSourcePageName = "Overriding 'TargetPageTakesSourcePageName' to ensure that the newly created page in the other site collection gets the same name as the source page";
@@ -78,7 +78,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_CrossSiteTransferTargetsNonModernSite = "Page transformation for targeting non-modern sites is currently not supported.";
         public const string Error_GetVersionError = "Setting version stamp error";
         public const string Error_MissingSitePagesLibrary = "Site does not have a sitepages library and therefore this page can't be a client side page.";
-        
+        public const string Error_BlogPageTransformationHasToBeCrossSite = "Blog pages cannot be transformed in-place, their target site collection must be a different one.";
+        public const string Error_SameSiteTransferNoAllowedForBlogPages = "Oops, seems source and target point to the same site collection...that's a no go for blog page transformation!";
+
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
         public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";

@@ -587,8 +587,39 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
         }
+
+        internal bool IsWikiPage(string pageType)
+        {
+            return pageType.Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        internal bool IsPublishingPage(string pageType)
+        {
+            return pageType.Equals("PublishingPage", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        internal bool IsWebPartPage(string pageType)
+        {
+            return pageType.Equals("WebPartPage", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        internal bool IsBlogPage(string pageType)
+        {
+            return pageType.Equals("BlogPage", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        internal bool IsClientSidePage(string pageType)
+        {
+            return pageType.Equals("ClientSidePage", StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        internal bool IsAspxPage(string pageType)
+        {
+            return pageType.Equals("AspxPage", StringComparison.InvariantCultureIgnoreCase);
+        }
+
         #endregion
 
-        
+
     }
 }
