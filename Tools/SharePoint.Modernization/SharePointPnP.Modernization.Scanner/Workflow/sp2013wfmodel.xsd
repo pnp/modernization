@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:schema elementFormDefault="qualified" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:core="http://schemas.microsoft.com/sharepoint/soap/">
+  <s:element name="WorkflowInfo">
+    <s:complexType>
+      <s:all>
+        <s:element name="Conditions" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence>
+              <s:element name="Default" minOccurs="0" maxOccurs="1">
+                <s:complexType>
+                  <s:sequence>
+                    <s:element name="RuleDesigner" type="ruleDesignerType" />
+                  </s:sequence>
+                  <s:attribute name="ItemKeyType" default="System.Int32">
+                    <s:simpleType>
+                      <s:restriction base="s:string">
+                        <s:enumeration value="System.Guid" />
+                        <s:enumeration value="System.Int32" />
+                      </s:restriction>
+                    </s:simpleType>
+                  </s:attribute>
+                </s:complexType>
+              </s:element>
+              <s:element name="Condition" minOccurs="0" maxOccurs="unbounded">
+                <s:complexType>
+                  <s:all>
+                    <s:element name="RuleDesigner" type="ruleDesignerType" minOccurs="1" maxOccurs="1" />
+                    <s:element name="Parameters" type="parametersType" minOccurs="1" maxOccurs="1" />
+                  </s:all>
+                  <s:attribute name="Type">
+                    <s:simpleType>
+                      <s:restriction base="s:string">
+                        <s:enumeration value="Advanced" />
+                      </s:restriction>
+                    </s:simpleType>
+                  </s:attribute>
+                  <s:attribute name="Name" type="s:string" use="required" />
+                  <s:attribute name="AppliesTo" type="appliesToTypes" use="required" />
+                  <s:attribute name="UsesCurrentItem" type="s:boolean" default="false" />
+                  <s:attribute name="RequiresPWA" type="s:boolean" default="false" />
+                  <s:attribute name="ItemKeyType" default="System.Int32">
+                    <s:simpleType>
+                      <s:restriction base="s:string">
+                        <s:enumeration value="System.Guid" />
+                        <s:enumeration value="System.Int32" />
+                      </s:restriction>
+                    </s:simpleType>
+                  </s:attribute>
+                  <s:attribute name="FunctionName" type="s:string" />
+                  <s:attribute name="Assembly" type="s:string" />
+                  <s:attribute name="ClassName" type="s:string" />
+                  <s:attributeGroup ref="invocationTagAttributeGroup"/>
+                  <s:attribute name="ShapeImageUrl" type="s:string" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+            <s:attribute name="And" type="s:string" />
+            <s:attribute name="Or" type="s:string" />
+            <s:attribute name="When" type="s:string" />
+            <s:attribute name="Else" type="s:string" />
+            <s:attribute name="Not" type="s:string" />
+          </s:complexType>
+        </s:element>
+        <s:element name="Actions" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence>
+              <s:element name="Default" type="defaultElementType" minOccurs="0" maxOccurs="1" />
+              <s:element name="Action" minOccurs="0" maxOccurs="unbounded">
+                <s:complexType>
+                  <s:all>
+                    <s:element name="Parameters" type="parametersType" minOccurs="0" maxOccurs="1" />
+                    <s:element name="RuleDesigner" type="ruleDesignerType" minOccurs="1" maxOccurs="1" />
+                    <s:element name="DataSources" type="dataSourcesType" minOccurs="0" maxOccurs="1" />
+                    <s:element name="Modifications" minOccurs="0" maxOccurs="1">
+                      <s:complexType>
+                        <s:sequence>
+                          <s:element name="Modification" minOccurs="1" maxOccurs="unbounded">
+                            <s:complexType>
+                              <s:sequence />
+                              <s:attribute name="TypeId" type="s:string" use="required" />
+                              <s:attribute name="NameFormat" use="required">
+                                <s:simpleType>
+                                  <s:restriction base="s:string">
+                                    <s:pattern value="([^\{]|\\\{|(\{0\}))*" />
+                                  </s:restriction>
+                                </s:simpleType>
+                              </s:attribute>
+                              <s:attribute name="FormURN" type="s:string" use="required" />
+                            </s:complexType>
+                          </s:element>
+                        </s:sequence>
+                      </s:complexType>
+                    </s:element>
+                    <s:element name="ActionVariables" minOccurs="0" maxOccurs="1">
+                      <s:complexType>
+                        <s:sequence>
+                          <s:any namespace="##any" minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                        </s:sequence>
+                      </s:complexType>
+                    </s:element>
+                    <s:element name="ActionBody" minOccurs="0" maxOccurs="1">
+                      <s:complexType>
+                        <s:sequence>
+                          <s:any namespace="##any" minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                        </s:sequence>
+                      </s:complexType>
+                    </s:element>
+                    <s:element name="ActionConditions" minOccurs="0" maxOccurs="1">
+                      <s:complexType>
+                        <s:sequence>
+                          <s:any namespace="##any" minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                        </s:sequence>
+                      </s:complexType>
+                    </s:element>
+                  </s:all>
+                  <s:attribute name="Name" type="s:string" use="required" />
+                  <s:attribute name="ClassName" type="s:string" use="required" />
+                  <s:attribute name="ID" type="s:string" />
+                  <s:attribute name="Assembly" type="s:string" />
+                  <s:attribute name="FunctionName" type="s:string" default=""/>
+                  <s:attribute name="Category" type="s:string" />
+                  <s:attribute name="CreatesTask" type="s:boolean" default="false" />
+                  <s:attribute name="CreatesInList" type="s:string" />
+                  <s:attribute name="AppliesTo" type="appliesToTypes" use="required" />
+                  <s:attribute name="IsError" type="s:boolean" default="false" />
+                  <s:attribute name="ListModeration" type="s:boolean" default="false" />
+                  <s:attribute name="UsesCurrentItem" type="s:boolean" default="false" />
+                  <s:attribute name="RequiresPWA" type="s:boolean" default="false" />
+                  <s:attributeGroup ref="invocationTagAttributeGroup"/>
+                  <s:attribute name="CreatedTaskFormType">
+                    <s:simpleType>
+                      <s:restriction base="s:string">
+                        <s:enumeration value="DataCollectTask" />
+                        <s:enumeration value="GroupAssignedTask" />
+                        <s:enumeration value="TodoItemTask" />
+                        <s:enumeration value="TaskProcess" />
+                      </s:restriction>
+                    </s:simpleType>
+                  </s:attribute>
+                  <s:attribute name="__SolutionId" type="s:string" />
+                  <s:attribute name="SandboxedFunction" type="s:boolean" default="false" />
+                  <s:attribute name="ShapeImageUrl" type="s:string" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+            <s:attribute name="Sequential" type="s:string" />
+            <s:attribute name="Parallel" type="s:string" />
+          </s:complexType>
+          <s:unique name="eachActionHasUniqueConstructToProcess">
+            <s:selector xpath="./Action"/>
+            <s:field xpath="@Assembly"/>
+            <s:field xpath="@ClassName"/>
+            <s:field xpath="@FunctionName"/>
+          </s:unique>
+        </s:element>
+        <s:element name="CompositeSteps" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence minOccurs="0" maxOccurs="unbounded">
+              <s:element name="CompositeStep">
+                <s:complexType>
+                  <s:sequence>
+                    <s:element name="DataSources" type="dataSourcesType" minOccurs="0" maxOccurs="1" />
+                  </s:sequence>
+                  <s:attribute name="Name" type="s:string" use="required" />
+                  <s:attribute name="ClassName" type="s:string" use="required" />
+                  <s:attribute name="Assembly" type="s:string" />
+                  <s:attribute name="AppliesTo" type="appliesToTypes" use="required" />
+                  <s:attributeGroup ref="invocationTagAttributeGroup"/>
+                  <s:attribute name="Order" type="s:nonNegativeInteger" default="0" />
+                  <s:attribute name="Description" type="s:string" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+          </s:complexType>
+        </s:element>
+        <s:element name="VariableTypes" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence minOccurs="0" maxOccurs="unbounded">
+              <s:element name="VariableType">
+                <s:complexType>
+                  <s:attribute name="Type" type="s:string" use="required" />
+                  <s:attribute name="DisplayName" type="s:string" use="required" />
+                  <s:attribute name="Assembly" type="s:string" />
+                  <s:attribute name="Default" type="s:boolean" default="false" />
+                  <s:attribute name="ItemIdType" type="s:boolean" default="false" />
+                  <s:attribute name="Hidden" type="s:boolean" default="false" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+          </s:complexType>
+        </s:element>
+        <s:element name="AssemblyRedirects" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence   minOccurs="0" maxOccurs="unbounded">
+              <s:element name="AssemblyRedirect">
+                <s:complexType>
+                  <s:attribute name="From" type="s:string" use="required" />
+                  <s:attribute name="To" type="s:string" use="required" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+          </s:complexType>
+        </s:element>
+        <s:element name="Coercions" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence minOccurs="0" maxOccurs="unbounded">
+              <s:element name="Coercion" minOccurs="0" maxOccurs="unbounded">
+                <s:complexType>
+                  <s:all>
+                    <s:element name="Parameters" type="coercionParametersType" minOccurs="0" maxOccurs="1" />
+                  </s:all>
+                  <s:attribute name="Name" type="s:string" use="required" />
+                  <s:attribute name="Assembly" type="s:string" />
+                  <s:attribute name="DisplayName" type="s:string" use="required" />
+                  <s:attribute name="CatchAll" type="s:boolean" use="required" />
+                  <s:attribute name="RankDefault" type="s:integer" use="required" />
+                  <s:attribute name="SourceType" type="s:string" />
+                  <s:attribute name="SourceFieldType" type="s:string" />
+                  <s:attribute name="DestinationType" type="s:string" use="required" />
+                  <s:attribute name="DestinationFieldType" type="s:string" />
+                  <s:attribute name="ClassName" type="s:string" />
+                  <s:attribute name="Id" type="s:string" />
+                  <s:attribute name="SourceProperty" type="s:string" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+          </s:complexType>
+        </s:element>
+        <s:element name="Events" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence>
+              <s:element name="Event" minOccurs="0" maxOccurs="unbounded">
+                <s:complexType>
+                  <s:attribute name="Name" type="s:string" use="required" />
+                  <s:attribute name="DisplayName" type="s:string" use="required" />
+                  <s:attribute name="EventGroup" type="s:string" use="required" />
+                  <s:attribute name="Category" type="s:string" use="required" />
+                  <s:attribute name="RankDefault" type="s:string" use="required" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+          </s:complexType>
+        </s:element>
+        <s:element name="Flows" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence>
+              <s:element name="Flow" minOccurs="0" maxOccurs="unbounded">
+                 <s:complexType>
+                   <s:sequence>
+                     <s:element name="RuleDesigner" type="ruleDesignerType" minOccurs="1" maxOccurs="1" />
+                     <s:element name="Parameters" type="parametersType" minOccurs="1" maxOccurs="1" />
+                   </s:sequence>
+                   <s:attribute name="Name" type="s:string" use="required" />
+                   <s:attribute name="Category" type="s:string" use="required" />
+                 </s:complexType>
+               </s:element>
+             </s:sequence>
+          </s:complexType>
+        </s:element>
+        <s:element name="Blocks" minOccurs="0" maxOccurs="1">
+          <s:complexType>
+            <s:sequence>
+              <s:element name="Block" type="propertiesType" minOccurs="0" maxOccurs="unbounded" />
+            </s:sequence>
+          </s:complexType>
+        </s:element>
+      </s:all>
+      <s:attribute name="Language" type="s:string" />
+    </s:complexType>
+  </s:element>
+  <s:complexType name="ruleDesignerType">
+    <s:sequence>
+      <s:element name="FieldBind" minOccurs="0" maxOccurs="unbounded">
+        <s:complexType>
+          <s:choice>
+            <s:sequence>
+              <s:element name="Option" minOccurs="0" maxOccurs="unbounded">
+                <s:complexType>
+                  <s:sequence>
+                  </s:sequence>
+                  <s:attribute name="Name" type="s:string" use="required" />
+                  <s:attribute name="Value" type="s:string" use="required" />
+                  <s:attribute name="TypeFilter" type="s:string" />
+                  <s:attribute name="UnaryHides" type="s:string" />
+                </s:complexType>
+              </s:element>
+            </s:sequence>
+            <s:element name="DataSourceRef" minOccurs="1" maxOccurs="unbounded">
+              <s:complexType>
+                <s:sequence />
+                <s:attribute name="Ref" type="s:string" />
+              </s:complexType>
+            </s:element>
+          </s:choice>
+          <s:attribute name="Field" type="s:string" />
+          <s:attribute name="Text" type="s:string" />
+          <s:attribute name="Id" type="s:positiveInteger" use="required" />
+          <s:attribute name="DesignerType" use="required">
+            <s:simpleType>
+              <s:restriction base="s:string">
+                <s:enumeration value="AddPermission" />
+                <s:enumeration value="Assignment" />
+                <s:enumeration value="Bool" />
+                <s:enumeration value="CheckPermission" />
+                <s:enumeration value="ChooseDoclibItem" />
+                <s:enumeration value="ChooseListItem" />
+                <s:enumeration value="ChooseListWorkflow" />
+                <s:enumeration value="ChooseSiteWorkflow" />
+                <s:enumeration value="CompositeTaskAction" />
+                <s:enumeration value="CreateListItem" />
+                <s:enumeration value="DataSourceFieldNames" />
+                <s:enumeration value="DataSourceValues" />
+                <s:enumeration value="Date" />
+                <s:enumeration value="Dependent" />
+                <s:enumeration value="Dictionary" />
+                <s:enumeration value="DocLibNames" />
+                <s:enumeration value="Dropdown" />
+                <s:enumeration value="EnterpriseProjectType" />
+                <s:enumeration value="EventDropdown" />
+                <s:enumeration value="Email" />
+                <s:enumeration value="FieldNames" />
+                <s:enumeration value="Float" />
+                <s:enumeration value="Hyperlink" />
+                <s:enumeration value="Integer" />
+                <s:enumeration value="ListItemEvent" />
+                <s:enumeration value="ListNames" />
+                <s:enumeration value="Operator" />
+                <s:enumeration value="ParameterNames" />
+                <s:enumeration value="Person" />
+                <s:enumeration value="ProjectFields" />
+                <s:enumeration value="PropertyGrid" />
+                <s:enumeration value="RemovePermission" />
+                <s:enumeration value="ReplacePermission" />
+                <s:enumeration value="RestCall" />
+                <s:enumeration value="SinglePerson" />
+                <s:enumeration value="SingleTaskAction" />
+                <s:enumeration value="Stages" />
+                <s:enumeration value="StatusDropdown" />
+                <s:enumeration value="StringBuilder" />
+                <s:enumeration value="Survey" />
+                <s:enumeration value="TaskSummary" />
+                <s:enumeration value="Text" />
+                <s:enumeration value="TextBox" />
+                <s:enumeration value="TextArea" />
+                <s:enumeration value="TextOnly" />
+                <s:enumeration value="UpdateListItem" />
+                <s:enumeration value="WorkflowParameters" />
+                <s:enumeration value="WritableFieldNames" />
+              </s:restriction>
+            </s:simpleType>
+          </s:attribute>
+          <s:attribute name="OperatorTypeFrom" type="s:string" />
+          <s:attribute name="TypeFrom" type="s:string" />
+          <s:attribute name="Function" type="s:boolean" default="false" />
+          <s:attribute name="Value" type="s:string" />
+          <s:attribute name="EventCategory" type="s:string" />
+          <s:attribute name="DisplayName" type="s:string" />
+        </s:complexType>
+      </s:element>
+    </s:sequence>
+    <s:attribute name="Sentence" type="s:string" />
+  </s:complexType>
+  <s:complexType name="defaultElementType">
+    <s:sequence>
+      <s:element name="RuleDesigner" type="ruleDesignerType" />
+    </s:sequence>
+  </s:complexType>
+  <s:complexType name="parametersType">
+    <s:sequence>
+      <s:element name="Parameter" minOccurs="0" maxOccurs="unbounded">
+        <s:complexType>
+          <s:sequence>
+          </s:sequence>
+          <s:attribute name="Name" type="s:string" use="required" />
+          <s:attribute name="Type" type="s:string" use="required" />
+          <s:attribute name="Direction" use="required">
+            <s:simpleType>
+              <s:restriction base="s:string">
+                <s:enumeration value="In" />
+                <s:enumeration value="Out" />
+                <s:enumeration value="Optional" />
+              </s:restriction>
+            </s:simpleType>
+          </s:attribute>
+          <s:attribute name="Description" type="s:string" />
+          <s:attribute name="DesignerType">
+            <s:simpleType>
+              <s:restriction base="s:string">
+                <s:enumeration value="ContentType" />
+                <s:enumeration value="DataSourceFieldNames" />
+                <s:enumeration value="DataSourceValues" />
+                <s:enumeration value="Date" />
+                <s:enumeration value="Dependent" />
+                <s:enumeration value="DocLibNames" />
+                <s:enumeration value="Dropdown" />
+                <s:enumeration value="EventDropdown" />
+                <s:enumeration value="FieldNames" />
+                <s:enumeration value="Float" />
+                <s:enumeration value="HttpMethod" />
+                <s:enumeration value="Hide" />
+                <s:enumeration value="Integer" />
+                <s:enumeration value="ItemProperties" />
+                <s:enumeration value="ListItem" />
+                <s:enumeration value="ListNames" />
+                <s:enumeration value="ParameterNames" />
+                <s:enumeration value="Password" />
+                <s:enumeration value="Person" />
+                <s:enumeration value="SinglePerson" />
+                <s:enumeration value="Stages" />
+                <s:enumeration value="StatusDropdown" />
+                <s:enumeration value="StringBuilder" />
+                <s:enumeration value="TaskContentType" />
+                <s:enumeration value="TextArea" />
+                <s:enumeration value="TextBox" />
+                <s:enumeration value="WritableFieldNames" />
+              </s:restriction>
+            </s:simpleType>
+          </s:attribute>
+          <s:attribute name="ShowLookupForDropdown" type="s:boolean" default="false" />
+          <s:attribute name="DisplayName" type="s:string" />
+          <s:attribute name="InitialValue" type="s:string" />
+          <s:attribute name="InitialBinding" type="s:string" />
+          <s:attribute name="EventCategory" type="s:string" />
+        </s:complexType>
+      </s:element>
+    </s:sequence>
+  </s:complexType>
+  <s:complexType name="propertiesType">
+    <s:sequence>
+      <s:element name="Property" minOccurs="0" maxOccurs="unbounded">
+        <s:complexType>
+          <s:attribute name="Name" type="s:string" use="required" />
+          <s:attribute name="DesignerType" type="s:string" />
+          <s:attribute name="DisplayName" type="s:string" />
+          <s:attribute name="Description" type="s:string" />
+          <s:attribute name="TypeFrom" type="s:string" />
+        </s:complexType>
+      </s:element>
+    </s:sequence>
+    <s:attribute name="Name" type="s:string" use="required" />
+    <s:attribute name="DisplayName" type="s:string" />
+  </s:complexType>
+  <s:complexType name="dataSourcesType">
+    <s:sequence>
+      <s:element name="DataSource" type="dataSourceType" minOccurs="0" maxOccurs="unbounded" />
+    </s:sequence>
+  </s:complexType>
+  <s:complexType name="dataSourceType">
+    <s:sequence>
+      <s:element name="SchemaSource">
+        <s:complexType>
+          <s:choice>
+            <s:element name="Fields" minOccurs="0" maxOccurs="1">
+              <s:complexType>
+                <s:sequence>
+                  <s:element name="Field" minOccurs="1" maxOccurs="unbounded">
+                    <s:complexType>
+                      <s:sequence>
+                        <s:element name="CHOICES" minOccurs="0" maxOccurs="1">
+                          <s:complexType>
+                            <s:sequence>
+                              <s:element name="CHOICE" minOccurs="1" maxOccurs="unbounded">
+                                <s:complexType>
+                                  <s:simpleContent>
+                                    <s:extension base="s:string">
+                                      <s:attribute name="DisplayName" type="s:string" />
+                                    </s:extension>
+                                  </s:simpleContent>
+                                </s:complexType>
+                              </s:element>
+                            </s:sequence>
+                          </s:complexType>
+                        </s:element>
+                      </s:sequence>
+                      <s:attribute name="Name" type="s:string" />
+                      <s:attribute name="DisplayName" type="s:string" />
+                      <s:attribute name="Type" type="s:string" />
+                    </s:complexType>
+                  </s:element>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+            <s:element name="ContentType" minOccurs="0" maxOccurs="1">
+              <s:complexType>
+                <s:attribute name="IDFrom" type="s:string" />
+              </s:complexType>
+            </s:element>
+            <s:element name="Dictionary" minOccurs="0" maxOccurs="1">
+              <s:complexType>
+                <s:attribute name="ValueFrom" type="s:string" />
+              </s:complexType>
+            </s:element>
+            <s:element name="NestedInitiationFieldNodes" minOccurs="0" maxOccurs="1" />
+          </s:choice>
+        </s:complexType>
+      </s:element>
+      <s:element name="Evaluation">
+        <s:complexType>
+          <s:choice>
+            <s:element name="ActivitySource">
+              <s:complexType>
+              </s:complexType>
+            </s:element>
+            <s:element name="HashtableSource">
+              <s:complexType>
+                <s:attribute name="HashtableFrom" type="s:string" />
+              </s:complexType>
+            </s:element>
+          </s:choice>
+        </s:complexType>
+      </s:element>
+    </s:sequence>
+    <s:attribute name="InternalName" type="s:string" use="required" />
+    <s:attribute name="Name" type="s:string" use="required" />
+    <s:attribute name="NameProperty" type="s:string" use="required" />
+  </s:complexType>
+  <s:simpleType name="appliesToTypes">
+    <s:restriction base="s:string">
+      <s:enumeration value="none" />
+      <s:enumeration value="list" />
+      <s:enumeration value="doclib" />
+      <s:enumeration value="all" />
+      <s:enumeration value="displayonly" />
+    </s:restriction>
+  </s:simpleType>
+  <s:attributeGroup name="invocationTagAttributeGroup">
+    <s:attribute name="RequiredInvocationTags" type="s:string" />
+    <s:attribute name="InvocationTags" type="s:string" />
+    <s:attribute name="ProhibitedInvocationTags" type="s:string" />
+    <s:attribute name="ProhibitedDirectParentInvocationTags" type="s:string" />
+  </s:attributeGroup>
+  <s:complexType name="coercionParametersType">
+    <s:sequence>
+      <s:element name="Parameter" minOccurs="0" maxOccurs="unbounded">
+        <s:complexType>
+          <s:all>
+            <s:element name="ActivityBody" minOccurs="0" maxOccurs="1">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:all>
+          <s:attribute name="Name" type="s:string" use="required" />
+          <s:attribute name="Type" type="s:string" use="required" />
+          <s:attribute name="Value" type="s:string" />
+        </s:complexType>
+      </s:element>
+    </s:sequence>
+  </s:complexType>
+</s:schema>

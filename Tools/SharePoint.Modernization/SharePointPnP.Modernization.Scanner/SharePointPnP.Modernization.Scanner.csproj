@@ -266,6 +266,14 @@
     <Compile Include="Telemetry\VersionCheck.cs" />
     <Compile Include="Utilities\PageTransformationManager.cs" />
     <Compile Include="Utilities\WebpartMappingLoader.cs" />
+    <Compile Include="Workflow\sp2010wfmodel.cs">
+      <DependentUpon>sp2010wfmodel.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Workflow\sp2013wfmodel.cs">
+      <DependentUpon>sp2013wfmodel.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Workflow\WorkflowActions.cs" />
+    <Compile Include="Workflow\WorkflowManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -287,6 +295,12 @@
     <EmbeddedResource Include="Reports\listmaster.xlsx" />
     <EmbeddedResource Include="Reports\workflowmaster.xlsx" />
     <EmbeddedResource Include="Reports\infopathmaster.xlsx" />
+    <None Include="Workflow\sp2010wfmodel.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Workflow\sp2013wfmodel.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="FodyWeavers.xml" />
@@ -310,6 +324,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Reports\Readme.txt" />
+    <Content Include="Workflow\xsd.txt" />
+    <EmbeddedResource Include="Workflow\sp2010wfmodel.xml" />
+    <EmbeddedResource Include="Workflow\sp2013wfmodel.xml" />
     <EmbeddedResource Include="webpartmapping.xml" />
   </ItemGroup>
   <ItemGroup />

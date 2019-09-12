@@ -1,0 +1,1563 @@
+﻿<WorkflowInfo Language="~!en-us~~id_language/ {StringCategory=TXT}!~">
+   <Conditions And="~!and~~id_conditionAnd/conditional text displayed in Workflow Designer UI{StringCategory=TXT}!~" Or="~!or~~id_conditionOr/conditional text displayed in Workflow Designer UI{StringCategory=TXT}!~" Not="~!not~~id_conditionNot/conditional text displayed in Workflow Designer UI{StringCategory=TXT}!~" When="~!If~~id_conditionIf/conditional text displayed in Workflow Designer UI{StringCategory=TXT}!~" Else="~!Else if~~id_conditionElseIf/conditional text displayed in Workflow Designer UI{StringCategory=TXT}!~">
+    <Default
+        ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!%1 %2 %3~~id_sentenceDefault/Default sentence {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="left" Text="~!value~~id_field1Default/{StringCategory=TXT}!~" DesignerType="TextBox" />
+        <FieldBind Id="2" Field="operator" DesignerType="Operator" OperatorTypeFrom="left" Text="~!this test~~id_field2Default/ {StringCategory=TXT}!~">
+          <Option Name="~!equals~~id_optEqaulDefault/{StringCategory=TXT}!~" Value="Equal"/>
+          <Option Name="~!not equals~~id_optNotEqualDefault/{StringCategory=TXT}!~" Value="NotEqual"/>
+          <Option Name="~!is greater than~~id_optGreaterDefault/{StringCategory=TXT}!~" Value="GreaterThan" 
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is greater than or equal to~~id_optGreaterEqualDefault/ {StringCategory=TXT}!~" Value="GreaterThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is less than~~id_optLessDefault/ {StringCategory=TXT}!~" Value="LessThan"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is less than or equal to~~id_optLessEqualDefault/ {StringCategory=TXT}!~" Value="LessThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is empty~~id_optIsEmptyDefault/ {StringCategory=TXT}!~" Value="IsEmpty"
+                  TypeFilter="System.String" UnaryHides="right"/>
+          <Option Name="~!is not empty~~id_optIsNotEmptyDefault/ {StringCategory=TXT}!~" Value="NotIsEmpty"
+                  TypeFilter="System.String" UnaryHides="right"/>
+          <Option Name="~!begins with~~id_optStartsWithDefault/ {StringCategory=TXT}!~" Value="StartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not begin with~~id_optNotStartsWithDefault/ {StringCategory=TXT}!~" Value="NotStartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!ends with~~id_optEndsWithDefault/ {StringCategory=TXT}!~" Value="EndsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not end with~~id_optNotEndsWithDefault/ {StringCategory=TXT}!~" Value="NotEndsWith"
+                   TypeFilter="System.String"/>
+          <Option Name="~!contains~~id_optContainsDefault/ {StringCategory=TXT}!~" Value="Contains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not contain~~id_optNotContainsDefault/ {StringCategory=TXT}!~" Value="NotContains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!matches regular expression~~id_optMatchesDefault/ {StringCategory=TXT}!~" Value="Matches"
+                  TypeFilter="System.String"/>
+          <Option Name="~!equals (ignoring case)~~id_optEqualNoCaseDefault/ {StringCategory=TXT}!~" Value="EqualNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!contains (ignoring case)~~id_optContainsNoCaseDDefault/ {StringCategory=TXT}!~" Value="ContainsNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!equals (ignoring time)~~id_optEqualNoTimeDefault/ {StringCategory=TXT}!~" Value="EqualNoTime"
+                  TypeFilter="System.DateTime"/>
+        </FieldBind>
+        <FieldBind Id="3" Field="right" Text="~!value~~id_field3Default/ {StringCategory=TXT}!~" TypeFrom="left" DesignerType="TextBox"/>
+      </RuleDesigner>
+    </Default>
+    
+    <Condition Name="~!If current item field equals value~~id_conditionCustom/ {StringCategory=TXT}Appears in list of available conditions, and compares the value of a field in the current list to another value.!~"
+               AppliesTo="list" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!%1 %2 %3~~id_sentenceCustom/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="left" DesignerType="FieldNames" Text="~!field~~id_field1Custom/ {StringCategory=TXT}!~"/>
+        <FieldBind Id="2" Field="operator" DesignerType="Operator" OperatorTypeFrom="left" Text="~!this test~~id_field2Custom/ {StringCategory=TXT}!~">
+          <Option Name="~!equals~~id_optEqaulCustom/{StringCategory=TXT}!~" Value="Equal"/>
+          <Option Name="~!not equals~~id_optNotEqualCustom/{StringCategory=TXT}!~" Value="NotEqual"/>
+          <Option Name="~!is greater than~~id_optGreaterCustom/{StringCategory=TXT}!~" Value="GreaterThan" 
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is greater than or equal to~~id_optGreaterEqualCustom/ {StringCategory=TXT}!~" Value="GreaterThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is less than~~id_optLessCustom/ {StringCategory=TXT}!~" Value="LessThan"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is less than or equal to~~id_optLessEqualCustom/ {StringCategory=TXT}!~" Value="LessThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is empty~~id_optIsEmptyCustom/ {StringCategory=TXT}!~" Value="IsEmpty"
+                  TypeFilter="System.String" UnaryHides="right"/>
+          <Option Name="~!is not empty~~id_optIsNotEmptyCustom/ {StringCategory=TXT}!~" Value="NotIsEmpty"
+                  TypeFilter="System.String" UnaryHides="right"/>
+          <Option Name="~!begins with~~id_optStartsWithCustom/ {StringCategory=TXT}!~" Value="StartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not begin with~~id_optNotStartsWithCustom/ {StringCategory=TXT}!~" Value="NotStartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!ends with~~id_optEndsWithCustom/ {StringCategory=TXT}!~" Value="EndsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not end with~~id_optNotEndsWithCustom/ {StringCategory=TXT}!~" Value="NotEndsWith"
+                   TypeFilter="System.String"/>
+          <Option Name="~!contains~~id_optContainsCustom/ {StringCategory=TXT}!~" Value="Contains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not contain~~id_optNotContainsCustom/ {StringCategory=TXT}!~" Value="NotContains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!matches regular expression~~id_optMatchesCustom/ {StringCategory=TXT}!~" Value="Matches"
+                  TypeFilter="System.String"/>
+          <Option Name="~!equals (ignoring case)~~id_optEqualNoCaseCustom/ {StringCategory=TXT}!~" Value="EqualNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!contains (ignoring case)~~id_optContainsNoCaseCustom/ {StringCategory=TXT}!~" Value="ContainsNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!equals (ignoring time)~~id_optEqualNoTimeCustom/ {StringCategory=TXT}!~" Value="EqualNoTime"
+                  TypeFilter="System.DateTime"/>
+        </FieldBind>
+        <FieldBind Id="3" Field="right" Text="~!value~~id_field3Custom/ {StringCategory=TXT}!~" TypeFrom="left" DesignerType="Dependent" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="operator" Type="System.String, mscorlib" Direction="In" InitialValue="Equal" DesignerType="Dropdown" DisplayName="Operator"
+            Description="~!Operator to use in comparison.~~id_conditionCustomParamOperator/ {StringCategory=TXT} Shows up in the workflow property grid in SPD to describe how the operator property is used, which is the operator to compare two operands!~" />
+        <Parameter Name="left" Type="System.Object, mscorlib" Direction="In" DesignerType="FieldNames" DisplayName="LeftOperand"
+            Description="~!Left operand to use in comparison.~~id_conditionCustomParamLeftOperand/ {StringCategory=TXT} Shows up in the workflow property grid in SPD to describe how the field operand property is used, which is which field to get the value to be one of two values to compare!~" />
+        <Parameter Name="right" Type="System.Object, mscorlib" Direction="In" DesignerType="Dependent" DisplayName="RightOperand"
+            Description="~!Right operand to use in comparison.~~id_conditionCustomParamRightOperand/ {StringCategory=TXT} Shows up in the workflow property grid in SPD to describe how the right operand property is used, which is one of two values to compare!~" />
+      </Parameters>
+    </Condition>
+
+    <Condition Name="~!If any value equals value~~id_conditionAdv/ {StringCategory=TXT}Appears in list of available conditions, and compares two values of any types.!~"
+               Type="Advanced"
+               AppliesTo="all"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!%1 %2 %3~~id_sentenceAdv/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="left" Text="~!value~~id_field1Adv/ {StringCategory=TXT}!~" DesignerType="TextBox"/>
+        <FieldBind Id="2" Field="operator" DesignerType="Operator" OperatorTypeFrom="left" Text="~!this test~~id_field2Adv/ {StringCategory=TXT}!~">
+          <Option Name="~!equals~~id_optEqaulAdv/{StringCategory=TXT}!~" Value="Equal"/>
+          <Option Name="~!not equals~~id_optNotEqualAdv/{StringCategory=TXT}!~" Value="NotEqual"/>
+          <Option Name="~!is greater than~~id_optGreaterAdv/{StringCategory=TXT}!~" Value="GreaterThan" 
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is greater than or equal to~~id_optGreaterEqualAdv/ {StringCategory=TXT}!~" Value="GreaterThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is less than~~id_optLessAdv/ {StringCategory=TXT}!~" Value="LessThan"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is less than or equal to~~id_optLessEqualAdv/ {StringCategory=TXT}!~" Value="LessThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!is empty~~id_optIsEmptyAdv/ {StringCategory=TXT}!~" Value="IsEmpty"
+                  TypeFilter="System.String" UnaryHides="right"/>
+          <Option Name="~!is not empty~~id_optIsNotEmptyAdv/ {StringCategory=TXT}!~" Value="NotIsEmpty"
+                  TypeFilter="System.String" UnaryHides="right"/>
+          <Option Name="~!begins with~~id_optStartsWithAdv/ {StringCategory=TXT}!~" Value="StartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not begin with~~id_optNotStartsWithAdv/ {StringCategory=TXT}!~" Value="NotStartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!ends with~~id_optEndsWithAdv/ {StringCategory=TXT}!~" Value="EndsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not end with~~id_optNotEndsWithAdv/ {StringCategory=TXT}!~" Value="NotEndsWith"
+                   TypeFilter="System.String"/>
+          <Option Name="~!contains~~id_optContainsAdv/ {StringCategory=TXT}!~" Value="Contains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!does not contain~~id_optNotContainsAdv/ {StringCategory=TXT}!~" Value="NotContains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!matches regular expression~~id_optMatchesAdv/ {StringCategory=TXT}!~" Value="Matches"
+                  TypeFilter="System.String"/>
+          <Option Name="~!equals (ignoring case)~~id_optEqualNoCaseDAdv/ {StringCategory=TXT}!~" Value="EqualNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!contains (ignoring case)~~id_optContainsNoCaseDAdv/ {StringCategory=TXT}!~" Value="ContainsNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!equals (ignoring time)~~id_optEqualNoTimeAdv/ {StringCategory=TXT}!~" Value="EqualNoTime"
+                  TypeFilter="System.DateTime"/>
+        </FieldBind>
+        <FieldBind Id="3" Field="right" Text="~!value~~id_field3Adv/ {StringCategory=TXT}!~" TypeFrom="left" DesignerType="Dependent" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="operator" Type="System.String, mscorlib" Direction="In" InitialValue="Equal" DesignerType="Dropdown" DisplayName="Operator"
+            Description="~!Operator to use in comparison.~~id_conditionAdvParamOperator/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to describe how the operator property is used, which is the operator to compare two operands!~" />
+        <Parameter Name="left" Type="System.Object, mscorlib" Direction="In" DesignerType="Dependent" DisplayName="LeftOperand"
+            Description="~!Left operand to use in comparison.~~id_conditionAdvParamLeftOperand/ {StringCategory=TXT}  Shows up in the workflow property grid in SPD to describe how the left operand property is used, which is one of two values to compare!~" />
+        <Parameter Name="right" Type="System.Object, mscorlib" Direction="In" DesignerType="Dependent" DisplayName="RightOperand"
+            Description="~!Right operand to use in comparison.~~id_conditionAdvParamRightOperand/ {StringCategory=TXT} Shows up in the workflow property grid in SPD to describe how the right operand property is used, which is one of two values to compare!~" />
+      </Parameters>
+    </Condition>
+
+    <Condition Name="~!Title field contains keywords~~id_conditionWords/ {StringCategory=TXT}!~"
+               FunctionName="WordsInTitle"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="list" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!title field contains %1~~id_sentenceWords/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="_1_" Text="~!keywords~~id_field1Words/ {StringCategory=TXT}!~" DesignerType="TextBox"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.String, mscorlib" Direction="In" DisplayName="Keywords" DesignerType="TextBox"
+            Description="~!Keyword to find in title field.~~id_conditionWordsParamKeyword/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to describe how to use the Keywords property, which is the set of keywords that will be searched for in a workflow condition that compares keywords to the contents of the title property on the current item!~" />
+      </Parameters>
+    </Condition>
+
+    <Condition Name="~!Modified in a specific date span~~id_conditionModDate/ {StringCategory=TXT}!~"
+               FunctionName="ModifiedInRange"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="list" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!modified between %1 and %2~~id_sentenceModDate/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="_1_" Text="~!date~~id_field1ModDate/ {StringCategory=TXT}!~" DesignerType="Date"/>
+        <FieldBind Id="2" Field="_2_" Text="~!date~~id_field2ModDate/ {StringCategory=TXT}!~" DesignerType="Date"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.DateTime, mscorlib" Direction="In" DisplayName="MinDate"
+            Description="~!Lower bound on date range to use in comparison.~~id_conditionModDateParamMinDate/ {StringCategory=TXT}Description for a property that is the lower of two values to use in comparing to see if the Modified field of a list item is within a range or not!~" />
+        <Parameter Name="_2_" Type="System.DateTime, mscorlib" Direction="In" DisplayName="MaxDate"
+            Description="~!Upper bound on date range to use in comparison.~~id_conditionModDateParamMaxDate/ {StringCategory=TXT}Description for a property that is the upper of two values to use in comparing to see if the Modified field of a list item is within a range or not!~" />
+      </Parameters>
+    </Condition>
+       
+    <Condition Name="~!Modified by a specific person~~id_conditionModPerson/ {StringCategory=TXT}!~"
+               FunctionName="ModifiedBy"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="list" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!modified by %1~~id_sentenceModPerson/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="_1_" DesignerType="Person" Text="~!specific person~~id_field1ModPerson/ {StringCategory=TXT}!~"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.String, mscorlib" Direction="In" DesignerType="Person" DisplayName="ModifiedBy"
+            Description="~!Person who last modified this item.~~id_conditionModPersonParamModifiedBy/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to inform users how to use the ModifiedBy property, which is to compare against the Modified By property of the current item!~" />
+      </Parameters>
+    </Condition>
+       
+    <Condition Name="~!Person is a valid SharePoint user~~id_conditionValidUser/ {StringCategory=TXT} Condition name that is shown in list of conditions!~"
+               FunctionName="IsValidUser"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="all" 
+               UsesCurrentItem="false"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!%1 is a valid SharePoint user~~id_sentenceValidUser/ {StringCategory=TXT}Sentence for condition. %1 will be a user or person name.!~">
+        <FieldBind Id="1" Field="_1_" DesignerType="Person" Text="~!person~~id_field1ValidUser/ {StringCategory=TXT} Hyperlink part of condition sentence, will be displayed as 'person' by default and will be changed into user name when a user is selected.!~"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.String, mscorlib" Direction="In" DesignerType="Person" DisplayName="Person"
+            Description="~!Username to be checked for validity on this SharePoint site.~~id_conditionIsValidUserParamPerson/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to inform users how to use the IsValidUser property, which returns the validity of a particular user.!~" />
+      </Parameters>
+    </Condition>
+
+    <Condition Name="~!Created in a specific date span~~id_conditionCreDate/ {StringCategory=TXT}!~"
+               FunctionName="CreatedInRange"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="list" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!created between %1 and %2~~id_sentenceCreDate/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="_1_" Text="~!date~~id_field1CreDate/ {StringCategory=TXT}!~" DesignerType="Date"/>
+        <FieldBind Id="2" Field="_2_" Text="~!date~~id_field2CreDate/ {StringCategory=TXT}!~" DesignerType="Date"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.DateTime, mscorlib" Direction="In" DisplayName="MinDate"
+            Description="~!Lower bound on date range to use in comparison.~~id_conditionCreDateParamMinDate/ {StringCategory=TXT}Description for a property that is the lower of two values to use in comparing to see if the Created field of a list item is within a range or not!~" />
+        <Parameter Name="_2_" Type="System.DateTime, mscorlib" Direction="In" DisplayName="MaxDate"
+            Description="~!Upper bound on date range to use in comparison.~~id_conditionCreDateParamMaxDate/ {StringCategory=TXT}Description for a property that is the upper of two values to use in comparing to see if the Created field of a list item is within a range or not!~" />
+      </Parameters>
+    </Condition>
+       
+    <Condition Name="~!Created by a specific person~~id_conditionCrePerson/ {StringCategory=TXT}!~"
+               FunctionName="CreatedBy"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="list" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!created by %1~~id_sentenceCrePerson/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="_1_" DesignerType="Person" Text="~!specific person~~id_field1CrePerson/ {StringCategory=TXT}!~"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.String, mscorlib" Direction="In" DesignerType="Person" DisplayName="CreatedBy"
+            Description="~!Person who created this item.~~id_conditionCrePersonParamCreatedBy/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to inform users how to use the CreatedBy property, which is to compare against the Created By property of the current item!~" />
+      </Parameters>
+    </Condition>
+       
+    <Condition Name="~!The file type is a specific type~~id_conditionFileType/ {StringCategory=TXT}!~"
+               FunctionName="FileTypeIs"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="doclib" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!the file type is %1~~id_sentenceFileType/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="_1_" Text="~!specific type~~id_field1FileType/ {StringCategory=TXT}!~" DesignerType="TextBox"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.String, mscorlib" Direction="In" DisplayName="FileType"
+            Description="~!Type of file to use in comparison.~~id_conditionFileTypeParamFileType/ {StringCategory=TXT}Shows up in the workflow property grid to inform users how to use the FileType parameter, which is to compare against the extension of the current file!~" />
+      </Parameters>
+    </Condition>
+       
+    <Condition Name="~!The file size in a specific range kilobytes~~id_conditionFileSize/ {StringCategory=TXT}!~"
+               FunctionName="FileSizeIs"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="doclib" 
+               UsesCurrentItem="true"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!the file size is between %1 and %2 kilobytes~~id_sentenceFileSize/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Field="_1_" Text="~!size~~id_field1FileSize/ {StringCategory=TXT}!~" DesignerType="Integer"/>
+        <FieldBind Id="2" Field="_2_" Text="~!size~~id_field2FileSize/ {StringCategory=TXT}!~" DesignerType="Integer"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.Double, mscorlib" Direction="In" DisplayName="MinSize"
+            Description="~!Lower bound on file size to use in comparison.~~id_conditionFileSizeParamMinSize/ {StringCategory=TXT}Description for a property that is the lower of two values to use in comparing to see if the file size of a file is within a range or not!~" />
+        <Parameter Name="_2_" Type="System.Double, mscorlib" Direction="In" DisplayName="MaxSize"
+            Description="~!Upper bound on file size to use in comparison.~~id_conditionFileSizeParamMaxSize/ {StringCategory=TXT}Description for a property that is the upper of two values to use in comparing to see if the file size of a file is within a range or not!~" />
+      </Parameters>
+    </Condition>
+    
+    <Condition Name="~!Check list item permissions~~id_conditionCheckListItemPermissions/ {StringCategory=TXT} Condition name!~"
+               FunctionName="CheckPermission"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               RequiredInvocationTags="ImpersonationSequence"
+               AppliesTo="all" 
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!permissions for %1 are at least %2 on item in %3~~id_sentenceCheckListItemPermissions/ {StringCategory=TXT} Sentence for condition. %1 will be 'these users' or user name list, %2 will be 'permissions' or permission name list, and %3 will be 'this list' or 'Current Item' or list name.!~">
+        <FieldBind Id="1" Field="_1_" DesignerType="Person" Text="~!these users~~id_field1CheckListItemPermissions/ {StringCategory=TXT} Hyperlink part of condition sentence, will be displayed as 'these users' by default and will be changed into user name list then users are selected.!~"/>
+        <FieldBind Id="2" Field="_2_" DesignerType="CheckPermission"  Text="~!these permissions~~id_field2CheckListItemPermissions/ {StringCategory=TXT} Hyperlink part of condition sentence, will be displayed as 'permissions' by default and will be changed into selected permission name list.!~"/>
+        <FieldBind Id="3" Field="_3_,_4_" DesignerType="ChooseListItem" Text="~!this list~~id_field3CheckListItemPermissions/ {StringCategory=TXT} Hyperlink part of condition sentence, will be displayed as 'this list' by default and will be changed into selected list name or 'Current Item'.!~"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Person" DisplayName="Users"
+            Description="~!Users to check permissions for.~~id_conditionCheckPermissionParamUsers/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+        <Parameter Name="_2_" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="_3_" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="_4_" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem" DisplayName="ListItem"
+            Description="~!ID of the list item used by this action.~~id_conditionCheckPermissionParamListItem/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+      </Parameters>
+    </Condition>
+
+    <Condition Name="~!Check list item permission levels~~id_conditionCheckListItemPermissionsExact/ {StringCategory=TXT} Condition name!~"
+               FunctionName="CheckPermissionExact"
+               ClassName="Microsoft.SharePoint.WorkflowActions.Helper"
+               Assembly="Microsoft.SharePoint.WorkflowActions"
+               AppliesTo="all" 
+               RequiredInvocationTags="ImpersonationSequence"
+               ItemKeyType="Microsoft.SharePoint.Workflow.SPItemKey">
+      <RuleDesigner Sentence="~!permission levels for %1 are at least %2 on item in %3~~id_sentenceCheckListItemPermissionsExact/ {StringCategory=TXT} Sentence for condition. %1 will be 'these users' or user name list, %2 will be 'permissions' or permission name list, and %3 will be 'this list' or 'Current Item' or list name.!~">
+        <FieldBind Id="1" Field="_1_" DesignerType="Person" Text="~!these users~~id_field1CheckListItemPermissionsExact/ {StringCategory=TXT} Hyperlink part of condition sentence, will be displayed as 'these users' by default and will be changed into user name list then users are selected.!~"/>
+        <FieldBind Id="2" Field="_2_" DesignerType="CheckPermission"  Text="~!these permission levels~~id_field2CheckListItemPermissionsExact/ {StringCategory=TXT} Hyperlink part of condition sentence, will be displayed as 'permissions' by default and will be changed into selected permission name list.!~"/>
+        <FieldBind Id="3" Field="_3_,_4_" DesignerType="ChooseListItem" Text="~!this list~~id_field3CheckListItemPermissionsExact/ {StringCategory=TXT} Hyperlink part of condition sentence, will be displayed as 'this list' by default and will be changed into selected list name or 'Current Item'.!~"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="_1_" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Person" DisplayName="Users"
+            Description="~!Users to check permissions for.~~id_conditionCheckPermissionExactParamUsers/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+        <Parameter Name="_2_" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="_3_" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="_4_" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem" DisplayName="ListItem"
+            Description="~!ID of the list item used by this action.~~id_conditionCheckPermissionExactParamListItem/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+      </Parameters>
+    </Condition>
+
+  </Conditions>
+
+  <Actions Sequential="~!then~~id_actionThen/ {StringCategory=TXT}!~" Parallel="~!and~~id_actionAnd/ {StringCategory=TXT}!~">
+    <Default>
+      <RuleDesigner Sentence="~!Run action %1~~id_sentenceAction/ {StringCategory=TXT}!~">
+        <FieldBind Id="1" Function="true" DesignerType="TextBox"/>
+      </RuleDesigner>
+    </Default>
+
+
+    <Action Name="~!Send an Email~~id_actionSendEmail/ {StringCategory=TXT}!~" 
+      ClassName="Microsoft.SharePoint.WorkflowActions.EmailActivity"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      Category="~!Core Actions~~id_actionSendEmailCategory/ {StringCategory=TXT}{Duplicate=Master,wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~"
+      AppliesTo="all">
+      <RuleDesigner Sentence="~!Email %1~~id_sentenceSendEmail/ {StringCategory=TXT}!~">
+        <FieldBind Field="To,CC,Subject,Body" Text="~!these users~~id_field1SendEmail/ {StringCategory=TXT} String that is the default value of the placeholder %1 in id_sentenceSendEmail. Will be replaced by a list of users!~" DesignerType="Email" Id="1"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="Body" Type="System.String, mscorlib" Direction="Optional" DesignerType="StringBuilder"
+			Description="~!Body text of the email.~~id_actionSendEmailParamBody/ {StringCategory=TXT}Shows up in the workflow property grid to tell users this property corresponds to the body of the email message that will be sent!~" />
+        <Parameter Name="To" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Person"
+			Description="~!Recipients of the email.~~id_actionSendEmailParamTo/ {StringCategory=TXT}Shows up in the workflow property grid to tell users this property corresponds to the TO property of the email message that will be sent!~" />
+        <Parameter Name="CC" Type="System.Collections.ArrayList, mscorlib" Direction="Optional" DesignerType="Person"
+			Description="~!Carbon copy recipients of the email.~~id_actionSendEmailParamCC/ {StringCategory=TXT}Shows up in the workflow property grid to tell users this property corresponds to the CC'd individuals of the email message that will be sent!~" />
+        <Parameter Name="Subject" Type="System.String, mscorlib" Direction="In" DesignerType="StringBuilder"
+			Description="~!Subject line of the email.~~id_actionSendEmailParamSubject/ {StringCategory=TXT}Shows up in the workflow property grid to tell users this property corresponds to the subject of the email message that will be sent!~" />
+        <Parameter Name="BCC" Type="System.Collections.ArrayList, mscorlib" Direction="Optional" DesignerType="Person"
+            Description="~!Blind carbon copy recipients of the email.~~id_actionSendEmailParamBCC/ {StringCategory=TXT}!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Collect Data from a User~~id_actionCollectDataTask/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.CollectDataTask"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      CreatesTask="true"
+      CreatedTaskFormType="DataCollectTask"
+      Category="~!Task Actions~~id_actionAssignCollectDataTaskCategory/ {StringCategory=TXT}{Duplicate=Master,wss.actions;id_actionAssignCollectDataTaskCategory}Name for a category of actions that contains actions that assign workflow tasks!~">
+      <RuleDesigner Sentence="~!Collect %1 from %2 (Output to %3)~~id_sentenceCollectDataTask/ {StringCategory=TXT}Sentence shown in the workflow design surface for an action that requests a single user to input data.  %1 leads to a description of the data to collect, %2 is a username, %3 is the variable name to store the ID of the item in the task list!~">
+        <FieldBind Field="Title,ContentTypeId" DesignerType="Survey" Text="~!data~~id_field1CollectDataTask/ {StringCategory=TXT}!~" Id="1"/>
+        <FieldBind Field="AssignedTo" DesignerType="SinglePerson" Text="~!this user~~id_field2CollectDataTask/ {StringCategory=TXT}!~" Id="2"/>
+        <FieldBind Field="TaskId" DesignerType="ParameterNames" Text="~!collect~~id_field3CollectDataTask/ {StringCategory=TXT}Default name for the variable that is created when the user creates a data collection task; refers to the ID of the list item that is the actual task item!~" Id="3"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ContentTypeId" Type="System.String, mscorlib" Direction="In" DesignerType="ContentType" DisplayName="ContentType"
+            Description="~!Content type used for this task.~~id_actionCollectDataTaskParamContentTypeID/ {StringCategory=TXT}Shown in the workflow property grid to describe to a user how the ContentTypeId property is used.!~" />
+        <Parameter Name="AssignedTo" Type="System.String, mscorlib" Direction="In" DesignerType="SinglePerson"
+            Description="~!Person or group to collect data from.~~id_actionCollectDataTaskParamAssignedTo/ {StringCategory=TXT}Shown in the workflow property grid to describe to the user how the AssignedTo property is used.!~" />
+        <Parameter Name="Title" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="TaskId" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="Out" DesignerType="ParameterNames"
+            Description="~!ID of the task created by this action.~~id_actionCollectDataTaskParamTaskId/ {StringCategory=TXT}Shown in the workflow property grid to describe to the user how to use the TaskId property.!~" />
+      </Parameters>
+     </Action>
+
+
+    <Action Name="~!Assign a To-do Item~~id_actionTodoTask/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.TodoItemTask"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      CreatesTask="true"
+      CreatedTaskFormType="TodoItemTask"
+      Category="~!Task Actions~~id_actionAssignTodoTaskCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionAssignCollectDataTaskCategory}Name for a category of actions that contains actions that assign workflow tasks!~">
+      <RuleDesigner Sentence="~!Assign %1 to %2~~id_sentenceTodoTask/ {StringCategory=TXT}!~">
+        <FieldBind Field="Title,ContentTypeId" DesignerType="Survey" Text="~!a to-do item~~id_field1TodoTask/ {StringCategory=TXT}!~" Id="1"/>
+        <FieldBind Field="AssignedTo" DesignerType="Person" Text="~!these users~~id_field2TodoTask/ {StringCategory=TXT}!~" Id="2"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ContentTypeId" Type="System.String, mscorlib" Direction="In" DesignerType="ContentType" DisplayName="ContentType"
+            Description="~!Content type used for this task.~~id_actionTodoTaskParamContentTypeId/ {StringCategory=TXT}String that shows up in the workflow property grid to instruct the user how to use the ContentTypeId property !~" />
+        <Parameter Name="AssignedTo" Type="System.Collections.ArrayList, mscorlib" Direction="In"
+            DesignerType="Person" Description="~!Person or group to assign the task to.~~id_actionTodoTaskParamAssignedTo/ {StringCategory=TXT}String that shows up in the workflow property grid to instruct the user how to use the AssignedTo property!~" />
+        <Parameter Name="Title" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+      </Parameters>
+     </Action>
+
+    <Action Name="~!Assign a Form to a Group~~id_actionGroupSurveyTask/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.GroupAssignedTask"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      CreatesTask="true"
+      CreatedTaskFormType="GroupAssignedTask"
+      Category="~!Task Actions~~id_actionAssignGroupSurveyTaskCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionAssignCollectDataTaskCategory}Name for a category of actions that contains actions that assign workflow tasks!~">
+      <RuleDesigner Sentence="~!Assign %1 to %2~~id_sentenceGroupSurveyTask/ {StringCategory=TXT}!~">
+        <FieldBind Field="Title,ContentTypeId" DesignerType="Survey" Text="~!a custom form~~id_field1GroupSurveyTask/ {StringCategory=TXT}!~" Id="1"/>
+        <FieldBind Field="AssignedTo" DesignerType="Person" Text="~!these users~~id_field2GroupSurveyTask/ {StringCategory=TXT}!~" Id="2"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ContentTypeId" Type="System.String, mscorlib" Direction="In" DesignerType="ContentType" DisplayName="ContentType"
+            Description="~!Content type used for this task.~~id_actionGroupSurveyTaskParamContentTypeId/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ContentTypeId property!~" />
+        <Parameter Name="AssignedTo" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Person"
+            Description="~!Person or group to assign the task to.~~id_actionGroupSurveyTaskParamAssignedTo/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the AssignedTo property!~" />
+        <Parameter Name="Title" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+      </Parameters>
+     </Action>
+      
+    <Action Name="~!Set Field in Current Item~~id_actionSetField/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.SetFieldActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="list" 
+      UsesCurrentItem="true"
+      Category="~!List Actions~~id_actionSetFieldCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Category name that contains the most often used or most general actions!~">
+      <RuleDesigner Sentence="~!Set %1 to %2~~id_sentenceSetField/ {StringCategory=TXT}!~">
+        <FieldBind Field="FieldName" Text="~!field~~id_field1SetField/ {StringCategory=TXT}!~" Id="1" DesignerType="WritableFieldNames" />
+        <FieldBind Field="Value" Text="~!value~~id_field2SetField/ {StringCategory=TXT}!~" Id="2" TypeFrom="FieldName" DesignerType="Dependent" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="FieldName"  Type="System.String, mscorlib" Direction="In" DesignerType="WritableFieldNames"
+            Description="~!Field to set the value of.~~id_actionSetFieldParamFieldName/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the FieldName property!~" />
+        <Parameter Name="Value" Type="System.Object, mscorlib" Direction="In" DesignerType="Dependent"
+            Description="~!Value to set the field to.~~id_actionSetFieldParamValue/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Value property!~" />
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+      
+    <Action Name="~!Update List Item~~id_actionUpdateList/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.UpdateItemActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!List Actions~~id_actionUpdateListCategory/ {StringCategory=TXT}{Duplicate=Master,wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Update item in %1~~id_sentenceUpdateList/ {StringCategory=TXT}!~">
+        <FieldBind Field="ListId,ListItem,ItemProperties" Text="~!this list~~id_field1UpdateList/ {StringCategory=TXT}!~" Id="1" DesignerType="UpdateListItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem"
+            Description="~!ID of the list item used by this action.~~id_actionUpdateListParamListItem/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ListItem property!~" />
+        <Parameter Name="ItemProperties" Type="System.Collections.Hashtable, mscorlib" Direction="In" DesignerType="ItemProperties"
+            Description="~!Collection of values used to update list item.~~id_actionUpdateListParamItemProperties/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ItemProperties property!~" />
+      </Parameters>
+    </Action>
+      
+    <Action Name="~!Create List Item~~id_actionCreList/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.CreateItemActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      CreatesInList="ListId"
+      Category="~!List Actions~~id_actionCreListCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Create item in %1 (Output to %2)~~id_sentenceCreList/ {StringCategory=TXT}Sentence shown in the workflow designer for an action that creates an item in a list.  %1 refers to the list in which the item will be created, %2 is the name of the variable that will hold the value of the list item ID of the created item.!~">
+        <FieldBind Field="ListId,ItemProperties,Overwrite" Text="~!this list~~id_field1CreList/ {StringCategory=TXT}!~" Id="1" DesignerType="CreateListItem" />
+        <FieldBind Field="NewItemId" DesignerType="ParameterNames" Text="~!create~~id_field2CreList/ {StringCategory=TXT}Default name for the variable that is automatically created when a CreateItem action is created.  Refers to the ID of the list item that was created.!~" Id="2"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="ListNames" 
+            Description="~!Canonical form of the list GUID used by this action.~~id_actionCreListParamListId/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ListId property!~" />
+        <Parameter Name="ItemProperties" Type="System.Collections.Hashtable, mscorlib" DesignerType="ItemProperties"
+            Direction="In" Description="~!Collection of values used to update list item.~~id_actionCreListParamItemProperties/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ItemProperties property!~" />
+        <Parameter Name="Overwrite" Type="System.Boolean, mscorlib" Direction="In" InitialValue="false"
+            Description="~!Overwrite any list item with this ID if it exists.~~id_actionCreListParamOverwrite/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Overwrite property!~" />
+        <Parameter Name="NewItemId" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="Out" DesignerType="ParameterNames"
+            Description="~!ID of the list item created by this action.~~id_actionCreListParamNewItemId/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the NewItemId property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Copy List Item~~id_actionCopyList/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.CopyItemActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      CreatesInList="ToListId"
+      AppliesTo="all"
+      Category="~!List Actions~~id_actionCopyListCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Copy item in %1 to %2~~id_sentenceCopyList/ {StringCategory=TXT}!~">
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field1CopyList/ {StringCategory=TXT}!~" Id="1" DesignerType="ChooseListItem" />
+        <FieldBind Field="ToListId" Text="~!this list~~id_field2CopyList/ {StringCategory=TXT}!~" Id="2" DesignerType="ListNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem"
+            Description="~!ID of the list item used by this action.~~id_actionCopyListParamListItem/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ListItem property!~" />
+        <Parameter Name="ToListId" Type="System.String, mscorlib" Direction="In" DesignerType="ListNames" 
+            Description="~!Canonical form of the list GUID used to copy the list item to.~~id_actionCopyListParamToListId/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ToListId property!~" />
+        <Parameter Name="Overwrite" Type="System.Boolean, mscorlib" Direction="In" InitialValue="false"
+            Description="~!Overwrite any list item with this ID if it exists.~~id_actionCopyListParamOverwrite/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Overwrite property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Check Out Item~~id_actionCheckOut/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.CheckOutItemActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!List Actions~~id_actionCheckOutCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Check out item in %1~~id_sentenceCheckOut/ {StringCategory=TXT}!~">
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field1CheckOut/ {StringCategory=TXT}!~" Id="1" DesignerType="ChooseDoclibItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem"
+            Description="~!ID of the list item used by this action.~~id_actionCheckOutParamListItem/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ListItem property!~" />
+      </Parameters>
+    </Action>
+      
+    <Action Name="~!Check In Item~~id_actionCheckIn/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.CheckInItemActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!List Actions~~id_actionCheckInCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Check in item in %1 with comment: %2~~id_sentenceCheckIn/ {StringCategory=TXT}!~">
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field1CheckIn/ {StringCategory=TXT}!~" Id="1" DesignerType="ChooseDoclibItem" />
+        <FieldBind Field="Comment" Text="~!comment~~id_field2CheckIn/ {StringCategory=TXT}!~" Id="2" DesignerType="TextArea"></FieldBind>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem"
+            Description="~!ID of the list item used by this action.~~id_actionCheckInParamListItem/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ListItem property!~" />
+        <Parameter Name="Comment" Type="System.String, mscorlib" Direction="In"
+            Description="~!Comment to accompany file check in.~~id_actionCheckInParamComment/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Comment property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Discard Check Out Item~~id_actionUndoCheckOut/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.UndoCheckOutItemActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!List Actions~~id_actionUndoCheckOutCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}!~">
+      <RuleDesigner Sentence="~!Discard check out of item in %1~~id_sentenceUndoCheckOut/ {StringCategory=TXT}!~">
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field1UndoCheckOut/ {StringCategory=TXT}!~" Id="1" DesignerType="ChooseDoclibItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem"
+            Description="~!ID of the list item used by this action.~~id_actionUndoCheckOutParamListItem/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ListItem property!~" />
+      </Parameters>
+    </Action>
+      
+    <Action Name="~!Delete Item~~id_actionDelItem/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.DeleteItemActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!List Actions~~id_actionDelItemCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Delete item in %1~~id_sentenceDelItem/ {StringCategory=TXT}!~">
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field1DelItem/ {StringCategory=TXT}!~" Id="1" DesignerType="ChooseListItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem"
+            Description="~!ID of the list item used by this action.~~id_actionDelItemParamListItem/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ListItem property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Wait for Field Change in Current Item~~id_actionWaitFor/ {StringCategory=TXT}Appears in the list of available actions, causes workflow to wait for a change to occur in a given field of the current item!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.WaitForActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="list" 
+      UsesCurrentItem="true"
+      Category="~!List Actions~~id_actionWaitForCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Category name that contains the most often used or most general actions!~">
+
+      <RuleDesigner Sentence="~!Wait for %1 %2 %3~~id_sentenceWaitFor/ {StringCategory=TXT}!~">
+        <FieldBind Field="FieldName" Text="~!field~~id_field1WaitFor/ {StringCategory=TXT}!~" Id="1" DesignerType="FieldNames" />
+        <FieldBind Id="2" Field="Operator" DesignerType="Operator" OperatorTypeFrom="FieldName" Text="~!this test~~id_field2WaitFor/ {StringCategory=TXT}!~">
+          <Option Name="~!to equal~~id_optEqualWaitFor/{StringCategory=TXT}!~" Value="Equal"/>
+          <Option Name="~!to not equal~~id_optNotEqualWaitFor/{StringCategory=TXT}!~" Value="NotEqual"/>
+          <Option Name="~!to be greater than~~id_optGreaterWaitFor/{StringCategory=TXT}!~" Value="GreaterThan" 
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!to be greater than or to equal~~id_optGreaterEqualWaitFor/ {StringCategory=TXT}!~" Value="GreaterThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!to be less than~~id_optLessWaitFor/ {StringCategory=TXT}!~" Value="LessThan"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!to be less than or to equal~~id_optLessEqualWaitFor/ {StringCategory=TXT}!~" Value="LessThanOrEqual"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.DateTime"/>
+          <Option Name="~!to be empty~~id_optIsEmptyWaitFor/ {StringCategory=TXT}!~" Value="IsEmpty"
+                  TypeFilter="System.String" UnaryHides="Value"/>
+          <Option Name="~!to be not empty~~id_optIsNotEmptyWaitFor/ {StringCategory=TXT}!~" Value="NotIsEmpty"
+                  TypeFilter="System.String" UnaryHides="Value"/>
+          <Option Name="~!to begin with~~id_optStartsWithWaitFor/ {StringCategory=TXT}!~" Value="StartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to not begin with~~id_optNotStartsWithWaitFor/ {StringCategory=TXT}!~" Value="NotStartsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to end with~~id_optEndsWithWaitFor/ {StringCategory=TXT}!~" Value="EndsWith"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to not end with~~id_optNotEndsWithWaitFor/ {StringCategory=TXT}!~" Value="NotEndsWith"
+                   TypeFilter="System.String"/>
+          <Option Name="~!to contain~~id_optContainsWaitFor/ {StringCategory=TXT}!~" Value="Contains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to not contain~~id_optNotContainsWaitFor/ {StringCategory=TXT}!~" Value="NotContains"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to match regular expression~~id_optMatchesWaitFor/ {StringCategory=TXT}!~" Value="Matches"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to equal (ignoring case)~~id_optEqualNoCaseDWaitFor/ {StringCategory=TXT}!~" Value="EqualNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to contain (ignoring case)~~id_optContainsNoCaseDWaitFor/ {StringCategory=TXT}!~" Value="ContainsNoCase"
+                  TypeFilter="System.String"/>
+          <Option Name="~!to equal (ignoring time)~~id_optEqualNoTimeWaitFor/ {StringCategory=TXT}!~" Value="EqualNoTime"
+                  TypeFilter="System.DateTime"/>
+        </FieldBind>
+        <FieldBind Field="Value" Text="~!value~~id_field3WaitFor/ {StringCategory=TXT}!~" Id="3" TypeFrom="FieldName" DesignerType="Dependent" />
+      </RuleDesigner>
+
+      <Parameters>
+        <Parameter Name="FieldName"  Type="System.String, mscorlib" Direction="In" DesignerType="FieldNames"
+            Description="~!Field to use in comparison.~~id_actionWaitForParamFieldName/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to describe how the FieldName property is used, which is the field name to get the value from to use in the comparison when waiting for a field value to change to a particular value.!~" />
+        <Parameter Name="Operator" Type="System.String, mscorlib" Direction="In" InitialValue="Equal" DesignerType="Dropdown"
+            Description="~!Operator to use in comparison.~~id_actionWaitForParamOperator/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to describe how the Operator property is used, which is the operator to compare two operands!~" />
+        <Parameter Name="Value" Type="System.Object, mscorlib" Direction="In" DesignerType="Dependent"
+            Description="~!Value to use in comparison.~~id_actionWaitForParamValue/ {StringCategory=TXT}Shows up in the workflow property grid in SPD to describe how the Value property is used, which is the value to compare against the field name when waiting for for a field value to change to a particular value!~" />
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListId" Type="System.String, mscorlib, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Wait for Change in Document Check-Out Status~~id_actionWaitForDocumentStatus/ {StringCategory=TXT}Appears in the list of available actions, causes workflow to wait until the document has reached a certain status!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.WaitForDocumentStatusActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="doclib"
+      Category="~!List Actions~~id_actionWaitForDocumentStatusCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Category name that contains the most often used or most general actions!~"
+      UsesCurrentItem="true">
+      <RuleDesigner Sentence="~!Wait for document to be %1~~id_sentenceSetVariable/ {StringCategory=TXT}Sentence shown in the workflow creator. id_field1SetVariable is shown by default!~">
+        <FieldBind Field="DocumentStatus" DesignerType="Dropdown" Id="1" Text="~!this check-out status~~id_field1SetVariable/ {StringCategory=TXT}Default value shown before the user has chosen a value to wait for the document status to be.!~">
+           <Option Name="~!Checked-Out~~id_optCheckOut/ {StringCategory=TXT}The document has been checked-out of editting!~" Value="checkout"/>
+           <Option Name="~!Checked-In~~id_optCheckIn/ {StringCategory=TXT}The document is no longer being editted and the edits were checked-in to the server!~" Value="checkin"/>
+           <Option Name="~!Unlocked by document editor~~id_optUnlock/ {StringCategory=TXT}The document is not being accessed by any users!~" Value="unlock"/>
+           <Option Name="~!Discarded~~id_optDiscard/ {StringCategory=TXT}The document is no longer being editted and the edits were not saved to the server. (The user discarded checkout).!~" Value="discard"/>
+        </FieldBind>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="DocumentStatus"  Type="System.String, mscorlib" Direction="In" DesignerType="Dropdown"
+            Description="~!Choice of document status.~~id_actionSetVariableParamVariable/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the DocumentStatus property!~" />
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Set Workflow Variable~~id_actionSetVariable/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.SetVariableActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionSetVariableCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+       <RuleDesigner Sentence="~!Set %1 to %2~~id_sentenceSetVariable/ {StringCategory=TXT}!~">
+        <FieldBind Field="Variable,ValueType" Text="~!workflow variable~~id_field1SetVariable/ {StringCategory=TXT}!~" Id="1" DesignerType="ParameterNames" />
+        <FieldBind Field="Value" Text="~!value~~id_field2SetVariable/ {StringCategory=TXT}!~" Id="2" TypeFrom="Variable" DesignerType="Dependent" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="Variable"  Type="System.Object, mscorlib" Direction="Out" DesignerType="ParameterNames"
+            Description="~!Workflow variable output by this action.~~id_actionSetVariableParamVariable/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Variable property!~" />
+        <Parameter Name="Value" Type="System.Object, mscorlib" Direction="In" DesignerType="Dependent"
+            Description="~!Value used to set the workflow variable.~~id_actionSetVariableParamValue/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Value property!~" />
+        <Parameter Name="ValueType" Type="System.String, mscorlib" Direction="In"  DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Build Dynamic String~~id_actionBuildString/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.BuildStringActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="displayonly"
+      Category="~!Core Actions~~id_actionBuildStringCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+       <RuleDesigner Sentence="~!Store %1 in %2~~id_sentenceSBuildString/ {StringCategory=TXT}!~">
+        <FieldBind Field="StringValue" Text="~!dynamic string~~id_field1BuildString/ {StringCategory=TXT}!~" Id="1" DesignerType="StringBuilder" />
+        <FieldBind Field="Variable" Text="~!variable~~id_field2BuildString/ {StringCategory=TXT}!~" Id="2" DesignerType="ParameterNames"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="Variable"  Type="System.String, mscorlib" Direction="Out" DesignerType="ParameterNames"
+            Description="~!Workflow variable output by this action.~~id_actionBuildStringParamVariable/ {StringCategory=TXT}!~" />
+        <Parameter Name="StringValue" Type="System.String, mscorlib" Direction="In" DesignerType="StringBuilder"
+            Description="~!Dynamic string used to set workflow variable.~~id_actionBuildStringParamStringValue/ {StringCategory=TXT}!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Do Calculation~~id_actionDoCalc/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.MathActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionDoCalcCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+      <RuleDesigner Sentence="~!Calculate %1 %2 %3 (Output to %4)~~id_sentenceDoCalc/ {StringCategory=TXT}!~">
+        <FieldBind Field="Operand1" Text="~!value~~id_field1DoCalc/ {StringCategory=TXT}!~" Id="1" TypeFrom="*ValueType" DesignerType="TextBox" />
+        <FieldBind Id="2" Field="Operator" DesignerType="Operator" OperatorTypeFrom="Variable" Text="~!this operation~~id_field2DoCalc/ {StringCategory=TXT}!~">
+          <Option Name="~!plus~~id_opPlusDoCalc/ {StringCategory=TXT}!~" Value="add"
+                  TypeFilter="System.Double;System.Int32;System.Uint32;System.String"/>
+          <Option Name="~!minus~~id_opMinusDoCalc/ {StringCategory=TXT}!~" Value="sub"
+                  TypeFilter="System.Double;System.Int32;System.Uint32"/>
+          <Option Name="~!multiply by~~id_opMultDoCalc/ {StringCategory=TXT}!~" Value="times"
+                  TypeFilter="System.Double;System.Int32;System.Uint32"/>
+          <Option Name="~!divided by~~id_opDivDoCalc/ {StringCategory=TXT}!~" Value="divide"
+                  TypeFilter="System.Double;System.Int32;System.Uint32"/>
+          <Option Name="~!mod~~id_opModDoCalc/ {StringCategory=TXT}!~" Value="mod"
+                  TypeFilter="System.Double;System.Int32;System.Uint32"/>
+        </FieldBind>
+        <FieldBind Field="Operand2" Text="~!value~~id_field3DoCalc/ {StringCategory=TXT}!~" Id="3" TypeFrom="*ValueType" DesignerType="TextBox" />
+        <FieldBind Field="Variable,ValueType" Text="~!calc~~id_field4DoCalc/ {StringCategory=TXT}Default name for the parameter that is created when a user adds a do calculation action; refers to the resultant value from a binary operation (plus, minus, multiple, divide, etc.)!~" Id="4" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="Variable"  Type="System.Object, mscorlib" Direction="Out" DesignerType="ParameterNames"
+            Description="~!Workflow variable output by this action.~~id_actionDoCalcParamVariable/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Variable property!~" />
+        <Parameter Name="Operand1" Type="System.Object, mscorlib" Direction="In" DesignerType="TextBox" DisplayName="LeftOperand"
+            Description="~!Left operand to use in calculation.~~id_actionDoCalcParamLeftOperand/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Operand1 property!~" />
+        <Parameter Name="Operand2" Type="System.Object, mscorlib" Direction="In" DesignerType="TextBox" DisplayName="RightOperand"
+            Description="~!Right operand to use in calculation.~~id_actionDoCalcParamRightOperand/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Operand2 property!~" />
+        <Parameter Name="ValueType" Type="System.String, mscorlib" Direction="In" InitialValue="System.Double, mscorlib" DesignerType="Hide" />
+        <Parameter Name="Operator" Type="System.String, mscorlib" Direction="In"  InitialValue="add" DesignerType="Dropdown"
+            Description="~!Operator to use in calculation.~~id_actionDoCalcParamOperator/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Operator property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Pause for Duration~~id_actionPauseFor/ {StringCategory=TXT}Appears in the list of available actions, causes workflow to wait for a given amount of time!~" 
+      ClassName="Microsoft.SharePoint.WorkflowActions.DelayForActivity"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionPauseForCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+      <RuleDesigner Sentence="~!Pause for %1 days, %2 hours, %3 minutes~~id_sentencePauseFor/ {StringCategory=TXT}!~">
+        <FieldBind Field="Days" Text="~!this many~~id_field1PauseFor/ {StringCategory=TXT}!~" Id="1" DesignerType="Integer"/>
+        <FieldBind Field="Hours" Text="~!this many~~id_field2PauseFor/ {StringCategory=TXT}!~" Id="2"  DesignerType="Integer"/>
+        <FieldBind Field="Minutes" Text="~!this many~~id_field3PauseFor/ {StringCategory=TXT}!~" Id="3"  DesignerType="Integer"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="Days" Type="System.Double, mscorlib" Direction="Optional" DesignerType="Integer"
+            Description="~!Value of days used by this action.~~id_actionPauseForParamDays/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Days property!~" />
+        <Parameter Name="Hours" Type="System.Double, mscorlib" Direction="Optional" DesignerType="Integer"
+            Description="~!Value of hours used by this action.~~id_actionPauseForParamHours/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Hours property!~" />
+        <Parameter Name="Minutes" Type="System.Double, mscorlib" Direction="Optional" InitialValue="5" DesignerType="Integer"
+            Description="~!Value of minutes used by this action.~~id_actionPauseForParamMinutes/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Minutes property!~" />
+      </Parameters>
+    </Action>
+
+   <Action Name="~!Pause until Date~~id_actionPauseUntil/ {StringCategory=TXT}Appears in the list of available actions, causes workflow to wait until a given date!~" 
+      ClassName="Microsoft.SharePoint.WorkflowActions.DelayUntilActivity"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionPauseUntilCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+      <RuleDesigner Sentence="~!Pause until %1~~id_sentencePauseUntil/ {StringCategory=TXT}!~">
+        <FieldBind Field="Until" Text="~!this time~~id_field1PauseUntil/ {StringCategory=TXT}!~" Id="1" DesignerType="Date"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="Until" Type="System.DateTime, mscorlib" Direction="Optional"
+            Description="~!Date to pause until.~~id_actionPauseUntilParamUntil/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Until property!~" />
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+   <Action Name="~!Stop Workflow~~id_actionStop/ {StringCategory=TXT}!~" 
+      ClassName="System.Workflow.ComponentModel.TerminateActivity"
+      Assembly="System.Workflow.ComponentModel"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionStopCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+      <RuleDesigner Sentence="~!Stop the workflow and log %1~~id_sentenceStop/ {StringCategory=TXT}!~">
+        <FieldBind Field="Error" Text="~!this message~~id_field1Stop/ {StringCategory=TXT}!~" Id="1" DesignerType="TextBox"/>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="Error" Type="System.String, mscorlib" Direction="In"
+            Description="~!Error message to log upon termination of workflow.~~id_actionStopParamError/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Error property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Log to History List~~id_actionLogToHistoryList/ {StringCategory=TXT}!~" 
+          ClassName="Microsoft.SharePoint.WorkflowActions.LogToHistoryListActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionLogToHistoryListCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+      <RuleDesigner Sentence="~!Log %1 to the workflow history list~~id_sentenceLogToHistoryList/ {StringCategory=TXT}!~">
+        <FieldBind Field="HistoryDescription,EventId" Text="~!this message~~id_field1LogToHistoryList/ {StringCategory=TXT}!~" Id="1" DesignerType="TextArea" >
+           <!-- keep in sync with sts/stsom/workflow/spWorkflow.cs -->
+           <Option Name="~!None~~id_optNone/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type will be blank in the workflow status page!~" Value="None"/>
+           <Option Name="~!Workflow Initiated~~id_optWorkflowInitiated/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is workflow initiation in the workflow status page!~" Value="WorkflowStarted"/>
+           <Option Name="~!Workflow Completed~~id_optWorkflowCompleted/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is workflow completion in the workflow status page!~" Value="WorkflowCompleted"/>
+           <Option Name="~!Workflow Canceled~~id_optWorkflowCanceled/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is workflow cancel in the workflow status page!~" Value="WorkflowCancelled"/>
+           <Option Name="~!Workflow Deleted~~id_optWorkflowDeleted/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is workflow deletion in the workflow status page!~" Value="WorkflowDeleted"/>
+           <Option Name="~!Task Created~~id_optTaskCreated/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is task creation in the workflow status page!~" Value="TaskCreated"/>
+           <Option Name="~!Task Completed~~id_optTaskCompleted/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is task completion in the workflow status page!~" Value="TaskCompleted"/>
+           <Option Name="~!Task Modified~~id_optTaskModified/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is task modification in the workflow status page!~" Value="TaskModified"/>
+           <Option Name="~!Task Rolled Back~~id_optTaskRolledBack/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is the task rollback in the workflow status page!~" Value="TaskRolledBack"/>
+           <Option Name="~!Task Deleted~~id_optTaskDeleted/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is task deletion in the workflow status page!~" Value="TaskDeleted"/>
+           <Option Name="~!Workflow Error~~id_optWorkflowError/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is workflow error in the workflow status page!~" Value="WorkflowError"/>
+           <Option Name="~!Workflow Comment~~id_optWorkflowComment/ {StringCategory=TXT} Shows up in the workflow property grid to tell users the log type is workflow comment in the workflow status page!~" Value="WorkflowComment"/>
+        </FieldBind>
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="HistoryDescription" Type="System.String, mscorlib" Direction="In"
+            Description="~!History message logged by this action.~~id_actionLogToHistoryListParamHistoryDescription/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the HistoryDescription property!~" />
+        <Parameter Name="EventId" Type="Microsoft.SharePoint.WorkflowActions" InitialValue="WorkflowComment" Direction="Optional"
+            Description="~!Event ID logged by this action.~~id_actionLogToHistoryListParamEventId/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the EventId property!~" DesignerType="Dropdown" />
+        <Parameter Name="HistoryOutcome" Type="System.String, mscorlib" Direction="Optional"
+            Description="~!History outcome logged by this action.~~id_actionLogToHistoryListParamHistoryOutcome/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the HistoryOutcome property!~" />
+        <Parameter Name="UserId" Type="System.Int32, mscorlib" Direction="Optional" InitialValue="-1" DesignerType="Integer"
+            Description="~!User ID logged by this action.~~id_actionLogToHistoryListParamUserId/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the UserId property!~" />
+      </Parameters>
+    </Action>
+      
+    <Action Name="~!Set Content Approval Status~~id_actionSetModerationStatus/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.SetModerationStatusActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="list"
+      Category="~!List Actions~~id_actionSetModerationStatusCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Category name that contains the most often used or most general actions!~"
+      UsesCurrentItem="true">
+      <RuleDesigner Sentence="~!Set content approval status to %1 with %2~~id_sentenceSetModerationStatus/ {StringCategory=TXT}!~">
+        <FieldBind Field="ModerationStatus" DesignerType="Dropdown" Id="1" Text="~!this status~~id_field1ModerationStatus/ {StringCategory=TXT}!~">
+           <Option Name="~!Approved~~id_optApproved/ {StringCategory=TXT}!~" Value="Approved"/>
+           <Option Name="~!Rejected~~id_optDeclined/ {StringCategory=TXT}!~" Value="Denied"/>
+           <Option Name="~!Pending~~id_optPending/ {StringCategory=TXT}!~" Value="Pending"/>
+        </FieldBind>
+        <FieldBind Field="Comments" Text="~!comments~~id_field2SetModerationStatus/ {StringCategory=TXT}!~" Id="2" DesignerType="Dependent" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="ModerationStatus"  Type="System.String, mscorlib" Direction="In" DesignerType="Dropdown"
+            Description="~!Choice of content approval status.~~id_actionSetModerationStatusParamModerationStatus/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the ModerationStatus property!~" />
+        <Parameter Name="Comments" Type="System.String, mscorlib" Direction="Optional" DesignerType="TextArea"
+            Description="~!Comments to accompany approval status change.~~id_actionSetModerationStatusParamComments/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Comments property!~" />
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="__ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Add Time to Date~~id_actionAddTimeToDate/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.AddTimeToDateActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionAddTimeToDateCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~"
+      >
+      <RuleDesigner Sentence="~!Add %1 %2 to %3 (Output to %4)~~id_sentenceAddTimeToDate/ {StringCategory=TXT}!~">
+        <FieldBind Field="AddValue" DesignerType="Integer" Id="1" Text="~!this many~~id_field1AddTimeToDate/ {StringCategory=TXT}!~"/>
+        <FieldBind Field="Units" Text="units" Id="2" DesignerType="Operator" OperatorTypeFrom="DropDownMenu" >
+          <Option Name="~!minutes~~id_field2AddTimeToDateMinutes/ {StringCategory=TXT}!~" Value="minutes"/>
+          <Option Name="~!hours~~id_field2AddTimeToDateHours/ {StringCategory=TXT}!~" Value="hours"/>
+          <Option Name="~!days~~id_field2AddTimeToDateDays/ {StringCategory=TXT}!~" Value="days"/>
+          <Option Name="~!months~~id_field2AddTimeToDateMonths/ {StringCategory=TXT}!~" Value="months"/>
+          <Option Name="~!years~~id_field2AddTimeToDateYears/ {StringCategory=TXT}!~" Value="years"/>
+        </FieldBind>
+        <FieldBind Field="DateValue" Text="~!date~~id_field3AddTimeToDate/ {StringCategory=TXT}!~" Id="3" DesignerType="Date" />
+        <FieldBind Field="DateVariable" Text="~!date~~id_field4AddTimeToDate/ {StringCategory=TXT}!~" Id="4" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="AddValue" Type="System.Double, mscorlib" Direction="In"
+            Description="~!Value to add to date.~~id_actionAddTimeToDateParamAddValue/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the AddValue property!~" />
+        <Parameter Name="Units" Type="System.String, mscorlib" Direction="In" InitialValue="minutes" DesignerType="Dropdown"
+            Description="~!Units of value to add to date.~~id_actionAddTimeToDateParamUnits/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Units property!~" />
+        <Parameter Name="DateValue" Type="System.DateTime, mscorlib" Direction="In" InitialValue=""
+            Description="~!Value of the date used by this action.~~id_actionAddTimeToDateParamDateValue/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the DateValue property!~" />
+        <Parameter Name="DateVariable"  Type="System.DateTime, mscorlib" Direction="Out" DesignerType="ParameterNames"
+            Description="~!Workflow variable output by this action.~~id_actionAddTimeToDateParamDateVariable/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the DateVariable property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Set Time Portion of Date/Time Field~~id_actionSetTimeOfDate/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.SetTimeFieldActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionSetTimeOfDateCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~"
+      >
+      <RuleDesigner Sentence="~!Set time as %1:%2 for %3 (Output to %4)~~id_sentenceSetTimeOfDate/ {StringCategory=TXT}!~">
+         <FieldBind Field="Hours" Text="~!hours~~id_sentenceSetTimeOfDateHours/ {StringCategory=TXT}!~" Id="1" DesignerType="Operator" OperatorTypeFrom="DropDownMenu" >
+           <Option Name="~!00~~id_actionSetTimeOfDateHour0/ {StringCategory=TXT}Refers to the first hour of the day (12am-1am)!~" Value="00"/>
+           <Option Name="~!01~~id_actionSetTimeOfDateHour1/ {StringCategory=TXT}Refers to an hour of the day (12am-1am)!~" Value="01"/>
+           <Option Name="~!02~~id_actionSetTimeOfDateHour2/ {StringCategory=TXT}Refers to an hour of the day (1am-2am)!~" Value="02"/>
+           <Option Name="~!03~~id_actionSetTimeOfDateHour3/ {StringCategory=TXT}Refers to an hour of the day (2am-3am)!~" Value="03"/>
+           <Option Name="~!04~~id_actionSetTimeOfDateHour4/ {StringCategory=TXT}Refers to an hour of the day (3am-4am)!~" Value="04"/>
+           <Option Name="~!05~~id_actionSetTimeOfDateHour5/ {StringCategory=TXT}Refers to an hour of the day (4am-5am)!~" Value="05"/>
+           <Option Name="~!06~~id_actionSetTimeOfDateHour6/ {StringCategory=TXT}Refers to an hour of the day (5am-6am)!~" Value="06"/>
+           <Option Name="~!07~~id_actionSetTimeOfDateHour7/ {StringCategory=TXT}Refers to an hour of the day (6am-7am)!~" Value="07"/>
+           <Option Name="~!08~~id_actionSetTimeOfDateHour8/ {StringCategory=TXT}Refers to an hour of the day (7am-8am)!~" Value="08"/>
+           <Option Name="~!09~~id_actionSetTimeOfDateHour9/ {StringCategory=TXT}Refers to an hour of the day (8am-9am)!~" Value="09"/>
+           <Option Name="~!10~~id_actionSetTimeOfDateHour10/ {StringCategory=TXT}Refers to an hour of the day (9am-10am)!~" Value="10"/>
+           <Option Name="~!11~~id_actionSetTimeOfDateHour11/ {StringCategory=TXT}Refers to an hour of the day (10am-11am)!~" Value="11"/>
+           <Option Name="~!12~~id_actionSetTimeOfDateHour12/ {StringCategory=TXT}Refers to an hour of the day (11am-12pm)!~" Value="12"/>
+           <Option Name="~!13~~id_actionSetTimeOfDateHour13/ {StringCategory=TXT}Refers to an hour of the day (12pm-1pm)!~" Value="13"/>
+           <Option Name="~!14~~id_actionSetTimeOfDateHour14/ {StringCategory=TXT}Refers to an hour of the day (1pm-2pm)!~" Value="14"/>
+           <Option Name="~!15~~id_actionSetTimeOfDateHour15/ {StringCategory=TXT}Refers to an hour of the day (2pm-3pm)!~" Value="15"/>
+           <Option Name="~!16~~id_actionSetTimeOfDateHour16/ {StringCategory=TXT}Refers to an hour of the day (3pm-4pm)!~" Value="16"/>
+           <Option Name="~!17~~id_actionSetTimeOfDateHour17/ {StringCategory=TXT}Refers to an hour of the day (4pm-5pm)!~" Value="17"/>
+           <Option Name="~!18~~id_actionSetTimeOfDateHour18/ {StringCategory=TXT}Refers to an hour of the day (5pm-6pm)!~" Value="18"/>
+           <Option Name="~!19~~id_actionSetTimeOfDateHour19/ {StringCategory=TXT}Refers to an hour of the day (6pm-7pm)!~" Value="19"/>
+           <Option Name="~!20~~id_actionSetTimeOfDateHour20/ {StringCategory=TXT}Refers to an hour of the day (7pm-8pm)!~" Value="20"/>
+           <Option Name="~!21~~id_actionSetTimeOfDateHour21/ {StringCategory=TXT}Refers to an hour of the day (8pm-9pm)!~" Value="21"/>
+           <Option Name="~!22~~id_actionSetTimeOfDateHour22/ {StringCategory=TXT}Refers to an hour of the day (9pm-10pm)!~" Value="22"/>
+           <Option Name="~!23~~id_actionSetTimeOfDateHour23/ {StringCategory=TXT}Refers to the last hour of the day (11pm+)!~" Value="23"/>
+         </FieldBind>
+         <FieldBind Field="Minutes" Text="~!minutes~~id_sentenceSetTimeOfDateMinutes/ {StringCategory=TXT}!~" Id="2" DesignerType="Operator" OperatorTypeFrom="DropDownMenu" >
+           <Option Name="~!00~~id_actionSetTimeOfDateCategoryMinute00/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="00"/>
+           <Option Name="~!05~~id_actionSetTimeOfDateCategoryMinute05/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="05"/>
+           <Option Name="~!10~~id_actionSetTimeOfDateCategoryMinute10/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="10"/>
+           <Option Name="~!15~~id_actionSetTimeOfDateCategoryMinute15/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="15"/>
+           <Option Name="~!20~~id_actionSetTimeOfDateCategoryMinute20/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="20"/>
+           <Option Name="~!25~~id_actionSetTimeOfDateCategoryMinute25/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="25"/>
+           <Option Name="~!30~~id_actionSetTimeOfDateCategoryMinute30/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="30"/>
+           <Option Name="~!35~~id_actionSetTimeOfDateCategoryMinute35/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="35"/>
+           <Option Name="~!40~~id_actionSetTimeOfDateCategoryMinute40/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="40"/>
+           <Option Name="~!45~~id_actionSetTimeOfDateCategoryMinute45/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="45"/>
+           <Option Name="~!50~~id_actionSetTimeOfDateCategoryMinute50/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="50"/>
+           <Option Name="~!55~~id_actionSetTimeOfDateCategoryMinute55/ {StringCategory=TXT}Refers to value in minutes in the minutes portion of a time.!~" Value="55"/>
+         </FieldBind>
+         <FieldBind Field="DateValue" Text="~!date~~id_sentenceSetTimeOfDateIn/ {StringCategory=TXT}!~" Id="3" DesignerType="Date" Value=""/>
+         <FieldBind Field="DateVariable" Text="~!date~~id_sentenceSetTimeOfDateOut/ {StringCategory=TXT}!~" Id="4" DesignerType="ParameterNames"/>  
+      </RuleDesigner>
+      <Parameters>
+         <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+         <Parameter Name="Hours" Type="System.String, mscorlib" Direction="In" InitialValue="00" DesignerType="Dropdown"
+            Description="~!Value of hours used by this action.~~id_actionSetTimeOfDateParamHours/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Hours property!~" />
+         <Parameter Name="Minutes" Type="System.String, mscorlib" Direction="In" InitialValue="00" DesignerType="Dropdown"
+            Description="~!Value of minutes used by this action.~~id_actionSetTimeOfDateParamMinutes/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Minutes property!~" />
+         <Parameter Name="DateValue" Type="System.DateTime, mscorlib" Direction="In" InitialValue=""
+            Description="~!Value of the date used by this action.~~id_actionSetTimeOfDateParamValue/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the DateValue property!~" />
+         <Parameter Name="DateVariable"  Type="System.DateTime, mscorlib" Direction="Out" DesignerType="ParameterNames"
+            Description="~!Workflow variable output by this action.~~id_actionSetTimeOfDateParamVariable/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the DateVariable property!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Add List Item Permissions~~id_actionAddListItemPermissions/ {StringCategory=TXT} Action name!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.AddListItemPermissionsActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      RequiredInvocationTags="ImpersonationSequence"
+      Category="~!List Actions~~id_actionAddListItemPermissionsCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Add %1 to item in %2~~id_sentenceAddListItemPermissions/ {StringCategory=TXT} Sentence for action. %1 will be 'permissions' or permission list, and %2 will be 'this list' or list name or 'Current Item'.!~">
+        <FieldBind Field="Roles,Users" Text="~!these permissions~~id_field1AddListItemPermissions/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'permissions' by default and will be changed into selected permission names.!~" Id="1" DesignerType="AddPermission" />
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field2AddListItemPermissions/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'this list' by default and will be changed into selected list name or 'Current Item'.!~" Id="2" DesignerType="ChooseListItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem" Description="~!ID of the list item used by this action.~~id_descriptionListItemAddListItemPermissions/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+        <Parameter Name="Users" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="Roles" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Remove List Item Permissions~~id_actionRemoveListItemPermissions/ {StringCategory=TXT} Action name!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.RemoveListItemPermissionsActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      RequiredInvocationTags="ImpersonationSequence"
+      Category="~!List Actions~~id_actionRemoveListItemPermissionsCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Remove %1 from item in %2~~id_sentenceRemoveListItemPermissions/ {StringCategory=TXT} Sentence for action. %1 will be 'permissions' or permission list, and %2 will be 'this list' or list name or 'Current Item'.!~">
+        <FieldBind Field="Roles,Users" Text="~!these permissions~~id_field1RemoveListItemPermissions/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'permissions' by default and will be changed into selected permission names.!~" Id="1" DesignerType="RemovePermission" />
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field2RemoveListItemPermissions/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'this list' by default and will be changed into selected list name or 'Current Item'.!~" Id="2" DesignerType="ChooseListItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem" Description="~!ID of the list item used by this action.~~id_descriptionListItemRemoveListItemPermissions/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+        <Parameter Name="Users" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="Roles" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Replace List Item Permissions~~id_actionReplaceListItemPermissions/ {StringCategory=TXT} Action name!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.ReplaceListItemPermissionsActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      RequiredInvocationTags="ImpersonationSequence"
+      Category="~!List Actions~~id_actionReplaceListItemPermissionsCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Replace %1 of item in %2~~id_sentenceReplaceListItemPermissions/ {StringCategory=TXT} Sentence for action. %1 will be 'permissions' or permission list, and %2 will be 'this list' or list name or 'Current Item'.!~">
+        <FieldBind Field="Roles,Users" Text="~!these permissions~~id_field1ReplaceListItemPermissions/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'permissions' by default and will be changed into selected permission names.!~" Id="1" DesignerType="ReplacePermission" />
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field2ReplaceListItemPermissions/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'this list' by default and will be changed into selected list name or 'Current Item'.!~" Id="2" DesignerType="ChooseListItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide"/>
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem" Description="~!ID of the list item used by this action.~~id_descriptionListItemReplaceListItemPermissions/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+        <Parameter Name="Users" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="Roles" Type="System.Collections.ArrayList, mscorlib" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Inherit List Item Parent Permissions~~id_actionInheritListItemParentPermissions/ {StringCategory=TXT} Action name!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.InheritListItemParentPermissionsActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      RequiredInvocationTags="ImpersonationSequence"
+      Category="~!List Actions~~id_actionInheritListItemParentPermissionsCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionUpdateListCategory}Name for a category of actions that directly manipulate list items!~">
+      <RuleDesigner Sentence="~!Inherit parent permissions for item in %1~~id_sentenceInheritListItemParentPermissions/ {StringCategory=TXT} Sentence for action. %1 will be 'this list' or list name or 'Current Item'.!~">
+        <FieldBind Field="ListId,ListItem" Text="~!this list~~id_field1InheritListItemParentPermissions/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'this list' by default and will be changed into selected list name or 'Current Item'.!~" Id="1" DesignerType="ChooseListItem" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+        <Parameter Name="ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="ListItem" Description="~!ID of the list item used by this action.~~id_descriptionListItemInheritListItemParentPermissions/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~" />
+      </Parameters>
+    </Action>
+
+    <Action Name="~!Find Interval Between Dates~~id_actionDateInterval/ {StringCategory=TXT}Friendly name for an action that finds the interval (difference) between two System.DateTime objects in a particular unit of time measure!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.DateIntervalActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Utility Actions~~id_actionDateIntervalCategory/ {StringCategory=TXT}{Duplicate=Master,wss.actions;id_actionDateIntervalCategory}Category name for actions that are mainly available to provide utility functions found in standard .Net classes!~">
+      <RuleDesigner Sentence="~!Find %1 between %2 and %3 (Output to %4)~~id_sentenceDateInterval/ {StringCategory=TXT}Sentence shown in the workflow designer for an action that finds the difference between two dates; %1 is the time unit in which to calculate the difference, %2 is the first date to operate on, %3 is the second date to operate on, %4 is the variable in which to output the numerical quantity!~">
+        <FieldBind Field="Units" Text="~!units~~id_field1DateInterval/ {StringCategory=TXT}Default string shown where a user can choose a time unit in which to calculate the difference between two dates!~" Id="1" DesignerType="Operator" OperatorTypeFrom="DropDownMenu" >
+          <Option Name="~!minutes~~id_opMinutesDateInterval/ {StringCategory=TXT}String that represents that the unit of time is expressed in minutes!~" Value="minutes"/>
+          <Option Name="~!hours~~id_opHoursDateInterval/ {StringCategory=TXT}String that represents that the unit of time is expressed in hours!~" Value="hours"/>
+          <Option Name="~!days~~id_opDaysDateInterval/ {StringCategory=TXT}String that represents that the unit of time is expressed in days!~" Value="days"/>          
+        </FieldBind>
+        <FieldBind Field="Date1Value" Text="~!date~~id_field2DateInterval/ {StringCategory=TXT}Default string shown where a user can input the first date to use in a date difference action!~" Id="2" DesignerType="Date" />
+        <FieldBind Field="Date2Value" Text="~!date~~id_field3DateInterval/ {StringCategory=TXT}Default string shown where a user can input the second date to use in a date difference action!~" Id="3" DesignerType="Date" />
+        <FieldBind Field="TimeVariable" Text="~!time~~id_field4DateInterval/ {StringCategory=TXT}Default string shown where a user can choose what variable to set with the numerical number of the unit found in a date difference action!~" Id="4" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="Units" Type="System.String, mscorlib" Direction="In" InitialValue="minutes" DesignerType="Dropdown" Description="~!Units of time to use in the workflow variable output by this action.~~id_param_Units_actionDateInterval/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Units property!~"/>
+        <Parameter Name="Date1Value" Type="System.DateTime, mscorlib" Direction="In" InitialValue="" DesignerType="Date" Description="~!Left operand to use in calculation.~~id_param_Date1Value_actionDateInterval/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Date1Value property!~" />
+        <Parameter Name="Date2Value" Type="System.DateTime, mscorlib" Direction="In" InitialValue="" DesignerType="Date" Description="~!Right operand to use in calculation.~~id_param_Date2Value_actionDateInterval/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Date2Value property!~" />
+        <Parameter Name="TimeVariable"  Type="System.Double, mscorlib" Direction="Out" DesignerType="ParameterNames" Description="~!Workflow variable output by this action.~~id_param_TimeVariable_actionDateInterval/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the TimeVariable property!~"/>
+      </Parameters>
+    </Action>
+    
+    <Action Name="~!Extract Substring from End of String~~id_actionExtractSubstringFromEnd/ {StringCategory=TXT}Friendly name for an action that mimics System.String.Substring functionality!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromEndActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Utility Actions~~id_actionExtractSubstringFromEndCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionDateIntervalCategory}Category name for actions that are mainly available to provide utility functions found in standard .Net classes!~">
+      <RuleDesigner Sentence="~!Copy %1 characters from end of %2 (Output to %3)~~id_sentenceExtractSubstringFromEnd/  {StringCategory=TXT}Sentence shown in the workflow designer for an action that emulates part of the System.String.Substring method or the Visual Basic 'Right' method; %1 is the source string, %2 is the number of characters to extract from the end, %3 is the name of the variable to output to!~">
+        <FieldBind Field="Length" Text="~!length~~id_field1ExtractSubstringFromEnd/ {StringCategory=TXT}Default string shown where a user can input the number of characters to extract from the end of a string!~" Id="1" DesignerType="Integer" />
+        <FieldBind Field="StringVal" Text="~!string~~id_field2ExtractSubstringFromEnd/ {StringCategory=TXT}Default string shown where a user can input the string to use as the source of a System.String.Substring() call!~" Id="2" DesignerType="TextArea" />
+        <FieldBind Field="SubstringVariable" Text="~!substring~~id_field3ExtractSubstringFromEnd/ {StringCategory=TXT}Default string shown in a location where a user can choose a variable for the output of the extract substring action!~" Id="3" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide"/>
+        <Parameter Name="Length" Type="System.Double, mscorlib" Direction="In" DesignerType="Integer" Description="~!Number of characters to copy into the substring.~~id_param_StringVal_ExtractSubstringFromEnd/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Length property!~" />
+        <Parameter Name="StringVal" Type="System.String, mscorlib" Direction="In" DesignerType="TextArea" Description="~!Extract the substring from this source string.~~id_param_Length_ExtractSubstringFromEnd/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the StringVal property!~" />
+        <Parameter Name="SubstringVariable"  Type="System.String, mscorlib" Direction="Out" DesignerType="ParameterNames" Description="~!Workflow variable output by this action.~~id_param_SubstringVariable_ExtractSubstringFromEnd/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the SubstringVariable property!~" />
+      </Parameters>
+    </Action>
+    
+    <Action Name="~!Extract Substring from Start of String~~id_actionExtractSubstringFromStart/ {StringCategory=TXT}Friendly name for an action that mimics System.String.Substring functionality!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromStartActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Utility Actions~~id_actionExtractSubstringFromStartCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionDateIntervalCategory}Category name for actions that are mainly available to provide utility functions found in standard .Net classes!~">
+      <RuleDesigner Sentence="~!Copy %1 characters from start of %2 (Output to %3)~~id_sentenceExtractSubstringFromStart/  {StringCategory=TXT}Sentence shown in the workflow designer for an action that emulates part of the System.String.Substring method or the Visual Basic 'Left' method; %1 is the source string, %2 is the number of characters to extract from the beginning, %3 is the name of the variable to output to!~">
+        <FieldBind Field="Length" Text="~!length~~id_field1ExtractSubstringFromStart/ {StringCategory=TXT}Default string shown where a user can input the number of characters to extract from the start of a string!~" Id="1" DesignerType="Integer" />
+        <FieldBind Field="StringVal" Text="~!string~~id_field2ExtractSubstringFromStart/ {StringCategory=TXT}Default string shown where a user can input the string to use as the source of a System.String.Substring() call!~" Id="2" DesignerType="TextArea" />
+        <FieldBind Field="SubstringVariable" Text="~!substring~~id_field3ExtractSubstringFromStart/ {StringCategory=TXT}Default string shown in a location where a user can choose a variable for the output of the extract substring action!~" Id="3" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide"/>
+        <Parameter Name="Length" Type="System.Double, mscorlib" Direction="In" DesignerType="Integer" Description="~!Number of characters to copy into the substring.~~id_param_Length_ExtractSubstringFromStart/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Length property!~" />
+        <Parameter Name="StringVal" Type="System.String, mscorlib" Direction="In" DesignerType="TextArea" Description="~!Extract the substring from this source string.~~id_param_StringVal_ExtractSubstringFromStart/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the StringVal property!~" />
+        <Parameter Name="SubstringVariable"  Type="System.String, mscorlib" Direction="Out" DesignerType="ParameterNames" Description="~!Workflow variable output by this action.~~id_param_SubstringVariable_ExtractSubstringFromStart/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the SubstringVariable property!~"/>
+      </Parameters>
+    </Action>
+    
+    <Action Name="~!Extract Substring from Index of String~~id_actionExtractSubstringFromIndex/ {StringCategory=TXT}Friendly name for an action that mimics System.String.Substring functionality!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Utility Actions~~id_actionExtractSubstringFromIndexCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionDateIntervalCategory}Category name for actions that are mainly available to provide utility functions found in standard .Net classes!~">
+      <RuleDesigner Sentence="~!Copy from %1, starting at %2 (Output to %3)~~id_sentenceExtractSubstringFromIndex/  {StringCategory=TXT}Sentence shown in the workflow designer for an action that emulates part of the System.String.Substring method or the Visual Basic 'Mid' method; %1 is the source string, %2 is the character number to start extracting at, %3 is the name of the variable to output to!~">
+        <FieldBind Field="StringVal" Text="~!string~~id_field1ExtractSubstringFromIndex/ {StringCategory=TXT}Default string shown where a user can input the string to use as the source of a System.String.Substring() call!~" Id="1" DesignerType="TextArea" />
+        <FieldBind Field="Index" Text="~!index~~id_field2ExtractSubstringFromIndex/ {StringCategory=TXT}Default string shown where a user can input the index at which to start the copying of characters from a string!~" Id="2" DesignerType="Integer" />
+        <FieldBind Field="SubstringVariable" Text="~!substring~~id_field3ExtractSubstringFromIndex/ {StringCategory=TXT}Default string shown in a location where a user can choose a variable for the output of the extract substring action!~" Id="3" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide"/>
+        <Parameter Name="StringVal" Type="System.String, mscorlib" Direction="In" DesignerType="TextArea" Description="~!Extract the substring from this source string.~~id_param_StringVal_ExtractSubstringFromIndex/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the StringVal property!~"/>
+        <Parameter Name="Index" Type="System.Double, mscorlib" Direction="In" DesignerType="Integer" Description="~!Begin the substring at this character index within the source.~~id_param_Index_ExtractSubstringFromIndex/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Index property!~"/>
+        <Parameter Name="SubstringVariable"  Type="System.String, mscorlib" Direction="Out" DesignerType="ParameterNames" Description="~!Workflow variable output by this action.~~id_param_SubstringVariable_ExtractSubstringFromIndex/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the SubstringVariable property!~"/>
+      </Parameters>
+    </Action>
+    
+    <Action Name="~!Extract Substring of String from Index with Length~~id_actionExtractSubstringFromIndexLength/ {StringCategory=TXT}Friendly name for an action that mimics System.String.Substring functionality!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexLengthActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Utility Actions~~id_actionExtractSubstringFromIndexLengthCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionDateIntervalCategory}Category name for actions that are mainly available to provide utility functions found in standard .Net classes!~">
+      <RuleDesigner Sentence="~!Copy from %1, starting at %2 for %3 characters (Output to %4)~~id_sentenceExtractSubstringFromIndexLength/ {StringCategory=TXT}Sentence shown in the workflow designer for an action that emulates part of the System.String.Substring method or the Visual Basic 'Mid' method; %1 is the source string, %2 is the character number to begin extracting at, %3 is the number of characters to extract, %4 is the name of the variable to output to!~">
+        <FieldBind Field="StringVal" Text="~!string~~id_field1ExtractSubstringFromIndexLength/ {StringCategory=TXT}Default string shown where a user can input the string to use as the source of a System.String.Substring() call!~" Id="1" DesignerType="TextArea" />
+        <FieldBind Field="Index" Text="~!index~~id_field2ExtractSubstringFromIndexLength/ {StringCategory=TXT}Default string shown where a user can input the index at which to start the copying of characters from a string!~" Id="2" DesignerType="Integer" />
+        <FieldBind Field="Length" Text="~!number of~~id_field3ExtractSubstringFromIndexLength/ {StringCategory=TXT}Default string shown where a user can input the number of characters to extract from the middle of a string!~" Id="3" DesignerType="Integer" />
+        <FieldBind Field="SubstringVariable" Text="~!substring~~id_field4ExtractSubstringFromIndexLength/ {StringCategory=TXT}Default string shown in a location where a user can choose a variable for the output of the extract substring action!~" Id="4" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide" />
+        <Parameter Name="StringVal" Type="System.String, mscorlib" Direction="In" DesignerType="TextArea" Description="~!Extract the substring from this source string.~~id_param_StringVal_ExtractSubstringFromIndexLength/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the StringVal property!~"/>
+        <Parameter Name="Index" Type="System.Double, mscorlib" Direction="In" DesignerType="Integer" Description="~!Begin the substring at this character index within the source.~~id_param_Index_ExtractSubstringFromIndexLength/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Index property!~" />
+        <Parameter Name="Length" Type="System.Double, mscorlib" Direction="In" DesignerType="Integer" Description="~!Number of characters to copy into the substring.~~id_param_Length_ExtractSubstringFromIndexLength/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the Length property!~" />
+        <Parameter Name="SubstringVariable"  Type="System.String, mscorlib" Direction="Out" DesignerType="ParameterNames" Description="~!Workflow variable output by this action.~~id_param_SubStringVariable_ExtractSubstringFromIndexLength/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the SubstringVariable property!~"/>
+      </Parameters>
+    </Action>
+    
+    <Action Name="~!Add a Comment~~id_actionComment/ {StringCategory=TXT} Action name!~" 
+      ClassName="Microsoft.SharePoint.WorkflowActions.CommentActivity"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      Category="~!Core Actions~~id_actionCommentCategory/ {StringCategory=TXT}!~"
+      AppliesTo="all">
+      <RuleDesigner Sentence="~!Comment: %1~~id_sentenceComment/  {StringCategory=TXT} Sentence for action. %1 will be the comment text.!~">
+        <FieldBind Field="CommentText" Text="~!comment text~~id_field1Comment/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'comment text' by default and will be changed into text entered by the user.!~" Id="1" DesignerType="TextArea" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="CommentText" Type="System.String, mscorlib" Direction="In" DesignerType="TextArea" Description="~!Comment text.~~id_actionCommentParamCommentText/ {StringCategory=TXT} Description for Parameter which will be displayed in PropertyGrid.!~"/>
+      </Parameters>
+    </Action>
+        
+    <Action Name="~!Error Message~~id_actionError/ {StringCategory=TXT} Action name!~" 
+      ClassName="Microsoft.SharePoint.WorkflowActions.ErroredMarkupActivity"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      Category="~!Core Actions~~id_actionCommentCategory/ {StringCategory=TXT}!~"
+      AppliesTo="displayonly"
+      IsError="true">
+      <RuleDesigner Sentence="~!Error message: %1~~id_sentenceErrorMessage/  {StringCategory=TXT} Sentence for action. %1 will be the error message.!~">
+        <FieldBind Field="ErrorMessage" Text="~!error message~~id_field1ErrorMessage/ {StringCategory=TXT} Hyperlink part of Action sentence, will be displayed as 'error message' by default and will be changed into text entered by the user.!~" Id="1" DesignerType="TextArea" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="ErrorMessage" Type="System.String, mscorlib" Direction="In" DesignerType="Hide" />
+      </Parameters>
+    </Action>
+            
+    <Action Name="~!Persist On Close Activity~~id_actionPersistOnCloseActivity/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.PersistOnCloseActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="displayonly"
+      RequiredInvocationTags="ImpersonationSequence"
+      Category="~!Utility Actions~~id_actionExtractSubstringFromIndexLengthCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionDateIntervalCategory}!~">
+      <RuleDesigner Sentence="~!Persist On Close~~id_sentencePersistOnCloseActivity/ {StringCategory=TXT}!~"/>
+      <Parameters/>
+    </Action>
+
+    <Action Name="~!Set Workflow Status~~id_actionSetWorkflowStatus/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.SetCustomWorkflowStatus" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      Category="~!Core Actions~~id_actionSetWorkflowStatusCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~">
+      <RuleDesigner Sentence="~!Set workflow status to %1~~id_sentenceSetWorkflowStatus/ {StringCategory=TXT}!~">
+        <FieldBind Field="WorkflowStatus" DesignerType="StatusDropdown" Id="1" Text="~!this status~~id_field1WorkflowStatus/ {StringCategory=TXT}!~" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="WorkflowStatus" Type="System.Int32, mscorlib" Direction="In" DesignerType="StatusDropdown"
+            Description="~!Set workflow status to this value.~~id_actionSetWorkflowStatusParamWorkflowStatus/ {StringCategory=TXT}String that shows up in the workflow property grid that instructs the user how to use the WorkflowStatus property!~" />
+      </Parameters>
+    </Action>
+
+  </Actions>
+
+  <CompositeSteps>
+    <CompositeStep Name="~!Impersonation Sequence~~id_actionImpersonationSequence/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.ImpersonationSequenceActivity" 
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="all"
+      InvocationTags="ImpersonationSequence"
+      ProhibitedInvocationTags="ImpersonationSequence"/>
+  </CompositeSteps>
+
+  <VariableTypes>
+    <VariableType Type="System.Boolean" DisplayName="~!Boolean~~id_booleanDisplayName/ {StringCategory=TXT}Displayed in SharePoint Designer UI for one of a set of classes that can be used for variables; it refers to System.Boolean.!~"
+      CoercionActivity="Microsoft.SharePoint.WorkflowActions.CoerceBooleanActivity" />
+    <VariableType Type="System.DateTime" DisplayName="~!Date/Time~~id_dateTimeDisplayName/ {StringCategory=TXT}Displayed in SharePoint Designer UI for one of a set of classes that can be used for variables; it refers to System.DateTime.!~"
+      CoercionActivity="Microsoft.SharePoint.WorkflowActions.CoerceDateTimeActivity" />
+    <VariableType Type="System.Double" DisplayName="~!Number~~id_numberDisplayName/ {StringCategory=TXT}Displayed in SharePoint Designer UI for one of a set of classes that can be used for variables; it refers to System.Double.!~" 
+      CoercionActivity="Microsoft.SharePoint.WorkflowActions.CoerceDoubleActivity"/>
+    <VariableType Type="System.Int32" DisplayName="~!Integer~~id_intDisplayName/ {StringCategory=TXT}Displayed in SharePoint Designer UI for one of a set of classes that can be used for variables; it refers to System.Int32, which used to be the list item id type.!~" 
+      CoercionActivity="Microsoft.SharePoint.WorkflowActions.CoerceIntActivity"/>
+    <VariableType Type="System.String" Default="true" DisplayName="~!String~~id_stringDisplayName/ {StringCategory=TXT}Displayed in SharePoint Designer UI for one of a set of classes that can be used for variables; it refers to System.String.!~" 
+      CoercionActivity="Microsoft.SharePoint.WorkflowActions.CoerceStringActivity"/>
+    <VariableType Type="Microsoft.SharePoint.Workflow.SPItemKey" DisplayName="~!List Item Id~~id_listItemIdDisplayName/ {StringCategory=TXT}Displayed in SharePoint Designer UI for one of a set of classes that can be used for variables; it refers to Microsoft.SharePoint.Workflow.SPItemKey.!~"
+				  Assembly="Microsoft.SharePoint" 
+                                  CoercionActivity="Microsoft.SharePoint.WorkflowActions.CoerceSPItemKeyActivity"
+				  ItemIdType="true" />
+  </VariableTypes>
+
+  <Coercions>
+	<!-- lookup related -->
+    <Coercion Name="LookupColumnDataOnlyAsDateTime" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Value (as Date/Time)~~id_LookupColumnDataOnlyAsDateTimeDisplayName/ {StringCategory=TXT} Fetch only the data (not the id)!~"
+        CatchAll="false"
+        RankDefault="51"
+        SourceType="System.String"
+        SourceFieldType="Lookup" 
+        DestinationType="System.DateTime"
+        />
+    <Coercion Name="LookupColumnDataOnlyAsDouble" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Value (as Number)~~id_LookupColumnDataOnlyAsDoubleDisplayName/ {StringCategory=TXT} Fetch only the data (not the id)!~"
+        CatchAll="false"
+        RankDefault="52"
+        SourceType="System.String"
+        SourceFieldType="Lookup" 
+        DestinationType="System.Double"
+        />
+    <Coercion Name="LookupColumnDataOnlyAsString" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Value (as Text)~~id_LookupColumnDataOnlyAsStringDisplayName/ {StringCategory=TXT} Fetch only the data (not the id)!~"
+        CatchAll="false"
+        RankDefault="53"
+        SourceType="System.String"
+        SourceFieldType="Lookup" 
+        DestinationType="System.String"
+        />
+    <Coercion Name="LookupColumnDataOnlyAsId" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Value (as List Item Id)~~id_LookupColumnDataOnlyAsIdDisplayName/ {StringCategory=TXT} Fetch only the data (not the id)!~"
+        CatchAll="false"
+        RankDefault="54"
+        SourceType="System.String"
+        SourceFieldType="Lookup" 
+        DestinationType="Microsoft.SharePoint.Workflow.SPItemKey"
+        />
+    <Coercion Name="LookupColumnDataOnlyAsInteger" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Value (as Integer)~~id_LookupColumnDataOnlyAsIntegerDisplayName/ {StringCategory=TXT} Fetch only the data (not the id)!~"
+        CatchAll="false"
+        RankDefault="55"
+        SourceType="System.String"
+        SourceFieldType="Lookup" 
+        DestinationType="System.Int32"
+        />
+    <Coercion Name="LookupIdOnly" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Id (as List Item Id)~~id_LookupIdOnlyAsSPItemKeyDisplayName/ {StringCategory=TXT} Fetch only the id (not the data)!~"
+        CatchAll="false"
+        RankDefault="56"
+        SourceType="System.String"
+        SourceFieldType="Lookup" 
+        DestinationType="Microsoft.SharePoint.Workflow.SPItemKey"
+        />
+    <Coercion Name="LookupIdOnlyAsInteger" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Id (as Integer)~~id_LookupIdOnlyAsIntegerDisplayName/ {StringCategory=TXT} Fetch only the id (not the data)!~"
+        CatchAll="false"
+        RankDefault="57"
+        SourceType="System.String"
+        SourceFieldType="Lookup" 
+        DestinationType="System.Int32"
+        />
+
+	<!-- multi-lookup related -->
+    <Coercion Name="MultiLookupColumnDataOnly" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Values, Comma Delimited~~id_MultiLookupColumnDataOnlyDisplayName/ {StringCategory=TXT} Fetch only the data from the fields (not the ids), comma delimited!~"
+        CatchAll="false"
+        RankDefault="58"
+        SourceType="System.String"
+        SourceFieldType="LookupMulti" 
+        DestinationType="System.String"
+        />
+    <Coercion Name="MultiLookupIdOnly" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Lookup Ids, Comma Delimited~~id_MultiLookupIdOnlyDisplayName/ {StringCategory=TXT} Fetch only the ids of the fields (not the data), comma delimited!~"
+        CatchAll="false"
+        RankDefault="59"
+        SourceType="System.String"
+        SourceFieldType="LookupMulti" 
+        DestinationType="System.String"
+        />
+  
+	<!-- multi-choice related -->
+    <Coercion Name="MultiChoiceCommaSeperated" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Choices, Comma Delimited~~id_MultiChoiceCommaSeperatedDisplayName/ {StringCategory=TXT} Fetch the choices, comma delimited!~"
+        CatchAll="false"
+        RankDefault="60"
+        SourceType="System.String"
+        SourceFieldType="MultiChoice" 
+        DestinationType="System.String"
+        />
+
+    <!-- note related -->
+    <Coercion Name="NoteAsPlainText" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Plain Text~~id_NoteAsPlainTextDisplayName/ {StringCategory=TXT} Removes rich text formatting!~"
+        CatchAll="false"
+        RankDefault="13"
+        SourceType="System.String"
+        SourceFieldType="Note" 
+        DestinationType="System.String"
+        DestinationFieldType="Text"
+        />
+        
+	<!-- Hyperlink or picture-related -->
+    <Coercion Name="URLAsDescriptionText" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Description Text~~id_URLAsDescriptionTextDisplayName/ {StringCategory=TXT} Fetch the image or hyperlink's description text!~"
+        CatchAll="false"
+        RankDefault="12"
+        SourceType="System.String"
+        SourceFieldType="URL"
+        DestinationType="System.String"
+        DestinationFieldType="Text"
+        />
+    <Coercion Name="URLAsURLText" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!URL~~id_URLAsURLTextDisplayName/ {StringCategory=TXT} Fetch the image or hyperlink's URL!~"
+        CatchAll="false"
+        RankDefault="11"
+        SourceType="System.String"
+        SourceFieldType="URL"
+        DestinationType="System.String"
+        DestinationFieldType="Text"
+        />
+
+	<!-- User-related fetches (Most new ones should have multiuser equivalents, in the next section) -->
+    <Coercion Name="UserIDAsNumber" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!User Id (as Number)~~id_UserIDAsNumberDisplayName/ {StringCategory=TXT} Fetch the user's id from the user object!~"
+        CatchAll="false"
+        RankDefault="37"
+        SourceType="System.String"
+        SourceFieldType="User"
+        DestinationType="System.Double"
+        DestinationFieldType="Number"
+        />
+    <Coercion Name="UserIDAsInteger" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!User Id (as Integer)~~id_UserIDAsIntegerDisplayName/ {StringCategory=TXT} Fetch the user's id from the user object!~"
+        CatchAll="false"
+        RankDefault="36"
+        SourceType="System.String"
+        SourceFieldType="User"
+        DestinationType="System.Int32"
+        />
+    <Coercion Name="UserIDAsText" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!User Id Number~~id_UserIDAsTextDisplayName/ {StringCategory=TXT} Fetch the user's id from the user object!~"
+        CatchAll="false"
+        RankDefault="33"
+        SourceType="System.String"
+        SourceFieldType="User"
+        DestinationType="System.String"
+        />
+    <Coercion Name="DisplayNameAsText" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Display Name~~id_DisplayNameAsTextDisplayName/ {StringCategory=TXT} Fetch the user's display name from the user object!~"
+        CatchAll="false"
+        RankDefault="31"
+        SourceType="System.String"
+        SourceFieldType="User"
+        DestinationType="System.String"
+        />
+    <Coercion Name="LoginNameAsText" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Login Name~~id_LoginNameAsTextDisplayName/ {StringCategory=TXT} Fetch the user's login name from the user object!~"
+        CatchAll="false"
+        RankDefault="30"
+        SourceType="System.String"
+        SourceFieldType="User"
+        DestinationType="System.String"
+        />
+    <Coercion Name="EmailAddressAsText" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Email Address~~id_EmailAddressAsTextDisplayName/ {StringCategory=TXT} Fetch the user's email address from the user object!~"
+        CatchAll="false"
+        RankDefault="32"
+        SourceType="System.String"
+        SourceFieldType="User"
+        DestinationType="System.String"
+        />
+
+
+	<!-- Multi-user-related fetches -->
+    <Coercion Name="MultiUserIDSemicolon" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!User Ids, Semicolon Delimited~~id_MultiUserIDSemicolonDisplayName/ {StringCategory=TXT} Fetch the users' ids from the user objects!~"
+        CatchAll="false"
+        RankDefault="38"
+        SourceType="System.String"
+        SourceFieldType="UserMulti"
+        DestinationType="System.String"
+        />
+    <Coercion Name="MultiDisplayNameSemicolon" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Display Names, Semicolon Delimited~~id_MultiDisplayNameSemicolonDisplayName/ {StringCategory=TXT} Fetch the users' display names from the user objects!~"
+        CatchAll="false"
+        RankDefault="39"
+        SourceType="System.String"
+        SourceFieldType="UserMulti"
+        DestinationType="System.String"
+        />
+    <Coercion Name="MultiLoginNameSemicolon" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Login Names, Semicolon Delimited~~id_MultiLoginNameSemicolonDisplayName/ {StringCategory=TXT} Fetch the users' login names from the user objects!~"
+        CatchAll="false"
+        RankDefault="40"
+        SourceType="System.String"
+        SourceFieldType="UserMulti"
+        DestinationType="System.String"
+        />
+    <Coercion Name="MultiEmailAddressSemicolon" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Email Addresses, Semicolon Delimited~~id_MultiEmailAddressSemicolonDisplayName/ {StringCategory=TXT} Fetch the users' email addresses from the user objects!~"
+        CatchAll="false"
+        RankDefault="41"
+        SourceType="System.String"
+        SourceFieldType="UserMulti"
+        DestinationType="System.String"
+        />
+	
+	<!-- Date Related -->
+    <Coercion Name="DateTimeToStringShortDate" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Short Date~~id_DateTimeToStringShortDateDisplayName/ {StringCategory=TXT} Fetch only the date and format it in the ShortDateFormat.!~"
+        CatchAll="false"
+        RankDefault="60"
+        SourceType="System.DateTime"
+        DestinationType="System.String"
+        />
+    <Coercion Name="DateTimeToStringLongDate" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Long Date~~id_DateTimeToStringLongDateDisplayName/ {StringCategory=TXT} Fetch only the date and format it in the LongDateFormat.!~"
+        CatchAll="false"
+        RankDefault="61"
+        SourceType="System.DateTime"
+        DestinationType="System.String"
+        />
+    <Coercion Name="DateTimeToStringShortTime" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Short Time~~id_DateTimeToStringShortTimeDisplayName/ {StringCategory=TXT} Fetch only the time and format it in the ShortTimeFormat.!~"
+        CatchAll="false"
+        RankDefault="62"
+        SourceType="System.DateTime"
+        DestinationType="System.String"
+        />
+    <Coercion Name="DateTimeToStringLongTime" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Long Time~~id_DateTimeToStringShortLongDisplayName/ {StringCategory=TXT} Fetch only the time and format it in the LongTimeFormat.!~"
+        CatchAll="false"
+        RankDefault="63"
+        SourceType="System.DateTime"
+        DestinationType="System.String"
+        />
+    <Coercion Name="DateTimeToStringISO" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!ISO Formatted~~id_DateTimeToStringISODisplayName/ {StringCategory=TXT} Format the date/time in ISO format.!~"
+        CatchAll="false"
+        RankDefault="64"
+        SourceType="System.DateTime"
+        DestinationType="System.String"
+        />
+
+	<!-- Number formatting -->
+    <Coercion Name="FormattedCurrency" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Formatted Currency~~id_FormattedCurrencyDisplayName/ {StringCategory=TXT} Format the double as currency!~"
+        CatchAll="false"
+        RankDefault="70"
+        SourceType="System.Double"
+        DestinationType="System.String"
+        />
+	
+	<!-- As seconds to DateTime, (.NET-typed) -->
+    <Coercion Name="SecondsDoubleToDateTime" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Number of Seconds since 00:00:00 1/1/1900~~id_SecondsDoubleToDateTimeDisplayName/ {StringCategory=TXT} The number will be interpreted as the number of seconds since midnight on the first of January, 1900.!~"
+        CatchAll="false"
+        RankDefault="40"
+        SourceType="System.Double"
+        DestinationType="System.DateTime"
+        />
+    <Coercion Name="SecondsInt64ToDateTime" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Number of Seconds since 00:00:00 1/1/1900~~id_SecondsInt64ToDateTimeDisplayName/ {StringCategory=TXT} The number will be interpreted as the number of seconds since midnight on the first of January, 1900.!~"
+        CatchAll="false"
+        RankDefault="44"
+        SourceType="System.Int64"
+        DestinationType="System.DateTime"
+        />
+
+	<!-- As seconds from DateTime, (.NET-typed) -->
+    <Coercion Name="DateTimeToSecondsDouble" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Number of Seconds since 00:00:00 1/1/1900~~id_DateTimeToSecondsDoubleDisplayName/ {StringCategory=TXT} The number will be interpreted as the number of seconds since midnight on the first of January, 1900.!~"
+        CatchAll="false"
+        RankDefault="42"
+        SourceType="System.DateTime"
+        DestinationType="System.Double"
+        />
+
+	<!-- ItemKey -->
+    <Coercion Name="UseItemId" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Item Id~~id_UseItemIdDisplayName/ {StringCategory=TXT} Fetches the integer item id.!~"
+        CatchAll="false"
+        RankDefault="20"
+        SourceType="Microsoft.SharePoint.Workflow.SPItemKey"
+        DestinationType="System.Int32"
+        />
+    <Coercion Name="UseItemKey" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!Item Key~~id_UseItemKeyDisplayName/ {StringCategory=TXT} Fetches the string item key.!~"
+        CatchAll="false"
+        RankDefault="20"
+        SourceType="Microsoft.SharePoint.Workflow.SPItemKey"
+        DestinationType="System.String"
+        />
+
+	<!-- .NET type catch-alls -->
+    <Coercion Name="AsDNBoolean" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!As Boolean (Yes/No)~~id_AsDNBooleanDisplayName/ {StringCategory=TXT} The data will be interpreted as a boolean (yes/no) value.!~"
+        CatchAll="true"
+        RankDefault="6"
+        DestinationType="System.Boolean"
+        />
+    <Coercion Name="AsDNDateTime" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!As Date/Time~~id_AsDNDateTimeDisplayName/ {StringCategory=TXT} The data will be interpreted as a date/time value.!~"
+        CatchAll="true"
+        RankDefault="5"
+        DestinationType="System.DateTime"
+        />
+    <Coercion Name="AsDNDouble" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!As Double~~id_AsDNDoubleDisplayName/ {StringCategory=TXT} The data will be interpreted as a double (floating-point number)!~"
+        CatchAll="true"
+        RankDefault="4"
+        DestinationType="System.Double"
+        />
+    <Coercion Name="AsDNInt32" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!As Integer~~id_AsDNInt32DisplayName/ {StringCategory=TXT} The data will be interpreted as an integer value.!~"
+        CatchAll="true"
+        RankDefault="3"
+        DestinationType="System.Int32"
+        />
+    <Coercion Name="AsDNSPItemKey" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!As List Item Id~~id_AsDNSPItemKeyDisplayName/ {StringCategory=TXT} The data will be interpreted as a list item id or key value.!~"
+        CatchAll="true"
+        RankDefault="2"
+        DestinationType="Microsoft.SharePoint.Workflow.SPItemKey"
+        />
+    <Coercion Name="AsDNString" 
+		Assembly="Microsoft.SharePoint.WorkflowActions"
+        DisplayName="~!As String~~id_AsDNStringDisplayName/ {StringCategory=TXT} The data will be interpreted as a string (raw text) value.!~"
+        CatchAll="true"
+        RankDefault="1"
+        DestinationType="System.String"
+        />
+  </Coercions>
+
+</WorkflowInfo>
