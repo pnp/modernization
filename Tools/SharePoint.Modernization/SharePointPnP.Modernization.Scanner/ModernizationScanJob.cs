@@ -296,6 +296,19 @@ namespace SharePoint.Modernization.Scanner
                         this.EveryoneExceptExternalUsersClaim = cc.Web.GetEveryoneExceptExternalUsersClaim();
                     }
                 }
+
+                try
+                {
+                    if (this.ScannerTelemetry != null)
+                    {
+                        var uri = new Uri(sites[0]);
+                        this.ScannerTelemetry.LoadAADTenantId($"{uri.Scheme}://{uri.DnsSafeHost}");                        
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Oops, not critical...let's continue
+                }
             }
 
             // Setup tenant context

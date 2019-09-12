@@ -4,6 +4,16 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Unreleased]
+
+### Added
+
+- Workflow analysis components
+
+### Changed
+
+- Add tenantid in telemetry data
+
 ## [Version 2.5]
 
 ### Added
