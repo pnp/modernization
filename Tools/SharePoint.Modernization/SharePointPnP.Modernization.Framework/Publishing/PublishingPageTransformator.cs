@@ -579,15 +579,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Cross site collection transfer, new page always takes the name of the old page
             if (!sourcePath.Contains($"/{this.publishingPagesLibraryName}"))
             {
-                // Source file was living outside of the site pages library
+                // Source file was living outside of the publishing pages library
                 targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower().TrimEnd(new[] { '/' })}/sitepages{targetPath}";
             }
             else
             {
-                // Page was living inside the sitepages library
-                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibraryName}".ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                // Page was living inside the publishing pages library
+                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibraryName}".ToLower(), "");
+                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower().TrimEnd(new[] { '/' })}/sitepages{targetPath}";
             }
 
             string returnUrl = $"{targetPath}{originalSourcePageName}";
