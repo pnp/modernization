@@ -20,6 +20,8 @@
 
 ### Changed
 
+- Fix: Handle web part loading of web parts embedded in publishing content fields when transforming from SP2010/2013/2016 #265
+
 ## [September release - version 1.0.1909.0]
 
 ### Added

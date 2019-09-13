@@ -95,7 +95,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 // Bulk load the needed web part information
                 if (webPartsToRetrieve.Count > 0)
                 {
-                    LoadWebPartsInWikiContentFromServer(webparts, publishingPage, webPartsToRetrieve);
+                    LoadWebPartsInWikiContentFromOnPremisesServer(webparts, publishingPage, webPartsToRetrieve);
                 }
                 #endregion
 
