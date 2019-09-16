@@ -389,9 +389,14 @@
               resource lookups using this strongly typed resource class.
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.CanProvisionIssuesMessages.App_Catalog_Not_Yet_Fully_Provisioned">
+            <summary>
+              Looks up a localized string similar to This template requires a fully provisioned App Catalog. The App Catalog on your tenant has been created within the last 2 hours. Please wait a bit longer to provision the template..
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.CanProvisionIssuesMessages.Missing_App_Catalog">
             <summary>
-              Looks up a localized string similar to In order to provision the template you need to have an App Catalog in your tenant. Please, create one (for instructions you can read this document: https://go.microsoft.com/fwlink/?linkid=2087251), wait up to 30 minutes, and try again..
+              Looks up a localized string similar to In order to provision the template you need to have an App Catalog in your tenant. Please, create one (for instructions you can read this document: https://go.microsoft.com/fwlink/?linkid=2087251), wait up to 2 hours, and try again..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CanProvisionIssuesMessages.Missing_Permissions_for_App_Catalog">
@@ -6035,6 +6040,11 @@
         <member name="F:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionIssueTags.USER_IS_NOT_TENANT_ADMIN">
             <summary>
             Lack of Permissions, the user is not a Tenant Admin, which is required by the rule
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionIssueTags.APP_CATALOG_NOT_YEY_FULLY_PROVISIONED">
+            <summary>
+            The App Catalog needs a few hours to be fully provisioned
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionRuleAttribute">
@@ -42077,6 +42087,16 @@
         <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.Sites">
             <summary>
             Sites web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.CallToAction">
+            <summary>
+            Call to Action web part
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.DefaultClientSideWebParts.Button">
+            <summary>
+            Button web part
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Pages.PromotedState">
