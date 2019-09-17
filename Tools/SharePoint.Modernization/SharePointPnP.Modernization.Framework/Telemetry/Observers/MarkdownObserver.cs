@@ -211,7 +211,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                     report.AppendLine($"{Heading2} {LogStrings.Report_TransformationDetails}: {modernizedFileLog.SourcePage.StripRelativeUrlSectionString()}");
                     report.AppendLine();
                     report.AppendLine($"{UnorderedListItem} {LogStrings.Report_ReportDate}: {modernizedFileLog.ReportDate}");
-                    report.AppendLine($"{UnorderedListItem} {LogStrings.Report_TransformDuration}: {modernizedFileLog}");
+                    report.AppendLine($"{UnorderedListItem} {LogStrings.Report_TransformDuration}: {string.Format("{0:D2}:{1:D2}:{2:D2}", modernizedFileLog.TransformationDuration.Hours, modernizedFileLog.TransformationDuration.Minutes, modernizedFileLog.TransformationDuration.Seconds)}");
 
                     foreach (var log in modernizedFileLog.TransformationVerboseSummary)
                     {

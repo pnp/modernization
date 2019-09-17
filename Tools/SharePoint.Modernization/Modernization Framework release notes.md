@@ -26,6 +26,7 @@
 - Fix: Returned modern page url is containing /pages/ when transforming publishing pages the from root site collection #262
 - Fix: Prevent unneeded intermediate versions of the created page
 - Fix: Support publishing page layout mapping files without a MetaData section (in case no metadata needs to be taken over)
+- Fix: Logging shows class name instead of data #273
 
 ## [September release - version 1.0.1909.0]
 
