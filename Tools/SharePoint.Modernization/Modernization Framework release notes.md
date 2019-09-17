@@ -30,6 +30,7 @@
 - Fix: Handle case where the publishing page header fields are not populated due to missing data in the source page
 - Fix: Option to insert 'hard coded' html content on the created target page now also works when transforming from SP2010/2013/2016
 - Fix: Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
+- Fix: Transform to the newer, more versatile, News web part versus the NewsReel #263
 
 ## [September release - version 1.0.1909.0]
 
