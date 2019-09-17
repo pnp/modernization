@@ -157,7 +157,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             #endregion
 
             #region Process fields that become metadata as they might result in the creation of page properties web part
-            if (publishingPageTransformationModel.MetaData.ShowPageProperties)
+            if (publishingPageTransformationModel.MetaData != null && publishingPageTransformationModel.MetaData.ShowPageProperties)
             {
                 List<string> pagePropertiesFields = new List<string>();
 

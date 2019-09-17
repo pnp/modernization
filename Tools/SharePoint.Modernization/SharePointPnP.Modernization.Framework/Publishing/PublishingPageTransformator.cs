@@ -179,6 +179,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
                 }
 
+                // Ensure PostAsNews is used together with PagePublishing
+                if (publishingPageTransformationInformation.PostAsNews && !publishingPageTransformationInformation.PublishCreatedPage)
+                {
+                    publishingPageTransformationInformation.PublishCreatedPage = true;
+                    LogWarning(LogStrings.Warning_PostingAPageAsNewsRequiresPagePublishing, LogStrings.Heading_Summary);
+                }
+
+                // Store the information of the source page we do want to retain
+                if (publishingPageTransformationInformation.KeepPageCreationModificationInformation)
+                {
+                    StoreSourcePageInformationToKeep(publishingPageTransformationInformation.SourcePage);
+                }
+
                 LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
 #if DEBUG && MEASURE
@@ -481,10 +494,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                     targetPageFile.Update();
 
-                    if (publishingPageTransformationInformation.PublishCreatedPage)
+                    // In case of KeepPageCreationModificationInformation and PostAsNews the publishing is handled at the very end of the flow, so skip it right here
+                    if (!publishingPageTransformationInformation.KeepPageCreationModificationInformation && 
+                        !publishingPageTransformationInformation.PostAsNews && 
+                        publishingPageTransformationInformation.PublishCreatedPage)
                     {
                         // Try to publish, if publish is not needed/possible (e.g. when no minor/major versioning set) then this will return an error that we'll be ignoring
-                        targetPageFile.Publish("Page modernization initial publish");
+                        targetPageFile.Publish(LogStrings.PublishMessage);
                     }
 
                     // Ensure we've the most recent page list item loaded, must be last statement before calling ExecuteQuery
@@ -519,7 +535,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     if (!skipSettingMigratedFromServerRendered)
                     {
                         targetPage.PageListItem[Constants.SPSitePageFlagsField] = ";#MigratedFromServerRendered;#";
-                        targetPage.PageListItem.Update();
+                        targetPage.PageListItem.UpdateOverwriteVersion();
                         context.Load(targetPage.PageListItem);
                         context.ExecuteQueryRetry();
                     }
@@ -536,6 +552,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
                 }
                 #endregion
+
+                #region Restore page author/editor/created/modified
+                if ((publishingPageTransformationInformation.KeepPageCreationModificationInformation && this.SourcePageAuthor != null && this.SourcePageEditor != null) || 
+                    publishingPageTransformationInformation.PostAsNews)
+                {
+                    UpdateTargetPageWithSourcePageInformation(targetPage.PageListItem, publishingPageTransformationInformation, serverRelativePathForModernPage, true);
+                }
+                #endregion
+
+                // NO page updates are allowed anymore past this point as otherwise the set page usage information and published/posted state will be impacted!
 
                 #region Telemetry
                 if (!publishingPageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)

@@ -27,15 +27,19 @@
         <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" ShowInPageProperties="true" />
         <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" ShowInPageProperties="true"/>
         <Field Name="Person" TargetFieldName="Person" Functions="" ShowInPageProperties="true"/>
+        
+        <!-- OBSOLETE: please use the new KeepPageCreationModificationInformation option-->
         <!-- Use below 4 fields to retain user created/date created, user modified/date modified will be overwritten afterwards, but you need to include them to make this "override" work -->
-        <Field Name="Created" TargetFieldName="Created" Functions="" />
+        <!--<Field Name="Created" TargetFieldName="Created" Functions="" />
         <Field Name="Author" TargetFieldName="Author" Functions="" />
         <Field Name="Modified" TargetFieldName="Modified" Functions="" />
-        <Field Name="Editor" TargetFieldName="Editor" Functions="" />
+        <Field Name="Editor" TargetFieldName="Editor" Functions="" />-->
+        
+        <!-- OBSOLETE: please use the new PostNews option-->
         <!-- If you want to publish the article as news then set populate the FirstPublishedDate with either the Modified, ArticleStartDate or PublishingStartDate source field (check what's filled in your case) -->
         <!--<Field Name="ArticleStartDate" TargetFieldName="FirstPublishedDate" Functions=""/>-->
-        <Field Name="Modified" TargetFieldName="FirstPublishedDate" Functions=""/>
-        <Field Name="ID" TargetFieldName="PromotedState" Functions="StaticString('2')" />
+        <!--<Field Name="Modified" TargetFieldName="FirstPublishedDate" Functions=""/>
+        <Field Name="ID" TargetFieldName="PromotedState" Functions="StaticString('2')" />-->
       </MetaData>
       <WebParts>
         <Field Name="PublishingPageImage" TargetWebPart="SharePointPnP.Modernization.WikiImagePart" Row="1" Column="1" Order="1">

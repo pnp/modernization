@@ -61,8 +61,12 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                             // Don't log test runs
                             SkipTelemetry = true,  
+
+                            KeepPageCreationModificationInformation = true,
                             
-                            //PublishCreatedPage = false,
+                            PostAsNews = true,
+
+                            //PublishCreatedPage = true,
                             
                             //RemoveEmptySectionsAndColumns = false,
 

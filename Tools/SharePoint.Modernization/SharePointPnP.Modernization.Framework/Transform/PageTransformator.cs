@@ -280,6 +280,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
                 }
 
+                // Ensure PostAsNews is used together with PagePublishing
+                if (pageTransformationInformation.PostAsNews && !pageTransformationInformation.PublishCreatedPage)
+                {
+                    pageTransformationInformation.PublishCreatedPage = true;
+                    LogWarning(LogStrings.Warning_PostingAPageAsNewsRequiresPagePublishing, LogStrings.Heading_Summary);
+                }
+
+                // Store the information of the source page we do want to retain
+                if (pageTransformationInformation.KeepPageCreationModificationInformation && pageTransformationInformation.SourcePage != null)
+                {
+                    StoreSourcePageInformationToKeep(pageTransformationInformation.SourcePage);
+                }
+
                 LogInfo($"{GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
 #if DEBUG && MEASURE
@@ -810,10 +823,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                     targetPageFile.Update();
 
-                    if (pageTransformationInformation.PublishCreatedPage)
+                    if (!pageTransformationInformation.KeepPageCreationModificationInformation &&
+                        !pageTransformationInformation.PostAsNews &&
+                        pageTransformationInformation.PublishCreatedPage)
                     {
                         // Try to publish, if publish is not needed/possible (e.g. when no minor/major versioning set) then this will return an error that we'll be ignoring
-                        targetPageFile.Publish("Page modernization initial publish");
+                        targetPageFile.Publish(LogStrings.PublishMessage);
                     }
 
                     // Ensure we've the most recent page list item loaded, must be last statement before calling ExecuteQuery
@@ -848,7 +863,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     if (!skipSettingMigratedFromServerRendered)
                     {
                         targetPage.PageListItem[Constants.SPSitePageFlagsField] = ";#MigratedFromServerRendered;#";
-                        targetPage.PageListItem.Update();
+                        //targetPage.PageListItem.Update();
+                        targetPage.PageListItem.UpdateOverwriteVersion();
                         context.Load(targetPage.PageListItem);
                         context.ExecuteQueryRetry();
                     }
@@ -867,6 +883,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 #endregion
 
+                ListItem finalListItemToUpdate;
+
                 #region Page name switching
                 // All went well so far...swap pages if that's needed. When copying to another site collection this step is not needed
                 // as the created page already has the final name
@@ -877,11 +895,33 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #endif
                     //Load the source page
                     SwapPages(pageTransformationInformation, listItemPermissionsToKeep);
+
+                    // Reload the target page list item for future updates because the existing reference is invalid due to the copy/moveto operations from swappages
+                    var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
+                    context.Load(targetPageFile, p => p.ListItemAllFields);
+                    context.ExecuteQueryRetry();
+
+                    finalListItemToUpdate = targetPageFile.ListItemAllFields;
+
 #if DEBUG && MEASURE
                 Stop("Pagename swap");
 #endif
                 }
+                else
+                {
+                    finalListItemToUpdate = targetPage.PageListItem;
+                }
                 #endregion
+                
+                #region Restore page author/editor/created/modified
+                if ((pageTransformationInformation.SourcePage != null && pageTransformationInformation.KeepPageCreationModificationInformation && this.SourcePageAuthor != null && this.SourcePageEditor != null) || 
+                    pageTransformationInformation.PostAsNews)
+                {
+                    UpdateTargetPageWithSourcePageInformation(finalListItemToUpdate, pageTransformationInformation, serverRelativePathForModernPage, hasTargetContext);
+                }
+                #endregion
+
+                // NO page updates are allowed anymore past this point as otherwise the set page usage information and published/posted state will be impacted!
 
                 #region Telemetry
                 if (!pageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)

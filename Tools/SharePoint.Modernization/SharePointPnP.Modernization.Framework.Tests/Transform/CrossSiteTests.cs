@@ -77,6 +77,14 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             // Don't log test runs
                             SkipTelemetry = true,
 
+                            KeepPageCreationModificationInformation = true,
+
+                            PostAsNews = true,
+
+                            PublishCreatedPage = true,
+
+                            //AddTableListImageAsImageWebPart = true,
+
                             // ModernizationCenter options
                             //ModernizationCenterInformation = new ModernizationCenterInformation()
                             //{

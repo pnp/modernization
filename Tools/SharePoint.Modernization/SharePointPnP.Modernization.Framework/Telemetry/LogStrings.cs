@@ -96,6 +96,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         #region Warning messages
 
         public const string Warning_NonCriticalErrorDuringVersionStampAndPublish = "Page could not be published as versioning is not enabled or version stamp could not be set.";
+        public const string Warning_NonCriticalErrorDuringPublish = "Page could not be published as versioning is not enabled on the SitePages library.";
+        public const string Warning_PostingAPageAsNewsRequiresPagePublishing = "Posting a page as news requires the page to be published. Turning on the PublishCreatedPage flag.";
 
         public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled";
 
@@ -164,11 +166,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
         public const string TransformDisablePageComments = "Page commenting is disabled this this page";
         public const string PageLivesOutsideOfALibrary = "Page is loaded from outside a library";
-
         public const string TransformPageDoesNotExistInWeb = "Page does not exist in current web";
         public const string CallingWebServicesToExtractWebPartPropertiesFromPage = "Calling Web Services to Extract Web Part Properties from Page";
         public const string CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string RetreivingExportWebPartXmlWorkaround = "Retrieving Web Part using Workaround from Page for Transform";
+        public const string PublishMessage = "Published by the page modernization engine";
 
         #endregion
 

@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-
 namespace SharePointPnP.Modernization.Framework.Transform
 {
     /// <summary>
@@ -28,6 +27,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal string version = "undefined";
         internal PageTelemetry pageTelemetry;
         internal bool isRootPage = false;
+        // source page information to "restore"
+        internal FieldUserValue SourcePageAuthor;
+        internal FieldUserValue SourcePageEditor;
+        internal DateTime SourcePageCreated;
+        internal DateTime SourcePageModified;
 
         #region Helper methods
         internal string GetFieldValue(BaseTransformationInformation baseTransformationInformation, string fieldName)
@@ -372,7 +376,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if (isDirty)
                 {
-                    targetPage.PageListItem.Update();
+                    targetPage.PageListItem.UpdateOverwriteVersion();
                     this.sourceClientContext.Load(targetPage.PageListItem);
                     this.sourceClientContext.ExecuteQueryRetry();
                     isDirty = false;
@@ -455,7 +459,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if (isDirty)
                 {
-                    targetPage.PageListItem.Update();
+                    targetPage.PageListItem.UpdateOverwriteVersion();
                     this.sourceClientContext.Load(targetPage.PageListItem);
                     this.sourceClientContext.ExecuteQueryRetry();
                 }
@@ -618,6 +622,112 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return pageType.Equals("AspxPage", StringComparison.InvariantCultureIgnoreCase);
         }
 
+        internal void StoreSourcePageInformationToKeep(ListItem sourcePage)
+        {
+            this.SourcePageAuthor = sourcePage[Constants.CreatedByField] as FieldUserValue;
+            this.SourcePageEditor = sourcePage[Constants.ModifiedByField] as FieldUserValue;
+
+            // Ensure to interprete time correctly: SPO stores in UTC, but we'll need to push back in local
+            if (DateTime.TryParse(sourcePage[Constants.CreatedField].ToString(), out DateTime created))
+            {
+                DateTime createdIsUtc = DateTime.SpecifyKind(created, DateTimeKind.Utc);
+                this.SourcePageCreated = createdIsUtc.ToLocalTime();
+            }
+            if (DateTime.TryParse(sourcePage[Constants.ModifiedField].ToString(), out DateTime modified))
+            {
+                DateTime modifiedIsUtc = DateTime.SpecifyKind(modified, DateTimeKind.Utc);
+                this.SourcePageModified = modifiedIsUtc.ToLocalTime();
+            }
+        }
+
+        internal void UpdateTargetPageWithSourcePageInformation(ListItem targetPage,BaseTransformationInformation baseTransformationInformation, string serverRelativePathForModernPage, bool crossSiteTransformation)
+        {
+            try
+            {
+                FieldUserValue pageAuthor = this.SourcePageAuthor;
+                FieldUserValue pageEditor = this.SourcePageEditor;
+
+                // Keeping page author information is only possible when staying in SPO...for cross site support we first do need user account mapping
+                var sourcePlatformVersion = GetVersion(this.sourceClientContext);
+
+                if (crossSiteTransformation && baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
+                {
+                    // If transformtion is cross site collection we'll need to lookup users again
+                    // Using a cloned context to not mess up with the pending list item updates
+                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                    {
+                        var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
+                        var pageEditorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageEditor.LookupValue);
+                        clonedTargetContext.Load(pageAuthorUser);
+                        clonedTargetContext.Load(pageEditorUser);
+                        clonedTargetContext.ExecuteQueryRetry();
+
+                        // Prep a new FieldUserValue object instance and update the list item
+                        pageAuthor = new FieldUserValue()
+                        {
+                            LookupId = pageAuthorUser.Id
+                        };
+
+                        pageEditor = new FieldUserValue()
+                        {
+                            LookupId = pageEditorUser.Id
+                        };
+                    }
+                }
+
+                //FileLevel level;
+                //using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                //{
+                //    var targetPageFile = clonedTargetContext.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
+                //    clonedTargetContext.Load(targetPageFile, p => p.Level);
+                //    level = targetPageFile.Level;
+                //}
+
+                if (baseTransformationInformation.KeepPageCreationModificationInformation || baseTransformationInformation.PostAsNews)
+                {
+                    if (baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
+                    {
+                        // All 4 fields have to be set!
+                        targetPage[Constants.CreatedByField] = pageAuthor;
+                        targetPage[Constants.ModifiedByField] = pageEditor;
+                        targetPage[Constants.CreatedField] = this.SourcePageCreated;
+                        targetPage[Constants.ModifiedField] = this.SourcePageModified;
+                    }
+
+                    if (baseTransformationInformation.PostAsNews)
+                    {
+                        targetPage[Constants.PromotedStateField] = "2";
+
+                        // Determine what will be the publishing date that will show up in the news rollup
+                        if (baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
+                        {
+                            targetPage[Constants.FirstPublishedDateField] = this.SourcePageModified;
+                        }
+                        else
+                        {
+                            targetPage[Constants.FirstPublishedDateField] = targetPage[Constants.ModifiedField];
+                        }
+                    }
+
+                    targetPage.UpdateOverwriteVersion();
+
+                    if (baseTransformationInformation.PublishCreatedPage)
+                    {
+                        var targetPageFile = ((targetPage.Context) as ClientContext).Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
+                        targetPage.Context.Load(targetPageFile, p => p.Level);
+                        // Try to publish, if publish is not needed/possible (e.g. when no minor/major versioning set) then this will return an error that we'll be ignoring
+                        targetPageFile.Publish(LogStrings.PublishMessage);
+                    }
+                }
+
+                targetPage.Context.ExecuteQueryRetry();
+            }
+            catch(Exception ex)
+            {
+                // Eat exceptions as this is not critical for the generated page
+                LogWarning(LogStrings.Warning_NonCriticalErrorDuringPublish, LogStrings.Heading_ArticlePageHandling);
+            }
+        }        
         #endregion
 
 

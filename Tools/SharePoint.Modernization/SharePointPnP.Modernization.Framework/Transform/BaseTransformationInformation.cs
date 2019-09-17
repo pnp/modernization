@@ -62,9 +62,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public Dictionary<string, string> MappingProperties { get; set; }
 
         /// <summary>
+        /// Set this property in case you want to retain the page's Author/Editor/Created/Modified fields. Note that a page publish will always set Editor/Modified
+        /// </summary>
+        public bool KeepPageCreationModificationInformation { get; set; }
+
+        /// <summary>
         /// Should the created page be immediately published (default = true)
         /// </summary>
         public bool PublishCreatedPage { get; set; }
+
+        /// <summary>
+        /// Post the created page as news
+        /// </summary>
+        public bool PostAsNews { get; set; }
 
         /// <summary>
         /// Disable page comments on the created page

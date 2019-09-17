@@ -24,6 +24,8 @@ namespace SharePointPnP.Modernization.Framework
         public const string WikiField = "WikiField";
         public const string ModifiedField = "Modified";
         public const string ModifiedByField = "Editor";
+        public const string CreatedField = "Created";
+        public const string CreatedByField = "Author";
         public const string ContentTypeIdField = "ContentTypeId";
         public const string PublishingPageLayoutField = "PublishingPageLayout";
         public const string AudienceField = "Audience";
@@ -31,6 +33,8 @@ namespace SharePointPnP.Modernization.Framework
         public const string TitleField = "Title";
         public const string PublishingAssociatedContentTypeField = "PublishingAssociatedContentType";
         public const string SPSitePageFlagsField = "_SPSitePageFlags";
+        public const string PromotedStateField = "PromotedState";
+        public const string FirstPublishedDateField = "FirstPublishedDate";
         public const string IDField = "ID";
         public const string BodyField = "Body"; // Blog pages
 

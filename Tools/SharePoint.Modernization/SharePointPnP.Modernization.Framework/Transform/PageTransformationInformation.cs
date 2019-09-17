@@ -46,6 +46,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             SkipTelemetry = false;
             RemoveEmptySectionsAndColumns = true;
             PublishCreatedPage = true;
+            KeepPageCreationModificationInformation = false;
+            PostAsNews = false;
             DisablePageComments = false;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();

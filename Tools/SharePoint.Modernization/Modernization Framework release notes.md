@@ -17,11 +17,15 @@
 ### Added
 
 - Support for doing cross site classic blog to modern page transformation
+- KeepPageCreationModificationInformation option to tell page transformation to keep the source page's author, editor, creation and modification dates
+- PostAsNews option to post the created page as news. Setting this option will also set PublishCreatedPage to true
 
 ### Changed
 
 - Fix: Handle web part loading of web parts embedded in publishing content fields when transforming from SP2010/2013/2016 #265
 - Fix: Returned modern page url is containing /pages/ when transforming publishing pages the from root site collection #262
+- Fix: Prevent unneeded intermediate versions of the created page
+- Fix: Support publishing page layout mapping files without a MetaData section (in case no metadata needs to be taken over)
 
 ## [September release - version 1.0.1909.0]
 
