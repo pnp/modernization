@@ -120,7 +120,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 {
                                                     var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
 
-                                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+                                                    if (this.publishingPageTransformationInformation.SourcePage.FieldExists(fieldToProcess.Name))
                                                     {
                                                         if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValueCollection)
                                                         {
@@ -147,6 +147,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                         isDirty = true;
                                                         LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                     }
+                                                    else
+                                                    {
+                                                        // Log that field in page layout mapping was not found
+                                                        LogWarning(string.Format(LogStrings.Warning_FieldNotFoundInSourcePage, fieldToProcess.Name), LogStrings.Heading_CopyingPageMetadata);
+                                                    }
                                                 }
                                                 break;
                                             }
@@ -157,7 +162,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 {
                                                     var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
                                                     var taxValue = new TaxonomyFieldValue();
-                                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+
+                                                    if (this.publishingPageTransformationInformation.SourcePage.FieldExists(fieldToProcess.Name))
                                                     {
                                                         if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValue)
                                                         {
@@ -176,6 +182,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                         taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
                                                         isDirty = true;
                                                         LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                    }
+                                                    else
+                                                    {
+                                                        // Log that field in page layout mapping was not found
+                                                        LogWarning(string.Format(LogStrings.Warning_FieldNotFoundInSourcePage, fieldToProcess.Name), LogStrings.Heading_CopyingPageMetadata);
                                                     }
                                                 }
                                                 break;
@@ -231,7 +242,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                             {
                                 if (targetFieldData.FieldType != "TaxonomyFieldTypeMulti" && targetFieldData.FieldType != "TaxonomyFieldType")
                                 {
-                                    if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] != null)
+                                    if (this.publishingPageTransformationInformation.SourcePage.FieldExists(fieldToProcess.Name))
                                     {
                                         object fieldValueToSet = null;
 
@@ -314,6 +325,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                                             LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                         }
+                                    }
+                                    else
+                                    {
+                                        // Log that field in page layout mapping was not found
+                                        LogWarning(string.Format(LogStrings.Warning_FieldNotFoundInSourcePage, fieldToProcess.Name), LogStrings.Heading_CopyingPageMetadata);
                                     }
                                 }
                             }

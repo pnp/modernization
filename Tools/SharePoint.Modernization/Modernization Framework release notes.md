@@ -29,6 +29,7 @@
 - Fix: Logging shows class name instead of data #273
 - Fix: Handle case where the publishing page header fields are not populated due to missing data in the source page
 - Fix: Option to insert 'hard coded' html content on the created target page now also works when transforming from SP2010/2013/2016
+- Fix: Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
 
 ## [September release - version 1.0.1909.0]
 
