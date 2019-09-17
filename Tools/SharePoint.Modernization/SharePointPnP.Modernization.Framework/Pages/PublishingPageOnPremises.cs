@@ -77,7 +77,24 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
                 foreach (var wikiTextPart in wikiTextWebParts)
                 {
-                    var pageContents = page.GetFieldValueAs<string>(wikiTextPart.Name);
+                    string pageContents = page.GetFieldValueAs<string>(wikiTextPart.Name);
+
+                    if (wikiTextPart.Property.Count() > 0)
+                    {
+                        foreach (var fieldWebPartProperty in wikiTextPart.Property)
+                        {
+                            if (fieldWebPartProperty.Name.Equals("Text", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(fieldWebPartProperty.Functions))
+                            {
+                                // execute function
+                                var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, MapToFunctionProcessorFieldType(fieldWebPartProperty.Type));
+                                if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                                {
+                                    pageContents = evaluatedField.Item2;
+                                }
+                            }
+                        }
+                    }
+
                     if (pageContents != null && !string.IsNullOrEmpty(pageContents))
                     {
                         var htmlDoc = parser.Parse(pageContents);
