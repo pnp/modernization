@@ -31,6 +31,7 @@
 - Fix: Option to insert 'hard coded' html content on the created target page now also works when transforming from SP2010/2013/2016
 - Fix: Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
 - Fix: Transform to the newer, more versatile, News web part versus the NewsReel #263
+- Fix: Don't try to transfer CDN images from OnPrem root site collections #278 [gautamdsheth]
 
 ## [September release - version 1.0.1909.0]
 
