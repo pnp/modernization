@@ -29,7 +29,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
-        private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;      
+        private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;
         private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
         private ConcurrentDictionary<string, string> contentTypes;
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
@@ -89,7 +89,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns></returns>
         public List<ClientSideComponent> GetClientSideComponents(ClientSidePage page)
         {
-            Guid webId = page.Context.Web.EnsureProperty(o=>o.Id);
+            Guid webId = page.Context.Web.EnsureProperty(o => o.Id);
 
             if (siteToComponentMapping.ContainsKey(webId))
             {
@@ -246,61 +246,51 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             ClientContext context = pagesLibrary.Context as ClientContext;
 
-            // Get the content type object
-            var ctCol = pagesLibrary.ContentTypes;
-            var ctType = context.LoadQuery(ctCol.Where(item => item.StringId == contentTypeId));
+            // Load all fields of the list
+            FieldCollection fields = pagesLibrary.Fields;
+            context.Load(fields, fs => fs.Include(f => f.Id, f => f.TypeAsString, f => f.InternalName));
             context.ExecuteQueryRetry();
 
-            if (ctType.FirstOrDefault() != null)
+            List<FieldData> contentTypeFieldsInList = new List<FieldData>();
+            foreach (var field in fields)
             {
-                // Load all fields
-                FieldCollection fields = ctType.FirstOrDefault().Fields;
-                context.Load(fields, fs => fs.Include(f => f.Id, f => f.TypeAsString, f => f.InternalName));
-                context.ExecuteQueryRetry();
-
-                List<FieldData> contentTypeFields = new List<FieldData>();
-                foreach (var field in fields)
+                contentTypeFieldsInList.Add(new FieldData()
                 {
-                    contentTypeFields.Add(new FieldData()
-                    {
-                        FieldId = field.Id,
-                        FieldName = field.InternalName,
-                        FieldType = field.TypeAsString,
-                    });
-                }
-
-                var authorField = new FieldData()
-                {
-                    FieldId = new Guid("1df5e554-ec7e-46a6-901d-d85a3881cb18"),
-                    FieldName = "Author",
-                    FieldType = "User",
-                };
-
-                var editorField = new FieldData()
-                {
-                    FieldId = new Guid("d31655d1-1d5b-4511-95a1-7a09e9b75bf2"),
-                    FieldName = "Editor",
-                    FieldType = "User",
-                };
-
-                if (!contentTypeFields.Contains(authorField))
-                {
-                    contentTypeFields.Add(authorField);
-                }
-
-                if (!contentTypeFields.Contains(editorField))
-                {
-                    contentTypeFields.Add(editorField);
-                }
-
-                // Store in cache
-                this.publishingContentTypeFields.TryAdd(contentTypeId, contentTypeFields);
-                
-                // Return field, if found
-                return contentTypeFields.Where(p => p.FieldName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    FieldId = field.Id,
+                    FieldName = field.InternalName,
+                    FieldType = field.TypeAsString,
+                });
             }
 
-            return null;
+            var authorField = new FieldData()
+            {
+                FieldId = new Guid("1df5e554-ec7e-46a6-901d-d85a3881cb18"),
+                FieldName = "Author",
+                FieldType = "User",
+            };
+
+            var editorField = new FieldData()
+            {
+                FieldId = new Guid("d31655d1-1d5b-4511-95a1-7a09e9b75bf2"),
+                FieldName = "Editor",
+                FieldType = "User",
+            };
+
+            if (!contentTypeFieldsInList.Contains(authorField))
+            {
+                contentTypeFieldsInList.Add(authorField);
+            }
+
+            if (!contentTypeFieldsInList.Contains(editorField))
+            {
+                contentTypeFieldsInList.Add(editorField);
+            }
+
+            // Store in cache
+            this.publishingContentTypeFields.TryAdd(contentTypeId, contentTypeFieldsInList);
+
+            // Return field, if found
+            return contentTypeFieldsInList.Where(p => p.FieldName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         }
 
         /// <summary>
@@ -359,7 +349,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     if (!string.IsNullOrEmpty(keyVal))
                     {
                         var list = context.Web.GetListById(Guid.Parse(keyVal), o => o.RootFolder.ServerRelativeUrl);
-                        var webServerRelativeUrl = context.Web.EnsureProperty(w => w.ServerRelativeUrl);                        
+                        var webServerRelativeUrl = context.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
                         pagesLibraryName = list.RootFolder.ServerRelativeUrl.Replace(webServerRelativeUrl, "").Trim('/').ToLower();
 
@@ -504,7 +494,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             this.AssetsTransfered.Clear();
             ClearClientSideComponents();
             ClearBaseTemplate();
-            
+
             this.urlMapping = null;
             ClearFieldsToCopy();
             ClearSharePointVersions();
@@ -632,7 +622,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             if (results.FirstOrDefault() != null)
             {
                 contentTypeId = results.FirstOrDefault().StringId;
-                
+
                 // We only allow content types that inherit from the OOB Site Page content type
                 if (!contentTypeId.StartsWith(Constants.ModernPageContentTypeId, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -693,4 +683,3 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
     }
 }
- 
