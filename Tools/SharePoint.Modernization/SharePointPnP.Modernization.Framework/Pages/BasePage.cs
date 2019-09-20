@@ -1029,8 +1029,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 }
 
                 // Clean prefixes
-                xmlBlock = xmlBlock.Replace("__designer:", "Designer");
-                foreach(var prefix in prefixesAndNameSpaces)
+                xmlBlock = xmlBlock
+                    .Replace("__designer:", "Designer")
+                    .Replace("<asp:","<")
+                    .Replace("</asp:","</"); // Remove asp prefixes from xml document
+
+                foreach (var prefix in prefixesAndNameSpaces)
                 {
                     xmlBlock = xmlBlock.Replace($"{prefix.Item1}:", "");
                 }
