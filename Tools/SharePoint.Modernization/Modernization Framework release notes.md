@@ -33,6 +33,7 @@
 - Fix: Transform to the newer, more versatile, News web part versus the NewsReel #263
 - Fix: Don't try to transfer CDN images from OnPrem root site collections #278 [gautamdsheth]
 - Fix: Remove asp prefixes from XML block when processing on-premises pages #280 [pkbullock]
+- Fix: Fetching the fields from the list instead of the content types for more robustness in metadata copy of publishing pages #279 [gautamdsheth]
 
 ## [September release - version 1.0.1909.0]
 
