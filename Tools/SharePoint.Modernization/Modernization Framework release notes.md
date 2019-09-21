@@ -32,6 +32,7 @@
 - Fix: Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
 - Fix: Transform to the newer, more versatile, News web part versus the NewsReel #263
 - Fix: Don't try to transfer CDN images from OnPrem root site collections #278 [gautamdsheth]
+- Fix: Remove asp prefixes from XML block when processing on-premises pages #280 [pkbullock]
 
 ## [September release - version 1.0.1909.0]
 
