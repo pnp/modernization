@@ -311,9 +311,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (IsBlogPage(pageType))
                     {
-                        if (fileRefFieldValue.ToLower().Contains("/lists/posts"))
+                        if (fileRefFieldValue.ToLower().Contains($"/lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}"))
                         {
-                            pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/Lists/Posts", "").Trim();
+                            pageFolder = fileRefFieldValue.ToLower().Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/Lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}".ToLower(), "").Trim();
                         }
                         else
                         {
@@ -1145,7 +1145,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
 
             // Cross site collection transfer, new page always takes the name of the old page
-            if (!sourcePath.Contains("/lists/posts"))
+            if (!sourcePath.Contains($"/lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}"))
             {
                 // Source file was living outside of the site pages library
                 targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
@@ -1154,7 +1154,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             else
             {
                 // Page was living inside the sitepages library
-                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/lists/posts".ToLower(), "");
+                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}".ToLower(), "");
                 targetPath = $"{targetClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' }).ToLower()}/sitepages{targetPath}";
             }
 

@@ -28,6 +28,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<Guid, string> siteToComponentMapping;
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
+        private ConcurrentDictionary<uint, string> blogListNames;
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
         private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;
         private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
@@ -57,6 +58,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>(10, 10);
             AssetsTransfered = new List<AssetTransferredEntity>();
             publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>(10, 10);
+            blogListNames = new ConcurrentDictionary<uint, string>(10, 10);
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
             generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
             userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
@@ -382,6 +384,55 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return pagesLibraryName;
         }
 
+        #endregion
+
+        #region Blog list name
+        /// <summary>
+        /// Get translation for the blog list name
+        /// </summary>
+        /// <param name="context">Context of the site</param>
+        /// <returns>Translated name of the blog list</returns>
+        public string GetBlogListName(ClientContext context)
+        {
+            string blogListName = "posts";
+
+            if (context == null)
+            {
+                return blogListName;
+            }
+
+            uint lcid = context.Web.EnsureProperty(p => p.Language);
+            if (blogListNames.ContainsKey(lcid))
+            {
+                if (blogListNames.TryGetValue(lcid, out string name))
+                {
+                    return name;
+                }
+                else
+                {
+                    // let's fallback to the default...we should never get here unless there's some threading issue
+                    return blogListName;
+                }
+            }
+            else
+            {
+                // Fall back to older logic
+                ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:blogpost_Folder", "core", int.Parse(lcid.ToString()));
+                context.ExecuteQueryRetry();
+
+                var altBlogListName = new Regex(@"['´`]").Replace(result.Value, "");
+
+                if (string.IsNullOrEmpty(altBlogListName))
+                {
+                    return blogListName;
+                }
+
+                // add to cache
+                blogListNames.TryAdd(lcid, altBlogListName.ToLower());
+
+                return altBlogListName.ToLower();
+            }
+        }
         #endregion
 
         #region Resource strings
