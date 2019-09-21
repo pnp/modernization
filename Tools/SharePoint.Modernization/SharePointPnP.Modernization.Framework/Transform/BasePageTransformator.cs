@@ -251,7 +251,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             ListItemPermission lip = null;
 
-            if (source.HasUniqueRoleAssignments)
+            if (source.IsPropertyAvailable("HasUniqueRoleAssignments") && source.HasUniqueRoleAssignments)
             {
                 // You need to have the ManagePermissions permission before item level permissions can be copied
                 if (pagesLibrary.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
