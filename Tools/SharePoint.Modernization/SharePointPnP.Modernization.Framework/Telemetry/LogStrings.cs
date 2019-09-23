@@ -87,7 +87,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_ExtractWebPartPropertiesViaWebServicesFromPage = "Extract Web Part Properties via Web Services from Page failed";
         public const string Error_CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string Error_ExportWebPartXmlWorkaround = "Export WebPart Xml from Web Call failed";
-
+        public const string Error_AnalyserCouldNotFindLayouts = "GetAllPageLayouts - Could not search for page layouts";
+        public const string Error_AnalyserErrorOccurredExtractMetadata = "An issue occurred with extracting metadata from page layout";
+        public const string Error_AnalyserErrorOccurredExtractNamespaces = "An error occurred extracting web part prefixes from namespaces";
+        public const string Error_AnalyserErrorOccurredExtractHtmlBlocks = "An error occurred extracting html blocks from page layout html";
+        public const string Error_AnalyserCleaningExtractedWebPartFields = "An error occurred cleaning extracted web part fields";
+        public const string Error_AnalyserExtractPageHeaderFromPageLayout = "An error occurred extract page header from page layout associated content type";
         public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
 
 
@@ -100,6 +105,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Warning_PostingAPageAsNewsRequiresPagePublishing = "Posting a page as news requires the page to be published. Turning on the PublishCreatedPage flag.";
         public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled";
         public const string Warning_FieldNotFoundInSourcePage = "You specified field {0} in your page layout mapping, but that field is not available in the source page.";
+        public const string Warning_PageLayoutsCannotBeDetermined = "Page layout could not be determined by the publishing page";
 
         #endregion
 
@@ -172,6 +178,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string RetreivingExportWebPartXmlWorkaround = "Retrieving Web Part using Workaround from Page for Transform";
         public const string PublishMessage = "Published by the page modernization engine";
 
+        public const string AnalyserFoundItems = "Found {0} page layouts";
+        public const string AnalyserNoLayoutsFound = "There are no page layouts found to analyse";
+        public const string AnalyserMappingLayout = "Generating mapping for `{0}` layout";
         #endregion
 
         #endregion

@@ -83,7 +83,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             }
             else
             {
-                Write($"Info: [{entry.Heading}] {entry.Message}");
+                Write($"[{entry.Heading}] {entry.Message}");
             }
         }
 
