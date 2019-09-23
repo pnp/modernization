@@ -362,6 +362,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 targetPage.Context.Load(targetPage.PageListItem, p => p.ContentType);
                 targetPage.Context.ExecuteQueryRetry();
 
+                pageTransformationInformation.SourcePage.EnsureProperty(p => p.ContentType);
+
                 // regular fields
                 bool isDirty = false;
 
@@ -370,7 +372,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 targetPage.Context.Load(targetSitePagesLibrary, l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required, f => f.StaticName));
                 targetPage.Context.ExecuteQueryRetry();
 
-                string contentTypeId = CacheManager.Instance.GetContentTypeId(targetPage.PageListItem.ParentList, Convert.ToString(targetPage.PageListItem.ContentType.Name));
+                string contentTypeId = CacheManager.Instance.GetContentTypeId(targetPage.PageListItem.ParentList, pageTransformationInformation.SourcePage.ContentType.Name);
                 if (!string.IsNullOrEmpty(contentTypeId))
                 {
                     // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
@@ -483,11 +485,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType != "TaxonomyFieldTypeMulti" && p.FieldType != "TaxonomyFieldType"))
-                {   
+                {
                     var targetField = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
 
                     if (targetField != null && pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
-                    {                        
+                    {
                         if (fieldToCopy.FieldType == "User" || fieldToCopy.FieldType == "UserMulti")
                         {
                             if (pageTransformationInformation.IsCrossFarmTransformation)
