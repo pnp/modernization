@@ -766,7 +766,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 #region Page metadata handling
                 // Temporary removal of metadata copy for cross site.
-                if (pageTransformationInformation.CopyPageMetadata && !hasTargetContext)
+                if (pageTransformationInformation.CopyPageMetadata)
                 {
 #if DEBUG && MEASURE
                 Start();
