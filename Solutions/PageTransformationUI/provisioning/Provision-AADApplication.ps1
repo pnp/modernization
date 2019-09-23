@@ -81,9 +81,8 @@ else
 
 Write-Host "Please provide the credential to access the AAD tenant used by your Office 365 target tenant" -ForegroundColor Yellow
 
-# Connect to Azure AD
-$credential = Get-Credential
-Connect-AzureAd -Credential $credential
+# Connect to Azure AD using modern auth
+Connect-AzureAd
 
 # Infrastructural variables
 $identifierURI = "https://sharepointpnp.com/Modernization/Framework"
