@@ -359,7 +359,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (fieldsToCopy.Count > 0)
             {
                 // Load the target page list item
-                targetPage.Context.Load(targetPage.PageListItem, p => p.ContentType);
+                targetPage.Context.Load(targetPage.PageListItem);
                 targetPage.Context.ExecuteQueryRetry();
 
                 pageTransformationInformation.SourcePage.EnsureProperty(p => p.ContentType);
