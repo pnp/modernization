@@ -17,7 +17,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Base page transformator class that contains logic that applies for all page transformations
     /// </summary>
-    public abstract class BasePageTransformator: BaseTransform
+    public abstract class BasePageTransformator : BaseTransform
     {
         internal ClientContext sourceClientContext;
         internal ClientContext targetClientContext;
@@ -38,8 +38,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
 
             if (baseTransformationInformation.SourcePage != null)
-            {                
-               return baseTransformationInformation.SourcePage[fieldName].ToString();                
+            {
+                return baseTransformationInformation.SourcePage[fieldName].ToString();
             }
             else
             {
@@ -355,24 +355,44 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal void CopyPageMetadata(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage, List pagesLibrary)
         {
             var fieldsToCopy = CacheManager.Instance.GetFieldsToCopy(this.sourceClientContext.Web, pagesLibrary);
-
+            bool listItemWasReloaded = false;
             if (fieldsToCopy.Count > 0)
             {
                 // Load the target page list item
-                targetPage.Context.Load(targetPage.PageListItem);
+                targetPage.Context.Load(targetPage.PageListItem, p => p.ContentType);
                 targetPage.Context.ExecuteQueryRetry();
+
+                // regular fields
+                bool isDirty = false;
 
                 var sitePagesServerRelativeUrl = OfficeDevPnP.Core.Utilities.UrlUtility.Combine(targetPage.Context.Web.ServerRelativeUrl.TrimEnd(new char[] { '/' }), "sitepages");
                 List targetSitePagesLibrary = targetPage.Context.Web.GetList(sitePagesServerRelativeUrl);
                 targetPage.Context.Load(targetSitePagesLibrary, l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required, f => f.StaticName));
                 targetPage.Context.ExecuteQueryRetry();
 
-                // regular fields
-                bool isDirty = false;
+                string contentTypeId = CacheManager.Instance.GetContentTypeId(targetPage.PageListItem.ParentList, Convert.ToString(targetPage.PageListItem.ContentType.Name));
+                if (!string.IsNullOrEmpty(contentTypeId))
+                {
+                    // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
+                    targetPage.Context.Load(targetPage.PageListItem);
+                    targetPage.Context.ExecuteQueryRetry();
+                    listItemWasReloaded = true;
+
+                    targetPage.PageListItem[Constants.ContentTypeIdField] = contentTypeId;
+                    targetPage.PageListItem.UpdateOverwriteVersion();
+                    isDirty = true;
+                }
 
                 // taxonomy fields
                 foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType == "TaxonomyFieldTypeMulti" || p.FieldType == "TaxonomyFieldType"))
                 {
+                    if (!listItemWasReloaded)
+                    {
+                        // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
+                        targetPage.Context.Load(targetPage.PageListItem);
+                        targetPage.Context.ExecuteQueryRetry();
+                        listItemWasReloaded = true;
+                    }
                     switch (fieldToCopy.FieldType)
                     {
                         case "TaxonomyFieldTypeMulti":
@@ -456,17 +476,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if (isDirty)
                 {
-                    targetPage.PageListItem.Update();
+                    targetPage.PageListItem.UpdateOverwriteVersion();
                     targetPage.Context.Load(targetPage.PageListItem);
                     targetPage.Context.ExecuteQueryRetry();
+                    isDirty = false;
                 }
 
                 foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType != "TaxonomyFieldTypeMulti" && p.FieldType != "TaxonomyFieldType"))
-                {
+                {   
                     var targetField = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
 
                     if (targetField != null && pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
-                    {
+                    {                        
                         if (fieldToCopy.FieldType == "User" || fieldToCopy.FieldType == "UserMulti")
                         {
                             if (pageTransformationInformation.IsCrossFarmTransformation)
@@ -534,7 +555,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if (isDirty)
                 {
-                    targetPage.PageListItem.Update();
+                    targetPage.PageListItem.UpdateOverwriteVersion();
                     targetPage.Context.Load(targetPage.PageListItem);
                     targetPage.Context.ExecuteQueryRetry();
                     isDirty = false;
@@ -606,7 +627,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
                 clientContext.Load(clientContext.Site, p => p.RootWeb.ServerRelativeUrl, p => p.Id, p => p.Url);
                 // Use regular ExecuteQuery as we want to send this custom clienttag
-                clientContext.ExecuteQuery();                
+                clientContext.ExecuteQuery();
             }
         }
 
@@ -635,13 +656,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Source to target same base address - allow item level permissions
             // Source to target difference base address - disallow item level permissions
 
-            if(targetClientContext != null && sourceClientContext != null && baseTransformationInformation.KeepPageSpecificPermissions)
+            if (targetClientContext != null && sourceClientContext != null && baseTransformationInformation.KeepPageSpecificPermissions)
             {
                 var sourceUrl = sourceClientContext.Url.GetBaseUrl();
                 var targetUrl = targetClientContext.Url.GetBaseUrl();
 
                 // Override the setting for keeping item level permissions
-                if(!sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase))
+                if (!sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase))
                 {
                     baseTransformationInformation.KeepPageSpecificPermissions = false;
                     LogWarning(LogStrings.Warning_ContextValidationFailWithKeepPermissionsEnabled, LogStrings.Heading_InputValidation);
@@ -716,7 +737,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
         }
 
-        internal void UpdateTargetPageWithSourcePageInformation(ListItem targetPage,BaseTransformationInformation baseTransformationInformation, string serverRelativePathForModernPage, bool crossSiteTransformation)
+        internal void UpdateTargetPageWithSourcePageInformation(ListItem targetPage, BaseTransformationInformation baseTransformationInformation, string serverRelativePathForModernPage, bool crossSiteTransformation)
         {
             try
             {
@@ -798,12 +819,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 targetPage.Context.ExecuteQueryRetry();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // Eat exceptions as this is not critical for the generated page
                 LogWarning(LogStrings.Warning_NonCriticalErrorDuringPublish, LogStrings.Heading_ArticlePageHandling);
             }
-        }        
+        }
         #endregion
 
 
