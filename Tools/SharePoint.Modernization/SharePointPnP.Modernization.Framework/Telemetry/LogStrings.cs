@@ -114,7 +114,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string ValidationChecksComplete = "Validation checks complete";
         public const string LoadingTargetClientContext = "Loading target client context object";
         public const string LoadingClientContextObjects = "Loading client context objects";
-        public const string TransformingSite = "Transforming site:";
+        public const string TransformingSite = "Transforming from site:";
         public const string TransformingPage = "Transforming page:";
         public const string CrossSiteTransferToSite = "Cross-Site transfer mode to site:";
         public const string PageIsLocatedInFolder = "The transform page is located in a folder";
@@ -181,6 +181,10 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string AnalyserFoundItems = "Found {0} page layouts";
         public const string AnalyserNoLayoutsFound = "There are no page layouts found to analyse";
         public const string AnalyserMappingLayout = "Generating mapping for `{0}` layout";
+
+        public const string SourceSharePointVersion = "Source SharePoint version";
+        public const string TransformMode = "Transform mode";
+        public const string TransformUsesWebServicesFallback = "Transform using Web Services fallback";
         #endregion
 
         #endregion

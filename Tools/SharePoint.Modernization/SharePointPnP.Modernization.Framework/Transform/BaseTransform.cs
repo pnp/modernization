@@ -176,6 +176,26 @@ namespace SharePointPnP.Modernization.Framework.Transform
         #region Helper methods
 
         /// <summary>
+        /// Gets exact version of SharePoint
+        /// </summary>
+        /// <param name="clientContext"></param>
+        /// <returns></returns>
+        public static string GetExactVersion(ClientRuntimeContext clientContext)
+        {
+            Uri urlUri = new Uri(clientContext.Url);
+
+            if (CacheManager.Instance.ExactSharepointVersions.ContainsKey(urlUri))
+            {
+                return CacheManager.Instance.ExactSharepointVersions[urlUri];
+            }
+            else
+            {
+                GetVersion(clientContext);
+                return CacheManager.Instance.ExactSharepointVersions[urlUri];
+            }
+        }
+
+        /// <summary>
         /// Gets the version of SharePoint
         /// </summary>
         /// <param name="clientContext"></param>
@@ -227,6 +247,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
 
                             string version = reader.ReadToEnd().Split('|')[2].Trim();
+                            CacheManager.Instance.ExactSharepointVersions.TryAdd(urlUri, version);
 
                             if (Version.TryParse(version, out Version v))
                             {

@@ -233,7 +233,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                             case LogEntrySignificance.TargetSiteUrl:
                                 signifcance = LogStrings.CrossSiteTransferToSite;
                                 break;
-
+                            case LogEntrySignificance.SharePointVersion:
+                                signifcance = LogStrings.SourceSharePointVersion;
+                                break;
+                            case LogEntrySignificance.TransformMode:
+                                signifcance = LogStrings.TransformMode;
+                                break;
+                            case LogEntrySignificance.WebServiceFallback:
+                                signifcance = LogStrings.TransformUsesWebServicesFallback;
+                                break;
                         }
 
                         report.AppendLine($"{UnorderedListItem} {signifcance} {log.Item2.Message}");
