@@ -182,9 +182,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string AnalyserNoLayoutsFound = "There are no page layouts found to analyse";
         public const string AnalyserMappingLayout = "Generating mapping for `{0}` layout";
 
-        public const string SourceSharePointVersion = "Source SharePoint version";
-        public const string TransformMode = "Transform mode";
+        public const string SourceSharePointVersion = "Source SharePoint version: ";
+        public const string TransformMode = "Mode: ";
         public const string TransformUsesWebServicesFallback = "Transform using Web Services fallback";
+        public const string TransformationModePublishing = "Publishing Page Transformation Mode";
+        public const string TransformationMode = "{0} Transformation";
+        
         #endregion
 
         #endregion

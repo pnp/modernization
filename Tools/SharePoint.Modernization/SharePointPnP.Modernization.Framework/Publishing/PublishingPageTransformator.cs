@@ -197,7 +197,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 var spVersion = GetVersion(sourceClientContext);
                 var exactSpVersion = GetExactVersion(sourceClientContext);
                 LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
-
+                LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
