@@ -717,10 +717,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     if (property.PropertyType == typeof(String) ||
                         property.PropertyType == typeof(bool))
                     {
+                        var propVal = property.GetValue(pti);
+
                         logs.Add(new LogEntry()
                         {
                             Heading = LogStrings.Heading_PageTransformationInfomation,
-                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {property.GetValue(pti)}"
+                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {propVal ?? "Not Specified"}"
                         });
                     }
                 }
