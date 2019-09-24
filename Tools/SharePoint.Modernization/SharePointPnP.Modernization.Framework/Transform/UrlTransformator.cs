@@ -209,7 +209,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     string before = input;
                     input = regex.Replace(input, to);
-                    LogDebug(string.Format(LogStrings.UrlRewritten, before, input), LogStrings.Heading_UrlRewriter);
+                    //LogDebug(string.Format(LogStrings.UrlRewritten, before, input), LogStrings.Heading_UrlRewriter);
                 }
             }
 
