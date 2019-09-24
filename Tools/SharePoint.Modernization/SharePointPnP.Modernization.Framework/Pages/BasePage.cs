@@ -299,6 +299,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXml.Value);
                     }
 
+                    LogInfo(string.Format(LogStrings.ContentTransformFoundSourceWebParts,
+                        webPartToRetrieve.WebPartDefinition.WebPart.Title, webPartToRetrieve.WebPartType.GetTypeShort()), LogStrings.Heading_ContentTransform);
+
                     webparts.Add(new WebPartEntity()
                     {
                         Title = webPartToRetrieve.WebPartDefinition.WebPart.Title,
@@ -333,7 +336,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
             IEnumerable<WebPartDefinition> webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
 
             cc.ExecuteQueryRetry();
-            
+
+            LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
             List<WebServiceWebPartProperties> webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(wikiPage.EnsureProperty(p => p.ServerRelativeUrl)); ;
             var pageUrl = page[Constants.FileRefField].ToString();
 
@@ -396,6 +400,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     {
                         webPartToRetrieve.WebPartType = GetType(webPartToRetrieve.WebPartXmlOnPremises);
                     }
+
+                    LogInfo(string.Format(LogStrings.ContentTransformFoundSourceWebParts,
+                       webPartToRetrieve.WebPartDefinition.WebPart.Title, webPartToRetrieve.WebPartType.GetTypeShort()), LogStrings.Heading_ContentTransform);
 
                     webparts.Add(new WebPartEntity()
                     {

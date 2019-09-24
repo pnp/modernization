@@ -1,6 +1,8 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,6 +125,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         foundWebPart.WebPartType = GetType(foundWebPart.WebPartXml.Value);
                     }
 
+                    LogInfo(string.Format(LogStrings.ContentTransformFoundSourceWebParts,
+                       foundWebPart.WebPartDefinition.WebPart.Title, foundWebPart.WebPartType.GetTypeShort()), LogStrings.Heading_ContentTransform);
+
                     webparts.Add(new WebPartEntity()
                     {
                         Title = foundWebPart.WebPartDefinition.WebPart.Title,
@@ -139,6 +144,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Properties = Properties(foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues, foundWebPart.WebPartType, foundWebPart.WebPartXml ==null ? "" : foundWebPart.WebPartXml.Value),
                     });
                 }
+            }
+            else
+            {
+                LogInfo(LogStrings.AnalysingNoWebPartsFound, LogStrings.Heading_ArticlePageHandling);
             }
 
             return new Tuple<PageLayout, List<WebPartEntity>>(layout, webparts);

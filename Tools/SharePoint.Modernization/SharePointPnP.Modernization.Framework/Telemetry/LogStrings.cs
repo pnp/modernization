@@ -138,7 +138,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformArticleSetHeaderToCustom = "Page Header Set to Custom. Using page header settings:";
         public const string TransformArticleHeaderImageUrl = "Image Url: ";
         public const string TransformSourcePageIsWikiPage = "Recognized source page as a Wiki Page.";
-        public const string TransformSourcePageIsPublishingPage = "Recognized source page as a Publishing Page.";
+        public const string TransformSourcePageIsPublishingPage = "Recognized source page as a Publishing Page";
         public const string TransformSourcePageAnalysing = "Analyzing web parts and page layouts";
         public const string WikiTextContainsImagesVideosReferences = "Splitting images and videos from wiki text - as modern text web part does not support embedded images and videos";
         public const string TransformSourcePageIsWebPartPage = "Recognized source page as a Web Part Page.";
@@ -187,7 +187,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformUsesWebServicesFallback = "Transform using Web Services fallback";
         public const string TransformationModePublishing = "Publishing Page Transformation Mode";
         public const string TransformationMode = "{0} Transformation";
-        
+        public const string AnalysingNoWebPartsFound = "No web parts were found on page";
+        public const string ContentTransformFoundSourceWebParts = "Source page contains webpart `{0}` of type `{1}`";
+
         #endregion
 
         #endregion
