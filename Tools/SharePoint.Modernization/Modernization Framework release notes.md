@@ -19,6 +19,7 @@
 - Support for doing cross site classic blog to modern page transformation
 - KeepPageCreationModificationInformation option to tell page transformation to keep the source page's author, editor, creation and modification dates
 - PostAsNews option to post the created page as news. Setting this option will also set PublishCreatedPage to true
+- Added error handling and logging points to the publishing page analyser #287 [pkbullock]
 
 ### Changed
 
