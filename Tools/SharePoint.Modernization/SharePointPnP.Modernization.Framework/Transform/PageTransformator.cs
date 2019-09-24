@@ -177,7 +177,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 pageType = pageTransformationInformation.SourcePage.PageType();
-                LogInfo(string.Format(LogStrings.TransformationMode.FormatAsFriendlyTitle(), pageType), LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
+                LogInfo(string.Format(LogStrings.TransformationMode, pageType.FormatAsFriendlyTitle()), LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 
                 if (IsClientSidePage(pageType))
                 {
