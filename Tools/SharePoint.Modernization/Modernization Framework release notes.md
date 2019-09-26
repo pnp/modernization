@@ -21,6 +21,7 @@
 - PostAsNews option to post the created page as news. Setting this option will also set PublishCreatedPage to true
 - Added error handling and logging points to the publishing page analyser #287 [pkbullock]
 - Reporting Enhancements #293 [pkbullock]
+- Added support for wiki page metadata copy across site collections #281 [gautamdsheth]
 
 ### Changed
 
