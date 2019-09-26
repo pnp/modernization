@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
-    public class PublishingMetadataTransformator: BaseTransform
+    public class PublishingMetadataTransformator : BaseTransform
     {
         private PublishingPageTransformationInformation publishingPageTransformationInformation;
         private ClientContext targetClientContext;
@@ -48,7 +48,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 bool isDirty = false;
                 bool listItemWasReloaded = false;
                 string contentTypeId = null;
-                
+
                 // Set content type
                 if (!string.IsNullOrEmpty(this.pageLayoutMappingModel.AssociatedContentType))
                 {
@@ -295,10 +295,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                     else
                                                     {
                                                         List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                                        foreach (var currentUser in (fieldValueToSet as Array))
+                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
                                                         {
-                                                            using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                                                            foreach (var currentUser in (fieldValueToSet as Array))
                                                             {
+
                                                                 // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
                                                                 var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
                                                                 clonedTargetContext.Load(user);
