@@ -206,6 +206,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         isDirty = false;
                     }
 
+                    string bannerImageUrl = null;
+
                     // Copy the field metadata
                     foreach (var fieldToProcess in this.pageLayoutMappingModel.MetaData.Field)
                     {
@@ -319,6 +321,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             else
                                             {
                                                 this.page.PageListItem[targetFieldData.FieldName] = fieldValueToSet;
+
+                                                // If we set the BannerImageUrl we also need to update the page to ensure this updated page image "sticks"
+                                                if (targetFieldData.FieldName == Constants.BannerImageUrlField)
+                                                {
+                                                    bannerImageUrl = fieldValueToSet.ToString();
+                                                }
                                             }
 
                                             isDirty = true;
@@ -339,9 +347,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // Persist changes
                     if (isDirty)
                     {
+                        // If we've set a custom thumbnail value then we need to update the page html to mark the isDefaultThumbnail pageslicer property to false
+                        if (!string.IsNullOrEmpty(bannerImageUrl))
+                        {
+                            this.page.PageListItem[Constants.CanvasContentField] = SetIsDefaultThumbnail(this.page.PageListItem[Constants.CanvasContentField].ToString());
+                        }
+
                         this.page.PageListItem.UpdateOverwriteVersion();
                         targetClientContext.Load(this.page.PageListItem);
                         targetClientContext.ExecuteQueryRetry();
+
+
                         isDirty = false;
                     }
                 }
@@ -363,6 +379,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             {
                 return PublishingFunctionProcessor.FieldType.String;
             }
+        }
+
+        private string SetIsDefaultThumbnail(string pageHtml)
+        {
+            return pageHtml.Replace("&quot;isDefaultThumbnail&quot;&#58;true", "&quot;isDefaultThumbnail&quot;&#58;false");
         }
         #endregion
 

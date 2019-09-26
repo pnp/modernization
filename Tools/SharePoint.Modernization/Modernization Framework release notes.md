@@ -36,6 +36,7 @@
 - Fix: Remove asp prefixes from XML block when processing on-premises pages #280 [pkbullock]
 - Fix: Fetching the fields from the list instead of the content types for more robustness in metadata copy of publishing pages #279 [gautamdsheth]
 - Fix: Changed version request credentials to use clientContext credentials #289 [thechriskent]
+- Fix: If we've set a custom thumbnail value then we need to update the page html to mark the isDefaultThumbnail pageslicer property to false #290
 
 ## [September release - version 1.0.1909.0]
 

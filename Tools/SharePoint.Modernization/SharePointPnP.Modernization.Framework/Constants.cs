@@ -35,6 +35,8 @@ namespace SharePointPnP.Modernization.Framework
         public const string SPSitePageFlagsField = "_SPSitePageFlags";
         public const string PromotedStateField = "PromotedState";
         public const string FirstPublishedDateField = "FirstPublishedDate";
+        public const string BannerImageUrlField = "BannerImageUrl";
+        public const string CanvasContentField = "CanvasContent1";
         public const string IDField = "ID";
         public const string BodyField = "Body"; // Blog pages
 
