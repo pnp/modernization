@@ -60,8 +60,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                     if (property.PropertyType == typeof(String) ||
                         property.PropertyType == typeof(bool))
                     {
+                        var propVal = property.GetValue(pti);
                         logs.Add(new LogEntry() { Heading = LogStrings.Heading_PageTransformationInfomation,
-                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {property.GetValue(pti)}" });
+                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {propVal ?? "Not Specified"}" });
                     }
                 }
             }
@@ -72,6 +73,32 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
             
             return logs;
 
+        }
+
+        /// <summary>
+        /// Display version for SharePoint
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public static string DisplaySharePointVersion(this SPVersion version)
+        {
+            switch (version)
+            {
+                case SPVersion.SP2010:
+                    return "2010";
+                case SPVersion.SP2013:
+                case SPVersion.SP2013Legacy:
+                    return "2013";
+                case SPVersion.SP2016:
+                case SPVersion.SP2016Legacy:
+                    return "2016";
+                case SPVersion.SP2019:
+                    return "2019";
+                case SPVersion.SPO:
+                    return "Online";
+                default:
+                    return string.Empty;
+            }
         }
     }
 }

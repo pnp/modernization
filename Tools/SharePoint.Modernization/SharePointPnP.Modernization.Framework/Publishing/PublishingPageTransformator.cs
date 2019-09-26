@@ -194,6 +194,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
+                var spVersion = GetVersion(sourceClientContext);
+                var exactSpVersion = GetExactVersion(sourceClientContext);
+                LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
+                LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
+
 #if DEBUG && MEASURE
             Stop("Telemetry");
 #endif
@@ -321,7 +326,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Grab the pagelayout mapping to use:
                 var pageLayoutMappingModel = new PageLayoutManager(this.RegisteredLogObservers).GetPageLayoutMappingModel(this.publishingPageTransformation, publishingPageTransformationInformation.SourcePage);
 
-                var spVersion = GetVersion(sourceClientContext);
+                
 
                 if (spVersion == SPVersion.SP2010 || spVersion == SPVersion.SP2013Legacy || spVersion == SPVersion.SP2016Legacy)
                 {
@@ -712,10 +717,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     if (property.PropertyType == typeof(String) ||
                         property.PropertyType == typeof(bool))
                     {
+                        var propVal = property.GetValue(pti);
+
                         logs.Add(new LogEntry()
                         {
                             Heading = LogStrings.Heading_PageTransformationInfomation,
-                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {property.GetValue(pti)}"
+                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {propVal ?? "Not Specified"}"
                         });
                     }
                 }

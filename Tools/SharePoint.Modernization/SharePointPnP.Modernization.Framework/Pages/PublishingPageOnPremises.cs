@@ -2,6 +2,7 @@
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Publishing;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
@@ -248,6 +249,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
             cc.ExecuteQueryRetry();
 
+            LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
             webServiceWebPartEntities = LoadPublishingPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
            
 
@@ -392,7 +394,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     string webPartXmlForPropertiesMethod = null;
                     webPartXmlForPropertiesMethod = foundWebPart.WebPartXmlOnPremises;
-                    
+
+                    LogInfo(string.Format(LogStrings.ContentTransformFoundSourceWebParts, 
+                        foundWebPart.WebPartDefinition.WebPart.Title, foundWebPart.WebPartType.GetTypeShort()), LogStrings.Heading_ContentTransform);
 
                     webparts.Add(new WebPartEntity()
                     {
@@ -410,6 +414,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Properties = Properties(webPartProperties, foundWebPart.WebPartType, webPartXmlForPropertiesMethod),
                     });
                 }
+            }
+            else
+            {
+                LogInfo(LogStrings.AnalysingNoWebPartsFound, LogStrings.Heading_ArticlePageHandling);
             }
             #endregion
 

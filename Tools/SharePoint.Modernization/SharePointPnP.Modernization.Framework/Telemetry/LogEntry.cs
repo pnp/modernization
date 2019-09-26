@@ -76,6 +76,9 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         TargetPage,
         AssetTransferred,
         SourceSiteUrl,
-        TargetSiteUrl
+        TargetSiteUrl,
+        SharePointVersion,
+        TransformMode,
+        WebServiceFallback
     }
 }

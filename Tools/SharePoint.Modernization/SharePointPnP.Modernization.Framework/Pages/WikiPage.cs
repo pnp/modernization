@@ -4,6 +4,7 @@ using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
@@ -109,7 +110,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 else
                 {
                     LoadWebPartsInWikiContentFromServer(webparts, wikiPage, webPartsToRetrieve);
-                }    
+                }
+            }
+            else
+            {
+                LogInfo(LogStrings.AnalysingNoWebPartsFound, LogStrings.Heading_ArticlePageHandling);
             }
 
             // Somehow the wiki was not standard formatted, so lets wrap its contents in a text block

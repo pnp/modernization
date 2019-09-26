@@ -114,7 +114,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string ValidationChecksComplete = "Validation checks complete";
         public const string LoadingTargetClientContext = "Loading target client context object";
         public const string LoadingClientContextObjects = "Loading client context objects";
-        public const string TransformingSite = "Transforming site:";
+        public const string TransformingSite = "Transforming from site:";
         public const string TransformingPage = "Transforming page:";
         public const string CrossSiteTransferToSite = "Cross-Site transfer mode to site:";
         public const string PageIsLocatedInFolder = "The transform page is located in a folder";
@@ -138,7 +138,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformArticleSetHeaderToCustom = "Page Header Set to Custom. Using page header settings:";
         public const string TransformArticleHeaderImageUrl = "Image Url: ";
         public const string TransformSourcePageIsWikiPage = "Recognized source page as a Wiki Page.";
-        public const string TransformSourcePageIsPublishingPage = "Recognized source page as a Publishing Page.";
+        public const string TransformSourcePageIsPublishingPage = "Recognized source page as a Publishing Page";
         public const string TransformSourcePageAnalysing = "Analyzing web parts and page layouts";
         public const string WikiTextContainsImagesVideosReferences = "Splitting images and videos from wiki text - as modern text web part does not support embedded images and videos";
         public const string TransformSourcePageIsWebPartPage = "Recognized source page as a Web Part Page.";
@@ -181,6 +181,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string AnalyserFoundItems = "Found {0} page layouts";
         public const string AnalyserNoLayoutsFound = "There are no page layouts found to analyse";
         public const string AnalyserMappingLayout = "Generating mapping for `{0}` layout";
+
+        public const string SourceSharePointVersion = "Source SharePoint version: ";
+        public const string TransformMode = "Mode: ";
+        public const string TransformUsesWebServicesFallback = "Transform using Web Services fallback";
+        public const string TransformationModePublishing = "Publishing Page Transformation Mode";
+        public const string TransformationMode = "{0} Transformation";
+        public const string AnalysingNoWebPartsFound = "No web parts were found on page";
+        public const string ContentTransformFoundSourceWebParts = "Source page contains webpart `{0}` of type `{1}`";
+
         #endregion
 
         #endregion

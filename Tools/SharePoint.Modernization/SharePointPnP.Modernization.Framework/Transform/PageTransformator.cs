@@ -177,6 +177,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 pageType = pageTransformationInformation.SourcePage.PageType();
+                LogInfo(string.Format(LogStrings.TransformationMode, pageType.FormatAsFriendlyTitle()), LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 
                 if (IsClientSidePage(pageType))
                 {
@@ -294,6 +295,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 LogInfo($"{GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
+
+                var spVersion = GetVersion(sourceClientContext);
+                var exactSpVersion = GetExactVersion(sourceClientContext);
+                LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
+
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
@@ -542,8 +548,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     else if (IsWebPartPage(pageType))
                     {
                         LogInfo($"{LogStrings.TransformSourcePageIsWebPartPage} {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
-
-                        var spVersion = GetVersion(sourceClientContext);
 
                         if (spVersion == SPVersion.SP2010 || spVersion == SPVersion.SP2013Legacy || spVersion == SPVersion.SP2016Legacy)
                         {
