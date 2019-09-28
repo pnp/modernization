@@ -62,7 +62,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Heading_GetPrincipal = "Get Principal";
 
         #endregion
-        
+
         #region Error Messages
 
         public const string Error_SourcePageNotFound = "Source page cannot be null";
@@ -332,5 +332,18 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string UrlMappingLoaded = "Mapping from {0} to {1} loaded";
         public const string UrlRewritten = "ULR rewritten from: {0} to: {1}";
         #endregion
+
+        #region User Mapping
+
+        public const string Heading_UserMapping = "User Mapping";
+
+        public const string Error_UserMappingFileNotFound = "User mapping file {0} was not found";
+
+        public const string LoadingUserMappingFile = "Loading User mapping file {0}";
+        public const string UserMappingLoaded = "User Mapping Loaded Source: {0} Target: {1}";
+        
+
+        #endregion
+
     }
 }

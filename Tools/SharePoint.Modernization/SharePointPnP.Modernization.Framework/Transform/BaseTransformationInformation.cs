@@ -95,6 +95,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Url to an URL mapping file
         /// </summary>
         public string UrlMappingFile { get; set; }
+
+        /// <summary>
+        /// User Mapping file
+        /// </summary>
+        public string UserMappingFile { get; set; }
+
         #endregion
 
         #region Override properties

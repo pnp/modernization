@@ -36,6 +36,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
         private BasePageTransformator lastUsedTransformator;
         private List<UrlMapping> urlMapping;
+        private List<UserMappingEntity> userMappings;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -718,6 +719,29 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             return this.urlMapping;
         }
+        #endregion
+
+        #region Get User Mapping
+
+        /// <summary>
+        /// Gets the User Mapping, if first time file will be laoded
+        /// </summary>
+        /// <param name="userMappingFile"></param>
+        /// <param name="logObservers"></param>
+        /// <returns></returns>
+        public List<UserMappingEntity> GetUserMapping(string userMappingFile, IList<ILogObserver> logObservers = null)
+        {
+            if (this.userMappings != null && this.userMappings.Count > 0)
+            {
+                return this.userMappings;
+            }
+
+            FileManager fileManager = new FileManager(logObservers);
+            this.userMappings = fileManager.LoadUserMappingFile(userMappingFile);
+
+            return this.userMappings;
+        }
+
         #endregion
 
         #region Helper methods

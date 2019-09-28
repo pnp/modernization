@@ -199,6 +199,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
                 LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 
+                //Load User Mapping File
+                LoadUserMappingFile(publishingPageTransformationInformation);
+
 #if DEBUG && MEASURE
             Stop("Telemetry");
 #endif

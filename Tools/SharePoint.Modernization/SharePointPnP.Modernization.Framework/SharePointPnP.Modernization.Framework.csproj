@@ -191,6 +191,7 @@
     <Compile Include="Entities\TransformationLogAnalysis.cs" />
     <Compile Include="Entities\UrlMapping.cs" />
     <Compile Include="Entities\UserEntity.cs" />
+    <Compile Include="Entities\UserMappingEntity.cs" />
     <Compile Include="Entities\WebServiceWebPartProperties.cs" />
     <Compile Include="Entities\WebServiceWebPartEntity.cs" />
     <Compile Include="Extensions\FileFolderExtensions.cs" />

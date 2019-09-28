@@ -832,6 +832,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogWarning(LogStrings.Warning_NonCriticalErrorDuringPublish, LogStrings.Heading_ArticlePageHandling);
             }
         }
+
+
+        /// <summary>
+        /// Loads the User Mapping Files
+        /// </summary>
+        /// <param name="baseTransformationInformation"></param>
+        /// <param name="sourceClientContext"></param>
+        internal List<UserMappingEntity> LoadUserMappingFile(BaseTransformationInformation baseTransformationInformation)
+        {
+            if (!string.IsNullOrEmpty(baseTransformationInformation.UserMappingFile)){
+
+                //Don't block SPO because this could in theory be used to remap users
+                return CacheManager.Instance.GetUserMapping(baseTransformationInformation.UserMappingFile, RegisteredLogObservers);
+            }
+
+            return default;
+        }
+
         #endregion
 
 

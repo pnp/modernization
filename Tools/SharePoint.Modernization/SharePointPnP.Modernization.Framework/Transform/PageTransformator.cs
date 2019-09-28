@@ -207,6 +207,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogError(LogStrings.Error_CannotUsePageAcceptBannerCrossSite, LogStrings.Heading_InputValidation);
                     throw new ArgumentException(LogStrings.Error_CannotUsePageAcceptBannerCrossSite);
                 }
+
+
+                //Load User Mapping File
+                LoadUserMappingFile(pageTransformationInformation);
             }
 
             if (IsBlogPage(pageType) && !hasTargetContext)
