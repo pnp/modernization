@@ -281,6 +281,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             if (int.TryParse(userId, out int userIdInt))
             {
+                //TODO: On-Prem User Mapping
                 var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt);
 
                 if (author != null)

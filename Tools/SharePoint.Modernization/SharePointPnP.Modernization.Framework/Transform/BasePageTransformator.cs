@@ -175,6 +175,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         internal void ApplyItemLevelPermissions(bool hasTargetContext, ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
         {
+
+            //TODO: On-Prem User Mapping
+
             if (lip == null || item == null)
             {
                 return;
@@ -743,6 +746,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             try
             {
+                //TODO: On-Prem User Mapping
+
                 FieldUserValue pageAuthor = this.SourcePageAuthor;
                 FieldUserValue pageEditor = this.SourcePageEditor;
 

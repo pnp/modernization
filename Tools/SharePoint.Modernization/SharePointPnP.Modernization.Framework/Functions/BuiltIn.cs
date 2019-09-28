@@ -1369,6 +1369,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [OutputDocumentation(Name = "PersonSip", Description = "SIP address of the user")]
         public Dictionary<string, string> LookupPerson(string person)
         {
+
+            //TODO: On-Prem User Mapping
             Dictionary<string, string> result = new Dictionary<string, string>();
 
             if (string.IsNullOrEmpty(person))

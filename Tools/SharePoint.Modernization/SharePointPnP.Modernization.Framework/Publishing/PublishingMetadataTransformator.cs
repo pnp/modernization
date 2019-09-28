@@ -266,6 +266,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         {
                                             if (targetFieldData.FieldType == "User" || targetFieldData.FieldType == "UserMulti")
                                             {
+
+                                                //TODO: On-Prem User Mapping
                                                 if (this.publishingPageTransformationInformation.IsCrossFarmTransformation)
                                                 {
                                                     // we can't copy these fields in a cross farm scenario as we do not yet support user account mapping
