@@ -416,7 +416,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogDebug(LogStrings.LoadingExistingPageIfExists, LogStrings.Heading_PageCreation);
 
                     // Just try to load the page in the fastest possible manner, we only want to see if the page exists or not
-                    existingFile = Load(sourceClientContext, pageTransformationInformation, out pagesLibrary, targetClientContext);
+                    existingFile = Load(sourceClientContext, pageTransformationInformation, pageType, out pagesLibrary, targetClientContext);
                     pageExists = true;
                 }
                 catch (Exception ex)
@@ -776,7 +776,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 Start();
 #endif
                     // Copy the page metadata 
-                    CopyPageMetadata(pageTransformationInformation, targetPage, pagesLibrary);
+                    CopyPageMetadata(pageTransformationInformation, pageType, targetPage, pagesLibrary);
 #if DEBUG && MEASURE
                 Stop("Page metadata handling");
 #endif
@@ -1247,7 +1247,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
         }
 
-        private Microsoft.SharePoint.Client.File Load(ClientContext sourceContext, PageTransformationInformation pageTransformationInformation, out List pagesLibrary, ClientContext targetContext = null)
+        private Microsoft.SharePoint.Client.File Load(ClientContext sourceContext, PageTransformationInformation pageTransformationInformation, string pageType, out List pagesLibrary, ClientContext targetContext = null)
         {
             sourceContext.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
@@ -1258,8 +1258,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             else
             {
-                var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, "SitePages");
-                pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl);
+
+                if (IsBlogPage(pageType))
+                {
+                    var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, $"lists/{CacheManager.Instance.GetBlogListName(sourceContext)}");
+                    pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl);
+                }
+                else
+                {
+                    var listServerRelativeUrl = UrlUtility.Combine(sourceContext.Web.ServerRelativeUrl, "SitePages");
+                    pagesLibrary = sourceContext.Web.GetList(listServerRelativeUrl);
+                }
             }
 
             if (pageTransformationInformation.CopyPageMetadata)

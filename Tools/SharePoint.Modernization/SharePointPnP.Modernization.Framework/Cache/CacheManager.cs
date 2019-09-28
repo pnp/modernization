@@ -183,16 +183,16 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// Get the list of fields that need to be copied from cache. If cache is empty the list will be calculated
         /// </summary>
         /// <param name="web">Web to operate against</param>
-        /// <param name="pagesLibrary">Pages library instance</param>
+        /// <param name="sourceLibrary">Pages library instance</param>
         /// <returns>List of fields that need to be copied</returns>
-        public List<FieldData> GetFieldsToCopy(Web web, List pagesLibrary)
+        public List<FieldData> GetFieldsToCopy(Web web, List sourceLibrary, string pageType)
         {
             List<FieldData> fieldsToCopyRetrieved = new List<FieldData>();
 
             // Did we already do the calculation for this sitepages library? If so then return from cache
-            if (fieldsToCopy.ContainsKey(pagesLibrary.Id.ToString()))
+            if (fieldsToCopy.ContainsKey(sourceLibrary.Id.ToString()))
             {
-                if (fieldsToCopy.TryGetValue(pagesLibrary.Id.ToString(), out List<FieldData> fields))
+                if (fieldsToCopy.TryGetValue(sourceLibrary.Id.ToString(), out List<FieldData> fields))
                 {
                     return fields;
                 }
@@ -206,22 +206,22 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     var sitePagesInBaseTemplate = baseTemplate.Lists.Where(p => p.Url == "SitePages").FirstOrDefault();
 
                     // Compare site pages list fields
-                    foreach (var sitePagesField in pagesLibrary.Fields.Where(p => p.Hidden == false).ToList())
+                    foreach (var sourceField in sourceLibrary.Fields.Where(p => p.Hidden == false).ToList())
                     {
                         // Skip OOB fields
-                        if (!OfficeDevPnP.Core.Enums.BuiltInFieldId.Contains(sitePagesField.Id))
+                        if (!IsBuiltInField(pageType.Equals("BlogPage", StringComparison.InvariantCultureIgnoreCase), sourceField.Id))
                         {
                             if (sitePagesInBaseTemplate != null)
                             {
-                                var fieldFoundInBaseSitePages = sitePagesInBaseTemplate.FieldRefs.Where(p => p.Name == sitePagesField.StaticName).FirstOrDefault();
+                                var fieldFoundInBaseSitePages = sitePagesInBaseTemplate.FieldRefs.Where(p => p.Name == sourceField.StaticName).FirstOrDefault();
                                 if (fieldFoundInBaseSitePages == null)
                                 {
                                     // copy metadata for this field
                                     FieldData fieldToAdd = new FieldData()
                                     {
-                                        FieldName = sitePagesField.StaticName,
-                                        FieldId = sitePagesField.Id,
-                                        FieldType = sitePagesField.TypeAsString,
+                                        FieldName = sourceField.StaticName,
+                                        FieldId = sourceField.Id,
+                                        FieldType = sourceField.TypeAsString,
                                     };
 
                                     fieldsToCopyRetrieved.Add(fieldToAdd);
@@ -231,7 +231,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     }
 
                     // Add to cache
-                    if (fieldsToCopy.TryAdd(pagesLibrary.Id.ToString(), fieldsToCopyRetrieved))
+                    if (fieldsToCopy.TryAdd(sourceLibrary.Id.ToString(), fieldsToCopyRetrieved))
                     {
                         return fieldsToCopyRetrieved;
                     }
@@ -734,6 +734,33 @@ namespace SharePointPnP.Modernization.Framework.Cache
             if (fieldRefs.Where(p => p.Id.Equals(Id)).FirstOrDefault() == null)
             {
                 fieldRefs.Add(new OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRef(name) { Id = Id });
+            }
+        }
+
+        private bool IsBuiltInField(bool isBlog, Guid fieldId)
+        {
+            if (OfficeDevPnP.Core.Enums.BuiltInFieldId.Contains(fieldId))
+            {
+                if (isBlog)
+                {
+                    // Always allow the PostCategory field
+                    if (fieldId.Equals(Constants.PostCategory))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return false;
             }
         }
         #endregion

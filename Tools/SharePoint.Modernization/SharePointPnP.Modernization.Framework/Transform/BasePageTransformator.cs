@@ -352,9 +352,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return principal;
         }
 
-        internal void CopyPageMetadata(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage, List pagesLibrary)
+        internal void CopyPageMetadata(PageTransformationInformation pageTransformationInformation, string pageType, ClientSidePage targetPage, List targetPagesLibrary)
         {
-            var fieldsToCopy = CacheManager.Instance.GetFieldsToCopy(this.sourceClientContext.Web, pagesLibrary);
+            var fieldsToCopy = CacheManager.Instance.GetFieldsToCopy(this.sourceClientContext.Web, targetPagesLibrary, pageType);
             bool listItemWasReloaded = false;
             if (fieldsToCopy.Count > 0)
             {
@@ -543,7 +543,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         }
                         else
                         {
-                            targetPage.PageListItem[fieldToCopy.FieldName] = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
+
+                            // PostCategory is a default field on a blog post, but it's a lookup. Let's copy as regular field
+                            if (fieldToCopy.FieldId.Equals(Constants.PostCategory))
+                            {
+                                targetPage.PageListItem[fieldToCopy.FieldName] = ((FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName])[0].LookupValue;
+                            }
+                            else
+                            {
+                                targetPage.PageListItem[fieldToCopy.FieldName] = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
+                            }
                         }
 
                         isDirty = true;
