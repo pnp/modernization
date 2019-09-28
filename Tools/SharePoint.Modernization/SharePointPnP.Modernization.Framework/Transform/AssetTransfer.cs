@@ -543,6 +543,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         }
                     }
 
+                    // Check if the asset is on the root site collection
+                    if(match == string.Empty)
+                    {
+                        // Does it contain a relative reference
+                        if (sourceUrl.StartsWith("/") && !sourceUrl.ContainsIgnoringCasing(context.Web.GetUrl()))
+                        {
+                            match = fullSiteCollectionUrl.ToLower();
+                        }
+                    }
+
                     if (match != string.Empty && !match.Equals(context.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
                     {
 
