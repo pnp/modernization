@@ -40,6 +40,7 @@
 - Fix: Changed version request credentials to use clientContext credentials #289 [thechriskent]
 - Fix: If we've set a custom thumbnail value then we need to update the page html to mark the isDefaultThumbnail pageslicer property to false #290
 - Fix: Transfer of assets on root site collections now also works for sub sites of that root site collection #301 [pkbullock]
+- Changed default value from AddTableListImageAsImageWebPart to true 
 
 ## [September release - version 1.0.1909.0]
 
