@@ -547,16 +547,37 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
         }
 
-       
         [TestMethod]
         public void AssetTransfer_TransferAsset_EnsureContextDeepTest()
         {
             //Note: This is more of a system test rather than unit given its dependency on SharePoint
             // Scenario here is when the source context is a subsite and the image asset is on the Site Collection
 
-            AssetTransferOfAsset("en/subsite84/PublishingImages/Folder/extra.jpg");
+            AssetTransferOfAsset("en/subsite/PublishingImages/extra.jpg");
 
         }
+
+        [TestMethod]
+        public void AssetTransfer_TransferAsset_EnsureContextDeepWithFolderTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+            // Scenario here is when the source context is a subsite and the image asset is on the Site Collection
+
+            AssetTransferOfAsset("en/subsite/PublishingImages/Example-Folder/extra.jpg");
+
+        }
+
+        [TestMethod]
+        public void AssetTransfer_TransferAsset_EnsureContextRootTest()
+        {
+            //Note: This is more of a system test rather than unit given its dependency on SharePoint
+            // Scenario here is when the source context is a subsite and the image asset is on the Site Collection
+
+
+            AssetTransferOfAsset("SiteAssets/extra.jpg", TestCommon.AppSetting("SPOTenantRootSiteUrl"));
+
+        }
+
 
         /// <summary>
         /// Note: this test will only work if the files are present at the parts of the sharepoint site
@@ -564,6 +585,17 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         /// </summary>
         /// <param name="url"></param>
         private void AssetTransferOfAsset(string url)
+        {
+            AssetTransferOfAsset(url, TestCommon.AppSetting("SPODevSiteUrl"));
+        }
+
+        /// <summary>
+        /// Note: this test will only work if the files are present at the parts of the sharepoint site
+        /// and the source site originates from a sub site
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="sourceContextUrl"></param>
+        private void AssetTransferOfAsset(string url, string sourceContextUrl)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -574,7 +606,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                using (var sourceClientContext = TestCommon.CreateClientContext(sourceContextUrl))
                 {
                     // Needs valid client contexts as they are part of the checks.
                     AssetTransfer assetTransfer = new AssetTransfer(sourceClientContext, targetClientContext);
@@ -583,7 +615,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     var siteUrl = sourceClientContext.Site.EnsureProperty(o => o.ServerRelativeUrl);
                     var target = $"{TestCommon.AppSetting("SPOTargetSiteUrl")}/SiteAssets/";
 
-                    var sourceImageLocation = $"{siteUrl}/{url}";
+                    var sourceImageLocation = $"{siteUrl.TrimEnd('/')}/{url}";
+                    Console.WriteLine("Source Image Location: {0}", sourceImageLocation);
 
                     assetTransfer.EnsureAssetContextIfRequired(sourceClientContext, sourceImageLocation);
 
