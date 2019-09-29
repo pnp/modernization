@@ -27,18 +27,19 @@
 
 - Fix: Handle web part loading of web parts embedded in publishing content fields when transforming from SP2010/2013/2016 #265
 - Fix: Returned modern page url is containing /pages/ when transforming publishing pages the from root site collection #262
-- Fix: Prevent unneeded intermediate versions of the created page
-- Fix: Support publishing page layout mapping files without a MetaData section (in case no metadata needs to be taken over)
+- Prevent unneeded intermediate versions of the created page
+- Support publishing page layout mapping files without a MetaData section (in case no metadata needs to be taken over)
 - Fix: Logging shows class name instead of data #273
 - Fix: Handle case where the publishing page header fields are not populated due to missing data in the source page
 - Fix: Option to insert 'hard coded' html content on the created target page now also works when transforming from SP2010/2013/2016
-- Fix: Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
-- Fix: Transform to the newer, more versatile, News web part versus the NewsReel #263
+- Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
+- Transform to the newer, more versatile, News web part versus the NewsReel #263
 - Fix: Don't try to transfer CDN images from OnPrem root site collections #278 [gautamdsheth]
 - Fix: Remove asp prefixes from XML block when processing on-premises pages #280 [pkbullock]
 - Fix: Fetching the fields from the list instead of the content types for more robustness in metadata copy of publishing pages #279 [gautamdsheth]
 - Fix: Changed version request credentials to use clientContext credentials #289 [thechriskent]
 - Fix: If we've set a custom thumbnail value then we need to update the page html to mark the isDefaultThumbnail pageslicer property to false #290
+- Fix: Transfer of assets on root site collections now also works for sub sites of that root site collection #301 [pkbullock]
 
 ## [September release - version 1.0.1909.0]
 
