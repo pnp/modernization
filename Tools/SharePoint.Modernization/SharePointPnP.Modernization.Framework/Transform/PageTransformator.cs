@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Cache;
@@ -289,7 +290,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 // Store the information of the source page we do want to retain
-                if (pageTransformationInformation.KeepPageCreationModificationInformation && pageTransformationInformation.SourcePage != null)
+                if (pageTransformationInformation.SourcePage != null)
                 {
                     StoreSourcePageInformationToKeep(pageTransformationInformation.SourcePage);
                 }
@@ -505,7 +506,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         LogInfo(LogStrings.TransformArticleSetHeaderToNone, LogStrings.Heading_ArticlePageHandling);
 
-                        targetPage.RemovePageHeader();
+                        if (pageTransformationInformation.SetAuthorInPageHeader && pageTransformationInformation.SourcePage != null)
+                        {
+                            targetPage.SetDefaultPageHeader();
+                            targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.NoImage;
+                            SetAuthorInPageHeader(targetPage);
+                        }
+                        else
+                        {
+                            targetPage.RemovePageHeader();
+                        }
                     }
                     else if (pageTransformationInformation.PageHeader.Type == ClientSidePageHeaderType.Default)
                     {
@@ -1244,6 +1254,52 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     targetPage.PageTitle = pageTitle;
                     LogInfo($"{LogStrings.TransformPageModernTitle} {pageTitle}", LogStrings.Heading_SetPageTitle);
                 }
+            }
+        }
+
+        private void SetAuthorInPageHeader(ClientSidePage targetClientSidePage)
+        {
+            try
+            {
+                var sourcePlatformVersion = GetVersion(this.sourceClientContext);
+
+                // Author source platforms do require account mapping, to be updated once that feature is available
+                if (sourcePlatformVersion == SPVersion.SPO)
+                {                    
+                    using (var clonedTargetContext = targetClientSidePage.Context.Clone(targetClientSidePage.Context.Web.Url))
+                    {
+                        var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
+                        clonedTargetContext.Load(pageAuthorUser);
+                        clonedTargetContext.ExecuteQueryRetry();
+
+                        var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, pageAuthorUser.Id);
+
+                        if (author != null)
+                        {
+                            // Don't serialize null values
+                            var jsonSerializerSettings = new JsonSerializerSettings()
+                            {
+                                MissingMemberHandling = MissingMemberHandling.Ignore,
+                                NullValueHandling = NullValueHandling.Ignore
+                            };
+
+                            var json = JsonConvert.SerializeObject(author, jsonSerializerSettings);
+
+                            if (!string.IsNullOrEmpty(json))
+                            {
+                                targetClientSidePage.PageHeader.Authors = json;
+                            }
+                        }
+                        else
+                        {
+                            this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, $"Author {this.SourcePageAuthor.LookupValue} could not be resolved."), LogStrings.Heading_ArticlePageHandling);
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, ex.Message), LogStrings.Heading_ArticlePageHandling);
             }
         }
 

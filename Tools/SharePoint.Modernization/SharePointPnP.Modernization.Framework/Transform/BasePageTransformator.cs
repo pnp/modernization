@@ -783,14 +783,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
 
-                //FileLevel level;
-                //using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
-                //{
-                //    var targetPageFile = clonedTargetContext.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
-                //    clonedTargetContext.Load(targetPageFile, p => p.Level);
-                //    level = targetPageFile.Level;
-                //}
-
                 if (baseTransformationInformation.KeepPageCreationModificationInformation || baseTransformationInformation.PostAsNews)
                 {
                     if (baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
@@ -822,7 +814,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     if (baseTransformationInformation.PublishCreatedPage)
                     {
                         var targetPageFile = ((targetPage.Context) as ClientContext).Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
-                        targetPage.Context.Load(targetPageFile, p => p.Level);
+                        targetPage.Context.Load(targetPageFile);
                         // Try to publish, if publish is not needed/possible (e.g. when no minor/major versioning set) then this will return an error that we'll be ignoring
                         targetPageFile.Publish(LogStrings.PublishMessage);
                     }

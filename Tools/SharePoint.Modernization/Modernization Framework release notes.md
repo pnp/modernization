@@ -22,6 +22,7 @@
 - Added error handling and logging points to the publishing page analyser #287 [pkbullock]
 - Reporting Enhancements #293 [pkbullock]
 - Added support for wiki page metadata copy across site collections #281 [gautamdsheth]
+- Support to populate the author shown in the modern page header with author information of the original page
 
 ### Changed
 

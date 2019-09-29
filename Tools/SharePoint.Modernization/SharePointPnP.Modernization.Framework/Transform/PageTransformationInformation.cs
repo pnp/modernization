@@ -87,6 +87,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public ClientSidePageHeader PageHeader { get; set; }
 
         /// <summary>
+        /// Sets the page author in the page header similar to the original page author
+        /// </summary>
+        public bool SetAuthorInPageHeader { get; set; }
+
+        /// <summary>
         /// Configuration driven by the presence of a modernization center
         /// </summary>
         public ModernizationCenterInformation ModernizationCenterInformation { get; set; }
