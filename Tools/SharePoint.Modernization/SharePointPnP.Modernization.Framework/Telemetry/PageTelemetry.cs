@@ -157,6 +157,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
 
             if (CacheManager.Instance.AADTenantId.ContainsKey(urlUri))
             {
+                this.aadTenantId = CacheManager.Instance.AADTenantId[urlUri];
                 return CacheManager.Instance.AADTenantId[urlUri];
             }
             else
