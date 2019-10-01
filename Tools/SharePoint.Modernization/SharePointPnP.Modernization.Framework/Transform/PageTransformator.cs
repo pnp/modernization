@@ -271,7 +271,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo($"{targetClientContext.Web.GetUrl()}", LogStrings.Heading_Summary, LogEntrySignificance.TargetSiteUrl);
                 }
 
-                SetAADTenantId(sourceClientContext, targetClientContext);
+                PopulateGlobalProperties(sourceClientContext, targetClientContext);
 
                 // Need to add further validation for target template
                 if (hasTargetContext &&
@@ -297,8 +297,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 LogInfo($"{GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
-                var spVersion = GetVersion(sourceClientContext);
-                var exactSpVersion = GetExactVersion(sourceClientContext);
+                var spVersion = pageTransformationInformation.SourceVersion;
+                var exactSpVersion = pageTransformationInformation.SourceVersionNumber;
                 LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
 
 
@@ -1266,7 +1266,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // Author source platforms do require account mapping, to be updated once that feature is available
                 if (sourcePlatformVersion == SPVersion.SPO)
                 {                    
-                    using (var clonedTargetContext = targetClientSidePage.Context.Clone(targetClientSidePage.Context.Web.Url))
+                    using (var clonedTargetContext = targetClientSidePage.Context.Clone(targetClientSidePage.Context.Web.GetUrl()))
                     {
                         var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
                         clonedTargetContext.Load(pageAuthorUser);

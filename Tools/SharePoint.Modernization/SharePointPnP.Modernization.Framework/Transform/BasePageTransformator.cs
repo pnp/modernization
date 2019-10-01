@@ -502,7 +502,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 object fieldValueToSet = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
                                 if (fieldValueToSet is FieldUserValue)
                                 {
-                                    using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.Url))
+                                    using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
                                     {
                                         var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
                                         clonedTargetContext.Load(user);
@@ -519,7 +519,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 else
                                 {
                                     List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                    using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.Url))
+                                    using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
                                     {
                                         foreach (var currentUser in (fieldValueToSet as Array))
                                         {
@@ -642,8 +642,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
         }
 
-        internal void SetAADTenantId(ClientContext sourceContext, ClientContext targetContext)
+        internal void PopulateGlobalProperties(ClientContext sourceContext, ClientContext targetContext)
         {
+            // Azure AD Tenant ID
             if (targetContext != null)
             {
                 // Cache tenant id
@@ -667,8 +668,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Source to target same base address - allow item level permissions
             // Source to target difference base address - disallow item level permissions
 
-            if (targetClientContext != null && sourceClientContext != null && baseTransformationInformation.KeepPageSpecificPermissions)
+            if (targetClientContext != null && sourceClientContext != null)
             {
+                if (!sourceClientContext.Url.Equals(targetClientContext.Url, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    baseTransformationInformation.IsCrossSiteTransformation = true;
+                }
+
                 var sourceUrl = sourceClientContext.Url.GetBaseUrl();
                 var targetUrl = targetClientContext.Url.GetBaseUrl();
 
@@ -686,16 +692,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (sourceClientContext != null)
             {
                 baseTransformationInformation.SourceVersion = GetVersion(sourceClientContext);
+                baseTransformationInformation.SourceVersionNumber = GetExactVersion(sourceClientContext);
             }
 
             if (targetClientContext != null)
             {
                 baseTransformationInformation.TargetVersion = GetVersion(targetClientContext);
+                baseTransformationInformation.TargetVersionNumber = GetExactVersion(targetClientContext);
             }
 
             if (sourceClientContext != null && targetClientContext == null)
             {
                 baseTransformationInformation.TargetVersion = baseTransformationInformation.SourceVersion;
+                baseTransformationInformation.TargetVersionNumber = baseTransformationInformation.SourceVersionNumber;
             }
 
         }
@@ -756,13 +765,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 FieldUserValue pageEditor = this.SourcePageEditor;
 
                 // Keeping page author information is only possible when staying in SPO...for cross site support we first do need user account mapping
-                var sourcePlatformVersion = GetVersion(this.sourceClientContext);
+                var sourcePlatformVersion = baseTransformationInformation.SourceVersion;
 
                 if (crossSiteTransformation && baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
                 {
                     // If transformtion is cross site collection we'll need to lookup users again
                     // Using a cloned context to not mess up with the pending list item updates
-                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                     {
                         var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
                         var pageEditorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageEditor.LookupValue);

@@ -277,7 +277,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                     {
                                                         // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
                                                         // Important to use a cloned context to not mess up with the pending list item updates
-                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                                                         {
                                                             var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
                                                             clonedTargetContext.Load(user);
@@ -295,7 +295,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                     else
                                                     {
                                                         List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                                                         {
                                                             foreach (var currentUser in (fieldValueToSet as Array))
                                                             {

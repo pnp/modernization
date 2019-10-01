@@ -66,6 +66,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             publishingContentTypeFields = new ConcurrentDictionary<string, List<FieldData>>();
             SharepointVersions = new ConcurrentDictionary<Uri, SPVersion>();
             ExactSharepointVersions = new ConcurrentDictionary<Uri, string>();
+            AADTenantId = new ConcurrentDictionary<Uri, Guid>();
         }
         #endregion
 
@@ -78,6 +79,11 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// List of URLs and Exact SharePoint Versions
         /// </summary>
         public ConcurrentDictionary<Uri, string> ExactSharepointVersions { get; }
+
+        /// <summary>
+        /// AADTenantID's used
+        /// </summary>
+        public ConcurrentDictionary<Uri, Guid> AADTenantId { get; }
 
         #region Asset Transfer
         /// <summary>
