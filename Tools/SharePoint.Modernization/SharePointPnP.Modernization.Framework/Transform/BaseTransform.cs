@@ -240,7 +240,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                             // Microsoft Developer Blog - 
                             //      https://developer.microsoft.com/en-us/sharepoint/blogs/updated-versions-of-the-sharepoint-on-premises-csom-nuget-packages/
-                            // Teeedd Kleeeeent's Bleeeg - 
+                            // Todd Klindt's Blog - 
                             //      http://www.toddklindt.com/sp2010builds
                             //      http://www.toddklindt.com/sp2013builds
                             //      http://www.toddklindt.com/sp2016builds
