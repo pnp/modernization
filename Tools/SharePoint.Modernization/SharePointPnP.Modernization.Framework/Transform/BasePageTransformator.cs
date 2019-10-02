@@ -543,12 +543,28 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         }
                         else
                         {
+                            // Handling of "special" fields
 
                             // PostCategory is a default field on a blog post, but it's a lookup. Let's copy as regular field
                             if (fieldToCopy.FieldId.Equals(Constants.PostCategory))
                             {
-                                targetPage.PageListItem[fieldToCopy.FieldName] = ((FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName])[0].LookupValue;
+                                string postCategoryFieldValue = null;
+                                if (((FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName]).Length > 1)
+                                {
+                                    postCategoryFieldValue += ";#";
+                                    foreach (var fieldLookupValue in (FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName])
+                                    {
+                                        postCategoryFieldValue = postCategoryFieldValue + fieldLookupValue.LookupValue + ";#";
+                                    }
+                                }
+                                else
+                                {
+                                    postCategoryFieldValue = ((FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName])[0].LookupValue;
+                                }
+
+                                targetPage.PageListItem[fieldToCopy.FieldName] = postCategoryFieldValue;
                             }
+                            // Regular field handling
                             else
                             {
                                 targetPage.PageListItem[fieldToCopy.FieldName] = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
