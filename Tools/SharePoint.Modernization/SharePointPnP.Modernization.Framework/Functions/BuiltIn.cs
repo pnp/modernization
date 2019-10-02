@@ -950,7 +950,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     else
                     {
                         LogError(LogStrings.Error_LoadContentFromFileContentLink, LogStrings.Heading_BuiltInFunctions, ex);
-                        throw;
+                        return "";
                     }
                 }
             }
