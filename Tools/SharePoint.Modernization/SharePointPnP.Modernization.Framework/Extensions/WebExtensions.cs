@@ -130,6 +130,72 @@ namespace Microsoft.SharePoint.Client
         }
 
         /// <summary>
+        /// Returns the blogs from a web, optionally filtered on blog name
+        /// </summary>
+        /// <param name="web">Web to get the blogs from</param>
+        /// <param name="webRelativeListName">Web relative URL of the blog list (e.g. Posts)</param>
+        /// <param name="pageNameStartsWith">Filter to get all blogs starting with</param>
+        /// <param name="folder">Folder to search in</param>
+        /// <returns>A list of pages (ListItem intances)</returns>
+        public static ListItemCollection GetBlogsFromList(this Web web, string webRelativeListName, string pageNameStartsWith = null, string folder = null)
+        {
+            // Load selected list
+            List listHoldingPages = null;
+            try
+            {
+                web.EnsureProperty(p => p.ServerRelativeUrl);
+                string listRelativeUrl = $"{web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{webRelativeListName}";
+
+                // ByPass for 2010 onwards support
+                listHoldingPages = web.Lists.GetByTitle(webRelativeListName);
+
+                web.Context.Load(listHoldingPages, p => p.RootFolder);
+                web.Context.ExecuteQueryRetry();
+            }
+            catch (ServerException ex)
+            {
+                if (ex.ServerErrorTypeName == "System.IO.FileNotFoundException")
+                {
+                    listHoldingPages = null;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (listHoldingPages != null)
+            {
+                CamlQuery query = null;
+                if (!string.IsNullOrEmpty(pageNameStartsWith))
+                {
+                    query = new CamlQuery
+                    {
+                        ViewXml = string.Format(Constants.CAMLQueryByNameForBlog, pageNameStartsWith)
+                    };
+                }
+                else
+                {
+                    query = CamlQuery.CreateAllItemsQuery();
+                }
+
+                if (!string.IsNullOrEmpty(folder))
+                {
+                    web.EnsureProperty(p => p.ServerRelativeUrl);
+                    query.FolderServerRelativeUrl = $"{listHoldingPages.RootFolder.ServerRelativeUrl}/{folder}";
+                }
+
+                var pages = listHoldingPages.GetItems(query);
+                web.Context.Load(pages);
+                web.Context.ExecuteQueryRetry();
+
+                return pages;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Returns the admins of this site
         /// </summary>
         /// <param name="web">Site to scan</param>

@@ -149,6 +149,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 return false;
             }
 
+            // Additional check to see if image is outside SharePoint for OnPrem to Online scenario for root site and subsites in root site collection
+            if (sourceUrl.ContainsIgnoringCasing("https://") || sourceUrl.ContainsIgnoringCasing("http://"))
+            {
+                var sourceBaseUrl = sourceUrl.GetBaseUrl();
+                var sourceCCBaseUrl = _sourceClientContext.Url.GetBaseUrl();
+
+                if (!sourceBaseUrl.Equals(sourceCCBaseUrl, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
             //  Ensure the referenced assets exist within the source site collection
             var sourceSiteContextUrl = _sourceClientContext.Site.EnsureProperty(w => w.ServerRelativeUrl);
 
@@ -528,6 +540,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         catch
                         {
                             // Nope not the right web - Swallow
+                        }
+                    }
+
+                    // Check if the asset is on the root site collection
+                    if(match == string.Empty)
+                    {
+                        // Does it contain a relative reference
+                        if (sourceUrl.StartsWith("/") && !sourceUrl.ContainsIgnoringCasing(context.Web.GetUrl()))
+                        {
+                            match = fullSiteCollectionUrl.ToLower();
                         }
                     }
 

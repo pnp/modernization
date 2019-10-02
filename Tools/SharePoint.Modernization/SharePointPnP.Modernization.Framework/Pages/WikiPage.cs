@@ -4,6 +4,7 @@ using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Analyses a wiki page
         /// </summary>
         /// <returns>Information about the analyzed wiki page</returns>
-        public Tuple<PageLayout,List<WebPartEntity>> Analyze()
+        public Tuple<PageLayout,List<WebPartEntity>> Analyze(bool isBlogPage = false)
         {
             List<WebPartEntity> webparts = new List<WebPartEntity>();
 
@@ -44,13 +45,29 @@ namespace SharePointPnP.Modernization.Framework.Pages
             cc.Load(wikiPage);
             cc.ExecuteQueryRetry();
 
-            // Load wiki content in HTML parser
-            if (page.FieldValues[Constants.WikiField] == null)
+            string pageContents = null;
+                
+            if (!isBlogPage)
             {
-                throw new Exception("WikiField contents was set to null, this is an invalid and empty wiki page.");
+                // Load wiki content in HTML parser
+                if (page.FieldValues[Constants.WikiField] == null)
+                {
+                    throw new Exception("WikiField contents was set to null, this is an invalid and empty wiki page.");
+                }
+
+                pageContents = page.FieldValues[Constants.WikiField].ToString();
+            }
+            else
+            {
+                // Load wiki content in HTML parser
+                if (page.FieldValues[Constants.BodyField] == null)
+                {
+                    throw new Exception("Body contents was set to null, this is an invalid and empty blog page.");
+                }
+
+                pageContents = page.FieldValues[Constants.BodyField].ToString();
             }
 
-            var pageContents = page.FieldValues[Constants.WikiField].ToString();
             var htmlDoc = parser.Parse(pageContents);
             var layout = GetLayout(htmlDoc);
             if (string.IsNullOrEmpty(pageContents))
@@ -93,7 +110,11 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 else
                 {
                     LoadWebPartsInWikiContentFromServer(webparts, wikiPage, webPartsToRetrieve);
-                }    
+                }
+            }
+            else
+            {
+                LogInfo(LogStrings.AnalysingNoWebPartsFound, LogStrings.Heading_ArticlePageHandling);
             }
 
             // Somehow the wiki was not standard formatted, so lets wrap its contents in a text block

@@ -2,6 +2,7 @@
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Publishing;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
@@ -77,7 +78,24 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 List<WebPartPlaceHolder> webPartsToRetrieve = new List<WebPartPlaceHolder>();
                 foreach (var wikiTextPart in wikiTextWebParts)
                 {
-                    var pageContents = page.GetFieldValueAs<string>(wikiTextPart.Name);
+                    string pageContents = page.GetFieldValueAs<string>(wikiTextPart.Name);
+
+                    if (wikiTextPart.Property.Count() > 0)
+                    {
+                        foreach (var fieldWebPartProperty in wikiTextPart.Property)
+                        {
+                            if (fieldWebPartProperty.Name.Equals("Text", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(fieldWebPartProperty.Functions))
+                            {
+                                // execute function
+                                var evaluatedField = this.functionProcessor.Process(fieldWebPartProperty.Functions, fieldWebPartProperty.Name, MapToFunctionProcessorFieldType(fieldWebPartProperty.Type));
+                                if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                                {
+                                    pageContents = evaluatedField.Item2;
+                                }
+                            }
+                        }
+                    }
+
                     if (pageContents != null && !string.IsNullOrEmpty(pageContents))
                     {
                         var htmlDoc = parser.Parse(pageContents);
@@ -95,7 +113,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 // Bulk load the needed web part information
                 if (webPartsToRetrieve.Count > 0)
                 {
-                    LoadWebPartsInWikiContentFromServer(webparts, publishingPage, webPartsToRetrieve);
+                    LoadWebPartsInWikiContentFromOnPremisesServer(webparts, publishingPage, webPartsToRetrieve);
                 }
                 #endregion
 
@@ -157,7 +175,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             #endregion
 
             #region Process fields that become metadata as they might result in the creation of page properties web part
-            if (publishingPageTransformationModel.MetaData.ShowPageProperties)
+            if (publishingPageTransformationModel.MetaData != null && publishingPageTransformationModel.MetaData.ShowPageProperties)
             {
                 List<string> pagePropertiesFields = new List<string>();
 
@@ -231,6 +249,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
             cc.ExecuteQueryRetry();
 
+            LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
             webServiceWebPartEntities = LoadPublishingPageFromWebServices(publishingPage.EnsureProperty(p=>p.ServerRelativeUrl));
            
 
@@ -375,7 +394,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     string webPartXmlForPropertiesMethod = null;
                     webPartXmlForPropertiesMethod = foundWebPart.WebPartXmlOnPremises;
-                    
+
+                    LogInfo(string.Format(LogStrings.ContentTransformFoundSourceWebParts, 
+                        foundWebPart.WebPartDefinition.WebPart.Title, foundWebPart.WebPartType.GetTypeShort()), LogStrings.Heading_ContentTransform);
 
                     webparts.Add(new WebPartEntity()
                     {
@@ -393,6 +414,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Properties = Properties(webPartProperties, foundWebPart.WebPartType, webPartXmlForPropertiesMethod),
                     });
                 }
+            }
+            else
+            {
+                LogInfo(LogStrings.AnalysingNoWebPartsFound, LogStrings.Heading_ArticlePageHandling);
             }
             #endregion
 

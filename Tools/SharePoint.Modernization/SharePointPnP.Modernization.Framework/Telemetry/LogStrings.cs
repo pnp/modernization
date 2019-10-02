@@ -69,7 +69,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_SourcePageIsModern = "Source page is already a modern page";
         public const string Error_PageNotValidMissingFileRef = "Page is not valid due to missing FileRef or FileLeafRef value";
         public const string Error_BasicASPXPageCannotTransform = "Page is an basic aspx page...can't currently transform that one, sorry!";
-        public const string Error_PublishingPagesNotYetSupported = "Page transformation for publishing pages is currently not supported.";
+        public const string Error_PublishingPagesNotYetSupported = "Page transformation for publishing pages can only be done using the PublishingPageTransformator class";
         public const string Error_PageIsNotAPublishingPage = "Page is not a publishing page, please use the wiki and webpart page API's";
         public const string Error_CannotUsePageAcceptBannerCrossSite = "Page transformation towards a different site collection cannot use the page accept banner.";
         public const string Error_OverridingTagePageTakesSourcePageName = "Overriding 'TargetPageTakesSourcePageName' to ensure that the newly created page in the other site collection gets the same name as the source page";
@@ -78,14 +78,21 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_CrossSiteTransferTargetsNonModernSite = "Page transformation for targeting non-modern sites is currently not supported.";
         public const string Error_GetVersionError = "Setting version stamp error";
         public const string Error_MissingSitePagesLibrary = "Site does not have a sitepages library and therefore this page can't be a client side page.";
-        
+        public const string Error_BlogPageTransformationHasToBeCrossSite = "Blog pages cannot be transformed in-place, their target site collection must be a different one.";
+        public const string Error_SameSiteTransferNoAllowedForBlogPages = "Oops, seems source and target point to the same site collection...that's a no go for blog page transformation!";
+
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
         public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
         public const string Error_ExtractWebPartPropertiesViaWebServicesFromPage = "Extract Web Part Properties via Web Services from Page failed";
         public const string Error_CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string Error_ExportWebPartXmlWorkaround = "Export WebPart Xml from Web Call failed";
-
+        public const string Error_AnalyserCouldNotFindLayouts = "GetAllPageLayouts - Could not search for page layouts";
+        public const string Error_AnalyserErrorOccurredExtractMetadata = "An issue occurred with extracting metadata from page layout";
+        public const string Error_AnalyserErrorOccurredExtractNamespaces = "An error occurred extracting web part prefixes from namespaces";
+        public const string Error_AnalyserErrorOccurredExtractHtmlBlocks = "An error occurred extracting html blocks from page layout html";
+        public const string Error_AnalyserCleaningExtractedWebPartFields = "An error occurred cleaning extracted web part fields";
+        public const string Error_AnalyserExtractPageHeaderFromPageLayout = "An error occurred extract page header from page layout associated content type";
         public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
 
 
@@ -94,8 +101,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         #region Warning messages
 
         public const string Warning_NonCriticalErrorDuringVersionStampAndPublish = "Page could not be published as versioning is not enabled or version stamp could not be set.";
-
-        public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled";
+        public const string Warning_NonCriticalErrorDuringPublish = "Page could not be published as versioning is not enabled on the SitePages library.";
+        public const string Warning_PostingAPageAsNewsRequiresPagePublishing = "Posting a page as news requires the page to be published. Turning on the PublishCreatedPage flag.";
+        public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled.";
+        public const string Warning_FieldNotFoundInSourcePage = "You specified field {0} in your page layout mapping, but that field is not available in the source page.";
+        public const string Warning_PageLayoutsCannotBeDetermined = "Page layout could not be determined by the publishing page.";
+        public const string Warning_PageHeaderAuthorNotSet = "The page author header could not be set. Error = {0}.";
 
         #endregion
 
@@ -104,7 +115,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string ValidationChecksComplete = "Validation checks complete";
         public const string LoadingTargetClientContext = "Loading target client context object";
         public const string LoadingClientContextObjects = "Loading client context objects";
-        public const string TransformingSite = "Transforming site:";
+        public const string TransformingSite = "Transforming from site:";
         public const string TransformingPage = "Transforming page:";
         public const string CrossSiteTransferToSite = "Cross-Site transfer mode to site:";
         public const string PageIsLocatedInFolder = "The transform page is located in a folder";
@@ -128,7 +139,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformArticleSetHeaderToCustom = "Page Header Set to Custom. Using page header settings:";
         public const string TransformArticleHeaderImageUrl = "Image Url: ";
         public const string TransformSourcePageIsWikiPage = "Recognized source page as a Wiki Page.";
-        public const string TransformSourcePageIsPublishingPage = "Recognized source page as a Publishing Page.";
+        public const string TransformSourcePageIsPublishingPage = "Recognized source page as a Publishing Page";
         public const string TransformSourcePageAnalysing = "Analyzing web parts and page layouts";
         public const string WikiTextContainsImagesVideosReferences = "Splitting images and videos from wiki text - as modern text web part does not support embedded images and videos";
         public const string TransformSourcePageIsWebPartPage = "Recognized source page as a Web Part Page.";
@@ -162,11 +173,23 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformCheckIfPageIsHomePage = "Check if the transformed page is the web's home page";
         public const string TransformDisablePageComments = "Page commenting is disabled this this page";
         public const string PageLivesOutsideOfALibrary = "Page is loaded from outside a library";
-
         public const string TransformPageDoesNotExistInWeb = "Page does not exist in current web";
         public const string CallingWebServicesToExtractWebPartPropertiesFromPage = "Calling Web Services to Extract Web Part Properties from Page";
         public const string CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string RetreivingExportWebPartXmlWorkaround = "Retrieving Web Part using Workaround from Page for Transform";
+        public const string PublishMessage = "Published by the page modernization engine";
+
+        public const string AnalyserFoundItems = "Found {0} page layouts";
+        public const string AnalyserNoLayoutsFound = "There are no page layouts found to analyse";
+        public const string AnalyserMappingLayout = "Generating mapping for `{0}` layout";
+
+        public const string SourceSharePointVersion = "Source SharePoint version: ";
+        public const string TransformMode = "Mode: ";
+        public const string TransformUsesWebServicesFallback = "Transform using Web Services fallback";
+        public const string TransformationModePublishing = "Publishing Page Transformation Mode";
+        public const string TransformationMode = "{0} Transformation";
+        public const string AnalysingNoWebPartsFound = "No web parts were found on page";
+        public const string ContentTransformFoundSourceWebParts = "Source page contains webpart `{0}` of type `{1}`";
 
         #endregion
 

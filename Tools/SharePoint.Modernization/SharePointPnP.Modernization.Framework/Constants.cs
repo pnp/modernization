@@ -24,6 +24,8 @@ namespace SharePointPnP.Modernization.Framework
         public const string WikiField = "WikiField";
         public const string ModifiedField = "Modified";
         public const string ModifiedByField = "Editor";
+        public const string CreatedField = "Created";
+        public const string CreatedByField = "Author";
         public const string ContentTypeIdField = "ContentTypeId";
         public const string PublishingPageLayoutField = "PublishingPageLayout";
         public const string AudienceField = "Audience";
@@ -31,10 +33,19 @@ namespace SharePointPnP.Modernization.Framework
         public const string TitleField = "Title";
         public const string PublishingAssociatedContentTypeField = "PublishingAssociatedContentType";
         public const string SPSitePageFlagsField = "_SPSitePageFlags";
+        public const string PromotedStateField = "PromotedState";
+        public const string FirstPublishedDateField = "FirstPublishedDate";
+        public const string BannerImageUrlField = "BannerImageUrl";
+        public const string CanvasContentField = "CanvasContent1";
+        public const string IDField = "ID";
+        public const string BodyField = "Body"; // Blog pages
 
         // Content Type ID's
         public const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
         public const string ModernPageContentTypeId = "0x0101009D1CB255DA76424F860D91F20E6C4118";
+
+        // Field ID's
+        public static readonly Guid PostCategory = new Guid("38bea83b-350a-1a6e-f34a-93a6af31338b");
 
         // Features
         public static readonly Guid FeatureId_Web_ModernPage = new Guid("B6917CB1-93A0-4B97-A84D-7CF49975D4EC");
@@ -72,7 +83,17 @@ namespace SharePointPnP.Modernization.Framework
                     </Where>
                   </Query>
                 </View>";
-
+        public const string CAMLQueryByNameForBlog = @"
+                <View Scope='Recursive'>
+                  <Query>
+                    <Where>
+                      <BeginsWith>
+                        <FieldRef Name='Title'/>
+                        <Value Type='text'>{0}</Value>
+                      </BeginsWith>
+                    </Where>
+                  </Query>
+                </View>";
 
         // Cross site assets transfers that are currently allowed
         public static string[] AllowedAssetFileExtensions = new string[] { "png", "jpg", "gif", "mp4", "mpeg" };

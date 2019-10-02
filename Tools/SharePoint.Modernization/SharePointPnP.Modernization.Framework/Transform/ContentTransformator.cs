@@ -326,6 +326,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.NewsReel);
                                         break;
                                     }
+                                case ClientSideWebPartType.News:
+                                    {
+                                        webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.News);
+                                        break;
+                                    }
                                 case ClientSideWebPartType.PowerBIReportEmbed:
                                     {
                                         webPartName = ClientSidePage.ClientSideWebPartEnumToName(DefaultClientSideWebParts.PowerBIReportEmbed);

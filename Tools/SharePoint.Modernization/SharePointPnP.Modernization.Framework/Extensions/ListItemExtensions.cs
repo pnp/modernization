@@ -36,6 +36,11 @@ namespace Microsoft.SharePoint.Client
                 return "WikiPage";
             }
 
+            if (FieldExistsAndUsed(item, Constants.BodyField) && !String.IsNullOrEmpty(item[Constants.BodyField].ToString()))
+            {
+                return "BlogPage";
+            }
+
             if (FieldExistsAndUsed(item, Constants.ClientSideApplicationIdField) && item[Constants.ClientSideApplicationIdField].ToString().Equals(Constants.FeatureId_Web_ModernPage.ToString(), StringComparison.InvariantCultureIgnoreCase))
             {
                 return "ClientSidePage";

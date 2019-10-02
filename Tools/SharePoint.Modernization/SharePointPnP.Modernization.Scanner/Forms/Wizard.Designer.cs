@@ -63,6 +63,30 @@
             this.tgOptionSkipUsage = new System.Windows.Forms.CheckBox();
             this.nmThreads = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
+            this.scopePage = new AeroWizard.WizardPage();
+            this.pnlSiteFiles = new System.Windows.Forms.Panel();
+            this.llblCSV = new System.Windows.Forms.LinkLabel();
+            this.btnSelectCSVFile = new System.Windows.Forms.Button();
+            this.txtSitesCSVFile = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cmbSiteSelectionOption = new System.Windows.Forms.ComboBox();
+            this.lblSiteSelectionOption = new System.Windows.Forms.Label();
+            this.pnlSiteTenant = new System.Windows.Forms.Panel();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.lblSiteTenantName = new System.Windows.Forms.Label();
+            this.txtSitesTenantName = new System.Windows.Forms.TextBox();
+            this.pnlSiteWildcard = new System.Windows.Forms.Panel();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtSitesAdminCenterUrl = new System.Windows.Forms.TextBox();
+            this.btnSitesClearUrls = new System.Windows.Forms.Button();
+            this.btnSitesRemoveUrl = new System.Windows.Forms.Button();
+            this.btnSitesAddUrl = new System.Windows.Forms.Button();
+            this.lstSitesUrlsToScan = new System.Windows.Forms.ListBox();
+            this.txtSitesUrlToAdd = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.authPage = new AeroWizard.WizardPage();
             this.llblModernizationGuidance = new System.Windows.Forms.LinkLabel();
             this.llblScannerInfo = new System.Windows.Forms.LinkLabel();
@@ -92,30 +116,6 @@
             this.lblAzureADCertificateFile = new System.Windows.Forms.Label();
             this.cmbAuthOption = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.scopePage = new AeroWizard.WizardPage();
-            this.pnlSiteFiles = new System.Windows.Forms.Panel();
-            this.llblCSV = new System.Windows.Forms.LinkLabel();
-            this.btnSelectCSVFile = new System.Windows.Forms.Button();
-            this.txtSitesCSVFile = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.cmbSiteSelectionOption = new System.Windows.Forms.ComboBox();
-            this.lblSiteSelectionOption = new System.Windows.Forms.Label();
-            this.pnlSiteTenant = new System.Windows.Forms.Panel();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.lblSiteTenantName = new System.Windows.Forms.Label();
-            this.txtSitesTenantName = new System.Windows.Forms.TextBox();
-            this.pnlSiteWildcard = new System.Windows.Forms.Panel();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.txtSitesAdminCenterUrl = new System.Windows.Forms.TextBox();
-            this.btnSitesClearUrls = new System.Windows.Forms.Button();
-            this.btnSitesRemoveUrl = new System.Windows.Forms.Button();
-            this.btnSitesAddUrl = new System.Windows.Forms.Button();
-            this.lstSitesUrlsToScan = new System.Windows.Forms.ListBox();
-            this.txtSitesUrlToAdd = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.ttAuthentication = new System.Windows.Forms.ToolTip(this.components);
             this.headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.headerImage)).BeginInit();
@@ -125,14 +125,14 @@
             this.modePage.SuspendLayout();
             this.optionsPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).BeginInit();
-            this.authPage.SuspendLayout();
-            this.pnlCredentials.SuspendLayout();
-            this.pnlAzureACS.SuspendLayout();
-            this.pnlAzureAD.SuspendLayout();
             this.scopePage.SuspendLayout();
             this.pnlSiteFiles.SuspendLayout();
             this.pnlSiteTenant.SuspendLayout();
             this.pnlSiteWildcard.SuspendLayout();
+            this.authPage.SuspendLayout();
+            this.pnlCredentials.SuspendLayout();
+            this.pnlAzureACS.SuspendLayout();
+            this.pnlAzureAD.SuspendLayout();
             this.SuspendLayout();
             // 
             // headerPanel
@@ -151,7 +151,7 @@
             // headerImage
             // 
             this.headerImage.Image = ((System.Drawing.Image)(resources.GetObject("headerImage.Image")));
-            this.headerImage.Location = new System.Drawing.Point(497, 5);
+            this.headerImage.Location = new System.Drawing.Point(501, 5);
             this.headerImage.Margin = new System.Windows.Forms.Padding(4);
             this.headerImage.Name = "headerImage";
             this.headerImage.Size = new System.Drawing.Size(136, 60);
@@ -221,7 +221,7 @@
             this.backButton.Name = "backButton";
             this.backButton.Size = new System.Drawing.Size(129, 28);
             this.backButton.TabIndex = 2;
-            this.backButton.Tag = AeroWizard.WizardCommandButtonState.Enabled;
+            this.backButton.Tag = AeroWizard.WizardCommandButtonState.Disabled;
             this.backButton.Text = "< Back";
             this.backButton.UseVisualStyleBackColor = true;
             // 
@@ -256,9 +256,9 @@
             this.wizardPageContainer1.BackButtonText = "< Back";
             this.wizardPageContainer1.CancelButton = this.cancelButton;
             this.wizardPageContainer1.CancelButtonText = "Cancel";
+            this.wizardPageContainer1.Controls.Add(this.authPage);
             this.wizardPageContainer1.Controls.Add(this.modePage);
             this.wizardPageContainer1.Controls.Add(this.scopePage);
-            this.wizardPageContainer1.Controls.Add(this.authPage);
             this.wizardPageContainer1.Controls.Add(this.optionsPage);
             this.wizardPageContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardPageContainer1.FinishButtonText = "&Start scan";
@@ -562,6 +562,276 @@
             this.label7.Size = new System.Drawing.Size(223, 17);
             this.label7.TabIndex = 0;
             this.label7.Text = "Number of parallel threads to use:";
+            // 
+            // scopePage
+            // 
+            this.scopePage.Controls.Add(this.pnlSiteFiles);
+            this.scopePage.Controls.Add(this.cmbSiteSelectionOption);
+            this.scopePage.Controls.Add(this.lblSiteSelectionOption);
+            this.scopePage.Controls.Add(this.pnlSiteTenant);
+            this.scopePage.Controls.Add(this.pnlSiteWildcard);
+            this.scopePage.Name = "scopePage";
+            this.scopePage.NextPage = this.modePage;
+            this.scopePage.Size = new System.Drawing.Size(640, 326);
+            this.scopePage.TabIndex = 1;
+            this.scopePage.Tag = "";
+            this.scopePage.Text = "Configure the sites to scan";
+            this.scopePage.Commit += new System.EventHandler<AeroWizard.WizardPageConfirmEventArgs>(this.PageCommit);
+            this.scopePage.Initialize += new System.EventHandler<AeroWizard.WizardPageInitEventArgs>(this.scopePage_Initialize);
+            // 
+            // pnlSiteFiles
+            // 
+            this.pnlSiteFiles.Controls.Add(this.llblCSV);
+            this.pnlSiteFiles.Controls.Add(this.btnSelectCSVFile);
+            this.pnlSiteFiles.Controls.Add(this.txtSitesCSVFile);
+            this.pnlSiteFiles.Controls.Add(this.label2);
+            this.pnlSiteFiles.Location = new System.Drawing.Point(621, 56);
+            this.pnlSiteFiles.Margin = new System.Windows.Forms.Padding(4);
+            this.pnlSiteFiles.Name = "pnlSiteFiles";
+            this.pnlSiteFiles.Size = new System.Drawing.Size(617, 91);
+            this.pnlSiteFiles.TabIndex = 4;
+            // 
+            // llblCSV
+            // 
+            this.llblCSV.AutoSize = true;
+            this.llblCSV.Location = new System.Drawing.Point(209, 58);
+            this.llblCSV.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.llblCSV.Name = "llblCSV";
+            this.llblCSV.Size = new System.Drawing.Size(81, 17);
+            this.llblCSV.TabIndex = 3;
+            this.llblCSV.TabStop = true;
+            this.llblCSV.Text = "Learn more";
+            this.llblCSV.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblCSV_LinkClicked);
+            // 
+            // btnSelectCSVFile
+            // 
+            this.btnSelectCSVFile.Location = new System.Drawing.Point(569, 16);
+            this.btnSelectCSVFile.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSelectCSVFile.Name = "btnSelectCSVFile";
+            this.btnSelectCSVFile.Size = new System.Drawing.Size(32, 28);
+            this.btnSelectCSVFile.TabIndex = 2;
+            this.btnSelectCSVFile.Text = "...";
+            this.btnSelectCSVFile.UseVisualStyleBackColor = true;
+            this.btnSelectCSVFile.Click += new System.EventHandler(this.btnSelectCSVFile_Click);
+            // 
+            // txtSitesCSVFile
+            // 
+            this.txtSitesCSVFile.Location = new System.Drawing.Point(209, 18);
+            this.txtSitesCSVFile.Margin = new System.Windows.Forms.Padding(4);
+            this.txtSitesCSVFile.Name = "txtSitesCSVFile";
+            this.txtSitesCSVFile.Size = new System.Drawing.Size(356, 22);
+            this.txtSitesCSVFile.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 22);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(141, 17);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Select CSV sites file: ";
+            // 
+            // cmbSiteSelectionOption
+            // 
+            this.cmbSiteSelectionOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSiteSelectionOption.FormattingEnabled = true;
+            this.cmbSiteSelectionOption.Items.AddRange(new object[] {
+            "Complete tenant (not possible with vanity urls)",
+            "Selected site collections",
+            "CSV file listing sites to scan"});
+            this.cmbSiteSelectionOption.Location = new System.Drawing.Point(228, 20);
+            this.cmbSiteSelectionOption.Margin = new System.Windows.Forms.Padding(4);
+            this.cmbSiteSelectionOption.Name = "cmbSiteSelectionOption";
+            this.cmbSiteSelectionOption.Size = new System.Drawing.Size(397, 24);
+            this.cmbSiteSelectionOption.TabIndex = 1;
+            this.cmbSiteSelectionOption.SelectedIndexChanged += new System.EventHandler(this.cmbSiteSelectionOption_SelectedIndexChanged);
+            // 
+            // lblSiteSelectionOption
+            // 
+            this.lblSiteSelectionOption.AutoSize = true;
+            this.lblSiteSelectionOption.Location = new System.Drawing.Point(20, 20);
+            this.lblSiteSelectionOption.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblSiteSelectionOption.Name = "lblSiteSelectionOption";
+            this.lblSiteSelectionOption.Size = new System.Drawing.Size(139, 17);
+            this.lblSiteSelectionOption.TabIndex = 0;
+            this.lblSiteSelectionOption.Text = "Site selection option:";
+            // 
+            // pnlSiteTenant
+            // 
+            this.pnlSiteTenant.Controls.Add(this.textBox3);
+            this.pnlSiteTenant.Controls.Add(this.textBox2);
+            this.pnlSiteTenant.Controls.Add(this.lblSiteTenantName);
+            this.pnlSiteTenant.Controls.Add(this.txtSitesTenantName);
+            this.pnlSiteTenant.Location = new System.Drawing.Point(616, 245);
+            this.pnlSiteTenant.Margin = new System.Windows.Forms.Padding(4);
+            this.pnlSiteTenant.Name = "pnlSiteTenant";
+            this.pnlSiteTenant.Size = new System.Drawing.Size(611, 60);
+            this.pnlSiteTenant.TabIndex = 2;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Enabled = false;
+            this.textBox3.Location = new System.Drawing.Point(492, 17);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(108, 22);
+            this.textBox3.TabIndex = 3;
+            this.textBox3.Text = ".sharepoint.com";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Enabled = false;
+            this.textBox2.Location = new System.Drawing.Point(209, 17);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(57, 22);
+            this.textBox2.TabIndex = 2;
+            this.textBox2.Text = "https://";
+            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // lblSiteTenantName
+            // 
+            this.lblSiteTenantName.AutoSize = true;
+            this.lblSiteTenantName.Location = new System.Drawing.Point(8, 21);
+            this.lblSiteTenantName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblSiteTenantName.Name = "lblSiteTenantName";
+            this.lblSiteTenantName.Size = new System.Drawing.Size(125, 17);
+            this.lblSiteTenantName.TabIndex = 1;
+            this.lblSiteTenantName.Text = "Your tenant name:";
+            // 
+            // txtSitesTenantName
+            // 
+            this.txtSitesTenantName.Location = new System.Drawing.Point(272, 17);
+            this.txtSitesTenantName.Margin = new System.Windows.Forms.Padding(4);
+            this.txtSitesTenantName.Name = "txtSitesTenantName";
+            this.txtSitesTenantName.Size = new System.Drawing.Size(213, 22);
+            this.txtSitesTenantName.TabIndex = 0;
+            this.ttAuthentication.SetToolTip(this.txtSitesTenantName, "Tenant name (e.g. contoso). Don\'t add the admin url (contoso-admin) here");
+            // 
+            // pnlSiteWildcard
+            // 
+            this.pnlSiteWildcard.Controls.Add(this.label10);
+            this.pnlSiteWildcard.Controls.Add(this.label9);
+            this.pnlSiteWildcard.Controls.Add(this.txtSitesAdminCenterUrl);
+            this.pnlSiteWildcard.Controls.Add(this.btnSitesClearUrls);
+            this.pnlSiteWildcard.Controls.Add(this.btnSitesRemoveUrl);
+            this.pnlSiteWildcard.Controls.Add(this.btnSitesAddUrl);
+            this.pnlSiteWildcard.Controls.Add(this.lstSitesUrlsToScan);
+            this.pnlSiteWildcard.Controls.Add(this.txtSitesUrlToAdd);
+            this.pnlSiteWildcard.Controls.Add(this.label4);
+            this.pnlSiteWildcard.Controls.Add(this.label3);
+            this.pnlSiteWildcard.Location = new System.Drawing.Point(9, 53);
+            this.pnlSiteWildcard.Margin = new System.Windows.Forms.Padding(4);
+            this.pnlSiteWildcard.Name = "pnlSiteWildcard";
+            this.pnlSiteWildcard.Size = new System.Drawing.Size(603, 252);
+            this.pnlSiteWildcard.TabIndex = 3;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(8, 192);
+            this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(502, 17);
+            this.label10.TabIndex = 9;
+            this.label10.Text = "Only when using vanity url\'s specify the full SharePoint Online admin center url";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(7, 217);
+            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(99, 17);
+            this.label9.TabIndex = 8;
+            this.label9.Text = "Admin  center:";
+            this.label9.Click += new System.EventHandler(this.label9_Click);
+            // 
+            // txtSitesAdminCenterUrl
+            // 
+            this.txtSitesAdminCenterUrl.Location = new System.Drawing.Point(115, 213);
+            this.txtSitesAdminCenterUrl.Margin = new System.Windows.Forms.Padding(4);
+            this.txtSitesAdminCenterUrl.Name = "txtSitesAdminCenterUrl";
+            this.txtSitesAdminCenterUrl.Size = new System.Drawing.Size(471, 22);
+            this.txtSitesAdminCenterUrl.TabIndex = 7;
+            this.ttAuthentication.SetToolTip(this.txtSitesAdminCenterUrl, "SPO Admin center url (e.g. https://spoadmin.contoso.com). Only needed when using " +
+        "SPO with vanity urls (= urls that not end on .sharepoint.com)");
+            this.txtSitesAdminCenterUrl.TextChanged += new System.EventHandler(this.txtSitesAdminCenterUrl_TextChanged);
+            // 
+            // btnSitesClearUrls
+            // 
+            this.btnSitesClearUrls.Location = new System.Drawing.Point(487, 123);
+            this.btnSitesClearUrls.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSitesClearUrls.Name = "btnSitesClearUrls";
+            this.btnSitesClearUrls.Size = new System.Drawing.Size(100, 28);
+            this.btnSitesClearUrls.TabIndex = 6;
+            this.btnSitesClearUrls.Text = "Clear";
+            this.btnSitesClearUrls.UseVisualStyleBackColor = true;
+            this.btnSitesClearUrls.Click += new System.EventHandler(this.btnSitesClearUrls_Click);
+            // 
+            // btnSitesRemoveUrl
+            // 
+            this.btnSitesRemoveUrl.Location = new System.Drawing.Point(487, 87);
+            this.btnSitesRemoveUrl.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSitesRemoveUrl.Name = "btnSitesRemoveUrl";
+            this.btnSitesRemoveUrl.Size = new System.Drawing.Size(100, 28);
+            this.btnSitesRemoveUrl.TabIndex = 5;
+            this.btnSitesRemoveUrl.Text = "Remove";
+            this.btnSitesRemoveUrl.UseVisualStyleBackColor = true;
+            this.btnSitesRemoveUrl.Click += new System.EventHandler(this.btnSitesRemoveUrl_Click);
+            // 
+            // btnSitesAddUrl
+            // 
+            this.btnSitesAddUrl.Location = new System.Drawing.Point(487, 36);
+            this.btnSitesAddUrl.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSitesAddUrl.Name = "btnSitesAddUrl";
+            this.btnSitesAddUrl.Size = new System.Drawing.Size(100, 28);
+            this.btnSitesAddUrl.TabIndex = 4;
+            this.btnSitesAddUrl.Text = "Add";
+            this.btnSitesAddUrl.UseVisualStyleBackColor = true;
+            this.btnSitesAddUrl.Click += new System.EventHandler(this.btnSitesAddUrl_Click);
+            // 
+            // lstSitesUrlsToScan
+            // 
+            this.lstSitesUrlsToScan.FormattingEnabled = true;
+            this.lstSitesUrlsToScan.ItemHeight = 16;
+            this.lstSitesUrlsToScan.Location = new System.Drawing.Point(115, 66);
+            this.lstSitesUrlsToScan.Margin = new System.Windows.Forms.Padding(4);
+            this.lstSitesUrlsToScan.Name = "lstSitesUrlsToScan";
+            this.lstSitesUrlsToScan.Size = new System.Drawing.Size(352, 116);
+            this.lstSitesUrlsToScan.TabIndex = 3;
+            this.lstSitesUrlsToScan.SelectedIndexChanged += new System.EventHandler(this.lstSitesUrlsToScan_SelectedIndexChanged);
+            // 
+            // txtSitesUrlToAdd
+            // 
+            this.txtSitesUrlToAdd.Location = new System.Drawing.Point(115, 36);
+            this.txtSitesUrlToAdd.Margin = new System.Windows.Forms.Padding(4);
+            this.txtSitesUrlToAdd.Name = "txtSitesUrlToAdd";
+            this.txtSitesUrlToAdd.Size = new System.Drawing.Size(352, 22);
+            this.txtSitesUrlToAdd.TabIndex = 2;
+            this.ttAuthentication.SetToolTip(this.txtSitesUrlToAdd, "Add one or more (wildcard) urls (e.g. https://contoso.sharepoint.com/sites/a*)");
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(11, 36);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(74, 17);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "Url to add:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(11, 14);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(477, 17);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Add one or more (wildcard) url\'s. Url\'s ending on a * are valid wild card urls";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // authPage
             // 
@@ -889,276 +1159,6 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Selected authentication option:";
             // 
-            // scopePage
-            // 
-            this.scopePage.Controls.Add(this.pnlSiteFiles);
-            this.scopePage.Controls.Add(this.cmbSiteSelectionOption);
-            this.scopePage.Controls.Add(this.lblSiteSelectionOption);
-            this.scopePage.Controls.Add(this.pnlSiteTenant);
-            this.scopePage.Controls.Add(this.pnlSiteWildcard);
-            this.scopePage.Name = "scopePage";
-            this.scopePage.NextPage = this.modePage;
-            this.scopePage.Size = new System.Drawing.Size(640, 326);
-            this.scopePage.TabIndex = 1;
-            this.scopePage.Tag = "";
-            this.scopePage.Text = "Configure the sites to scan";
-            this.scopePage.Commit += new System.EventHandler<AeroWizard.WizardPageConfirmEventArgs>(this.PageCommit);
-            this.scopePage.Initialize += new System.EventHandler<AeroWizard.WizardPageInitEventArgs>(this.scopePage_Initialize);
-            // 
-            // pnlSiteFiles
-            // 
-            this.pnlSiteFiles.Controls.Add(this.llblCSV);
-            this.pnlSiteFiles.Controls.Add(this.btnSelectCSVFile);
-            this.pnlSiteFiles.Controls.Add(this.txtSitesCSVFile);
-            this.pnlSiteFiles.Controls.Add(this.label2);
-            this.pnlSiteFiles.Location = new System.Drawing.Point(621, 56);
-            this.pnlSiteFiles.Margin = new System.Windows.Forms.Padding(4);
-            this.pnlSiteFiles.Name = "pnlSiteFiles";
-            this.pnlSiteFiles.Size = new System.Drawing.Size(617, 91);
-            this.pnlSiteFiles.TabIndex = 4;
-            // 
-            // llblCSV
-            // 
-            this.llblCSV.AutoSize = true;
-            this.llblCSV.Location = new System.Drawing.Point(209, 58);
-            this.llblCSV.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.llblCSV.Name = "llblCSV";
-            this.llblCSV.Size = new System.Drawing.Size(81, 17);
-            this.llblCSV.TabIndex = 3;
-            this.llblCSV.TabStop = true;
-            this.llblCSV.Text = "Learn more";
-            this.llblCSV.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblCSV_LinkClicked);
-            // 
-            // btnSelectCSVFile
-            // 
-            this.btnSelectCSVFile.Location = new System.Drawing.Point(569, 16);
-            this.btnSelectCSVFile.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSelectCSVFile.Name = "btnSelectCSVFile";
-            this.btnSelectCSVFile.Size = new System.Drawing.Size(32, 28);
-            this.btnSelectCSVFile.TabIndex = 2;
-            this.btnSelectCSVFile.Text = "...";
-            this.btnSelectCSVFile.UseVisualStyleBackColor = true;
-            this.btnSelectCSVFile.Click += new System.EventHandler(this.btnSelectCSVFile_Click);
-            // 
-            // txtSitesCSVFile
-            // 
-            this.txtSitesCSVFile.Location = new System.Drawing.Point(209, 18);
-            this.txtSitesCSVFile.Margin = new System.Windows.Forms.Padding(4);
-            this.txtSitesCSVFile.Name = "txtSitesCSVFile";
-            this.txtSitesCSVFile.Size = new System.Drawing.Size(356, 22);
-            this.txtSitesCSVFile.TabIndex = 1;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 22);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(141, 17);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Select CSV sites file: ";
-            // 
-            // cmbSiteSelectionOption
-            // 
-            this.cmbSiteSelectionOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbSiteSelectionOption.FormattingEnabled = true;
-            this.cmbSiteSelectionOption.Items.AddRange(new object[] {
-            "Complete tenant (not possible with vanity urls)",
-            "Selected site collections",
-            "CSV file listing sites to scan"});
-            this.cmbSiteSelectionOption.Location = new System.Drawing.Point(228, 20);
-            this.cmbSiteSelectionOption.Margin = new System.Windows.Forms.Padding(4);
-            this.cmbSiteSelectionOption.Name = "cmbSiteSelectionOption";
-            this.cmbSiteSelectionOption.Size = new System.Drawing.Size(397, 24);
-            this.cmbSiteSelectionOption.TabIndex = 1;
-            this.cmbSiteSelectionOption.SelectedIndexChanged += new System.EventHandler(this.cmbSiteSelectionOption_SelectedIndexChanged);
-            // 
-            // lblSiteSelectionOption
-            // 
-            this.lblSiteSelectionOption.AutoSize = true;
-            this.lblSiteSelectionOption.Location = new System.Drawing.Point(20, 20);
-            this.lblSiteSelectionOption.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblSiteSelectionOption.Name = "lblSiteSelectionOption";
-            this.lblSiteSelectionOption.Size = new System.Drawing.Size(139, 17);
-            this.lblSiteSelectionOption.TabIndex = 0;
-            this.lblSiteSelectionOption.Text = "Site selection option:";
-            // 
-            // pnlSiteTenant
-            // 
-            this.pnlSiteTenant.Controls.Add(this.textBox3);
-            this.pnlSiteTenant.Controls.Add(this.textBox2);
-            this.pnlSiteTenant.Controls.Add(this.lblSiteTenantName);
-            this.pnlSiteTenant.Controls.Add(this.txtSitesTenantName);
-            this.pnlSiteTenant.Location = new System.Drawing.Point(616, 245);
-            this.pnlSiteTenant.Margin = new System.Windows.Forms.Padding(4);
-            this.pnlSiteTenant.Name = "pnlSiteTenant";
-            this.pnlSiteTenant.Size = new System.Drawing.Size(611, 60);
-            this.pnlSiteTenant.TabIndex = 2;
-            // 
-            // textBox3
-            // 
-            this.textBox3.Enabled = false;
-            this.textBox3.Location = new System.Drawing.Point(492, 17);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(4);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(108, 22);
-            this.textBox3.TabIndex = 3;
-            this.textBox3.Text = ".sharepoint.com";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point(209, 17);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(4);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(57, 22);
-            this.textBox2.TabIndex = 2;
-            this.textBox2.Text = "https://";
-            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // lblSiteTenantName
-            // 
-            this.lblSiteTenantName.AutoSize = true;
-            this.lblSiteTenantName.Location = new System.Drawing.Point(8, 21);
-            this.lblSiteTenantName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblSiteTenantName.Name = "lblSiteTenantName";
-            this.lblSiteTenantName.Size = new System.Drawing.Size(125, 17);
-            this.lblSiteTenantName.TabIndex = 1;
-            this.lblSiteTenantName.Text = "Your tenant name:";
-            // 
-            // txtSitesTenantName
-            // 
-            this.txtSitesTenantName.Location = new System.Drawing.Point(272, 17);
-            this.txtSitesTenantName.Margin = new System.Windows.Forms.Padding(4);
-            this.txtSitesTenantName.Name = "txtSitesTenantName";
-            this.txtSitesTenantName.Size = new System.Drawing.Size(213, 22);
-            this.txtSitesTenantName.TabIndex = 0;
-            this.ttAuthentication.SetToolTip(this.txtSitesTenantName, "Tenant name (e.g. contoso). Don\'t add the admin url (contoso-admin) here");
-            // 
-            // pnlSiteWildcard
-            // 
-            this.pnlSiteWildcard.Controls.Add(this.label10);
-            this.pnlSiteWildcard.Controls.Add(this.label9);
-            this.pnlSiteWildcard.Controls.Add(this.txtSitesAdminCenterUrl);
-            this.pnlSiteWildcard.Controls.Add(this.btnSitesClearUrls);
-            this.pnlSiteWildcard.Controls.Add(this.btnSitesRemoveUrl);
-            this.pnlSiteWildcard.Controls.Add(this.btnSitesAddUrl);
-            this.pnlSiteWildcard.Controls.Add(this.lstSitesUrlsToScan);
-            this.pnlSiteWildcard.Controls.Add(this.txtSitesUrlToAdd);
-            this.pnlSiteWildcard.Controls.Add(this.label4);
-            this.pnlSiteWildcard.Controls.Add(this.label3);
-            this.pnlSiteWildcard.Location = new System.Drawing.Point(9, 53);
-            this.pnlSiteWildcard.Margin = new System.Windows.Forms.Padding(4);
-            this.pnlSiteWildcard.Name = "pnlSiteWildcard";
-            this.pnlSiteWildcard.Size = new System.Drawing.Size(603, 252);
-            this.pnlSiteWildcard.TabIndex = 3;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(8, 192);
-            this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(502, 17);
-            this.label10.TabIndex = 9;
-            this.label10.Text = "Only when using vanity url\'s specify the full SharePoint Online admin center url";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(7, 217);
-            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(99, 17);
-            this.label9.TabIndex = 8;
-            this.label9.Text = "Admin  center:";
-            this.label9.Click += new System.EventHandler(this.label9_Click);
-            // 
-            // txtSitesAdminCenterUrl
-            // 
-            this.txtSitesAdminCenterUrl.Location = new System.Drawing.Point(115, 213);
-            this.txtSitesAdminCenterUrl.Margin = new System.Windows.Forms.Padding(4);
-            this.txtSitesAdminCenterUrl.Name = "txtSitesAdminCenterUrl";
-            this.txtSitesAdminCenterUrl.Size = new System.Drawing.Size(471, 22);
-            this.txtSitesAdminCenterUrl.TabIndex = 7;
-            this.ttAuthentication.SetToolTip(this.txtSitesAdminCenterUrl, "SPO Admin center url (e.g. https://spoadmin.contoso.com). Only needed when using " +
-        "SPO with vanity urls (= urls that not end on .sharepoint.com)");
-            this.txtSitesAdminCenterUrl.TextChanged += new System.EventHandler(this.txtSitesAdminCenterUrl_TextChanged);
-            // 
-            // btnSitesClearUrls
-            // 
-            this.btnSitesClearUrls.Location = new System.Drawing.Point(487, 123);
-            this.btnSitesClearUrls.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSitesClearUrls.Name = "btnSitesClearUrls";
-            this.btnSitesClearUrls.Size = new System.Drawing.Size(100, 28);
-            this.btnSitesClearUrls.TabIndex = 6;
-            this.btnSitesClearUrls.Text = "Clear";
-            this.btnSitesClearUrls.UseVisualStyleBackColor = true;
-            this.btnSitesClearUrls.Click += new System.EventHandler(this.btnSitesClearUrls_Click);
-            // 
-            // btnSitesRemoveUrl
-            // 
-            this.btnSitesRemoveUrl.Location = new System.Drawing.Point(487, 87);
-            this.btnSitesRemoveUrl.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSitesRemoveUrl.Name = "btnSitesRemoveUrl";
-            this.btnSitesRemoveUrl.Size = new System.Drawing.Size(100, 28);
-            this.btnSitesRemoveUrl.TabIndex = 5;
-            this.btnSitesRemoveUrl.Text = "Remove";
-            this.btnSitesRemoveUrl.UseVisualStyleBackColor = true;
-            this.btnSitesRemoveUrl.Click += new System.EventHandler(this.btnSitesRemoveUrl_Click);
-            // 
-            // btnSitesAddUrl
-            // 
-            this.btnSitesAddUrl.Location = new System.Drawing.Point(487, 36);
-            this.btnSitesAddUrl.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSitesAddUrl.Name = "btnSitesAddUrl";
-            this.btnSitesAddUrl.Size = new System.Drawing.Size(100, 28);
-            this.btnSitesAddUrl.TabIndex = 4;
-            this.btnSitesAddUrl.Text = "Add";
-            this.btnSitesAddUrl.UseVisualStyleBackColor = true;
-            this.btnSitesAddUrl.Click += new System.EventHandler(this.btnSitesAddUrl_Click);
-            // 
-            // lstSitesUrlsToScan
-            // 
-            this.lstSitesUrlsToScan.FormattingEnabled = true;
-            this.lstSitesUrlsToScan.ItemHeight = 16;
-            this.lstSitesUrlsToScan.Location = new System.Drawing.Point(115, 66);
-            this.lstSitesUrlsToScan.Margin = new System.Windows.Forms.Padding(4);
-            this.lstSitesUrlsToScan.Name = "lstSitesUrlsToScan";
-            this.lstSitesUrlsToScan.Size = new System.Drawing.Size(352, 116);
-            this.lstSitesUrlsToScan.TabIndex = 3;
-            this.lstSitesUrlsToScan.SelectedIndexChanged += new System.EventHandler(this.lstSitesUrlsToScan_SelectedIndexChanged);
-            // 
-            // txtSitesUrlToAdd
-            // 
-            this.txtSitesUrlToAdd.Location = new System.Drawing.Point(115, 36);
-            this.txtSitesUrlToAdd.Margin = new System.Windows.Forms.Padding(4);
-            this.txtSitesUrlToAdd.Name = "txtSitesUrlToAdd";
-            this.txtSitesUrlToAdd.Size = new System.Drawing.Size(352, 22);
-            this.txtSitesUrlToAdd.TabIndex = 2;
-            this.ttAuthentication.SetToolTip(this.txtSitesUrlToAdd, "Add one or more (wildcard) urls (e.g. https://contoso.sharepoint.com/sites/a*)");
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(11, 36);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(74, 17);
-            this.label4.TabIndex = 1;
-            this.label4.Text = "Url to add:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(11, 14);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(477, 17);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Add one or more (wildcard) url\'s. Url\'s ending on a * are valid wild card urls";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
-            // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1187,14 +1187,6 @@
             this.optionsPage.ResumeLayout(false);
             this.optionsPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).EndInit();
-            this.authPage.ResumeLayout(false);
-            this.authPage.PerformLayout();
-            this.pnlCredentials.ResumeLayout(false);
-            this.pnlCredentials.PerformLayout();
-            this.pnlAzureACS.ResumeLayout(false);
-            this.pnlAzureACS.PerformLayout();
-            this.pnlAzureAD.ResumeLayout(false);
-            this.pnlAzureAD.PerformLayout();
             this.scopePage.ResumeLayout(false);
             this.scopePage.PerformLayout();
             this.pnlSiteFiles.ResumeLayout(false);
@@ -1203,6 +1195,14 @@
             this.pnlSiteTenant.PerformLayout();
             this.pnlSiteWildcard.ResumeLayout(false);
             this.pnlSiteWildcard.PerformLayout();
+            this.authPage.ResumeLayout(false);
+            this.authPage.PerformLayout();
+            this.pnlCredentials.ResumeLayout(false);
+            this.pnlCredentials.PerformLayout();
+            this.pnlAzureACS.ResumeLayout(false);
+            this.pnlAzureACS.PerformLayout();
+            this.pnlAzureAD.ResumeLayout(false);
+            this.pnlAzureAD.PerformLayout();
             this.ResumeLayout(false);
 
         }

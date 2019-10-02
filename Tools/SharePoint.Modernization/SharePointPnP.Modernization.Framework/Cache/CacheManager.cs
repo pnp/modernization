@@ -28,8 +28,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<Guid, string> siteToComponentMapping;
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
+        private ConcurrentDictionary<uint, string> blogListNames;
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
-        private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;      
+        private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;
         private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
         private ConcurrentDictionary<string, string> contentTypes;
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
@@ -57,12 +58,15 @@ namespace SharePointPnP.Modernization.Framework.Cache
             fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>(10, 10);
             AssetsTransfered = new List<AssetTransferredEntity>();
             publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>(10, 10);
+            blogListNames = new ConcurrentDictionary<uint, string>(10, 10);
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
             generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
             userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
             contentTypes = new ConcurrentDictionary<string, string>();
             publishingContentTypeFields = new ConcurrentDictionary<string, List<FieldData>>();
             SharepointVersions = new ConcurrentDictionary<Uri, SPVersion>();
+            ExactSharepointVersions = new ConcurrentDictionary<Uri, string>();
+            AADTenantId = new ConcurrentDictionary<Uri, Guid>();
         }
         #endregion
 
@@ -71,6 +75,15 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// </summary>
         public ConcurrentDictionary<Uri, SPVersion> SharepointVersions { get; }
 
+        /// <summary>
+        /// List of URLs and Exact SharePoint Versions
+        /// </summary>
+        public ConcurrentDictionary<Uri, string> ExactSharepointVersions { get; }
+
+        /// <summary>
+        /// AADTenantID's used
+        /// </summary>
+        public ConcurrentDictionary<Uri, Guid> AADTenantId { get; }
 
         #region Asset Transfer
         /// <summary>
@@ -89,7 +102,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns></returns>
         public List<ClientSideComponent> GetClientSideComponents(ClientSidePage page)
         {
-            Guid webId = page.Context.Web.EnsureProperty(o=>o.Id);
+            Guid webId = page.Context.Web.EnsureProperty(o => o.Id);
 
             if (siteToComponentMapping.ContainsKey(webId))
             {
@@ -176,16 +189,16 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// Get the list of fields that need to be copied from cache. If cache is empty the list will be calculated
         /// </summary>
         /// <param name="web">Web to operate against</param>
-        /// <param name="pagesLibrary">Pages library instance</param>
+        /// <param name="sourceLibrary">Pages library instance</param>
         /// <returns>List of fields that need to be copied</returns>
-        public List<FieldData> GetFieldsToCopy(Web web, List pagesLibrary)
+        public List<FieldData> GetFieldsToCopy(Web web, List sourceLibrary, string pageType)
         {
             List<FieldData> fieldsToCopyRetrieved = new List<FieldData>();
 
             // Did we already do the calculation for this sitepages library? If so then return from cache
-            if (fieldsToCopy.ContainsKey(pagesLibrary.Id.ToString()))
+            if (fieldsToCopy.ContainsKey(sourceLibrary.Id.ToString()))
             {
-                if (fieldsToCopy.TryGetValue(pagesLibrary.Id.ToString(), out List<FieldData> fields))
+                if (fieldsToCopy.TryGetValue(sourceLibrary.Id.ToString(), out List<FieldData> fields))
                 {
                     return fields;
                 }
@@ -199,22 +212,22 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     var sitePagesInBaseTemplate = baseTemplate.Lists.Where(p => p.Url == "SitePages").FirstOrDefault();
 
                     // Compare site pages list fields
-                    foreach (var sitePagesField in pagesLibrary.Fields.Where(p => p.Hidden == false).ToList())
+                    foreach (var sourceField in sourceLibrary.Fields.Where(p => p.Hidden == false).ToList())
                     {
                         // Skip OOB fields
-                        if (!OfficeDevPnP.Core.Enums.BuiltInFieldId.Contains(sitePagesField.Id))
+                        if (!IsBuiltInField(pageType.Equals("BlogPage", StringComparison.InvariantCultureIgnoreCase), sourceField.Id))
                         {
                             if (sitePagesInBaseTemplate != null)
                             {
-                                var fieldFoundInBaseSitePages = sitePagesInBaseTemplate.FieldRefs.Where(p => p.Name == sitePagesField.StaticName).FirstOrDefault();
+                                var fieldFoundInBaseSitePages = sitePagesInBaseTemplate.FieldRefs.Where(p => p.Name == sourceField.StaticName).FirstOrDefault();
                                 if (fieldFoundInBaseSitePages == null)
                                 {
                                     // copy metadata for this field
                                     FieldData fieldToAdd = new FieldData()
                                     {
-                                        FieldName = sitePagesField.StaticName,
-                                        FieldId = sitePagesField.Id,
-                                        FieldType = sitePagesField.TypeAsString,
+                                        FieldName = sourceField.StaticName,
+                                        FieldId = sourceField.Id,
+                                        FieldType = sourceField.TypeAsString,
                                     };
 
                                     fieldsToCopyRetrieved.Add(fieldToAdd);
@@ -224,7 +237,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     }
 
                     // Add to cache
-                    if (fieldsToCopy.TryAdd(pagesLibrary.Id.ToString(), fieldsToCopyRetrieved))
+                    if (fieldsToCopy.TryAdd(sourceLibrary.Id.ToString(), fieldsToCopyRetrieved))
                     {
                         return fieldsToCopyRetrieved;
                     }
@@ -246,61 +259,51 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             ClientContext context = pagesLibrary.Context as ClientContext;
 
-            // Get the content type object
-            var ctCol = pagesLibrary.ContentTypes;
-            var ctType = context.LoadQuery(ctCol.Where(item => item.StringId == contentTypeId));
+            // Load all fields of the list
+            FieldCollection fields = pagesLibrary.Fields;
+            context.Load(fields, fs => fs.Include(f => f.Id, f => f.TypeAsString, f => f.InternalName));
             context.ExecuteQueryRetry();
 
-            if (ctType.FirstOrDefault() != null)
+            List<FieldData> contentTypeFieldsInList = new List<FieldData>();
+            foreach (var field in fields)
             {
-                // Load all fields
-                FieldCollection fields = ctType.FirstOrDefault().Fields;
-                context.Load(fields, fs => fs.Include(f => f.Id, f => f.TypeAsString, f => f.InternalName));
-                context.ExecuteQueryRetry();
-
-                List<FieldData> contentTypeFields = new List<FieldData>();
-                foreach (var field in fields)
+                contentTypeFieldsInList.Add(new FieldData()
                 {
-                    contentTypeFields.Add(new FieldData()
-                    {
-                        FieldId = field.Id,
-                        FieldName = field.InternalName,
-                        FieldType = field.TypeAsString,
-                    });
-                }
-
-                var authorField = new FieldData()
-                {
-                    FieldId = new Guid("1df5e554-ec7e-46a6-901d-d85a3881cb18"),
-                    FieldName = "Author",
-                    FieldType = "User",
-                };
-
-                var editorField = new FieldData()
-                {
-                    FieldId = new Guid("d31655d1-1d5b-4511-95a1-7a09e9b75bf2"),
-                    FieldName = "Editor",
-                    FieldType = "User",
-                };
-
-                if (!contentTypeFields.Contains(authorField))
-                {
-                    contentTypeFields.Add(authorField);
-                }
-
-                if (!contentTypeFields.Contains(editorField))
-                {
-                    contentTypeFields.Add(editorField);
-                }
-
-                // Store in cache
-                this.publishingContentTypeFields.TryAdd(contentTypeId, contentTypeFields);
-                
-                // Return field, if found
-                return contentTypeFields.Where(p => p.FieldName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    FieldId = field.Id,
+                    FieldName = field.InternalName,
+                    FieldType = field.TypeAsString,
+                });
             }
 
-            return null;
+            var authorField = new FieldData()
+            {
+                FieldId = new Guid("1df5e554-ec7e-46a6-901d-d85a3881cb18"),
+                FieldName = "Author",
+                FieldType = "User",
+            };
+
+            var editorField = new FieldData()
+            {
+                FieldId = new Guid("d31655d1-1d5b-4511-95a1-7a09e9b75bf2"),
+                FieldName = "Editor",
+                FieldType = "User",
+            };
+
+            if (!contentTypeFieldsInList.Contains(authorField))
+            {
+                contentTypeFieldsInList.Add(authorField);
+            }
+
+            if (!contentTypeFieldsInList.Contains(editorField))
+            {
+                contentTypeFieldsInList.Add(editorField);
+            }
+
+            // Store in cache
+            this.publishingContentTypeFields.TryAdd(contentTypeId, contentTypeFieldsInList);
+
+            // Return field, if found
+            return contentTypeFieldsInList.Where(p => p.FieldName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         }
 
         /// <summary>
@@ -359,7 +362,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     if (!string.IsNullOrEmpty(keyVal))
                     {
                         var list = context.Web.GetListById(Guid.Parse(keyVal), o => o.RootFolder.ServerRelativeUrl);
-                        var webServerRelativeUrl = context.Web.EnsureProperty(w => w.ServerRelativeUrl);                        
+                        var webServerRelativeUrl = context.Web.EnsureProperty(w => w.ServerRelativeUrl);
 
                         pagesLibraryName = list.RootFolder.ServerRelativeUrl.Replace(webServerRelativeUrl, "").Trim('/').ToLower();
 
@@ -392,6 +395,55 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return pagesLibraryName;
         }
 
+        #endregion
+
+        #region Blog list name
+        /// <summary>
+        /// Get translation for the blog list name
+        /// </summary>
+        /// <param name="context">Context of the site</param>
+        /// <returns>Translated name of the blog list</returns>
+        public string GetBlogListName(ClientContext context)
+        {
+            string blogListName = "posts";
+
+            if (context == null)
+            {
+                return blogListName;
+            }
+
+            uint lcid = context.Web.EnsureProperty(p => p.Language);
+            if (blogListNames.ContainsKey(lcid))
+            {
+                if (blogListNames.TryGetValue(lcid, out string name))
+                {
+                    return name;
+                }
+                else
+                {
+                    // let's fallback to the default...we should never get here unless there's some threading issue
+                    return blogListName;
+                }
+            }
+            else
+            {
+                // Fall back to older logic
+                ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:blogpost_Folder", "core", int.Parse(lcid.ToString()));
+                context.ExecuteQueryRetry();
+
+                var altBlogListName = new Regex(@"['´`]").Replace(result.Value, "");
+
+                if (string.IsNullOrEmpty(altBlogListName))
+                {
+                    return blogListName;
+                }
+
+                // add to cache
+                blogListNames.TryAdd(lcid, altBlogListName.ToLower());
+
+                return altBlogListName.ToLower();
+            }
+        }
         #endregion
 
         #region Resource strings
@@ -504,7 +556,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             this.AssetsTransfered.Clear();
             ClearClientSideComponents();
             ClearBaseTemplate();
-            
+
             this.urlMapping = null;
             ClearFieldsToCopy();
             ClearSharePointVersions();
@@ -632,7 +684,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             if (results.FirstOrDefault() != null)
             {
                 contentTypeId = results.FirstOrDefault().StringId;
-                
+
                 // We only allow content types that inherit from the OOB Site Page content type
                 if (!contentTypeId.StartsWith(Constants.ModernPageContentTypeId, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -690,7 +742,33 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 fieldRefs.Add(new OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRef(name) { Id = Id });
             }
         }
+
+        private bool IsBuiltInField(bool isBlog, Guid fieldId)
+        {
+            if (OfficeDevPnP.Core.Enums.BuiltInFieldId.Contains(fieldId))
+            {
+                if (isBlog)
+                {
+                    // Always allow the PostCategory field
+                    if (fieldId.Equals(Constants.PostCategory))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
         #endregion
     }
 }
- 

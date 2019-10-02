@@ -60,6 +60,7 @@
           <xs:enumeration value="LinkPreview" />
           <xs:enumeration value="NewsFeed" />
           <xs:enumeration value="NewsReel" />
+          <xs:enumeration value="News" />
           <xs:enumeration value="PowerBIReportEmbed" />
           <xs:enumeration value="QuickChart" />
           <xs:enumeration value="SiteActivity" />

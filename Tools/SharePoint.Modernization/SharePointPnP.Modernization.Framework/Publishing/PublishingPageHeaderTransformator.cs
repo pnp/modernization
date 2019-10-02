@@ -163,22 +163,29 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 headerField.Name = this.publishingPageTransformationInformation.GetFirstNonEmptyFieldName(targetFieldNames);
             }
 
-            string fieldValue = null;
-            if (!string.IsNullOrEmpty(headerField.Functions))
+            if (!string.IsNullOrEmpty(headerField.Name))
             {
-                // execute function
-                var evaluatedField = this.functionProcessor.Process(headerField.Functions, headerField.Name, fieldType);
-                if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                string fieldValue = null;
+                if (!string.IsNullOrEmpty(headerField.Functions))
                 {
-                    fieldValue = evaluatedField.Item2;
+                    // execute function
+                    var evaluatedField = this.functionProcessor.Process(headerField.Functions, headerField.Name, fieldType);
+                    if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                    {
+                        fieldValue = evaluatedField.Item2;
+                    }
                 }
+                else
+                {
+                    fieldValue = this.publishingPageTransformationInformation.SourcePage.FieldValues[headerField.Name]?.ToString().Trim();
+                }
+
+                return fieldValue;
             }
             else
             {
-                fieldValue = this.publishingPageTransformationInformation.SourcePage.FieldValues[headerField.Name]?.ToString().Trim();
+                return null;
             }
-
-            return fieldValue;
         }
 
         private static HeaderField GetHeaderField(PageLayout publishingPageTransformationModel, HeaderFieldHeaderProperty fieldName)

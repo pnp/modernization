@@ -131,6 +131,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 }
             }
+            else
+            {
+                LogInfo(LogStrings.AnalyserNoLayoutsFound, LogStrings.Heading_PageLayoutAnalyser);
+            }
         }
 
         /// <summary>
@@ -204,6 +208,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     _mapping.PageLayouts = new[] { layoutMapping };
                 }
 
+                LogInfo(string.Format(LogStrings.AnalyserMappingLayout, layoutMapping.Name), LogStrings.Heading_PageLayoutAnalyser);
+
                 return layoutMapping;
 
             }catch(Exception ex)
@@ -238,9 +244,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
             else
             {
-                // Add logging here
-                throw new ArgumentNullException("Page layout could not be determined by the publishing page");
+                LogWarning(LogStrings.Warning_PageLayoutsCannotBeDetermined, LogStrings.Heading_PageLayoutAnalyser);
             }
+
+            return null;
         }
 
         /// <summary>
@@ -280,7 +287,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     xmlMapping.Serialize(sw, _mapping);
                 }
 
-                LogInfo($"{LogStrings.XmlMappingSavedAs}: {mappingFileName}");
+                LogInfo($"{LogStrings.XmlMappingSavedAs}: {mappingFileName}", LogStrings.Heading_PageLayoutAnalyser);
                 return mappingFileName;
             }
             catch (Exception ex)
@@ -300,60 +307,72 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// </summary>
         internal ListItemCollection GetAllPageLayouts()
         {
-            var masterPageGallery = _siteCollContext.Web.GetCatalog((int)ListTemplateType.MasterPageCatalog);
-            _siteCollContext.Load(masterPageGallery, x => x.RootFolder.ServerRelativeUrl);
-
-            var query = new CamlQuery
+            try
             {
-                // Use query Scope='RecursiveAll' to iterate through sub folders of Master page library because we might have file in folder hierarchy
-                // Ensure that we are getting layouts with at least one published version, not hidden layouts
-                ViewXml =
-                $"<View Scope='RecursiveAll'>" +
-                    $"<Query>" +
-                        $"<Where>" +
-                            $"<And>" +
-                                $"<Contains>" +
-                                    $"<FieldRef Name='File_x0020_Type'/><Value Type='Text'>aspx</Value>" +
-                                $"</Contains>" +
+                var masterPageGallery = _siteCollContext.Web.GetCatalog((int)ListTemplateType.MasterPageCatalog);
+                _siteCollContext.Load(masterPageGallery, x => x.RootFolder.ServerRelativeUrl);
+
+                var query = new CamlQuery
+                {
+                    // Use query Scope='RecursiveAll' to iterate through sub folders of Master page library because we might have file in folder hierarchy
+                    // Ensure that we are getting layouts with at least one published version, not hidden layouts
+                    ViewXml =
+                    $"<View Scope='RecursiveAll'>" +
+                        $"<Query>" +
+                            $"<Where>" +
                                 $"<And>" +
+                                    $"<Contains>" +
+                                        $"<FieldRef Name='File_x0020_Type'/><Value Type='Text'>aspx</Value>" +
+                                    $"</Contains>" +
                                     $"<And>" +
-                                        $"<Geq>" +
-                                            $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
-                                        $"</Geq>" +
-                                        $"<BeginsWith>" +
-                                            $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{Constants.PageLayoutBaseContentTypeId}</Value>" +
-                                        $"</BeginsWith>" +
+                                        $"<And>" +
+                                            $"<Geq>" +
+                                                $"<FieldRef Name='_UIVersionString'/><Value Type='Text'>1.0</Value>" +
+                                            $"</Geq>" +
+                                            $"<BeginsWith>" +
+                                                $"<FieldRef Name='ContentTypeId'/><Value Type='ContentTypeId'>{Constants.PageLayoutBaseContentTypeId}</Value>" +
+                                            $"</BeginsWith>" +
+                                        $"</And>" +
+                                        $"<Or>" +
+                                            $"<Eq>" +
+                                                $"<FieldRef Name='PublishingHidden'/><Value Type='Boolean'>0</Value>" +
+                                            $"</Eq>" +
+                                            $"<IsNull>" +
+                                                $"<FieldRef Name='PublishingHidden'/>" +
+                                            $"</IsNull>" +
+                                        $"</Or>" +
                                     $"</And>" +
-                                    $"<Or>" +
-                                        $"<Eq>" +
-                                            $"<FieldRef Name='PublishingHidden'/><Value Type='Boolean'>0</Value>" +
-                                        $"</Eq>" +
-                                        $"<IsNull>" +
-                                            $"<FieldRef Name='PublishingHidden'/>" +
-                                        $"</IsNull>" +
-                                    $"</Or>" +
                                 $"</And>" +
-                            $"</And>" +
-                         $"</Where>" +
-                    $"</Query>" +
-                    $"<ViewFields>" +
-                        $"<FieldRef Name='{Constants.PublishingAssociatedContentTypeField}' />" +
-                        $"<FieldRef Name='PublishingHidden' />" +
-                        $"<FieldRef Name='Title' />" +
-                    $"</ViewFields>" +
-                  $"</View>"
-            };
+                             $"</Where>" +
+                        $"</Query>" +
+                        $"<ViewFields>" +
+                            $"<FieldRef Name='{Constants.PublishingAssociatedContentTypeField}' />" +
+                            $"<FieldRef Name='PublishingHidden' />" +
+                            $"<FieldRef Name='Title' />" +
+                        $"</ViewFields>" +
+                      $"</View>"
+                };
 
-            var galleryItems = masterPageGallery.GetItems(query);
-            _siteCollContext.Load(masterPageGallery);
-            _siteCollContext.Load(galleryItems);
-            _siteCollContext.Load(galleryItems, i => i.Include(o => o.DisplayName),
-                i => i.Include(o => o.File),
-                i => i.Include(o => o.File.ServerRelativeUrl));
+                var galleryItems = masterPageGallery.GetItems(query);
+                _siteCollContext.Load(masterPageGallery);
+                _siteCollContext.Load(galleryItems);
+                _siteCollContext.Load(galleryItems, i => i.Include(o => o.DisplayName),
+                    i => i.Include(o => o.File),
+                    i => i.Include(o => o.File.ServerRelativeUrl));
 
-            _siteCollContext.ExecuteQueryRetry();
+                _siteCollContext.ExecuteQueryRetry();
 
-            return galleryItems.Count > 0 ? galleryItems : null;
+                var galleryItemsCount = galleryItems.Count;
+                LogInfo(String.Format(LogStrings.AnalyserFoundItems, galleryItemsCount), LogStrings.Heading_PageLayoutAnalyser);
+
+                return galleryItemsCount > 0 ? galleryItems : null;
+
+            }catch(Exception ex)
+            {
+                LogError(LogStrings.Error_AnalyserCouldNotFindLayouts, LogStrings.Heading_PageLayoutAnalyser, ex);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -364,51 +383,59 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             List<MetaDataField> fields = new List<MetaDataField>();
 
-            // Get unique field types for which we've defined web part mapping defaults
-            List<string> fieldTypesToSkip = new List<string>();
-            foreach(var defaultWebPartField in PublishingDefaults.WebPartFieldProperties)
+            try
             {
-                if (!fieldTypesToSkip.Contains(defaultWebPartField.FieldType))
-                {
-                    fieldTypesToSkip.Add(defaultWebPartField.FieldType);
-                }
-            }
 
-            // Skip hidden fields by default
-            foreach (var spField in spFields.Where(o => o.Hidden == false))
-            {
-                if (!PublishingDefaults.IgnoreMetadataFields.Any(o => o.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)))
+                // Get unique field types for which we've defined web part mapping defaults
+                List<string> fieldTypesToSkip = new List<string>();
+                foreach (var defaultWebPartField in PublishingDefaults.WebPartFieldProperties)
                 {
-                    // Was this field already defined as a field that will be mapped to a web part? If so it can't be a metadata field
-                    if (webPartFields.Where(p => p.Name.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)).Any())
+                    if (!fieldTypesToSkip.Contains(defaultWebPartField.FieldType))
                     {
-                        continue;
+                        fieldTypesToSkip.Add(defaultWebPartField.FieldType);
                     }
+                }
 
-                    // Was this field already defined as a field that will be mapped to a header property? If so it can't be a metadata field
-                    if (extractedHeader != null)
+                // Skip hidden fields by default
+                foreach (var spField in spFields.Where(o => o.Hidden == false))
+                {
+                    if (!PublishingDefaults.IgnoreMetadataFields.Any(o => o.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        if (extractedHeader.Field.Where(p => p.Name.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)).Any())
+                        // Was this field already defined as a field that will be mapped to a web part? If so it can't be a metadata field
+                        if (webPartFields.Where(p => p.Name.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)).Any())
                         {
                             continue;
                         }
-                    }
 
-                    // Any field of a type that by default has as target a web part typically is not meant as metadata field for users
-                    if (fieldTypesToSkip.Contains(spField.TypeAsString))
-                    {
-                        continue;
-                    }
+                        // Was this field already defined as a field that will be mapped to a header property? If so it can't be a metadata field
+                        if (extractedHeader != null)
+                        {
+                            if (extractedHeader.Field.Where(p => p.Name.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase)).Any())
+                            {
+                                continue;
+                            }
+                        }
 
-                    // Load the default mapping information for this field
-                    var defaultMapping = PublishingDefaults.MetaDataFieldToTargetMappings.FirstOrDefault(o => o.FieldName.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase));
-                    fields.Add(new MetaDataField()
-                    {
-                        Name = spField.InternalName,
-                        Functions = defaultMapping?.Functions ?? "",
-                        TargetFieldName = defaultMapping?.TargetFieldName ?? "",
-                    });
+                        // Any field of a type that by default has as target a web part typically is not meant as metadata field for users
+                        if (fieldTypesToSkip.Contains(spField.TypeAsString))
+                        {
+                            continue;
+                        }
+
+                        // Load the default mapping information for this field
+                        var defaultMapping = PublishingDefaults.MetaDataFieldToTargetMappings.FirstOrDefault(o => o.FieldName.Equals(spField.InternalName, StringComparison.InvariantCultureIgnoreCase));
+                        fields.Add(new MetaDataField()
+                        {
+                            Name = spField.InternalName,
+                            Functions = defaultMapping?.Functions ?? "",
+                            TargetFieldName = defaultMapping?.TargetFieldName ?? "",
+                        });
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogError(LogStrings.Error_AnalyserErrorOccurredExtractMetadata, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
 
             return fields.ToArray();
@@ -427,37 +454,44 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             var tagPrefixes = new List<Tuple<string, string>>();
 
-            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
-            var fileUrl = pageLayout.File.ServerRelativeUrl;
-            string fileHtml = LoadPageLayoutFile(fileUrl);
-
-            using (var document = this.parser.Parse(fileHtml))
+            try
             {
-                Regex regex = new Regex("&lt;%@(.*?)%&gt;", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-                var aspxHeader = document.All.Where(o => o.TagName == "HTML").FirstOrDefault();
-                var results = regex.Matches(aspxHeader?.InnerHtml);
+                pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
+                var fileUrl = pageLayout.File.ServerRelativeUrl;
+                string fileHtml = LoadPageLayoutFile(fileUrl);
 
-                StringBuilder blockHtml = new StringBuilder();
-                foreach (var match in results)
+                using (var document = this.parser.Parse(fileHtml))
                 {
-                    var matchString = match.ToString().Replace("&lt;%@ ", "<").Replace("%&gt;", " />");
-                    blockHtml.AppendLine(matchString);
-                }
+                    Regex regex = new Regex("&lt;%@(.*?)%&gt;", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                    var aspxHeader = document.All.Where(o => o.TagName == "HTML").FirstOrDefault();
+                    var results = regex.Matches(aspxHeader?.InnerHtml);
 
-                var fullBlock = blockHtml.ToString();
-                using (var subDocument = this.parser.Parse(fullBlock))
-                {
-                    var registers = subDocument.All.Where(o => o.TagName == "REGISTER");
-
-                    foreach (var register in registers)
+                    StringBuilder blockHtml = new StringBuilder();
+                    foreach (var match in results)
                     {
-                        var prefix = register.GetAttribute("Tagprefix");
-                        var nameSpace = register.GetAttribute("Namespace");
-                        tagPrefixes.Add(new Tuple<string, string>(prefix, nameSpace));
+                        var matchString = match.ToString().Replace("&lt;%@ ", "<").Replace("%&gt;", " />");
+                        blockHtml.AppendLine(matchString);
+                    }
+
+                    var fullBlock = blockHtml.ToString();
+                    using (var subDocument = this.parser.Parse(fullBlock))
+                    {
+                        var registers = subDocument.All.Where(o => o.TagName == "REGISTER");
+
+                        foreach (var register in registers)
+                        {
+                            var prefix = register.GetAttribute("Tagprefix");
+                            var nameSpace = register.GetAttribute("Namespace");
+                            tagPrefixes.Add(new Tuple<string, string>(prefix, nameSpace));
+                        }
+
                     }
 
                 }
-
+            }
+            catch (Exception ex)
+            {
+                LogError(LogStrings.Error_AnalyserErrorOccurredExtractNamespaces, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
 
             return tagPrefixes;
@@ -475,160 +509,167 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             ExtractedHtmlBlocksEntity extractedHtmlBlocks = new ExtractedHtmlBlocksEntity();
 
-            // Data from SharePoint
-            pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
-            var fileUrl = pageLayout.File.ServerRelativeUrl;
-            var fileHtml = LoadPageLayoutFile(fileUrl);
-
-            // replace cdata tags to 'fool' AngleSharp
-            fileHtml = fileHtml.Replace("<![CDATA[", "<encodeddata>");
-            fileHtml = fileHtml.Replace("]]>", "</encodeddata>");
-
-            using (var document = this.parser.Parse(fileHtml))
+            try
             {
+                // Data from SharePoint
+                pageLayout.EnsureProperties(o => o.File, o => o.File.ServerRelativeUrl);
+                var fileUrl = pageLayout.File.ServerRelativeUrl;
+                var fileHtml = LoadPageLayoutFile(fileUrl);
 
-                // Item 1 - WebPart Name, Item 2 - Full assembly reference
-                List<Tuple<string, string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
-                List<IEnumerable<IElement>> multipleTagFinds = new List<IEnumerable<IElement>>();
+                // replace cdata tags to 'fool' AngleSharp
+                fileHtml = fileHtml.Replace("<![CDATA[", "<encodeddata>");
+                fileHtml = fileHtml.Replace("]]>", "</encodeddata>");
 
-                //List of all the assembly references and prefixes in the page
-                List<Tuple<string, string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(pageLayout);
-
-                // Determine the possible web parts from the page from the namespaces used in the aspx header
-                prefixesAndNameSpaces.ForEach(p =>
+                using (var document = this.parser.Parse(fileHtml))
                 {
-                    var possibleParts = WebParts.GetListOfWebParts(p.Item2);
-                    foreach (var part in possibleParts)
-                    {
-                        var webPartName = part.Substring(0, part.IndexOf(",")).Replace($"{p.Item2}.", "");
-                        possibleWebPartsUsed.Add(new Tuple<string, string>(webPartName, part));
-                    }
-                });
 
-                // Cycle through all the nodes in the document
-                foreach (var docNode in document.All)
-                {
-                    foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
+                    // Item 1 - WebPart Name, Item 2 - Full assembly reference
+                    List<Tuple<string, string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
+                    List<IEnumerable<IElement>> multipleTagFinds = new List<IEnumerable<IElement>>();
+
+                    //List of all the assembly references and prefixes in the page
+                    List<Tuple<string, string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(pageLayout);
+
+                    // Determine the possible web parts from the page from the namespaces used in the aspx header
+                    prefixesAndNameSpaces.ForEach(p =>
                     {
-                        if (docNode.TagName.Contains(prefixAndNameSpace.Item1.ToUpper()))
+                        var possibleParts = WebParts.GetListOfWebParts(p.Item2);
+                        foreach (var part in possibleParts)
                         {
+                            var webPartName = part.Substring(0, part.IndexOf(",")).Replace($"{p.Item2}.", "");
+                            possibleWebPartsUsed.Add(new Tuple<string, string>(webPartName, part));
+                        }
+                    });
 
-                            // Expand, as this may contain many elements
-                            //foreach (var control in tagFind)
-                            //{
-
-                            var attributes = docNode.Attributes;
-
-                            if (attributes.Any(o => o.Name == "fieldname"))
+                    // Cycle through all the nodes in the document
+                    foreach (var docNode in document.All)
+                    {
+                        foreach (var prefixAndNameSpace in prefixesAndNameSpaces)
+                        {
+                            if (docNode.TagName.Contains(prefixAndNameSpace.Item1.ToUpper()))
                             {
 
-                                var fieldName = attributes["fieldname"].Value;
+                                // Expand, as this may contain many elements
+                                //foreach (var control in tagFind)
+                                //{
 
-                                //DeDup - Some controls can be inside an edit panel
-                                if (!extractedHtmlBlocks.WebPartFields.Any(o => o.Name == fieldName))
+                                var attributes = docNode.Attributes;
+
+                                if (attributes.Any(o => o.Name == "fieldname"))
                                 {
-                                    List<WebPartProperty> webPartProperties = new List<WebPartProperty>();
 
-                                    foreach (var attr in attributes)
+                                    var fieldName = attributes["fieldname"].Value;
+
+                                    //DeDup - Some controls can be inside an edit panel
+                                    if (!extractedHtmlBlocks.WebPartFields.Any(o => o.Name == fieldName))
                                     {
-                                        // This might need a filter
+                                        List<WebPartProperty> webPartProperties = new List<WebPartProperty>();
 
-                                        webPartProperties.Add(new WebPartProperty()
-                                        {
-                                            Name = attr.Name,
-                                            Type = WebPartProperyType.@string,
-                                            Functions = "" // Need defaults here
-                                        });
-                                    }
-
-                                    extractedHtmlBlocks.WebPartFields.Add(new WebPartField()
-                                    {
-                                        Name = fieldName,
-                                        TargetWebPart = "",
-                                        Row = 1,
-                                        //RowSpecified = true,
-                                        Column = 1,
-                                        //ColumnSpecified = true,
-                                        Property = webPartProperties.ToArray()
-                                    });
-                                }
-                            }
-
-                            if (docNode.TagName.Contains("WEBPARTZONE"))
-                            {
-
-                                extractedHtmlBlocks.WebPartZones.Add(new WebPartZone()
-                                {
-                                    ZoneId = docNode.Id,
-                                    Column = 1,
-                                    Row = 1,
-                                    //ZoneIndex = control. // TODO: Is this used?
-                                });
-                            }
-
-                            //Fixed web part zone
-                            //This should only find one match
-                            var matchedParts = possibleWebPartsUsed.Where(o => o.Item1.ToUpper() == docNode.TagName.Replace($"{prefixAndNameSpace.Item1.ToUpper()}:", ""));
-
-                            if (matchedParts.Any())
-                            {
-                                var match = matchedParts.FirstOrDefault();
-                                if (match != default(Tuple<string, string>))
-                                {
-                                    //Process Child properties
-                                    List<FixedWebPartProperty> fixedProperties = new List<FixedWebPartProperty>();
-                                    if (docNode.HasChildNodes && docNode.FirstElementChild != null && docNode.FirstElementChild.HasChildNodes)
-                                    {
-                                        var childProperties = docNode.FirstElementChild.ChildNodes;
-                                        foreach (var childProp in childProperties)
-                                        {
-
-                                            if (childProp.NodeName != "#text")
-                                            {
-                                                var stronglyTypedChild = (IElement)childProp;
-                                                //var content = !string.IsNullOrEmpty(childProp.TextContent) ? childProp.TextContent : stronglyTypedChild.InnerHtml;
-                                                var content = stronglyTypedChild.InnerHtml;
-
-                                                fixedProperties.Add(new FixedWebPartProperty()
-                                                {
-                                                    Name = stronglyTypedChild.NodeName,
-                                                    Type = WebPartProperyType.@string,
-                                                    Value = EncodingAndCleanUpContent(content)
-                                                });
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // Another scenario where there are no child nodes, just attributes
                                         foreach (var attr in attributes)
                                         {
                                             // This might need a filter
 
-                                            fixedProperties.Add(new FixedWebPartProperty()
+                                            webPartProperties.Add(new WebPartProperty()
                                             {
                                                 Name = attr.Name,
                                                 Type = WebPartProperyType.@string,
-                                                Value = attr.Value
+                                                Functions = "" // Need defaults here
                                             });
                                         }
-                                    }
 
-                                    extractedHtmlBlocks.FixedWebParts.Add(new FixedWebPart()
+                                        extractedHtmlBlocks.WebPartFields.Add(new WebPartField()
+                                        {
+                                            Name = fieldName,
+                                            TargetWebPart = "",
+                                            Row = 1,
+                                            //RowSpecified = true,
+                                            Column = 1,
+                                            //ColumnSpecified = true,
+                                            Property = webPartProperties.ToArray()
+                                        });
+                                    }
+                                }
+
+                                if (docNode.TagName.Contains("WEBPARTZONE"))
+                                {
+
+                                    extractedHtmlBlocks.WebPartZones.Add(new WebPartZone()
                                     {
+                                        ZoneId = docNode.Id,
                                         Column = 1,
-                                        //ColumnSpecified = true,
                                         Row = 1,
-                                        //RowSpecified = true,
-                                        Type = match.Item2,
-                                        Property = fixedProperties.ToArray()
+                                        //ZoneIndex = control. // TODO: Is this used?
                                     });
+                                }
+
+                                //Fixed web part zone
+                                //This should only find one match
+                                var matchedParts = possibleWebPartsUsed.Where(o => o.Item1.ToUpper() == docNode.TagName.Replace($"{prefixAndNameSpace.Item1.ToUpper()}:", ""));
+
+                                if (matchedParts.Any())
+                                {
+                                    var match = matchedParts.FirstOrDefault();
+                                    if (match != default(Tuple<string, string>))
+                                    {
+                                        //Process Child properties
+                                        List<FixedWebPartProperty> fixedProperties = new List<FixedWebPartProperty>();
+                                        if (docNode.HasChildNodes && docNode.FirstElementChild != null && docNode.FirstElementChild.HasChildNodes)
+                                        {
+                                            var childProperties = docNode.FirstElementChild.ChildNodes;
+                                            foreach (var childProp in childProperties)
+                                            {
+
+                                                if (childProp.NodeName != "#text")
+                                                {
+                                                    var stronglyTypedChild = (IElement)childProp;
+                                                    //var content = !string.IsNullOrEmpty(childProp.TextContent) ? childProp.TextContent : stronglyTypedChild.InnerHtml;
+                                                    var content = stronglyTypedChild.InnerHtml;
+
+                                                    fixedProperties.Add(new FixedWebPartProperty()
+                                                    {
+                                                        Name = stronglyTypedChild.NodeName,
+                                                        Type = WebPartProperyType.@string,
+                                                        Value = EncodingAndCleanUpContent(content)
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // Another scenario where there are no child nodes, just attributes
+                                            foreach (var attr in attributes)
+                                            {
+                                                // This might need a filter
+
+                                                fixedProperties.Add(new FixedWebPartProperty()
+                                                {
+                                                    Name = attr.Name,
+                                                    Type = WebPartProperyType.@string,
+                                                    Value = attr.Value
+                                                });
+                                            }
+                                        }
+
+                                        extractedHtmlBlocks.FixedWebParts.Add(new FixedWebPart()
+                                        {
+                                            Column = 1,
+                                            //ColumnSpecified = true,
+                                            Row = 1,
+                                            //RowSpecified = true,
+                                            Type = match.Item2,
+                                            Property = fixedProperties.ToArray()
+                                        });
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(LogStrings.Error_AnalyserErrorOccurredExtractHtmlBlocks, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
 
             return extractedHtmlBlocks;
@@ -663,6 +704,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         #region Helper methods
         private string LoadPageLayoutFile(string fileUrl)
         {
+
             // Try to get from cache
             if (_pageLayoutFileCache.TryGetValue(fileUrl, out string fileContentsFromCache))
             {
@@ -718,61 +760,69 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             List<WebPartField> cleanedWebPartFields = new List<WebPartField>();
 
-            foreach (var webPartField in webPartFields)
+            try
             {
-                if (PublishingDefaults.IgnoreWebPartFieldControls.Contains(webPartField.Name))
-                {
-                    // This is field we're ignoring as it's not meant to be translated into a web part on the modern page
-                    continue;
-                }
 
-                Guid fieldId = Guid.Empty;
-                Guid.TryParse(webPartField.Name, out fieldId);
-
-                // Find the field, we'll use the field's type to get the 'default' transformation behaviour
-                var spField = spFields.Where(p => p.StaticName.Equals(webPartField.Name, StringComparison.InvariantCultureIgnoreCase) || p.Id == fieldId).FirstOrDefault();
-                if (spField != null)
+                foreach (var webPartField in webPartFields)
                 {
-                    var webPartFieldDefaults = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));
-                    if (webPartFieldDefaults.Any())
+                    if (PublishingDefaults.IgnoreWebPartFieldControls.Contains(webPartField.Name))
                     {
-                        // Copy basic fields
-                        WebPartField wpf = new WebPartField()
-                        {
-                            Name = spField.StaticName,
-                            Row = webPartField.Row,
-                            //RowSpecified = webPartField.RowSpecified,
-                            Column = webPartField.Column,
-                            //ColumnSpecified = webPartField.ColumnSpecified,
-                            TargetWebPart = webPartFieldDefaults.First().TargetWebPart,
-                        };
+                        // This is field we're ignoring as it's not meant to be translated into a web part on the modern page
+                        continue;
+                    }
 
-                        if(fieldId != Guid.Empty)
-                        {
-                            wpf.FieldId = fieldId.ToString();
-                        }
+                    Guid fieldId = Guid.Empty;
+                    Guid.TryParse(webPartField.Name, out fieldId);
 
-                        // Copy the default target web part properties
-                        var properties = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));
-                        if (properties.Any())
+                    // Find the field, we'll use the field's type to get the 'default' transformation behaviour
+                    var spField = spFields.Where(p => p.StaticName.Equals(webPartField.Name, StringComparison.InvariantCultureIgnoreCase) || p.Id == fieldId).FirstOrDefault();
+                    if (spField != null)
+                    {
+                        var webPartFieldDefaults = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));
+                        if (webPartFieldDefaults.Any())
                         {
-                            List<WebPartProperty> webPartProperties = new List<WebPartProperty>();
-                            foreach (var property in properties)
+                            // Copy basic fields
+                            WebPartField wpf = new WebPartField()
                             {
-                                webPartProperties.Add(new WebPartProperty()
-                                {
-                                    Name = property.Name,
-                                    Type = this.CastToEnum<WebPartProperyType>(property.Type),
-                                    Functions = property.Functions,
-                                });
+                                Name = spField.StaticName,
+                                Row = webPartField.Row,
+                                //RowSpecified = webPartField.RowSpecified,
+                                Column = webPartField.Column,
+                                //ColumnSpecified = webPartField.ColumnSpecified,
+                                TargetWebPart = webPartFieldDefaults.First().TargetWebPart,
+                            };
+
+                            if (fieldId != Guid.Empty)
+                            {
+                                wpf.FieldId = fieldId.ToString();
                             }
 
-                            wpf.Property = webPartProperties.ToArray();
-                        }
+                            // Copy the default target web part properties
+                            var properties = PublishingDefaults.WebPartFieldProperties.Where(p => p.FieldType.Equals(spField.TypeAsString));
+                            if (properties.Any())
+                            {
+                                List<WebPartProperty> webPartProperties = new List<WebPartProperty>();
+                                foreach (var property in properties)
+                                {
+                                    webPartProperties.Add(new WebPartProperty()
+                                    {
+                                        Name = property.Name,
+                                        Type = this.CastToEnum<WebPartProperyType>(property.Type),
+                                        Functions = property.Functions,
+                                    });
+                                }
 
-                        cleanedWebPartFields.Add(wpf);
+                                wpf.Property = webPartProperties.ToArray();
+                            }
+
+                            cleanedWebPartFields.Add(wpf);
+                        }
                     }
                 }
+
+            }catch(Exception ex)
+            {
+                LogError(LogStrings.Error_AnalyserCleaningExtractedWebPartFields, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
 
             return cleanedWebPartFields;
@@ -785,37 +835,47 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <param name="layoutMapping"></param>
         private Header ExtractPageHeaderFromPageLayoutAssociatedContentType(FieldCollection spFields)
         {
-            // If we've a publishing rollup image then let's try to use that as page header image...at conversion time we'll still switch back to no header in case there
-            // was no publishing rollup image set at content level
-            if (spFields.Where(p=>p.InternalName.Equals("PublishingRollupImage", StringComparison.InvariantCultureIgnoreCase)).Any())
+            try
             {
-                var pageLayoutHeaderFields = PublishingDefaults.PageLayoutHeaderMetadata.Where(o => o.Type.Equals("FullWidthImage", StringComparison.InvariantCultureIgnoreCase));
-                var header = new Header() {
-                    Type = HeaderType.FullWidthImage,
-                    Alignment = this.CastToEnum<HeaderAlignment>(pageLayoutHeaderFields.First().Alignment),
-                    ShowPublishedDate = pageLayoutHeaderFields.First().ShowPublishedDate,
-                    ShowPublishedDateSpecified = true,
-                };
-
-                List<HeaderField> headerFields = new List<HeaderField>();
-                foreach (var field in pageLayoutHeaderFields)
+                // If we've a publishing rollup image then let's try to use that as page header image...at conversion time we'll still switch back to no header in case there
+                // was no publishing rollup image set at content level
+                if (spFields.Where(p => p.InternalName.Equals("PublishingRollupImage", StringComparison.InvariantCultureIgnoreCase)).Any())
                 {
-                    headerFields.Add(new HeaderField()
+                    var pageLayoutHeaderFields = PublishingDefaults.PageLayoutHeaderMetadata.Where(o => o.Type.Equals("FullWidthImage", StringComparison.InvariantCultureIgnoreCase));
+                    var header = new Header()
                     {
-                        Name = field.Name,
-                        HeaderProperty = this.CastToEnum<HeaderFieldHeaderProperty>(field.HeaderProperty),
-                        Functions = field.Functions
-                    });
+                        Type = HeaderType.FullWidthImage,
+                        Alignment = this.CastToEnum<HeaderAlignment>(pageLayoutHeaderFields.First().Alignment),
+                        ShowPublishedDate = pageLayoutHeaderFields.First().ShowPublishedDate,
+                        ShowPublishedDateSpecified = true,
+                    };
+
+                    List<HeaderField> headerFields = new List<HeaderField>();
+                    foreach (var field in pageLayoutHeaderFields)
+                    {
+                        headerFields.Add(new HeaderField()
+                        {
+                            Name = field.Name,
+                            HeaderProperty = this.CastToEnum<HeaderFieldHeaderProperty>(field.HeaderProperty),
+                            Functions = field.Functions
+                        });
+                    }
+
+                    header.Field = headerFields.ToArray();
+
+                    return header;
+                }
+                else
+                {
+                    return null;
                 }
 
-                header.Field = headerFields.ToArray();
-
-                return header;
-            }
-            else
+            }catch(Exception ex)
             {
-                return null;
+                LogError(LogStrings.Error_AnalyserExtractPageHeaderFromPageLayout, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
+
+            return null;
         }
 
         /// <summary>

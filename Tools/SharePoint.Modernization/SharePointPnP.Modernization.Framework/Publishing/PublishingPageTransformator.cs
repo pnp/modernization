@@ -160,7 +160,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(targetClientContext, true);
 
-                SetAADTenantId(sourceClientContext, targetClientContext);
+                PopulateGlobalProperties(sourceClientContext, targetClientContext);
 
                 if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
                 {
@@ -179,7 +179,25 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     throw new ArgumentException(LogStrings.Error_CrossSiteTransferTargetsNonModernSite, LogStrings.Heading_SharePointConnection);
                 }
 
+                // Ensure PostAsNews is used together with PagePublishing
+                if (publishingPageTransformationInformation.PostAsNews && !publishingPageTransformationInformation.PublishCreatedPage)
+                {
+                    publishingPageTransformationInformation.PublishCreatedPage = true;
+                    LogWarning(LogStrings.Warning_PostingAPageAsNewsRequiresPagePublishing, LogStrings.Heading_Summary);
+                }
+
+                // Store the information of the source page we do want to retain
+                if (publishingPageTransformationInformation.KeepPageCreationModificationInformation)
+                {
+                    StoreSourcePageInformationToKeep(publishingPageTransformationInformation.SourcePage);
+                }
+
                 LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
+
+                var spVersion = publishingPageTransformationInformation.SourceVersion;
+                var exactSpVersion = publishingPageTransformationInformation.SourceVersionNumber;
+                LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
+                LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
@@ -308,7 +326,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Grab the pagelayout mapping to use:
                 var pageLayoutMappingModel = new PageLayoutManager(this.RegisteredLogObservers).GetPageLayoutMappingModel(this.publishingPageTransformation, publishingPageTransformationInformation.SourcePage);
 
-                var spVersion = GetVersion(sourceClientContext);
+                
 
                 if (spVersion == SPVersion.SP2010 || spVersion == SPVersion.SP2013Legacy || spVersion == SPVersion.SP2016Legacy)
                 {
@@ -481,10 +499,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
                     targetPageFile.Update();
 
-                    if (publishingPageTransformationInformation.PublishCreatedPage)
+                    // In case of KeepPageCreationModificationInformation and PostAsNews the publishing is handled at the very end of the flow, so skip it right here
+                    if (!publishingPageTransformationInformation.KeepPageCreationModificationInformation && 
+                        !publishingPageTransformationInformation.PostAsNews && 
+                        publishingPageTransformationInformation.PublishCreatedPage)
                     {
                         // Try to publish, if publish is not needed/possible (e.g. when no minor/major versioning set) then this will return an error that we'll be ignoring
-                        targetPageFile.Publish("Page modernization initial publish");
+                        targetPageFile.Publish(LogStrings.PublishMessage);
                     }
 
                     // Ensure we've the most recent page list item loaded, must be last statement before calling ExecuteQuery
@@ -519,7 +540,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     if (!skipSettingMigratedFromServerRendered)
                     {
                         targetPage.PageListItem[Constants.SPSitePageFlagsField] = ";#MigratedFromServerRendered;#";
-                        targetPage.PageListItem.Update();
+                        targetPage.PageListItem.UpdateOverwriteVersion();
                         context.Load(targetPage.PageListItem);
                         context.ExecuteQueryRetry();
                     }
@@ -536,6 +557,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     LogInfo(LogStrings.TransformDisablePageComments, LogStrings.Heading_ArticlePageHandling);
                 }
                 #endregion
+
+                #region Restore page author/editor/created/modified
+                if ((publishingPageTransformationInformation.KeepPageCreationModificationInformation && this.SourcePageAuthor != null && this.SourcePageEditor != null) || 
+                    publishingPageTransformationInformation.PostAsNews)
+                {
+                    UpdateTargetPageWithSourcePageInformation(targetPage.PageListItem, publishingPageTransformationInformation, serverRelativePathForModernPage, true);
+                }
+                #endregion
+
+                // NO page updates are allowed anymore past this point as otherwise the set page usage information and published/posted state will be impacted!
 
                 #region Telemetry
                 if (!publishingPageTransformationInformation.SkipTelemetry && this.pageTelemetry != null)
@@ -579,15 +610,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Cross site collection transfer, new page always takes the name of the old page
             if (!sourcePath.Contains($"/{this.publishingPagesLibraryName}"))
             {
-                // Source file was living outside of the site pages library
+                // Source file was living outside of the publishing pages library
                 targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower().TrimEnd(new[] { '/' })}/sitepages{targetPath}";
             }
             else
             {
-                // Page was living inside the sitepages library
-                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl}/{this.publishingPagesLibraryName}".ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower()}/sitepages{targetPath}";
+                // Page was living inside the publishing pages library
+                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibraryName}".ToLower(), "");
+                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower().TrimEnd(new[] { '/' })}/sitepages{targetPath}";
             }
 
             string returnUrl = $"{targetPath}{originalSourcePageName}";
@@ -686,10 +717,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     if (property.PropertyType == typeof(String) ||
                         property.PropertyType == typeof(bool))
                     {
+                        var propVal = property.GetValue(pti);
+
                         logs.Add(new LogEntry()
                         {
                             Heading = LogStrings.Heading_PageTransformationInfomation,
-                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {property.GetValue(pti)}"
+                            Message = $"{property.Name.FormatAsFriendlyTitle()} {LogStrings.KeyValueSeperatorToken} {propVal ?? "Not Specified"}"
                         });
                     }
                 }
