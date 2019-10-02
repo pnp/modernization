@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -23,6 +24,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// </summary>
     public class PageTransformator : BasePageTransformator
     {
+        private readonly Regex invalidCharsRegex = new Regex(@"[\*\?\|\\\t/:""'<>#{}%~&]", RegexOptions.Compiled);
+
+        private readonly Regex invalidRulesRegex = new Regex(@"\.{2,}", RegexOptions.Compiled);
+
+        private readonly Regex startEndRegex = new Regex(@"^[\. ]|[\. ]$", RegexOptions.Compiled);
+
+        private readonly Regex extraSpacesRegex = new Regex(" {2,}", RegexOptions.Compiled);
 
         #region Construction
         /// <summary>
@@ -240,7 +248,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (hasTargetContext)
                 {
                     LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
-                    LoadClientObject(targetClientContext,true);
+                    LoadClientObject(targetClientContext, true);
 
                     if (IsBlogPage(pageType))
                     {
@@ -385,7 +393,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         LogInfo(LogStrings.CrossSiteInUseUsingOriginalFileName, LogStrings.Heading_PageCreation);
                         if (IsBlogPage(pageType))
                         {
-                            pageTransformationInformation.TargetPageName = $"{GetFieldValue(pageTransformationInformation, Constants.TitleField).Replace(" ", "-")}-{GetFieldValue(pageTransformationInformation, Constants.IDField)}.aspx";
+                            var generatedBlogPageName = $"{GetFieldValue(pageTransformationInformation, Constants.TitleField).Replace(" ", "-")}-{GetFieldValue(pageTransformationInformation, Constants.IDField)}.aspx";
+
+                            // Based on this blog - http://www.simplyaprogrammer.com/2008/05/importing-files-into-sharepoint.html
+                            string sanitizedName = extraSpacesRegex.Replace(invalidRulesRegex.Replace(invalidCharsRegex.Replace(input: generatedBlogPageName, replacement: string.Empty).Trim(), "."), " ");
+
+                            while (startEndRegex.IsMatch(sanitizedName))
+                            {
+                                sanitizedName = startEndRegex.Replace(sanitizedName, string.Empty);
+                            }
+
+                            pageTransformationInformation.TargetPageName = sanitizedName;
                         }
                         else
                         {
@@ -553,7 +571,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                     else if (IsBlogPage(pageType))
                     {
-                        pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(isBlogPage:true);
+                        pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(isBlogPage: true);
                     }
                     else if (IsWebPartPage(pageType))
                     {
@@ -883,7 +901,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         context.ExecuteQueryRetry();
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Eat any exception
                 }
@@ -926,9 +944,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     finalListItemToUpdate = targetPage.PageListItem;
                 }
                 #endregion
-                
+
                 #region Restore page author/editor/created/modified
-                if ((pageTransformationInformation.SourcePage != null && pageTransformationInformation.KeepPageCreationModificationInformation && this.SourcePageAuthor != null && this.SourcePageEditor != null) || 
+                if ((pageTransformationInformation.SourcePage != null && pageTransformationInformation.KeepPageCreationModificationInformation && this.SourcePageAuthor != null && this.SourcePageEditor != null) ||
                     pageTransformationInformation.PostAsNews)
                 {
                     UpdateTargetPageWithSourcePageInformation(finalListItemToUpdate, pageTransformationInformation, serverRelativePathForModernPage, hasTargetContext);
@@ -978,7 +996,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             LogInfo("Swapping pages", LogStrings.Heading_SwappingPages);
             var sourcePageUrl = GetFieldValue(pageTransformationInformation, Constants.FileRefField);
             var orginalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField);
-            
+
             string sourcePath = sourcePageUrl.Replace(GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField), "");
             string targetPath = sourcePath;
 
@@ -1265,7 +1283,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 // Author source platforms do require account mapping, to be updated once that feature is available
                 if (sourcePlatformVersion == SPVersion.SPO)
-                {                    
+                {
                     using (var clonedTargetContext = targetClientSidePage.Context.Clone(targetClientSidePage.Context.Web.Url))
                     {
                         var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
@@ -1297,7 +1315,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, ex.Message), LogStrings.Heading_ArticlePageHandling);
             }
@@ -1329,13 +1347,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (pageTransformationInformation.CopyPageMetadata)
             {
-                sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, 
-                                                  l => l.Hidden, l => l.EffectiveBasePermissions, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl, 
+                sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title,
+                                                  l => l.Hidden, l => l.EffectiveBasePermissions, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl,
                                                   l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required));
             }
             else
             {
-                sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, 
+                sourceContext.Web.Context.Load(pagesLibrary, l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title,
                                                   l => l.Hidden, l => l.EffectiveBasePermissions, l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
             }
 
