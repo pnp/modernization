@@ -107,7 +107,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Warning_FieldNotFoundInSourcePage = "You specified field {0} in your page layout mapping, but that field is not available in the source page.";
         public const string Warning_PageLayoutsCannotBeDetermined = "Page layout could not be determined by the publishing page.";
         public const string Warning_PageHeaderAuthorNotSet = "The page author header could not be set. Error = {0}.";
-
+        public const string Warning_UserIsNotResolving = "User {0} can't be found, skipped assigning this user. Error: {1}";
         #endregion
 
         #region Status Messages

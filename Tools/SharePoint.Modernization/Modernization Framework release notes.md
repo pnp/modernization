@@ -43,6 +43,7 @@
 - Fix: Transfer of assets on root site collections now also works for sub sites of that root site collection #301 [pkbullock]
 - Changed default value from AddTableListImageAsImageWebPart to true 
 - Fix: Sanitized blog page names to remove special characters #309 [gautamdsheth]
+- When a user is not resolving via EnsureUser (e.g. because the user account was deleted) then a warning is logged during page metadata copying
 
 ## [September release - version 1.0.1909.0]
 

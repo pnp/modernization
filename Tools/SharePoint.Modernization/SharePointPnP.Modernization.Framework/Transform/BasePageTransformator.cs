@@ -504,16 +504,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 {
                                     using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
                                     {
-                                        var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
-                                        clonedTargetContext.Load(user);
-                                        clonedTargetContext.ExecuteQueryRetry();
-
-                                        // Prep a new FieldUserValue object instance and update the list item
-                                        var newUser = new FieldUserValue()
+                                        try
                                         {
-                                            LookupId = user.Id
-                                        };
-                                        targetPage.PageListItem[fieldToCopy.FieldName] = newUser;
+                                            var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
+                                            clonedTargetContext.Load(user);
+                                            clonedTargetContext.ExecuteQueryRetry();
+
+                                            // Prep a new FieldUserValue object instance and update the list item
+                                            var newUser = new FieldUserValue()
+                                            {
+                                                LookupId = user.Id
+                                            };
+                                            targetPage.PageListItem[fieldToCopy.FieldName] = newUser;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                        }
                                     }
                                 }
                                 else
@@ -523,20 +530,30 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     {
                                         foreach (var currentUser in (fieldValueToSet as Array))
                                         {
-                                            var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
-                                            clonedTargetContext.Load(user);
-                                            clonedTargetContext.ExecuteQueryRetry();
-
-                                            // Prep a new FieldUserValue object instance
-                                            var newUser = new FieldUserValue()
+                                            try
                                             {
-                                                LookupId = user.Id
-                                            };
+                                                var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
+                                                clonedTargetContext.Load(user);
+                                                clonedTargetContext.ExecuteQueryRetry();
 
-                                            userValues.Add(newUser);
+                                                // Prep a new FieldUserValue object instance
+                                                var newUser = new FieldUserValue()
+                                                {
+                                                    LookupId = user.Id
+                                                };
+
+                                                userValues.Add(newUser);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                            }
                                         }
 
-                                        targetPage.PageListItem[fieldToCopy.FieldName] = userValues.ToArray();
+                                        if (userValues.Count > 0)
+                                        {
+                                            targetPage.PageListItem[fieldToCopy.FieldName] = userValues.ToArray();
+                                        }
                                     }
                                 }
                             }
