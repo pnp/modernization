@@ -1403,8 +1403,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 var loadedUser = loadedUsers.FirstOrDefault();
                 if (loadedUser != null)
                 {
-                    result.Add("PersonName", loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "");
-                    result.Add("PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
+
+                    //TODO: "PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
                     result.Add("PersonUPN", loadedUser["UserName"] != null ? loadedUser["UserName"].ToString() : "");
                     result.Add("PersonRole", loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "");
                     result.Add("PersonDepartment", loadedUser["Department"] != null ? loadedUser["Department"].ToString() : "");
@@ -1420,6 +1420,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 {
                     person = personParts[2];
                 }
+
+                //TODO: User Mapping Plan - Replace the Person UPN value with the new mapping
 
                 result.Add("PersonName", "");
                 result.Add("PersonEmail", person);

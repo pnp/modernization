@@ -176,8 +176,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal void ApplyItemLevelPermissions(bool hasTargetContext, ListItem item, ListItemPermission lip, bool alwaysBreakItemLevelPermissions = false)
         {
 
-            //TODO: On-Prem User Mapping
-
             if (lip == null || item == null)
             {
                 return;
@@ -319,6 +317,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         internal Principal GetPrincipal(Web web, string principalInput, bool hasTargetContext = false)
         {
+            //TODO: On-Prem User Mapping
             Principal principal = web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
 
             if (principal == null)
@@ -495,6 +494,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         if (fieldToCopy.FieldType == "User" || fieldToCopy.FieldType == "UserMulti")
                         {
+                            //TODO: On-Prem User Mapping
+
                             if (pageTransformationInformation.IsCrossFarmTransformation)
                             {
                                 // we can't copy these fields in a cross farm scenario as we do not yet support user account mapping
