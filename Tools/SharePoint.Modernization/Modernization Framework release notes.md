@@ -44,6 +44,7 @@
 - Changed default value from AddTableListImageAsImageWebPart to true 
 - Fix: Sanitized blog page names to remove special characters #309 [gautamdsheth]
 - When a user is not resolving via EnsureUser (e.g. because the user account was deleted) then a warning is logged during page metadata copying
+- Fix: Calendar lists shown with the "All Events" and "Current Events" views are now correctly recognized as calendar #312
 
 ## [September release - version 1.0.1909.0]
 

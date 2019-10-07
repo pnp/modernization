@@ -310,7 +310,10 @@ namespace SharePointPnP.Modernization.Framework.Functions
             {
                 if (!string.IsNullOrEmpty(viewXml))
                 {
-                    if (viewXml.IndexOf("Type=\"CALENDAR\"", StringComparison.InvariantCultureIgnoreCase) > -1)
+                    // Detect calendar based on the specific Calendar view type
+                    if (viewXml.IndexOf("Type=\"CALENDAR\"", StringComparison.InvariantCultureIgnoreCase) > -1 ||
+                        // Detect calendar "All Events" and "Current Events" views based upon their OOB field list we're displaying
+                        viewXml.IndexOf("<ViewFields><FieldRef Name=\"fRecurrence\"/><FieldRef Name=\"WorkspaceLink\"/><FieldRef Name=\"LinkTitle\"/><FieldRef Name=\"Location\"/><FieldRef Name=\"EventDate\"/><FieldRef Name=\"EndDate\"/><FieldRef Name=\"fAllDayEvent\"/></ViewFields>", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return "Calendar";
                     }
