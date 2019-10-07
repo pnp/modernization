@@ -13,13 +13,20 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
     {
 
         [TestMethod]
-        public void UrlMappingFileLoadTest()
+        public void UserMappingFileLoadTest()
         {
             FileManager fm = new FileManager();
-            var mapping = fm.LoadUserMappingFile(@"..\..\Transform\Mapping\urlmapping_sample.csv");
+            var mapping = fm.LoadUserMappingFile(@"..\..\Transform\Mapping\usermapping_sample.csv");
 
             Assert.IsTrue(mapping.Count > 0);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void UserMappingFileNotFoundTest()
+        {
+            FileManager fm = new FileManager();
+            var mapping = fm.LoadUrlMappingFile(@"..\..\Transform\Mapping\idontexist_sample.csv");
+        }
     }
 }

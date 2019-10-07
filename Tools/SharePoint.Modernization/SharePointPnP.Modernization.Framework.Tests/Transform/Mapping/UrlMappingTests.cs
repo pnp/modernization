@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharePointPnP.Modernization.Framework.Tests.Transform
+namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
 {
     [TestClass]
-    public class MappingTests
+    public class UrlMappingTests
     {
         [TestMethod]
         public void UrlMappingFileLoadTest()
