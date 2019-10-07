@@ -796,6 +796,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 FieldUserValue pageAuthor = this.SourcePageAuthor;
                 FieldUserValue pageEditor = this.SourcePageEditor;
+                bool isOwner = false;
 
                 // Keeping page author information is only possible when staying in SPO...for cross site support we first do need user account mapping
                 var sourcePlatformVersion = baseTransformationInformation.SourceVersion;
@@ -811,6 +812,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         clonedTargetContext.Load(pageAuthorUser);
                         clonedTargetContext.Load(pageEditorUser);
                         clonedTargetContext.ExecuteQueryRetry();
+
+                        var currentUser = clonedTargetContext.Web.CurrentUser;
+                        clonedTargetContext.Load(currentUser, c => c.LoginName);
+                        clonedTargetContext.Load(clonedTargetContext.Web, w => w.EffectiveBasePermissions);
+                        clonedTargetContext.ExecuteQueryRetry();
+
+                        var permissions = clonedTargetContext.Web.GetUserEffectivePermissions(currentUser.LoginName);
+                        clonedTargetContext.ExecuteQueryRetry();
+
+                        isOwner = permissions.Value.Has(PermissionKind.ManagePermissions);
 
                         // Prep a new FieldUserValue object instance and update the list item
                         pageAuthor = new FieldUserValue()
@@ -829,11 +840,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     if (baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
                     {
-                        // All 4 fields have to be set!
-                        targetPage[Constants.CreatedByField] = pageAuthor;
-                        targetPage[Constants.ModifiedByField] = pageEditor;
-                        targetPage[Constants.CreatedField] = this.SourcePageCreated;
-                        targetPage[Constants.ModifiedField] = this.SourcePageModified;
+                        // Set author/editor/modified/created fields only if you are owner, else they are not set.
+                        if (isOwner)
+                        {
+                            // All 4 fields have to be set!
+                            targetPage[Constants.CreatedByField] = pageAuthor;
+                            targetPage[Constants.ModifiedByField] = pageEditor;
+                            targetPage[Constants.CreatedField] = this.SourcePageCreated;
+                            targetPage[Constants.ModifiedField] = this.SourcePageModified;
+                        }
+                        else
+                        {
+                            LogWarning("Since you are not the owner, the PageCreationModificationInformation can't be saved.", LogStrings.Heading_ArticlePageHandling);
+                        }
                     }
 
                     if (baseTransformationInformation.PostAsNews)
