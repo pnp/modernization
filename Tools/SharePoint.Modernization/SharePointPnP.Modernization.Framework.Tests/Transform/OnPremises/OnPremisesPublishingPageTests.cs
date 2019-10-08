@@ -82,6 +82,59 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
         }
 
         [TestMethod]
+        public void BasicOnPremPublishingPageUserMappingTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
+                    //"C:\temp\onprem-mapping-all-test.xml.xml"
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext);
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
+
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "ArticlePage-2010-Multiple");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test3");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Welcome-2013Legacy");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-SP2013-Test");
+
+                    pages.FailTestIfZero();
+
+                    foreach (var page in pages)
+                    {
+                        PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                            //Permissions are unlikely to work given cross domain
+                            KeepPageSpecificPermissions = false,
+
+                            // Replace User Mapping
+                            UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
+                        };
+
+                        Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
+
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                        var result = pageTransformator.Transform(pti);
+                    }
+
+                    pageTransformator.FlushObservers();
+
+                }
+            }
+        }
+
+        [TestMethod]
         public void OnPremPageLayout_AnalyzeByPages_Test()
         {
             using (var context = TestCommon.CreateOnPremisesClientContext())
