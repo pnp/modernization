@@ -1162,6 +1162,32 @@
       </Parameters>
     </Action>
 
+    <Action Name="~!Send Document to Repository~~id_actionSubmitFile/ {StringCategory=TXT}!~"
+      ClassName="Microsoft.SharePoint.WorkflowActions.WithKey.SubmitFileActivity"
+      Assembly="Microsoft.SharePoint.WorkflowActions"
+      AppliesTo="doclib"
+      Category="~!Core Actions~~id_actionSubmitFileCategory/ {StringCategory=TXT}{Duplicate=c'Match',wss.actions;id_actionSendEmailCategory}Category name that contains the most often used or most general actions!~"
+      UsesCurrentItem="true">
+      <RuleDesigner Sentence="~!Submit File using %1 to %2 with %3  (Output to %4)~~id_sentenceSubmitFile/ {StringCategory=TXT}  Sentence for send file action. %1 will be 'action': 'copy', 'move' or 'move and leave a link', %2 will be 'destination', %3 will be 'explanation'!~">
+        <FieldBind Field="Action" DesignerType="Dropdown" Id="1" Text="~!this action~~id_field1Action/ {StringCategory=TXT}!~">
+          <Option Name="~!Copy~~id_optCopy/ {StringCategory=TXT} Specifies that the file is copied to the destination location!~" Value="Copy"/>
+          <Option Name="~!Move~~id_optMove/ {StringCategory=TXT} Specifies that the file is moved to the destination location!~" Value="Move"/>
+          <Option Name="~!Move and Leave a Link~~id_optLink/ {StringCategory=TXT} Specifies that the file is moved to the destination location, but a link will be left in its place as a stub!~" Value="Link"/>
+        </FieldBind>
+        <FieldBind Field="Destination" Text="~!this destination router~~id_field2Destination/ {StringCategory=TXT} Url of the target where the file should be sent!~" Id="2" DesignerType="TextArea" />
+        <FieldBind Field="Explanation" Text="~!this explanation~~id_field3Explanation/ {StringCategory=TXT} Explanation as to why the file is being sent. Will be displayed in the audit log or stub if the action specifies to leave a link!~" Id="3" DesignerType="TextArea" />
+        <FieldBind Field="ReturnResult" Text="~!submit file result~~id_field4ReturnResult/ {StringCategory=TXT}!~" Id="4" DesignerType="ParameterNames" />
+      </RuleDesigner>
+      <Parameters>
+        <Parameter Name="Action"  Type="System.String, mscorlib" Direction="In" Description="~!Which of copy, move, or move and leave a link the workflow action should perform.~~id_actionDescription/ {StringCategory=TXT}!~"/>
+        <Parameter Name="Destination" Type="System.String, mscorlib" Direction="In" Description="~!The routing site the document will be sent to.~~id_destinationDescription/ {StringCategory=TXT}!~"/>
+        <Parameter Name="Explanation" Type="System.String, mscorlib" Direction="Optional" Description="~!Why the document is being sent.~~id_explanationDescription/ {StringCategory=TXT}!~"/>
+        <Parameter Name="ReturnResult" Type="System.String, mscorlib" Direction="Out" Description="~!The success or failure result of the send to action.~~id_resultDescription/ {StringCategory=TXT}!~" DesignerType="ParameterNames"/>
+        <Parameter Name="__Context" Type="Microsoft.SharePoint.WorkflowActions.WorkflowContext, Microsoft.SharePoint.WorkflowActions" Direction="In" DesignerType="Hide"/>
+        <Parameter Name="__ListId" Type="System.String, mscorlib" Direction="In" DesignerType="Hide"/>
+        <Parameter Name="__ListItem" Type="Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint" Direction="In" DesignerType="Hide"/>
+      </Parameters>
+    </Action>
   </Actions>
 
   <CompositeSteps>

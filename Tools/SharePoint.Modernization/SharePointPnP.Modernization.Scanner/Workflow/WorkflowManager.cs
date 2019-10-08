@@ -1,4 +1,6 @@
-﻿using SharePoint.Modernization.Scanner.Utilities;
+﻿using Microsoft.Graph;
+using Microsoft.ProjectServer.Client;
+using SharePoint.Modernization.Scanner.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,16 +34,43 @@ namespace SharePoint.Modernization.Scanner.Workflow
         }
         #endregion
 
+        public WorkflowTriggerAnalysis ParseWorkflowTriggers(bool onItemCreate, bool onItemChange, bool allowManual)
+        {
+            List<string> triggers = new List<string>();
+
+            if (onItemCreate)
+            {
+                triggers.Add("OnCreate");
+            }
+
+            if (onItemChange)
+            {
+                triggers.Add("OnChange");
+            }
+
+            if (allowManual)
+            {
+                triggers.Add("Manual");
+            }
+
+            return new WorkflowTriggerAnalysis() { WorkflowTriggers = triggers };
+        }
+
         /// <summary>
         /// Analysis a workflow definition and returns the used OOB actions
         /// </summary>
         /// <param name="workflowDefinition">Workflow definition to analyze</param>
         /// <param name="wfType">2010 or 2013 workflow</param>
         /// <returns>List of OOB actions used in the workflow</returns>
-        public List<string> ParseWorkflowDefinition(string workflowDefinition, WorkflowTypes wfType)
+        public WorkflowActionAnalysis ParseWorkflowDefinition(string workflowDefinition, WorkflowTypes wfType)
         {           
             try
             {
+                if (string.IsNullOrEmpty(workflowDefinition))
+                {
+                    return null;
+                }
+
                 var xmlDoc = new XmlDocument();
                 xmlDoc.Load(WebpartMappingLoader.GenerateStreamFromString(workflowDefinition));
 
@@ -74,9 +103,12 @@ namespace SharePoint.Modernization.Scanner.Workflow
 
                 // Iterate over the nodes and "identify the OOB activities"
                 List<string> usedOOBWorkflowActivities = new List<string>();
+                int actionCounter = 0;
+                int knownActionCounter = 0;
 
                 foreach (XmlNode node in nodes)
                 {
+                    actionCounter++;
                     WorkflowAction defaultOOBWorkflowAction = null;
 
                     if (wfType == WorkflowTypes.SP2010)
@@ -90,6 +122,7 @@ namespace SharePoint.Modernization.Scanner.Workflow
 
                     if (defaultOOBWorkflowAction != null)
                     {
+                        knownActionCounter++;
                         if (!usedOOBWorkflowActivities.Contains(defaultOOBWorkflowAction.ActionNameShort))
                         {
                             usedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
@@ -97,7 +130,7 @@ namespace SharePoint.Modernization.Scanner.Workflow
                     }
                 }
 
-                return usedOOBWorkflowActivities;
+                return new WorkflowActionAnalysis() { WorkflowActions = usedOOBWorkflowActivities, ActionCount = knownActionCounter };
             }
             catch (Exception ex)
             {

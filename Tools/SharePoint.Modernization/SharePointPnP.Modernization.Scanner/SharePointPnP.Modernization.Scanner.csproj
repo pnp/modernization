@@ -273,7 +273,9 @@
       <DependentUpon>sp2013wfmodel.xsd</DependentUpon>
     </Compile>
     <Compile Include="Workflow\WorkflowActions.cs" />
+    <Compile Include="Workflow\WorkflowActionAnalysis.cs" />
     <Compile Include="Workflow\WorkflowManager.cs" />
+    <Compile Include="Workflow\WorkflowTriggerAnalysis.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
