@@ -39,7 +39,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             TargetPageName = targetPageName;
             Overwrite = overwrite;
             HandleWikiImagesAndVideos = true;
-            AddTableListImageAsImageWebPart = false;
+            AddTableListImageAsImageWebPart = true;
             TargetPageTakesSourcePageName = false;
             KeepPageSpecificPermissions = true;
             CopyPageMetadata = false;
@@ -85,6 +85,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Configuration of the page header to apply
         /// </summary>
         public ClientSidePageHeader PageHeader { get; set; }
+
+        /// <summary>
+        /// Sets the page author in the page header similar to the original page author
+        /// </summary>
+        public bool SetAuthorInPageHeader { get; set; }
 
         /// <summary>
         /// Configuration driven by the presence of a modernization center

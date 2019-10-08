@@ -279,45 +279,61 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                     {
                                                         // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
                                                         // Important to use a cloned context to not mess up with the pending list item updates
-                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
+                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                                                         {
-                                                            var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
-                                                            clonedTargetContext.Load(user);
-                                                            clonedTargetContext.ExecuteQueryRetry();
-
-                                                            // Prep a new FieldUserValue object instance and update the list item
-                                                            var newUser = new FieldUserValue()
+                                                            try
                                                             {
-                                                                LookupId = user.Id
-                                                            };
-
-                                                            this.page.PageListItem[targetFieldData.FieldName] = newUser;
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.Url))
-                                                        {
-                                                            foreach (var currentUser in (fieldValueToSet as Array))
-                                                            {
-
-                                                                // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
-                                                                var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
+                                                                var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
                                                                 clonedTargetContext.Load(user);
                                                                 clonedTargetContext.ExecuteQueryRetry();
 
-                                                                // Prep a new FieldUserValue object instance
+                                                                // Prep a new FieldUserValue object instance and update the list item
                                                                 var newUser = new FieldUserValue()
                                                                 {
                                                                     LookupId = user.Id
                                                                 };
 
-                                                                userValues.Add(newUser);
+                                                                this.page.PageListItem[targetFieldData.FieldName] = newUser;
+                                                            }
+                                                            catch(Exception ex)
+                                                            {
+                                                                LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        List<FieldUserValue> userValues = new List<FieldUserValue>();
+                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
+                                                        {
+                                                            foreach (var currentUser in (fieldValueToSet as Array))
+                                                            {
+                                                                try
+                                                                {
+                                                                    // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                                    var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
+                                                                    clonedTargetContext.Load(user);
+                                                                    clonedTargetContext.ExecuteQueryRetry();
+
+                                                                    // Prep a new FieldUserValue object instance
+                                                                    var newUser = new FieldUserValue()
+                                                                    {
+                                                                        LookupId = user.Id
+                                                                    };
+
+                                                                    userValues.Add(newUser);
+                                                                }
+                                                                catch (Exception ex)
+                                                                {
+                                                                    LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                                                }
                                                             }
                                                         }
 
-                                                        this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();
+                                                        if (userValues.Count > 0)
+                                                        {
+                                                            this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();
+                                                        }
                                                     }
                                                 }
                                             }

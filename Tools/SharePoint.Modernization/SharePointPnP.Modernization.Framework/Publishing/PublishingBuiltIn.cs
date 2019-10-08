@@ -262,7 +262,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 if (!string.IsNullOrEmpty(siteIdString) && !string.IsNullOrEmpty(webIdString) && !string.IsNullOrEmpty(uniqueIdString) && !string.IsNullOrEmpty(extension))
                 {
-                    return $"{this.targetClientContext.Web.EnsureProperty(p => p.Url)}/_layouts/15/getpreview.ashx?guidSite={siteIdString}&guidWeb={webIdString}&guidFile={uniqueIdString}&ext={extension}";
+                    return $"{this.targetClientContext.Web.GetUrl()}/_layouts/15/getpreview.ashx?guidSite={siteIdString}&guidWeb={webIdString}&guidFile={uniqueIdString}&ext={extension}";
                 }
             }
 

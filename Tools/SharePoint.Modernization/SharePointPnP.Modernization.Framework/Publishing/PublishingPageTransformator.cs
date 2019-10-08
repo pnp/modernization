@@ -160,7 +160,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogDebug(LogStrings.LoadingTargetClientContext, LogStrings.Heading_SharePointConnection);
                 LoadClientObject(targetClientContext, true);
 
-                SetAADTenantId(sourceClientContext, targetClientContext);
+                PopulateGlobalProperties(sourceClientContext, targetClientContext);
 
                 if (sourceClientContext.Site.Id.Equals(targetClientContext.Site.Id))
                 {
@@ -194,8 +194,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
-                var spVersion = GetVersion(sourceClientContext);
-                var exactSpVersion = GetExactVersion(sourceClientContext);
+                var spVersion = publishingPageTransformationInformation.SourceVersion;
+                var exactSpVersion = publishingPageTransformationInformation.SourceVersionNumber;
                 LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
                 LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 

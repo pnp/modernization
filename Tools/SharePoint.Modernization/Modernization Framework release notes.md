@@ -12,7 +12,7 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [Unreleased]
+## [October release - version 1.0.1910.0]
 
 ### Added
 
@@ -22,23 +22,29 @@
 - Added error handling and logging points to the publishing page analyser #287 [pkbullock]
 - Reporting Enhancements #293 [pkbullock]
 - Added support for wiki page metadata copy across site collections #281 [gautamdsheth]
+- Support to populate the author shown in the modern page header with author information of the original page
 
 ### Changed
 
 - Fix: Handle web part loading of web parts embedded in publishing content fields when transforming from SP2010/2013/2016 #265
 - Fix: Returned modern page url is containing /pages/ when transforming publishing pages the from root site collection #262
-- Fix: Prevent unneeded intermediate versions of the created page
-- Fix: Support publishing page layout mapping files without a MetaData section (in case no metadata needs to be taken over)
+- Prevent unneeded intermediate versions of the created page
+- Support publishing page layout mapping files without a MetaData section (in case no metadata needs to be taken over)
 - Fix: Logging shows class name instead of data #273
 - Fix: Handle case where the publishing page header fields are not populated due to missing data in the source page
 - Fix: Option to insert 'hard coded' html content on the created target page now also works when transforming from SP2010/2013/2016
-- Fix: Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
-- Fix: Transform to the newer, more versatile, News web part versus the NewsReel #263
+- Log a warning when a metadata field defined in the used page layout mapping file does not exist in the source page
+- Transform to the newer, more versatile, News web part versus the NewsReel #263
 - Fix: Don't try to transfer CDN images from OnPrem root site collections #278 [gautamdsheth]
 - Fix: Remove asp prefixes from XML block when processing on-premises pages #280 [pkbullock]
 - Fix: Fetching the fields from the list instead of the content types for more robustness in metadata copy of publishing pages #279 [gautamdsheth]
 - Fix: Changed version request credentials to use clientContext credentials #289 [thechriskent]
 - Fix: If we've set a custom thumbnail value then we need to update the page html to mark the isDefaultThumbnail pageslicer property to false #290
+- Fix: Transfer of assets on root site collections now also works for sub sites of that root site collection #301 [pkbullock]
+- Changed default value from AddTableListImageAsImageWebPart to true 
+- Fix: Sanitized blog page names to remove special characters #309 [gautamdsheth]
+- When a user is not resolving via EnsureUser (e.g. because the user account was deleted) then a warning is logged during page metadata copying
+- Fix: Calendar lists shown with the "All Events" and "Current Events" views are now correctly recognized as calendar #312
 
 ## [September release - version 1.0.1909.0]
 

@@ -7,6 +7,7 @@ using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
 using System.Linq;
+using SharePointPnP.Modernization.Framework.Cache;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform
 {
@@ -65,7 +66,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetBlogsFromList("Posts", "P");
+                    var pages = sourceClientContext.Web.GetBlogsFromList(CacheManager.Instance.GetBlogListName(sourceClientContext), "k");
 
                     foreach (var page in pages)
                     {
@@ -82,6 +83,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
                             PostAsNews = true,
 
                             PublishCreatedPage = true,
+
+                            CopyPageMetadata = true,
+
+                            SetAuthorInPageHeader = true,
 
                             //AddTableListImageAsImageWebPart = true,
 
@@ -133,12 +138,12 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevTeamSiteUrl")))
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
                 {
                     var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPages("wpp_with");
+                    var pages = sourceClientContext.Web.GetPages("richtext_1");
 
                     foreach (var page in pages)
                     {
@@ -149,6 +154,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
                             // Don't log test runs
                             SkipTelemetry = true,
+
+                            CopyPageMetadata = true,
 
                             // ModernizationCenter options
                             //ModernizationCenterInformation = new ModernizationCenterInformation()

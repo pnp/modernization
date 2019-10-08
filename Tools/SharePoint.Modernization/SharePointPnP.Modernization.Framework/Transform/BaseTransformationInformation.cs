@@ -135,6 +135,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Indicates if this transformation spans farms (on-prem to online tenant, online tenant A to online tenant B)
         /// </summary>
         internal bool IsCrossFarmTransformation { get; set; }
+
+        /// <summary>
+        /// Indicates if the transformation spans site collections or whether it's an in-place page transformation
+        /// </summary>
+        internal bool IsCrossSiteTransformation { get; set; }
         
         /// <summary>
         /// SharePoint version of the source 
@@ -142,9 +147,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal SPVersion SourceVersion { get; set; }
 
         /// <summary>
+        /// SharePoint version number of the source 
+        /// </summary>
+        internal string SourceVersionNumber { get; set; }
+
+        /// <summary>
         /// SharePoint version of the target 
         /// </summary>
         internal SPVersion TargetVersion { get; set; }
+
+        /// <summary>
+        /// SharePoint version number of the target 
+        /// </summary>
+        internal string TargetVersionNumber { get; set; }
         #endregion
 
     }
