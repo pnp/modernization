@@ -8,7 +8,8 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ### Added
 
-- Workflow analysis components
+- Workflow report now contains an "upgradability" score based upon the mapping of workflow to Flow actions
+- Workflow report now also allows to filter on last change date of a workflow definition, this can be used to identify the recently changed workflows 
 
 ### Changed
 
