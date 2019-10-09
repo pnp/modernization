@@ -1,5 +1,4 @@
-﻿using Microsoft.Graph;
-using SharePoint.Scanning.Framework;
+﻿using SharePoint.Scanning.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +11,6 @@ namespace SharePoint.Modernization.Scanner.Results
             this.UsedActions = new List<string>();
             this.UnsupportedActionsInFlow = new List<string>();
             this.UsedTriggers = new List<string>();
-            this.UnsupportedTriggersInFlow = new List<string>();
             this.LastSubscriptionEdit = DateTime.MinValue;
             this.LastDefinitionEdit = DateTime.MinValue;
         }
@@ -61,14 +59,29 @@ namespace SharePoint.Modernization.Scanner.Results
 
         public List<string> UsedActions { get; set; }
 
-        public int ToFLowMappingPercentage { get; set; }
+        public int ToFLowMappingPercentage
+        {
+            get
+            {
+                if (ActionCount == 0)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return (int)(((double)(ActionCount - UnsupportedActionCount) / (double)ActionCount) * 100);
+                }
+            }
+        }
+
+        public int UnsupportedActionCount { get; set; }
 
         public List<string> UnsupportedActionsInFlow { get; set; }
 
         public List<string> UsedTriggers { get; set; }
-        public List<string> UnsupportedTriggersInFlow { get; set; }
 
         public DateTime LastSubscriptionEdit { get; set; }
+
         public DateTime LastDefinitionEdit { get; set; }
     }
 }

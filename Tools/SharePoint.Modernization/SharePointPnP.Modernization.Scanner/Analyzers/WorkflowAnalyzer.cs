@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections;
+﻿using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Workflow;
+using Microsoft.SharePoint.Client.WorkflowServices;
+using SharePoint.Modernization.Scanner.Results;
+using SharePoint.Modernization.Scanner.Workflow;
+using SharePoint.Scanning.Framework;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Microsoft.BusinessData.Runtime;
-using Microsoft.SharePoint.Client;
-using Microsoft.SharePoint.Client.Workflow;
-using Microsoft.SharePoint.Client.WorkflowServices;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-using SharePoint.Modernization.Scanner.Results;
-using SharePoint.Modernization.Scanner.Workflow;
-using SharePoint.Scanning.Framework;
 
 namespace SharePoint.Modernization.Scanner.Analyzers
 {
     /// <summary>
     /// Workflow analyzer
     /// </summary>
-    public class WorkflowAnalyzer: BaseAnalyzer
+    public class WorkflowAnalyzer : BaseAnalyzer
     {
         private class SP2010WorkFlowAssociation
         {
@@ -28,9 +25,9 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             public ContentType AssociatedContentType { get; set; }
         }
 
-        private static readonly string[] OOBWorkflowIDStarts = new string[] 
+        private static readonly string[] OOBWorkflowIDStarts = new string[]
         {
-            "e43856d2-1bb4-40ef-b08b-016d89a00", //Publishing approval
+            "e43856d2-1bb4-40ef-b08b-016d89a00",    // Publishing approval
             "3bfb07cb-5c6a-4266-849b-8d6711700409", // Collect feedback - 2010
             "46c389a4-6e18-476c-aa17-289b0c79fb8f", // Collect feedback
             "77c71f43-f403-484b-bcb2-303710e00409", // Collect signatures - 2010
@@ -42,7 +39,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             "dd19a800-37c1-43c0-816d-f8eb5f4a4145", // Disposition approval
         };
 
-        private System.Collections.Generic.List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
+        private List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
         private List workflowList;
         private List workflowCatalog;
 
@@ -55,7 +52,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
         /// <param name="scanJob">Job that launched this analyzer</param>
         public WorkflowAnalyzer(string url, string siteColUrl, ModernizationScanJob scanJob) : base(url, siteColUrl, scanJob)
         {
-            this.sp2010WorkflowAssociations = new System.Collections.Generic.List<SP2010WorkFlowAssociation>(20);            
+            this.sp2010WorkflowAssociations = new List<SP2010WorkFlowAssociation>(20);            
         }
         #endregion
 
@@ -149,6 +146,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     UsedActions = workFlowAnalysisResult?.WorkflowActions,
                                     ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
                                     UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                    UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                    UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
                                     LastDefinitionEdit = GetWorkflowPropertyDateTime(siteDefinition.Properties, "Definition.ModifiedDateUTC"),
                                     LastSubscriptionEdit = GetWorkflowPropertyDateTime(siteWorkflowSubscription.PropertyDefinitions, "SharePointWorkflowContext.Subscription.ModifiedDateUTC"),
                                 };
@@ -189,6 +188,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 SubscriptionId = Guid.Empty,
                                 UsedActions = workFlowAnalysisResult?.WorkflowActions,
                                 ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                                UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
                                 UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
                                 LastDefinitionEdit = GetWorkflowPropertyDateTime(siteDefinition.Properties, "Definition.ModifiedDateUTC"),
                             };
@@ -263,6 +264,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     UsedActions = workFlowAnalysisResult?.WorkflowActions,
                                     ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
                                     UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                    UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                    UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
                                     LastDefinitionEdit = GetWorkflowPropertyDateTime(listDefinition.Properties, "Definition.ModifiedDateUTC"),
                                     LastSubscriptionEdit = GetWorkflowPropertyDateTime(listWorkflowSubscription.PropertyDefinitions, "SharePointWorkflowContext.Subscription.ModifiedDateUTC"),
                                 };
@@ -305,6 +308,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 UsedActions = workFlowAnalysisResult?.WorkflowActions,
                                 ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
                                 UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
                                 LastDefinitionEdit = GetWorkflowPropertyDateTime(listDefinition.Properties, "Definition.ModifiedDateUTC"),
                             };
 
@@ -353,7 +358,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 }
 
                 // Process 2010 worflows
-                System.Collections.Generic.List<Guid> processedWorkflowAssociations = new System.Collections.Generic.List<Guid>(this.sp2010WorkflowAssociations.Count);
+                List<Guid> processedWorkflowAssociations = new List<Guid>(this.sp2010WorkflowAssociations.Count);
 
                 if (web.WorkflowTemplates.Count > 0)
                 {
@@ -410,6 +415,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     UsedActions = workFlowAnalysisResult?.WorkflowActions,
                                     ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
                                     UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                    UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                    UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
                                     LastDefinitionEdit = loadedWorkflow != null ? loadedWorkflow.Item2 : associatedWorkflow.WorkflowAssociation.Modified,
                                     LastSubscriptionEdit = associatedWorkflow.WorkflowAssociation.Modified,
                                 };

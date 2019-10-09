@@ -779,7 +779,7 @@ namespace SharePoint.Modernization.Scanner
                                                "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id",
                                                "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id",
                                                "Definition Changed On", "Subscription Changed On",
-                                               "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Unsupported Actions", "Unsupported Triggers" };
+                                               "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Unsupported Action Count", "Unsupported Actions" };
 
                 using (StreamWriter outfile = new StreamWriter(outputfile))
                 {
@@ -791,7 +791,7 @@ namespace SharePoint.Modernization.Scanner
                                                                                            ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
                                                                                            ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(),
                                                                                            workflow.Value.LastDefinitionEdit, workflow.Value.LastSubscriptionEdit,
-                                                                                           workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedTriggersInFlow))
+                                                                                           workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, workflow.Value.UnsupportedActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow))
                                                      )));
                     }
                 }

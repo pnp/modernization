@@ -15,6 +15,78 @@ namespace SharePoint.Modernization.Scanner.Workflow
         private static readonly Lazy<WorkflowManager> _lazyInstance = new Lazy<WorkflowManager>(() => new WorkflowManager());
         private WorkflowActions defaultWorkflowActions;
 
+        private static readonly string[] SP2013SupportedFlowActions = new string[]
+        {
+            "Microsoft.SharePoint.WorkflowServices.Activities.Comment",
+            "Microsoft.SharePoint.WorkflowServices.Activities.CallHTTPWebService",
+            "Microsoft.Activities.BuildDynamicValue",
+            "Microsoft.Activities.GetDynamicValueProperty",
+            "Microsoft.Activities.CountDynamicValueItems",
+            "Microsoft.SharePoint.WorkflowServices.Activities.SetField",
+            "System.Activities.Statements.Assign",
+            "Microsoft.SharePoint.WorkflowServices.Activities.CreateListItem",
+            "Microsoft.SharePoint.WorkflowServices.Activities.UpdateListItem",
+            "Microsoft.SharePoint.WorkflowServices.Activities.DeleteListItem",
+            "Microsoft.SharePoint.WorkflowServices.Activities.WaitForFieldChange",
+            "Microsoft.SharePoint.WorkflowServices.Activities.WaitForItemEvent",
+            "Microsoft.SharePoint.WorkflowServices.Activities.CheckOutItem",
+            "Microsoft.SharePoint.WorkflowServices.Activities.UndoCheckOutItem",
+            "Microsoft.SharePoint.WorkflowServices.Activities.CheckInItem",
+            "Microsoft.SharePoint.WorkflowServices.Activities.CopyItem",
+            "Microsoft.SharePoint.WorkflowServices.Activities.Email",
+            "Microsoft.Activities.Expressions.AddToDate",
+            "Microsoft.SharePoint.WorkflowServices.Activities.SetTimeField",
+            "Microsoft.SharePoint.WorkflowServices.Activities.DateInterval",
+            "Microsoft.SharePoint.WorkflowServices.Activities.ExtractSubstringFromEnd",
+            "Microsoft.SharePoint.WorkflowServices.Activities.ExtractSubstringFromStart",
+            "Microsoft.SharePoint.WorkflowServices.Activities.ExtractSubstringFromIndex",
+            "Microsoft.SharePoint.WorkflowServices.Activities.ExtractSubstringFromIndexLength",
+            "Microsoft.Activities.Expressions.Trim",
+            "Microsoft.Activities.Expressions.IndexOfString",
+            "Microsoft.Activities.Expressions.ReplaceString",
+            "Microsoft.SharePoint.WorkflowServices.Activities.DelayFor",
+            "Microsoft.SharePoint.WorkflowServices.Activities.DelayUntil",
+            "Microsoft.SharePoint.WorkflowServices.Activities.Calc",
+            "Microsoft.SharePoint.WorkflowServices.Activities.WriteToHistory",
+            "Microsoft.SharePoint.WorkflowServices.Activities.TranslateDocument",
+            "Microsoft.SharePoint.WorkflowServices.Activities.SetModerationStatus"
+        };
+
+        private static readonly string[] SP2010SupportedFlowActions = new string[]
+        {
+            "Microsoft.SharePoint.WorkflowActions.EmailActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.CollectDataTask",
+            "Microsoft.SharePoint.WorkflowActions.TodoItemTask",
+            "Microsoft.SharePoint.WorkflowActions.GroupAssignedTask",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.SetFieldActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.UpdateItemActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.CreateItemActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.CopyItemActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.CheckOutItemActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.CheckInItemActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.UndoCheckOutItemActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.DeleteItemActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.WaitForActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.WaitForDocumentStatusActivity",
+            "Microsoft.SharePoint.WorkflowActions.SetVariableActivity",
+            "Microsoft.SharePoint.WorkflowActions.BuildStringActivity",
+            "Microsoft.SharePoint.WorkflowActions.MathActivity",
+            "Microsoft.SharePoint.WorkflowActions.DelayForActivity",
+            "Microsoft.SharePoint.WorkflowActions.DelayUntilActivity",
+            "System.Workflow.ComponentModel.TerminateActivity",
+            "Microsoft.SharePoint.WorkflowActions.LogToHistoryListActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.SetModerationStatusActivity",
+            "Microsoft.SharePoint.WorkflowActions.AddTimeToDateActivity",
+            "Microsoft.SharePoint.WorkflowActions.SetTimeFieldActivity",
+            "Microsoft.SharePoint.WorkflowActions.DateIntervalActivity",
+            "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromEndActivity",
+            "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromStartActivity",
+            "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexActivity",
+            "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexLengthActivity",
+            "Microsoft.SharePoint.WorkflowActions.CommentActivity",
+            "Microsoft.SharePoint.WorkflowActions.PersistOnCloseActivity"
+        };
+
         /// <summary>
         /// Get's the single workflow manager instance, singleton pattern
         /// </summary>
@@ -103,12 +175,15 @@ namespace SharePoint.Modernization.Scanner.Workflow
 
                 // Iterate over the nodes and "identify the OOB activities"
                 List<string> usedOOBWorkflowActivities = new List<string>();
+                List<string> unsupportedOOBWorkflowActivities = new List<string>();
                 int actionCounter = 0;
                 int knownActionCounter = 0;
+                int unsupportedActionCounter = 0;
 
                 foreach (XmlNode node in nodes)
                 {
                     actionCounter++;
+                    
                     WorkflowAction defaultOOBWorkflowAction = null;
 
                     if (wfType == WorkflowTypes.SP2010)
@@ -127,10 +202,34 @@ namespace SharePoint.Modernization.Scanner.Workflow
                         {
                             usedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
                         }
+
+
+                        if (wfType == WorkflowTypes.SP2010)
+                        {
+                            if (!WorkflowManager.SP2010SupportedFlowActions.Contains(defaultOOBWorkflowAction.ActionName))
+                            {
+                                unsupportedActionCounter++;
+                                unsupportedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
+                            }
+                        }
+                        else if (wfType == WorkflowTypes.SP2013)
+                        {
+                            if (!WorkflowManager.SP2013SupportedFlowActions.Contains(defaultOOBWorkflowAction.ActionName))
+                            {
+                                unsupportedActionCounter++;
+                                unsupportedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
+                            }
+                        }
                     }
                 }
 
-                return new WorkflowActionAnalysis() { WorkflowActions = usedOOBWorkflowActivities, ActionCount = knownActionCounter };
+                return new WorkflowActionAnalysis()
+                {
+                    WorkflowActions = usedOOBWorkflowActivities,
+                    ActionCount = knownActionCounter,
+                    UnsupportedActions = unsupportedOOBWorkflowActivities,
+                    UnsupportedAccountCount = unsupportedActionCounter
+                };
             }
             catch (Exception ex)
             {
