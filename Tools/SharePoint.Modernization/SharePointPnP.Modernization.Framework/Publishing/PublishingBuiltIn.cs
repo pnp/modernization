@@ -17,7 +17,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private HtmlParser parser;
         private BuiltIn builtIn;
         private BaseTransformationInformation baseTransformationInformation;
-
+        private UserTransformator userTransformator;
 
         #region Construction
         /// <summary>
@@ -41,6 +41,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.baseTransformationInformation = baseTransformationInformation;
             this.parser = new HtmlParser();
             this.builtIn = new BuiltIn(this.baseTransformationInformation, targetClientContext, sourceClientContext, logObservers: logObservers);
+            this.userTransformator = new UserTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
         }
         #endregion
 

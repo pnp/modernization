@@ -50,10 +50,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 this._userMapping = CacheManager.Instance.GetUserMapping(baseTransformationInformation.UserMappingFile, logObservers);
             }
+            else
+            {
+                this._userMapping = default; //Pass through if there is no mapping
+            }
 
             _useOriginalValuesOnNoMatch = useOriginalValuesOnNoMatch;
 
         }
+
+        #endregion
 
         /*
          *  User Cases
@@ -63,16 +69,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
          *      
          */
 
-        public string ResolveUser(string originalUserValue)
+        /// <summary>
+        /// Remap principal to alternative mapping
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
+        public string RemapPrincipal(string principal)
         {
-            // Find Mapping
+            if(this._userMapping != default)
+            {
+                // Find Mapping
+                // We dont like mulitple matches
 
-            // Replace value from input
+                // Replace value from input
 
-            // Validate target samAccountName
+                // Validate target samAccountName
 
+            }
 
-            throw new NotImplementedException();
+            return principal;
         }
         
         /// <summary>
@@ -82,39 +97,40 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         public string GetOnPremUPN(string accountType, string samAccountName)
         {
+            throw new NotImplementedException();
             //OK This has got to be a better way of doing this...
             //DO We need this???
-            string ldapQuery = "LDAP://DC=test,DC=contoso,DC=com";
+            //string ldapQuery = "LDAP://DC=test,DC=contoso,DC=com";
 
             
 
-            // Bind to the users container.
-            DirectoryEntry entry = new DirectoryEntry(ldapQuery);
-            // Create a DirectorySearcher object.
-            DirectorySearcher mySearcher = new DirectorySearcher(entry);
-            // Create a SearchResultCollection object to hold a collection of SearchResults
-            // returned by the FindAll method.
-            mySearcher.PageSize = 500;  // ADD THIS LINE HERE !
+            //// Bind to the users container.
+            //DirectoryEntry entry = new DirectoryEntry(ldapQuery);
+            //// Create a DirectorySearcher object.
+            //DirectorySearcher mySearcher = new DirectorySearcher(entry);
+            //// Create a SearchResultCollection object to hold a collection of SearchResults
+            //// returned by the FindAll method.
+            //mySearcher.PageSize = 500;  // ADD THIS LINE HERE !
 
-            string strFilter = string.Empty;
-            if (accountType.ToLower().Equals("user"))
-                strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samAccountName);
-            else if (accountType.ToLower().Contains("group"))
-                strFilter = string.Format("(&(objectCategory=Group)(sid={0}))", samAccountName);
+            //string strFilter = string.Empty;
+            //if (accountType.ToLower().Equals("user"))
+            //    strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samAccountName);
+            //else if (accountType.ToLower().Contains("group"))
+            //    strFilter = string.Format("(&(objectCategory=Group)(sid={0}))", samAccountName);
 
-            var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
-            mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
-            mySearcher.Filter = strFilter;
-            mySearcher.CacheResults = false;
+            //var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
+            //mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
+            //mySearcher.Filter = strFilter;
+            //mySearcher.CacheResults = false;
 
-            SearchResultCollection result = mySearcher.FindAll();
+            //SearchResultCollection result = mySearcher.FindAll();
 
-            if (result != null && result.Count > 0)
-            {
-                return GetProperty(result[0], "userprincipalname");
-            }
+            //if (result != null && result.Count > 0)
+            //{
+            //    return GetProperty(result[0], "userprincipalname");
+            //}
 
-            return string.Empty;
+            //return string.Empty;
            
         }
 

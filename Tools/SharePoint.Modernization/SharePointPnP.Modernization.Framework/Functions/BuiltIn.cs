@@ -22,6 +22,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         private ClientSidePage clientSidePage;
         private BaseTransformationInformation baseTransformationInformation;
         private UrlTransformator urlTransformator;
+        private UserTransformator userTransformator;
 
         #region Construction
         /// <summary>
@@ -46,6 +47,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             this.clientSidePage = clientSidePage;
             this.baseTransformationInformation = baseTransformationInformation;
             this.urlTransformator = new UrlTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
+            this.userTransformator = new UserTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
         }
         #endregion
 

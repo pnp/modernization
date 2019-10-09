@@ -24,6 +24,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal Stopwatch watch;
         internal const string ExecutionLog = "execution.csv";
         internal PageTransformation pageTransformation;
+        internal UserTransformator userTransformation;
         internal string version = "undefined";
         internal PageTelemetry pageTelemetry;
         internal bool isRootPage = false;
@@ -187,6 +188,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 item.BreakRoleInheritance(false, false);
                 item.Context.ExecuteQueryRetry();
             }
+
+            
 
             if (hasTargetContext)
             {
@@ -718,8 +721,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // Override the setting for keeping item level permissions
                 if (!sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    baseTransformationInformation.KeepPageSpecificPermissions = false;
-                    LogWarning(LogStrings.Warning_ContextValidationFailWithKeepPermissionsEnabled, LogStrings.Heading_InputValidation);
+                    //TODO: User Mapping, Add defensive coding
+                    //baseTransformationInformation.KeepPageSpecificPermissions = false;
+                    //LogWarning(LogStrings.Warning_ContextValidationFailWithKeepPermissionsEnabled, LogStrings.Heading_InputValidation);
 
                     // Set a global flag to indicate this is a cross farm transformation (on-prem to SPO tenant or SPO Tenant A to SPO Tenant B)
                     baseTransformationInformation.IsCrossFarmTransformation = true;
@@ -887,8 +891,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             if (!string.IsNullOrEmpty(baseTransformationInformation.UserMappingFile)){
 
+                // Caching the mapping
+                var mapping = CacheManager.Instance.GetUserMapping(baseTransformationInformation.UserMappingFile, RegisteredLogObservers);
+
+                // Create an instance of the user transformation class
+                this.userTransformation = new UserTransformator(baseTransformationInformation, sourceClientContext, targetClientContext, RegisteredLogObservers);
+
                 //Don't block SPO because this could in theory be used to remap users
-                return CacheManager.Instance.GetUserMapping(baseTransformationInformation.UserMappingFile, RegisteredLogObservers);
+                return mapping;
             }
 
             return default;

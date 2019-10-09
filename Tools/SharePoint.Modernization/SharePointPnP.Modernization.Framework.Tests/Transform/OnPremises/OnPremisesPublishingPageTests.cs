@@ -99,7 +99,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-2010-Custom-Test3");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Welcome-2013Legacy");
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-SP2013-Test");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Article-Permissions");
 
                     pages.FailTestIfZero();
 
@@ -113,8 +113,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
                             // Don't log test runs
                             SkipTelemetry = true,
 
-                            //Permissions are unlikely to work given cross domain
-                            KeepPageSpecificPermissions = false,
+                            //Permissions are should work given cross domain with mapping
+                            KeepPageSpecificPermissions = true,
 
                             // Replace User Mapping
                             UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
