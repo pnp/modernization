@@ -47,6 +47,25 @@ namespace SharePoint.Modernization.Scanner.Results
 
         public bool Enabled { get; set; }
 
+        /// <summary>
+        /// Calculation showing if one should consider upgrading this workflow
+        /// </summary>
+        public bool ConsiderUpgradingToFlow
+        {
+            get
+            {
+                if ((Scope == "List" || Scope == "ContentType") &&
+                    Enabled && !IsOOBWorkflow && HasSubscriptions)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         public string DefinitionName { get; set; }
 
         public string DefinitionDescription { get; set; }

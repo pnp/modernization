@@ -775,7 +775,7 @@ namespace SharePoint.Modernization.Scanner
                 }
 
                 outputfile = string.Format("{0}\\ModernizationWorkflowScanResults.csv", this.OutputFolder);
-                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB",
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB",
                                                "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id",
                                                "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id",
                                                "Definition Changed On", "Subscription Changed On",
@@ -787,7 +787,7 @@ namespace SharePoint.Modernization.Scanner
                     foreach (var workflow in this.WorkflowScanResults)
                     {
 
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), workflow.Value.ConsiderUpgradingToFlow, ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
                                                                                            ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
                                                                                            ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(),
                                                                                            workflow.Value.LastDefinitionEdit, workflow.Value.LastSubscriptionEdit,
