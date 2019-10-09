@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 {
     public class InfoPathAnalyzer: BaseAnalyzer
     {
+        private static readonly string FormBaseContentType = "0x010101";
 
         #region Construction
         /// <summary>
@@ -44,7 +46,9 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
                 foreach (var list in lists)
                 {
-                    if (list.BaseTemplate == (int)ListTemplateType.XMLForm)
+                    if (list.BaseTemplate == (int)ListTemplateType.XMLForm ||
+                        (!string.IsNullOrEmpty(list.DocumentTemplateUrl) && list.DocumentTemplateUrl.EndsWith(".xsn", StringComparison.InvariantCultureIgnoreCase))
+                       )
                     {
                         // Form libraries depend on InfoPath
                         InfoPathScanResult infoPathScanResult = new InfoPathScanResult()
@@ -56,7 +60,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             ListId = list.Id,
                             ListUrl = list.RootFolder.ServerRelativeUrl,
                             Enabled = true,
-                            InfoPathTemplate = "",
+                            InfoPathTemplate = !string.IsNullOrEmpty(list.DocumentTemplateUrl) ? Path.GetFileName(list.DocumentTemplateUrl) : "",
                             ItemCount = list.ItemCount,
                             LastItemUserModifiedDate = list.LastItemUserModifiedDate,
                         };
@@ -74,13 +78,50 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         }
 
                     }
+                    else if (list.BaseTemplate == (int)ListTemplateType.DocumentLibrary || list.BaseTemplate == (int)ListTemplateType.WebPageLibrary)
+                    {
+                        // verify if a form content type was attached to this list
+                        cc.Load(list, p => p.ContentTypes.Include(c => c.Id, c => c.DocumentTemplateUrl));
+                        cc.ExecuteQueryRetry();
+
+                        var formContentTypeFound = list.ContentTypes.Where(c => c.Id.StringValue.StartsWith(FormBaseContentType, StringComparison.InvariantCultureIgnoreCase)).OrderBy(c => c.Id.StringValue.Length).FirstOrDefault();
+                        if (formContentTypeFound != null)
+                        {
+                            // Form libraries depend on InfoPath
+                            InfoPathScanResult infoPathScanResult = new InfoPathScanResult()
+                            {
+                                SiteColUrl = this.SiteCollectionUrl,
+                                SiteURL = this.SiteUrl,
+                                InfoPathUsage = "ContentType",
+                                ListTitle = list.Title,
+                                ListId = list.Id,
+                                ListUrl = list.RootFolder.ServerRelativeUrl,
+                                Enabled = true,
+                                InfoPathTemplate = !string.IsNullOrEmpty(formContentTypeFound.DocumentTemplateUrl) ? Path.GetFileName(formContentTypeFound.DocumentTemplateUrl) : "",
+                                ItemCount = list.ItemCount,
+                                LastItemUserModifiedDate = list.LastItemUserModifiedDate,
+                            };
+
+                            if (!this.ScanJob.InfoPathScanResults.TryAdd($"{infoPathScanResult.SiteURL}.{Guid.NewGuid()}", infoPathScanResult))
+                            {
+                                ScanError error = new ScanError()
+                                {
+                                    Error = $"Could not add contenttype InfoPath scan result for {infoPathScanResult.SiteColUrl} and list {infoPathScanResult.ListUrl}",
+                                    SiteColUrl = this.SiteCollectionUrl,
+                                    SiteURL = this.SiteUrl,
+                                    Field1 = "InfoPathAnalyzer",
+                                };
+                                this.ScanJob.ScanErrors.Push(error);
+                            }
+                        }
+                    }
                     else if (list.BaseTemplate == (int)ListTemplateType.GenericList)
                     {
                         try
                         {
                             Folder folder = cc.Web.GetFolderByServerRelativeUrl($"{list.RootFolder.ServerRelativeUrl}/Item");
                             cc.Load(folder, p => p.Properties);
-                            cc.ExecuteQueryRetry();                            
+                            cc.ExecuteQueryRetry();
 
                             if (folder.Properties.FieldValues.ContainsKey("_ipfs_infopathenabled") && folder.Properties.FieldValues.ContainsKey("_ipfs_solutionName"))
                             {
@@ -118,7 +159,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 }
                             }
                         }
-                        catch(ServerException ex)
+                        catch (ServerException ex)
                         {
                             if (((ServerException)ex).ServerErrorTypeName == "System.IO.FileNotFoundException")
                             {

@@ -14,6 +14,8 @@ See https://aka.ms/sppnp-modernizationscanner
 ### Changed
 
 - Add tenantid in telemetry data
+- InfoPath scanner detects form libraries which are created by adding the Form content type as default
+- InfoPath scanner detects libraries which have a Form content type attached
 
 ## [Version 2.5]
 
