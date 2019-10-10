@@ -10,6 +10,7 @@ See https://aka.ms/sppnp-modernizationscanner
 
 - Workflow report now contains an "upgradability" score based upon the mapping of workflow to Flow actions
 - Workflow report now also allows to filter on last change date of a workflow definition, this can be used to identify the recently changed workflows 
+- Page report contains a column to identify "uncustomized" STS#0 home pages
 
 ### Changed
 
