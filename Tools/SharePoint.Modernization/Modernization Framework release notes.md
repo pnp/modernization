@@ -12,6 +12,14 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
+## [Unreleased]
+
+### Added
+
+### Changed
+
+-  Fix: Handle web part loading of web parts in wiki/blog pages when transforming from SP2010/2013/2016 to SPO #320
+
 ## [October release - version 1.0.1910.0]
 
 ### Added
