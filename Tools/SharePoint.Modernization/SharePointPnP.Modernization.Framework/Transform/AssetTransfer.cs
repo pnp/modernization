@@ -403,7 +403,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 }
                             }
                         }
+
                     }
+
                 }
             }
             LogWarning(LogStrings.AssetTransferFailedFallback + sourceFileUrl, LogStrings.Heading_AssetTransfer);
