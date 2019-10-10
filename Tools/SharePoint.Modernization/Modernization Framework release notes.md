@@ -18,7 +18,8 @@
 
 ### Changed
 
--  Fix: Handle web part loading of web parts in wiki/blog pages when transforming from SP2010/2013/2016 to SPO #320
+- Fix: Handle web part loading of web parts in wiki/blog pages when transforming from SP2010/2013/2016 to SPO #320
+- Fix: Additional check to determine whether source file exists or not #318 [gautamdsheth]
 
 ## [October release - version 1.0.1910.0]
 
