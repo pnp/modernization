@@ -374,7 +374,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     if (isRootPage)
                     {
                         pageFolder = "Root/";
-                        pageTransformationInformation.TargetPageName = $"{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
+                        if (string.IsNullOrEmpty(pageTransformationInformation.TargetPageName))
+                        {
+                            pageTransformationInformation.TargetPageName = $"{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
+                        }
                     }
                 }
                 pageTransformationInformation.Folder = pageFolder;
