@@ -21,6 +21,7 @@
 - Fix: Handle web part loading of web parts in wiki/blog pages when transforming from SP2010/2013/2016 to SPO #320
 - Fix: Additional check to determine whether source file exists or not #318 [gautamdsheth]
 - Allow overriding the target page name for web part pages living outside of a library
+- Fix: Improved wiki page layout detection, ensure we always return a layout type with the correct amount of column to avoid index errors #304
 
 ## [October release - version 1.0.1910.0]
 
