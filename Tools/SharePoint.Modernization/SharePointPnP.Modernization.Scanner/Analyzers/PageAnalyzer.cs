@@ -15,8 +15,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
     public class PageAnalyzer : BaseAnalyzer
     {
         #region Variables
-        // Block home page modernization
-        private static readonly Guid FeatureId_Web_ModernizeHomepageOpt = new Guid("F478D140-B148-4038-9CB0-84A8F1E4BE09");
+        private static readonly Guid FeatureId_Web_HomePage = new Guid("F478D140-B148-4038-9CB0-84A8F1E4BE09");
         // Feature indicating the site was group connected (groupified)
         private static readonly Guid FeatureId_Web_GroupHomepage = new Guid("E3DC7334-CEC0-4D2C-8B90-E4857698FC4E");
         // Root site homepage with XsltListViewWebPart and GettingStartedWebPart
@@ -145,7 +144,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
                                         if (pageResult.HomePage && web.WebTemplate == "STS" && web.Configuration == 0 && pageName.Equals("home.aspx", StringComparison.InvariantCultureIgnoreCase))
                                         {
-                                            bool homePageModernizationOptedOut = web.Features.Where(f => f.DefinitionId == FeatureId_Web_ModernizeHomepageOpt).Count() > 0;
+                                            bool homePageModernizationOptedOut = web.Features.Where(f => f.DefinitionId == FeatureId_Web_HomePage).Count() > 0;
                                             if (!homePageModernizationOptedOut)
                                             {
                                                 bool siteWasGroupified = web.Features.Where(f => f.DefinitionId == FeatureId_Web_GroupHomepage).Count() > 0;
