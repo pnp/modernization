@@ -18,7 +18,8 @@ namespace SharePoint.Modernization.Scanner
         PublishingWithPagesOnly,
         ListOnly,
         WorkflowOnly,
-        InfoPathOnly
+        InfoPathOnly,
+        BlogOnly,
     }
 
     /// <summary>
@@ -40,7 +41,7 @@ namespace SharePoint.Modernization.Scanner
         // Important:
         // Following chars are already used as shorthand in the base options class: i, s, u, p, f, x, a, t, e, r, v, o, h, z
 
-        [Option('m', "mode", HelpText = "Execution mode. Use following modes: full, GroupifyOnly, ListOnly, PageOnly, PublishingOnly, PublishingWithPagesOnly. Omit or use full for a full scan", DefaultValue = Mode.Full, Required = false)]
+        [Option('m', "mode", HelpText = "Execution mode. Use following modes: Full, GroupifyOnly, ListOnly, PageOnly, PublishingOnly, PublishingWithPagesOnly, WorkflowOnly, InfoPathOnly or BlogOnly. Omit or use full for a full scan", DefaultValue = Mode.Full, Required = false)]
         public Mode Mode { get; set; }
 
         [Option('b', "exportwebpartproperties", HelpText = "Export the web part property data", DefaultValue = false, Required = false)]
@@ -210,6 +211,26 @@ namespace SharePoint.Modernization.Scanner
             }
 
             if (mode == Mode.InfoPathOnly)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Include Blog analysis
+        /// </summary>
+        /// <param name="mode">mode that was provided</param>
+        /// <returns>True if included, false otherwise</returns>
+        public static bool IncludeBlog(Mode mode)
+        {
+            if (mode == Mode.Full)
+            {
+                return true;
+            }
+
+            if (mode == Mode.BlogOnly)
             {
                 return true;
             }

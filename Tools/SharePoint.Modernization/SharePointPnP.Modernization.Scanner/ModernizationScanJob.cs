@@ -39,6 +39,8 @@ namespace SharePoint.Modernization.Scanner
         public ConcurrentDictionary<string, PublishingPageScanResult> PublishingPageScanResults;
         public ConcurrentDictionary<string, WorkflowScanResult> WorkflowScanResults;
         public ConcurrentDictionary<string, InfoPathScanResult> InfoPathScanResults;
+        public ConcurrentDictionary<string, BlogWebScanResult> BlogWebScanResults;
+        public ConcurrentDictionary<string, BlogPageScanResult> BlogPageScanResults;
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
         public ScannerTelemetry ScannerTelemetry;        
@@ -70,6 +72,8 @@ namespace SharePoint.Modernization.Scanner
             this.PublishingSiteScanResults = new Dictionary<string, PublishingSiteScanResult>(500);
             this.PublishingWebScanResults = new ConcurrentDictionary<string, PublishingWebScanResult>(options.Threads, 1000);
             this.PublishingPageScanResults = new ConcurrentDictionary<string, PublishingPageScanResult>(options.Threads, 10000);
+            this.BlogWebScanResults = new ConcurrentDictionary<string, BlogWebScanResult>(options.Threads, 50000);
+            this.BlogPageScanResults = new ConcurrentDictionary<string, BlogPageScanResult>(options.Threads, 500000);
 
             // Setup telemetry client
             if (!options.DisableTelemetry)
@@ -823,6 +827,47 @@ namespace SharePoint.Modernization.Scanner
                 }
 
                 Console.WriteLine("Outputting scan results to {0}", outputfile);
+            }
+
+            if (Options.IncludeBlog(this.Mode))
+            {
+                // Telemetry
+                if (this.ScannerTelemetry != null)
+                {
+                    //this.ScannerTelemetry.LogInfoPathScan(this.InfoPathScanResults);
+                }
+
+                outputfile = string.Format("{0}\\ModernizationBlogWebScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language",
+                                               "Blog Page Count", "Last blog change date", "Last blog publish date" };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var blogWeb in this.BlogWebScanResults)
+                    {
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.WebTemplate, blogWeb.Value.Language, 
+                                                                                           blogWeb.Value.BlogPageCount, blogWeb.Value.LastRecentBlogPageChange, blogWeb.Value.LastRecentBlogPagePublish
+                                                     )));
+                    }
+                }
+
+                Console.WriteLine("Outputting scan results to {0}", outputfile);
+
+                outputfile = string.Format("{0}\\ModernizationBlogPageScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Page Relative Url", "Page Title",
+                                               "Modified At", "Modified By", "Published At" };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var blogPage in this.BlogPageScanResults)
+                    {
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
+                                                                                           blogPage.Value.ModifiedAt, ToCsv(blogPage.Value.ModifiedBy), blogPage.Value.PublishedDate
+                                                     )));
+                    }
+                }
             }
 
             VersionWarning();

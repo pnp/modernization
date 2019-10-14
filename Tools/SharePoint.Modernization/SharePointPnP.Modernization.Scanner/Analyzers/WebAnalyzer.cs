@@ -368,6 +368,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     infoPathAnalyzer.Analyze(cc);
                 }
 
+                if (Options.IncludeBlog(this.ScanJob.Mode))
+                {
+                    // Kick off Blog analysis
+                    var blogAnalyzer = new BlogAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
+                    blogAnalyzer.Analyze(cc);
+                }
+
                 // Place workflow as last scan as it's reloading the web.Lists with different properties. The GetListsToScan method will not reload and hence cause missing properties otherwise
                 if (Options.IncludeWorkflow(this.ScanJob.Mode))
                 {
