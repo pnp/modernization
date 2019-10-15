@@ -881,7 +881,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Table 1
                     var workflowTable1 = baseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB", "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id", "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id", "Definition Changed On", "Subscription Changed On", "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Unsupported Action Count", "Unsupported Actions", "Change Year", "Change Quarter", "Change Month" };
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB", "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id", "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id", "Definition Changed On", "Subscription Changed On", "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Incompatible Action Count", "Incompatible Actions", "Change Year", "Change Quarter", "Change Month" };
                     workflowTable1 = DropTableColumns(workflowTable1, columnsToKeep);
 
                     if (workflowTable == null)
