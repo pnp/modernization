@@ -797,7 +797,8 @@ namespace SharePoint.Modernization.Scanner
                                                "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id",
                                                "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id",
                                                "Definition Changed On", "Subscription Changed On",
-                                               "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Unsupported Action Count", "Unsupported Actions" };
+                                               "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Unsupported Action Count", "Unsupported Actions",
+                                               "Change Year", "Change Quarter", "Change Month" };
 
                 using (StreamWriter outfile = new StreamWriter(outputfile))
                 {
@@ -809,7 +810,8 @@ namespace SharePoint.Modernization.Scanner
                                                                                            ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
                                                                                            ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(),
                                                                                            ToDateString(workflow.Value.LastDefinitionEdit, this.DateFormat), ToDateString(workflow.Value.LastSubscriptionEdit, this.DateFormat),
-                                                                                           workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, workflow.Value.UnsupportedActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow))
+                                                                                           workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, workflow.Value.UnsupportedActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow)),
+                                                                                           ToYearString(workflow.Value.LastDefinitionEdit), ToQuarterString(workflow.Value.LastDefinitionEdit), ToMonthString(workflow.Value.LastDefinitionEdit)
                                                      )));
                     }
                 }
@@ -827,7 +829,8 @@ namespace SharePoint.Modernization.Scanner
 
                 outputfile = string.Format("{0}\\ModernizationInfoPathScanResults.csv", this.OutputFolder);
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", 
-                                               "List Title", "List Url", "List Id", "Template"  };
+                                               "List Title", "List Url", "List Id", "Template",
+                                               "Change Year", "Change Quarter", "Change Month"  };
 
                 using (StreamWriter outfile = new StreamWriter(outputfile))
                 {
@@ -835,7 +838,8 @@ namespace SharePoint.Modernization.Scanner
                     foreach (var infoPath in this.InfoPathScanResults)
                     {
                         outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, ToDateString(infoPath.Value.LastItemUserModifiedDate, this.DateFormat), infoPath.Value.ItemCount,
-                                                                                           ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate)
+                                                                                           ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate),
+                                                                                           ToYearString(infoPath.Value.LastItemUserModifiedDate), ToQuarterString(infoPath.Value.LastItemUserModifiedDate), ToMonthString(infoPath.Value.LastItemUserModifiedDate)
                                                      )));
                     }
                 }
@@ -853,7 +857,8 @@ namespace SharePoint.Modernization.Scanner
 
                 outputfile = string.Format("{0}\\ModernizationBlogWebScanResults.csv", this.OutputFolder);
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language",
-                                               "Blog Page Count", "Last blog change date", "Last blog publish date" };
+                                               "Blog Page Count", "Last blog change date", "Last blog publish date",
+                                               "Change Year", "Change Quarter", "Change Month" };
 
                 using (StreamWriter outfile = new StreamWriter(outputfile))
                 {
@@ -861,7 +866,8 @@ namespace SharePoint.Modernization.Scanner
                     foreach (var blogWeb in this.BlogWebScanResults)
                     {
                         outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.WebTemplate, blogWeb.Value.Language, 
-                                                                                           blogWeb.Value.BlogPageCount, ToDateString(blogWeb.Value.LastRecentBlogPageChange, this.DateFormat), ToDateString(blogWeb.Value.LastRecentBlogPagePublish, this.DateFormat)
+                                                                                           blogWeb.Value.BlogPageCount, ToDateString(blogWeb.Value.LastRecentBlogPageChange, this.DateFormat), ToDateString(blogWeb.Value.LastRecentBlogPagePublish, this.DateFormat), 
+                                                                                           ToYearString(blogWeb.Value.LastRecentBlogPageChange), ToQuarterString(blogWeb.Value.LastRecentBlogPageChange), ToMonthString(blogWeb.Value.LastRecentBlogPageChange)
                                                      )));
                     }
                 }

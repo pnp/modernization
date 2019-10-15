@@ -508,7 +508,7 @@ namespace SharePoint.Modernization.Scanner.Reports
 
                     var blogWebsTable1 = blogWebsBaseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language", "Blog Page Count", "Last blog change date", "Last blog publish date" };
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language", "Blog Page Count", "Last blog change date", "Last blog publish date", "Change Year", "Change Quarter", "Change Month" };
                     blogWebsTable1 = DropTableColumns(blogWebsTable1, columnsToKeep);
 
                     if (blogWebsTable == null)
@@ -594,29 +594,29 @@ namespace SharePoint.Modernization.Scanner.Reports
                 {
                     if (scanSummary.SiteCollections.HasValue)
                     {
-                        dashboardSheet.SetValue("U7", scanSummary.SiteCollections.Value);
+                        dashboardSheet.SetValue("R7", scanSummary.SiteCollections.Value);
                     }
                     if (scanSummary.Webs.HasValue)
                     {
-                        dashboardSheet.SetValue("W7", scanSummary.Webs.Value);
+                        dashboardSheet.SetValue("T7", scanSummary.Webs.Value);
                     }
                     if (scanSummary.Duration != null)
                     {
-                        dashboardSheet.SetValue("U8", scanSummary.Duration);
+                        dashboardSheet.SetValue("R8", scanSummary.Duration);
                     }
                     if (scanSummary.Version != null)
                     {
-                        dashboardSheet.SetValue("U9", scanSummary.Version);
+                        dashboardSheet.SetValue("R9", scanSummary.Version);
                     }
                 }
 
                 if (dateCreationTime > DateTime.Now.Subtract(new TimeSpan(5 * 365, 0, 0, 0, 0)))
                 {
-                    dashboardSheet.SetValue("U6", dateCreationTime.ToString("G", DateTimeFormatInfo.InvariantInfo));
+                    dashboardSheet.SetValue("R6", dateCreationTime.ToString("G", DateTimeFormatInfo.InvariantInfo));
                 }
                 else
                 {
-                    dashboardSheet.SetValue("U6", "-");
+                    dashboardSheet.SetValue("R6", "-");
                 }
 
                 var blogWebsSheet = excel.Workbook.Worksheets["BlogWebs"];
@@ -881,7 +881,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Table 1
                     var workflowTable1 = baseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB", "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id", "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id", "Definition Changed On", "Subscription Changed On", "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Unsupported Action Count", "Unsupported Actions" };
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB", "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id", "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id", "Definition Changed On", "Subscription Changed On", "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Unsupported Action Count", "Unsupported Actions", "Change Year", "Change Quarter", "Change Month" };
                     workflowTable1 = DropTableColumns(workflowTable1, columnsToKeep);
 
                     if (workflowTable == null)
@@ -1032,7 +1032,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Table 1
                     var infoPathTable1 = baseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", "List Title", "List Url", "List Id", "Template" };
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", "List Title", "List Url", "List Id", "Template", "Change Year", "Change Quarter", "Change Month" };
                     infoPathTable1 = DropTableColumns(infoPathTable1, columnsToKeep);
 
                     if (infoPathTable == null)

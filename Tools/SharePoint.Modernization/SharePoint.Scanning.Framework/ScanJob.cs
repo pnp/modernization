@@ -289,6 +289,72 @@ namespace SharePoint.Scanning.Framework
             }
         }
 
+        /// <summary>
+        /// Transforms DateTime to Year string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Year in string format</returns>
+        public static string ToYearString(DateTime value)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                return value.Year.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Transforms DateTime to Month string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Month in string format</returns>
+        public static string ToMonthString(DateTime value)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                return CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(value.Month);
+            }
+        }
+
+        /// <summary>
+        /// Transforms DateTime to quarter string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Quarter in string format</returns>
+        public static string ToQuarterString(DateTime value)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                if (value.Month <= 3)
+                {
+                    return "Q1";
+                }
+                else if (value.Month <= 6)
+                {
+                    return "Q2";
+                }
+                else if (value.Month <= 9)
+                {
+                    return "Q3";
+                }
+                else
+                {
+                    return "Q4";
+                }
+            }
+        }
+
         protected static string GetRealmFromTargetUrl(Uri targetApplicationUri)
         {
             WebRequest request = WebRequest.Create(targetApplicationUri + "/_vti_bin/client.svc");
