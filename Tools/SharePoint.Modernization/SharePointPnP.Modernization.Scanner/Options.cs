@@ -65,6 +65,9 @@ namespace SharePoint.Modernization.Scanner
         [Option('n', "disabletelemetry", HelpText = "We use telemetry to make this a better tool...but you're free to disable that", DefaultValue = false, Required = false)]
         public bool DisableTelemetry { get; set; }
 
+        [Option('q', "dateformat", HelpText = "Date format to use for date export in the CSV files. Use M/d/yyyy or d/M/yyyy", DefaultValue = "M/d/yyyy", Required = false)]
+        public string DateFormat { get; set; }
+
         /// <summary>
         /// Property holding the possible newer version
         /// </summary>

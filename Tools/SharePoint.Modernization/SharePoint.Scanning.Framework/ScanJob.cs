@@ -1,15 +1,16 @@
-﻿using OfficeDevPnP.Core.Framework.TimerJobs;
+﻿using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Search.Query;
+using OfficeDevPnP.Core.Framework.TimerJobs;
 using OfficeDevPnP.Core.Framework.TimerJobs.Enums;
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using Microsoft.SharePoint.Client;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
-using Microsoft.SharePoint.Client.Search.Query;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Reflection;
 
 namespace SharePoint.Scanning.Framework
 {
@@ -268,6 +269,23 @@ namespace SharePoint.Scanning.Framework
             else
             {
                 return $"\"{value.Trim().Replace("\r\n", string.Empty).Replace("\"", "\"\"")}\"";
+            }
+        }
+
+        /// <summary>
+        /// Transforms DateTime to Date string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Date in string format</returns>
+        public static string ToDateString(DateTime value, string dateFormat)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                return value.ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
             }
         }
 

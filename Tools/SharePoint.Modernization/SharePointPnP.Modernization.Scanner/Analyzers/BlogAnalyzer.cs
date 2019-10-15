@@ -82,6 +82,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         if (pages != null)
                         {
                             blogWebScanResult.BlogPageCount = pages.Count;
+                            blogWebScanResult.LastRecentBlogPageChange = blogList.LastItemUserModifiedDate;
+                            blogWebScanResult.LastRecentBlogPagePublish = blogList.LastItemUserModifiedDate;
 
                             foreach (var page in pages)
                             {

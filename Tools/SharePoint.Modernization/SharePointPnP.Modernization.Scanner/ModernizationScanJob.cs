@@ -22,11 +22,14 @@ namespace SharePoint.Modernization.Scanner
         private Int32 SitesToScan = 0;
         private string CurrentVersion;
         private string NewVersion;
+        private readonly string USDateFormat = "M/d/yyyy";
+        private readonly string EuropeDateFormat = "d/M/yyyy";
 
         public Mode Mode;
         public bool ExportWebPartProperties;
         public bool SkipUsageInformation;
         public bool SkipUserInformation;
+        public string DateFormat;
         public bool ExcludeListsOnlyBlockedByOobReasons;
         public string EveryoneExceptExternalUsersClaim = "";
         public readonly string EveryoneClaim = "c:0(.s|true";
@@ -60,7 +63,18 @@ namespace SharePoint.Modernization.Scanner
             SkipUserInformation = options.SkipUserInformation;
             ExcludeListsOnlyBlockedByOobReasons = options.ExcludeListsOnlyBlockedByOobReasons;
             CurrentVersion = options.CurrentVersion;
-            NewVersion = options.NewVersion;            
+            NewVersion = options.NewVersion;
+
+            // Handle date format setting
+            if (options.DateFormat.Equals(USDateFormat) || options.DateFormat.Equals(EuropeDateFormat))
+            {
+                DateFormat = options.DateFormat;
+            }
+            else
+            {
+                // Default to US format in case the provided format is not valid
+                DateFormat = USDateFormat;
+            }
 
             // Scan results
             this.SiteScanResults = new ConcurrentDictionary<string, SiteScanResult>(options.Threads, 10000);
@@ -559,7 +573,7 @@ namespace SharePoint.Modernization.Scanner
                     foreach (var item in this.PageScanResults)
                     {
                         var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.PageUrl), ToCsv(item.Value.Library), item.Value.HomePage, item.Value.UncustomizedHomePage,
-                                                                ToCsv(item.Value.PageType), ToCsv(item.Value.Layout), "{MappingPercentage}", "{UnmappedWebParts}", ToCsv(item.Value.ModifiedBy), item.Value.ModifiedAt,
+                                                                ToCsv(item.Value.PageType), ToCsv(item.Value.Layout), "{MappingPercentage}", "{UnmappedWebParts}", ToCsv(item.Value.ModifiedBy), ToDateString(item.Value.ModifiedAt, this.DateFormat),
                                                                 (SkipUsageInformation ? 0 : item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers));
 
                         string part2 = "";
@@ -723,7 +737,7 @@ namespace SharePoint.Modernization.Scanner
                             var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.PageRelativeUrl), ToCsv(item.Value.PageName),
                                                                     ToCsv(item.Value.ContentType), ToCsv(item.Value.ContentTypeId), ToCsv(item.Value.PageLayout), ToCsv(item.Value.PageLayoutFile), item.Value.PageLayoutWasCustomized,
                                                                     ToCsv(PublishingPageScanResult.FormatList(item.Value.GlobalAudiences)), ToCsv(PublishingPageScanResult.FormatList(item.Value.SecurityGroupAudiences, "|")), ToCsv(PublishingPageScanResult.FormatList(item.Value.SharePointGroupAudiences)),
-                                                                    item.Value.ModifiedAt, ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
+                                                                    ToDateString(item.Value.ModifiedAt, this.DateFormat), ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
                                 );
 
                             string part2 = "";
@@ -794,7 +808,7 @@ namespace SharePoint.Modernization.Scanner
                         outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), workflow.Value.ConsiderUpgradingToFlow, ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
                                                                                            ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
                                                                                            ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(),
-                                                                                           workflow.Value.LastDefinitionEdit, workflow.Value.LastSubscriptionEdit,
+                                                                                           ToDateString(workflow.Value.LastDefinitionEdit, this.DateFormat), ToDateString(workflow.Value.LastSubscriptionEdit, this.DateFormat),
                                                                                            workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, workflow.Value.UnsupportedActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow))
                                                      )));
                     }
@@ -820,7 +834,7 @@ namespace SharePoint.Modernization.Scanner
                     outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
                     foreach (var infoPath in this.InfoPathScanResults)
                     {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, infoPath.Value.LastItemUserModifiedDate, infoPath.Value.ItemCount,
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, ToDateString(infoPath.Value.LastItemUserModifiedDate, this.DateFormat), infoPath.Value.ItemCount,
                                                                                            ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate)
                                                      )));
                     }
@@ -847,7 +861,7 @@ namespace SharePoint.Modernization.Scanner
                     foreach (var blogWeb in this.BlogWebScanResults)
                     {
                         outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.WebTemplate, blogWeb.Value.Language, 
-                                                                                           blogWeb.Value.BlogPageCount, blogWeb.Value.LastRecentBlogPageChange, blogWeb.Value.LastRecentBlogPagePublish
+                                                                                           blogWeb.Value.BlogPageCount, ToDateString(blogWeb.Value.LastRecentBlogPageChange, this.DateFormat), ToDateString(blogWeb.Value.LastRecentBlogPagePublish, this.DateFormat)
                                                      )));
                     }
                 }
@@ -864,7 +878,7 @@ namespace SharePoint.Modernization.Scanner
                     foreach (var blogPage in this.BlogPageScanResults)
                     {
                         outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
-                                                                                           blogPage.Value.ModifiedAt, ToCsv(blogPage.Value.ModifiedBy), blogPage.Value.PublishedDate
+                                                                                           ToDateString(blogPage.Value.ModifiedAt, this.DateFormat), ToCsv(blogPage.Value.ModifiedBy), ToDateString(blogPage.Value.PublishedDate, this.DateFormat)
                                                      )));
                     }
                 }
