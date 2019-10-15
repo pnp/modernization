@@ -320,7 +320,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         internal Principal GetPrincipal(Web web, string principalInput, bool hasTargetContext = false)
         {
-            //TODO: On-Prem User Mapping
+            //TODO: Add Scenario where the new user mapping could be a Azure AD group, not yet associated to SharePoint
+            //On-Prem User Mapping
+            principalInput = this.userTransformation.RemapPrincipal(principalInput);
+
             Principal principal = web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
 
             if (principal == null)

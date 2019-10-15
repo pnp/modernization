@@ -337,12 +337,16 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         #region User Mapping
 
         public const string Heading_UserMapping = "User Mapping";
+        public const string Heading_UserTransform = "User Transform";
 
         public const string Error_UserMappingFileNotFound = "User mapping file {0} was not found";
 
+        public const string Warning_MultipleMatchFound = "More than one mapping found, only the first match is used: {0}";
+
         public const string LoadingUserMappingFile = "Loading User mapping file {0}";
         public const string UserMappingLoaded = "User Mapping Loaded Source: {0} Target: {1}";
-        
+        public const string UserTransformSuccess = "Mapping and user replaced: {0} to {1}";
+        public const string UserTransformMappingNotFound = "Mapping for user cannot be found: {0}";
 
         #endregion
 

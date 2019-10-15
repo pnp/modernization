@@ -19,6 +19,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private List<UserMappingEntity> _userMapping;
         private bool _useOriginalValuesOnNoMatch;
 
+        /// <summary>
+        /// Determine if the user transforming according to mapped file
+        /// </summary>
+        public bool IsUserTranforming { get
+            {
+                return (this._userMapping != default);
+            } 
+        }
+
         #region Construction
         public UserTransformator(BaseTransformationInformation baseTransformationInformation, ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null, bool useOriginalValuesOnNoMatch = true)
         {
@@ -66,7 +75,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
          *      SME running PnP Transform not connected to AD but can connect to both On-Prem SP and SPO.
          *      SME running PnP Transform connected to AD and can connect to both On-Prem SP and SPO.
          *      SME running PnP Transform connected to AD and can connect to both On-Prem SP and SPO not AD Synced.
-         *      
+         *      Majority of the target functions already perform checking against the target context
          */
 
         /// <summary>
@@ -74,67 +83,73 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="principal"></param>
         /// <returns></returns>
-        public string RemapPrincipal(string principal)
+        public string RemapPrincipal(string principalInput)
         {
-            if(this._userMapping != default)
+            if(this.IsUserTranforming)
             {
                 // Find Mapping
                 // We dont like mulitple matches
+                // There are token added to the source address that may need to be replaced
+                // When matching, do with and without the tokens   
+                var result = principalInput;
+                var firstCheck = this._userMapping.Where(o => o.SourceUser.Equals(principalInput, StringComparison.InvariantCultureIgnoreCase));
+                if(firstCheck.Count() == 0)
+                {
+                    //Second check
+                    if (principalInput.Contains("|"))
+                    {
+                        var tokenSplit = principalInput.Split('|');
+                        var secondCheck = this._userMapping.Where(o => o.SourceUser.Equals(tokenSplit[1], StringComparison.InvariantCultureIgnoreCase));
 
-                // Replace value from input
+                        if(secondCheck.Count() > 0)
+                        {
+                            result = secondCheck.First().TargetUser;
 
-                // Validate target samAccountName
+                            // Log Result
+                            if (secondCheck.Count() > 1)
+                            {
+                                // Log Warning, only first user replaced
+                                LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result), 
+                                    LogStrings.Heading_UserTransform);
+                            }
+                            else
+                            {
+                                LogInfo(string.Format(LogStrings.UserTransformSuccess, principalInput, result), 
+                                    LogStrings.Heading_UserTransform);
+                            }   
+                        }
+                        else
+                        {
+                            //Not Found Logging, let method pass-through with original value
+                            LogDebug(string.Format(LogStrings.UserTransformMappingNotFound, principalInput),
+                                LogStrings.Heading_UserTransform);
+                        }
+                    }
+                }
+                else
+                {
+                    //Found Match
+                    result = firstCheck.First().TargetUser;
 
+                    if (firstCheck.Count() > 1)
+                    {
+                        // Log Warning, only first user replaced
+                        LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result),
+                            LogStrings.Heading_UserTransform);
+                    }
+                    else
+                    {
+                        LogInfo(string.Format(LogStrings.UserTransformSuccess, principalInput, result),
+                            LogStrings.Heading_UserTransform);
+                    }
+                }
+
+                return result;
             }
 
-            return principal;
+            return principalInput;
         }
-        
-        /// <summary>
-        /// Get On-Premises AD UPN value from SID reference
-        /// </summary>
-        /// <param name="sidInput"></param>
-        /// <returns></returns>
-        public string GetOnPremUPN(string accountType, string samAccountName)
-        {
-            throw new NotImplementedException();
-            //OK This has got to be a better way of doing this...
-            //DO We need this???
-            //string ldapQuery = "LDAP://DC=test,DC=contoso,DC=com";
-
-            
-
-            //// Bind to the users container.
-            //DirectoryEntry entry = new DirectoryEntry(ldapQuery);
-            //// Create a DirectorySearcher object.
-            //DirectorySearcher mySearcher = new DirectorySearcher(entry);
-            //// Create a SearchResultCollection object to hold a collection of SearchResults
-            //// returned by the FindAll method.
-            //mySearcher.PageSize = 500;  // ADD THIS LINE HERE !
-
-            //string strFilter = string.Empty;
-            //if (accountType.ToLower().Equals("user"))
-            //    strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samAccountName);
-            //else if (accountType.ToLower().Contains("group"))
-            //    strFilter = string.Format("(&(objectCategory=Group)(sid={0}))", samAccountName);
-
-            //var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
-            //mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
-            //mySearcher.Filter = strFilter;
-            //mySearcher.CacheResults = false;
-
-            //SearchResultCollection result = mySearcher.FindAll();
-
-            //if (result != null && result.Count > 0)
-            //{
-            //    return GetProperty(result[0], "userprincipalname");
-            //}
-
-            //return string.Empty;
-           
-        }
-
-
+       
         /// <summary>
         /// Input contains SID reference
         /// </summary>
@@ -154,24 +169,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             throw new NotImplementedException();
         }
-
-        /// <summary>
-        /// Get Property from AD Search Result
-        /// </summary>
-        /// <param name="searchResult"></param>
-        /// <param name="PropertyName"></param>
-        /// <returns></returns>
-        private static string GetProperty(SearchResult searchResult, string PropertyName)
-        {
-            if (searchResult.Properties.Contains(PropertyName))
-            {
-                return searchResult.Properties[PropertyName][0].ToString();
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
+              
 
     }
 }
