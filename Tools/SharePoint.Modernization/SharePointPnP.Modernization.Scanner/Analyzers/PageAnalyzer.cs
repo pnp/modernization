@@ -69,9 +69,10 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             {
                 base.Analyze(cc);
                 Web web = cc.Web;
-                cc.Web.EnsureProperties(p => p.WebTemplate, p => p.Configuration, p => p.RootFolder, p => p.Features);
+                cc.Web.EnsureProperties(p => p.WebTemplate, p => p.Configuration, p => p.Features);
 
-                var homePageUrl = web.RootFolder.WelcomePage;
+                var homePageUrl = web.WelcomePage;
+
                 var listsToScan = web.GetListsToScan();
                 var sitePagesLibraries = listsToScan.Where(p => p.BaseTemplate == (int)ListTemplateType.WebPageLibrary);
 

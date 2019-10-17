@@ -70,7 +70,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
                 // Ensure needed data is loaded
                 Web web = cc.Web;
-                web.EnsureProperties(p => p.UserCustomActions, p => p.AlternateCssUrl, p => p.CustomMasterUrl, p => p.MasterUrl, p => p.Features, p => p.WebTemplate, p => p.Configuration, p => p.HasUniqueRoleAssignments, p => p.RootFolder);
+                web.EnsureProperties(p => p.UserCustomActions, p => p.AlternateCssUrl, p => p.CustomMasterUrl, p => p.MasterUrl, p => p.Features, p => p.WebTemplate, p => p.Configuration, p => p.HasUniqueRoleAssignments);
 
                 // Log in Site scan data that the scanned web is a sub site
                 if (web.IsSubSite())
@@ -227,16 +227,17 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
                 // Get home page from the web and check whether it's a modern page or not
                 scanResult.ModernHomePage = false;
-                var homePageUrl = web.RootFolder.WelcomePage;
-                var homepageName = System.IO.Path.GetFileName(web.RootFolder.WelcomePage);
+
+                var homePageUrl = web.WelcomePage;
+                var homepageName = System.IO.Path.GetFileName(homePageUrl);
                 if (string.IsNullOrEmpty(homepageName))
                 {
-                    homepageName = "Home.aspx";
+                    homepageName = "SitePages/Home.aspx";
                 }
                 var sitePagesLibraryForWeb = web.GetListsToScan().Where(p => p.BaseTemplate == (int)ListTemplateType.WebPageLibrary).FirstOrDefault();
                 if (sitePagesLibraryForWeb != null)
                 {
-                    var homePageFile = web.GetFileByServerRelativeUrl($"{sitePagesLibraryForWeb.RootFolder.ServerRelativeUrl}/{homepageName}");
+                    var homePageFile = web.GetFileByServerRelativeUrl($"{web.ServerRelativeUrl}/{homePageUrl}");
                     cc.Load(homePageFile, f => f.ListItemAllFields, f => f.Exists);
                     cc.ExecuteQueryRetry();
                     if (homePageFile.Exists)

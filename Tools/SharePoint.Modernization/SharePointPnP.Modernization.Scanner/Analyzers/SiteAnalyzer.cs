@@ -102,22 +102,46 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     }
                 }
 
-                try
+                if (!this.ScanJob.AppOnlyHasFullControl)
                 {
-                    // Get tenant information
-                    var siteInformation = this.ScanJob.SPOTenant.GetSitePropertiesByUrl(this.SiteCollectionUrl, true);
-                    this.ScanJob.SPOTenant.Context.Load(siteInformation);
-                    this.ScanJob.SPOTenant.Context.ExecuteQueryRetry();
-
-                    if (!siteInformation.ServerObjectIsNull())
+                    var siteInfo = this.ScanJob.AppOnlyManager.SiteInformation.Where(p => p.SiteUrl.Equals(this.SiteCollectionUrl, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    if (siteInfo != null && siteInfo.ExternalSharing.HasValue)
                     {
-                        scanResult.SharingCapabilities = siteInformation.SharingCapability.ToString();
+                        if (!siteInfo.ExternalSharing.Value)
+                        {
+                            scanResult.SharingCapabilities = "Disabled";
+                        }
+                        else
+                        {
+                            if (siteInfo.AllowGuestUserSignIn.HasValue && !siteInfo.AllowGuestUserSignIn.Value)
+                            {
+                                scanResult.SharingCapabilities = "ExternalUserAndGuestSharing";
+                            }
+                            else
+                            {
+                                scanResult.SharingCapabilities = "ExternalUserSharingOnly";
+                            }
+                        }
                     }
                 }
-                // Eat all exceptions for now
-                // TODO move to single loop after scanning has been done - post processing
-                catch { }
+                else
+                {
+                    try
+                    {
+                        // Get tenant information
+                        var siteInformation = this.ScanJob.SPOTenant.GetSitePropertiesByUrl(this.SiteCollectionUrl, true);
+                        this.ScanJob.SPOTenant.Context.Load(siteInformation);
+                        this.ScanJob.SPOTenant.Context.ExecuteQueryRetry();
 
+                        if (!siteInformation.ServerObjectIsNull())
+                        {
+                            scanResult.SharingCapabilities = siteInformation.SharingCapability.ToString();
+                        }
+                    }
+                    // Eat all exceptions for now
+                    // TODO move to single loop after scanning has been done - post processing
+                    catch { }
+                }
 
                 if (Options.IncludePage(this.ScanJob.Mode))
                 {

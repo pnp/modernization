@@ -77,8 +77,8 @@ namespace SharePoint.Scanning.Framework
             // Configure sites to scan
             if (!String.IsNullOrEmpty(this.Tenant))
             {
-                this.AddSite(string.Format("https://{0}.sharepoint.com/*", this.Tenant));
-                this.AddSite(string.Format("https://{0}-my.sharepoint.com/*", this.Tenant));
+                this.AddSite(string.Format("https://{0}.sharepoint.com*", this.Tenant));
+                this.AddSite(string.Format("https://{0}-my.sharepoint.com*", this.Tenant));
             }
             else if (this.Urls != null && this.Urls.Count > 0)
             {

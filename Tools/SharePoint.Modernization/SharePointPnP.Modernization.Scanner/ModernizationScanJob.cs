@@ -24,6 +24,9 @@ namespace SharePoint.Modernization.Scanner
         private string NewVersion;
         private readonly string USDateFormat = "M/d/yyyy";
         private readonly string EuropeDateFormat = "d/M/yyyy";
+        private Options options;
+
+        internal AppOnlyManager AppOnlyManager;
 
         public Mode Mode;
         public bool ExportWebPartProperties;
@@ -33,6 +36,7 @@ namespace SharePoint.Modernization.Scanner
         public bool ExcludeListsOnlyBlockedByOobReasons;
         public string EveryoneExceptExternalUsersClaim = "";
         public readonly string EveryoneClaim = "c:0(.s|true";
+        public bool AppOnlyHasFullControl = true;
         public ConcurrentDictionary<string, SiteScanResult> SiteScanResults;
         public ConcurrentDictionary<string, WebScanResult> WebScanResults;
         public ConcurrentDictionary<string, PageScanResult> PageScanResults;
@@ -56,6 +60,8 @@ namespace SharePoint.Modernization.Scanner
         /// <param name="options">Options instance</param>
         public ModernizationScanJob(Options options) : base(options as BaseOptions, "ModernizationScanner", "1.0")
         {
+            this.options = options;
+
             ExpandSubSites = false;
             Mode = options.Mode;
             ExportWebPartProperties = options.ExportWebPartProperties;
@@ -75,6 +81,8 @@ namespace SharePoint.Modernization.Scanner
                 // Default to US format in case the provided format is not valid
                 DateFormat = USDateFormat;
             }
+
+            this.AppOnlyManager = new AppOnlyManager();
 
             // Scan results
             this.SiteScanResults = new ConcurrentDictionary<string, SiteScanResult>(options.Threads, 10000);
@@ -186,7 +194,7 @@ namespace SharePoint.Modernization.Scanner
                                                   p => p.UserCustomActions, // Web user custom actions 
                                                   p => p.Language, p => p.AllProperties, p => p.ServerRelativeUrl, // used in publishing analyzer
                                                   p => p.Features,
-                                                  p => p.RootFolder
+                                                  p => p.WelcomePage
                                       );
                             ccWeb.ExecuteQueryRetry();
 
@@ -289,13 +297,57 @@ namespace SharePoint.Modernization.Scanner
         /// <param name="addedSites">List of sites found to scan</param>
         /// <returns>Updated list of sites to scan</returns>
         public override List<string> ResolveAddedSites(List<string> addedSites)
-        {
-            var sites = base.ResolveAddedSites(addedSites);
+        {            
+            try
+            {
+                this.AppOnlyHasFullControl = this.AppOnlyManager.AppOnlyTokenHasFullControl(this.options, addedSites);
+            }
+            catch (Exception ex)
+            {
+                // Oops, not critical...let's continue
+            }
+
+            // Determine tenant admin center URL
+            string tenantAdmin = "";
+            if (!string.IsNullOrEmpty(this.TenantAdminSite))
+            {
+                tenantAdmin = this.TenantAdminSite;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(this.Tenant))
+                {
+                    this.Tenant = new Uri(addedSites[0]).DnsSafeHost.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[0];
+                }
+
+                tenantAdmin = $"https://{this.Tenant}-admin.sharepoint.com";
+            }
+
+            List<string> sites = null;
+            if (!this.AppOnlyHasFullControl)
+            {
+                // We don't have permission to enumerate security information, so turning off that options
+                this.SkipUserInformation = true;
+
+                // Query DO_NOT_DELETE_SPLIST_TENANTADMIN_AGGREGATED_SITECOLLECTIONS list in tenant admin as fall back scenario
+                // Using Tenant Admin API or Search with app-only only works when having full control
+                string previousRealm = this.Realm;
+                this.Realm = GetRealmFromTargetUrl(new Uri(tenantAdmin));
+                using (ClientContext ccAdmin = this.CreateClientContext(tenantAdmin))
+                {
+                    sites = this.AppOnlyManager.ResolveSitesWithoutFullControl(ccAdmin, addedSites, /*this.ExcludeOD4B*/ true);
+                }
+                this.Realm = previousRealm;
+            }
+            else
+            {
+                sites = base.ResolveAddedSites(addedSites);
+            }            
             this.SitesToScan = sites.Count;
 
             //Perform global initialization tasks, things you only want to do once per run
             if (sites.Count > 0)
-            {
+            {                
                 try
                 {
                     using (ClientContext cc = this.CreateClientContext(sites[0]))
@@ -330,21 +382,6 @@ namespace SharePoint.Modernization.Scanner
             }
 
             // Setup tenant context
-            string tenantAdmin = "";
-            if (!string.IsNullOrEmpty(this.TenantAdminSite))
-            {
-                tenantAdmin = this.TenantAdminSite;
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(this.Tenant))
-                {
-                    this.Tenant = new Uri(addedSites[0]).DnsSafeHost.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[0];
-                }
-
-                tenantAdmin = $"https://{this.Tenant}-admin.sharepoint.com";
-            }
-
             this.Realm = GetRealmFromTargetUrl(new Uri(tenantAdmin));
             using (ClientContext ccAdmin = this.CreateClientContext(tenantAdmin))
             {
@@ -355,7 +392,7 @@ namespace SharePoint.Modernization.Scanner
             this.PageTransformation = new PageTransformationManager().LoadPageTransformationModel();
 
             // Load the workflow models
-            if (Options.IncludeWorkflow(this.Mode))
+            if (Options.IncludeWorkflow(this.Mode) && this.AppOnlyHasFullControl)
             {
                 WorkflowManager.Instance.LoadWorkflowDefaultActions();
             }

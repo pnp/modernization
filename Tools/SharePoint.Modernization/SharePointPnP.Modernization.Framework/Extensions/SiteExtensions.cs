@@ -24,9 +24,10 @@ namespace Microsoft.SharePoint.Client
                 {
                     using (var webContext = siteContext.Clone(currentUrl))
                     {
-                        webContext.Load(webContext.Web, web => web.Webs.Include(w => w.Url, w => w.WebTemplate));
+                        var webs = webContext.Web.GetSubwebsForCurrentUser(null);
+                        webContext.Load(webs);
                         webContext.ExecuteQueryRetry();
-                        foreach (var subWeb in webContext.Web.Webs)
+                        foreach(var subWeb in webs)
                         {
                             // Ensure these props are loaded...sometimes the initial load did not handle this
                             subWeb.EnsureProperties(s => s.Url, s => s.WebTemplate);
@@ -40,7 +41,7 @@ namespace Microsoft.SharePoint.Client
                         }
                     }
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
                     // Eat exceptions when certain subsites aren't accessible, better this then breaking the complete flow
                 }
