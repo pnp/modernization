@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.SharePoint.Client;
-using System.Collections.Concurrent;
 using SharePoint.Modernization.Scanner.Results;
 using SharePoint.Scanning.Framework;
 using System.Collections.Generic;
@@ -229,13 +228,15 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 scanResult.ModernHomePage = false;
 
                 var homePageUrl = web.WelcomePage;
-                var homepageName = System.IO.Path.GetFileName(homePageUrl);
-                if (string.IsNullOrEmpty(homepageName))
+                if (string.IsNullOrEmpty(homePageUrl))
                 {
-                    homepageName = "SitePages/Home.aspx";
+                    // Will be case when the site home page is a web part page
+                    homePageUrl = "default.aspx";
                 }
+                var homepageName = System.IO.Path.GetFileName(homePageUrl);
+
                 var sitePagesLibraryForWeb = web.GetListsToScan().Where(p => p.BaseTemplate == (int)ListTemplateType.WebPageLibrary).FirstOrDefault();
-                if (sitePagesLibraryForWeb != null)
+                if (sitePagesLibraryForWeb != null && homePageUrl.StartsWith("SitePages", StringComparison.InvariantCultureIgnoreCase))
                 {
                     var homePageFile = web.GetFileByServerRelativeUrl($"{(web.ServerRelativeUrl.Length == 1 ? "" : web.ServerRelativeUrl)}/{homePageUrl}");
                     cc.Load(homePageFile, f => f.ListItemAllFields, f => f.Exists);
@@ -383,10 +384,6 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     var workflowAnalyzer = new WorkflowAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
                     workflowAnalyzer.Analyze(cc);
                 }
-            }
-            catch(Exception ex)
-            {
-
             }
             finally
             {

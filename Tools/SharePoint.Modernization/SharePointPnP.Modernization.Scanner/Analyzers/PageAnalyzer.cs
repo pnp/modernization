@@ -72,6 +72,11 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 cc.Web.EnsureProperties(p => p.WebTemplate, p => p.Configuration, p => p.Features);
 
                 var homePageUrl = web.WelcomePage;
+                if (string.IsNullOrEmpty(homePageUrl))
+                {
+                    // Will be case when the site home page is a web part page
+                    homePageUrl = "default.aspx";
+                }
 
                 var listsToScan = web.GetListsToScan();
                 var sitePagesLibraries = listsToScan.Where(p => p.BaseTemplate == (int)ListTemplateType.WebPageLibrary);
