@@ -156,7 +156,14 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                         "ViewsLifeTimeUniqueUsers"
                     };
 
-                    this.PageSearchResults = this.ScanJob.Search(cc.Web, $"path:{this.SiteCollectionUrl} AND fileextension=aspx AND (contentclass=STS_ListItem_WebPageLibrary OR contentclass=STS_Site OR contentclass=STS_Web)", propertiesToRetrieveForPage);
+                    if (new Uri(this.SiteCollectionUrl).PathAndQuery == "/")
+                    {
+                        this.PageSearchResults = this.ScanJob.Search(cc.Web, $"path={this.SiteCollectionUrl} AND fileextension=aspx AND (contentclass=STS_ListItem_WebPageLibrary OR contentclass=STS_Site OR contentclass=STS_Web)", propertiesToRetrieveForPage);
+                    }
+                    else
+                    {
+                        this.PageSearchResults = this.ScanJob.Search(cc.Web, $"path:{this.SiteCollectionUrl} AND fileextension=aspx AND (contentclass=STS_ListItem_WebPageLibrary OR contentclass=STS_Site OR contentclass=STS_Web)", propertiesToRetrieveForPage);
+                    }
                 }
 
                 if (!this.ScanJob.SiteScanResults.TryAdd(this.SiteCollectionUrl, scanResult))

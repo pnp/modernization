@@ -237,7 +237,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 var sitePagesLibraryForWeb = web.GetListsToScan().Where(p => p.BaseTemplate == (int)ListTemplateType.WebPageLibrary).FirstOrDefault();
                 if (sitePagesLibraryForWeb != null)
                 {
-                    var homePageFile = web.GetFileByServerRelativeUrl($"{web.ServerRelativeUrl}/{homePageUrl}");
+                    var homePageFile = web.GetFileByServerRelativeUrl($"{(web.ServerRelativeUrl.Length == 1 ? "" : web.ServerRelativeUrl)}/{homePageUrl}");
                     cc.Load(homePageFile, f => f.ListItemAllFields, f => f.Exists);
                     cc.ExecuteQueryRetry();
                     if (homePageFile.Exists)
@@ -383,6 +383,10 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     var workflowAnalyzer = new WorkflowAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
                     workflowAnalyzer.Analyze(cc);
                 }
+            }
+            catch(Exception ex)
+            {
+
             }
             finally
             {
