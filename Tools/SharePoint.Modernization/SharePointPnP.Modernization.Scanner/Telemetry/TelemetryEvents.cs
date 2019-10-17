@@ -13,7 +13,8 @@
         Pages,
         PublishingPortals,
         Workflows,
-        InfoPath
+        InfoPath,
+        Blogs
     }
 
     /// <summary>
@@ -133,7 +134,8 @@
     {
         Workflows,
         Version,
-        Scope
+        Scope,
+        Upgradability
     }
 
     /// <summary>
@@ -145,4 +147,13 @@
         Usage
     }
 
+    /// <summary>
+    /// Measures collected for Blogs
+    /// </summary>
+    public enum BlogResults
+    {
+        Webs,
+        Posts,
+        Language
+    }
 }

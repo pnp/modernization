@@ -882,7 +882,7 @@ namespace SharePoint.Modernization.Scanner
                 // Telemetry
                 if (this.ScannerTelemetry != null)
                 {
-                    //this.ScannerTelemetry.LogInfoPathScan(this.InfoPathScanResults);
+                    this.ScannerTelemetry.LogBlogScan(this.BlogWebScanResults, this.BlogPageScanResults);
                 }
 
                 outputfile = string.Format("{0}\\ModernizationBlogWebScanResults.csv", this.OutputFolder);
