@@ -49,9 +49,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                 this.telemetryClient.Context.Session.Id = Guid.NewGuid().ToString();
                 this.telemetryClient.Context.Cloud.RoleInstance = "SharePointPnPPageTransformation";
                 this.telemetryClient.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
-                //this.telemetryClient.Context.GlobalProperties.Add(EngineVersion, version);
             }
-            catch (Exception ex)
+            catch
             {
                 this.telemetryClient = null;
             }
