@@ -84,7 +84,11 @@ namespace SharePoint.Modernization.Scanner.Workflow
             "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexActivity",
             "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexLengthActivity",
             "Microsoft.SharePoint.WorkflowActions.CommentActivity",
-            "Microsoft.SharePoint.WorkflowActions.PersistOnCloseActivity"
+            "Microsoft.SharePoint.WorkflowActions.PersistOnCloseActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.AddListItemPermissionsActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.RemoveListItemPermissionsActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.ReplaceListItemPermissionsActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.InheritListItemParentPermissionsActivity"
         };
 
         /// <summary>
