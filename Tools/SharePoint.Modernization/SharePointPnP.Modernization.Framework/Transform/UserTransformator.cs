@@ -4,7 +4,9 @@ using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.DirectoryServices;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,6 +78,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
          *      SME running PnP Transform connected to AD and can connect to both On-Prem SP and SPO.
          *      SME running PnP Transform connected to AD and can connect to both On-Prem SP and SPO not AD Synced.
          *      Majority of the target functions already perform checking against the target context
+         *      
+         *  Design Notes
+         *  
+         *    	 Executing transform computer IS NOT on the domain
+		 *          Answer: Specify Domain (assumes that Computer can talk to domain)
+	     *       Executing transform computer is on the domain
+		 *          Use c#: System.DirectoryServices.ActiveDirectory.Domain.GetComputerDomain()
+	     *       SharePoint and Office 365 is AD Connected
+		 *          Auto-resolution via UPN
+	     *       SharePoint and Office 365 is NOT AD Connected
+		 *          Mapping only, unless credentials from connection can also query domain controllers
+         *       Owner, Member, Reader auto mapping
          */
 
         /// <summary>
@@ -149,27 +163,136 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             return principalInput;
         }
-       
+        
         /// <summary>
-        /// Input contains SID reference
+        /// Gets the transform executing domain
         /// </summary>
-        /// <param name="mappingInput"></param>
         /// <returns></returns>
-        internal bool ContainsSID(string mappingInput)
+        internal string GetComputerDomain()
         {
+            try
+            {
+                var domain = Domain.GetComputerDomain();
+                return domain.Name;
+            }
+            catch
+            {
+                LogWarning("Cannot get current domain", LogStrings.Heading_UserTransform);
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Get LDAP Connection string
+        /// </summary>
+        /// <returns></returns>
+        internal string GetLDAPConnectionString()
+        {
+            // Example from test rig
+            /*
+                Forest                  : AlphaDelta.Local
+                DomainControllers       : {AD.AlphaDelta.Local}
+                Children                : {}
+                DomainMode              : Unknown
+                DomainModeLevel         : 7
+                Parent                  :
+                PdcRoleOwner            : AD.AlphaDelta.Local
+                RidRoleOwner            : AD.AlphaDelta.Local
+                InfrastructureRoleOwner : AD.AlphaDelta.Local
+                Name                    : AlphaDelta.Local
+            */
+
+            // User Provided with the base transformation information
+
+            // Auto Detect
+            //var friendlyDomainName = GetComputerDomain();
+            //var fqdn = ResolveFriendlyDomainToLdapDomain(friendlyDomainName);
+            
+
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Input contains a valid UPN
+        /// Search the source domain for a UPN
         /// </summary>
-        /// <param name="userMapping"></param>
-        /// <returns></returns>
-        internal bool IsValidUpn(string userMapping)
+        /// <param name="accountType"></param>
+        /// <param name="samaccountname"></param>
+        internal string SearchSourceDomainForUPN(string accountType, string samaccountname)
         {
-            throw new NotImplementedException();
+            //reference: https://github.com/SharePoint/PnP-Transformation/blob/master/InfoPath/Migration/PeoplePickerRemediation.Console/PeoplePickerRemediation.Console/PeoplePickerRemediation.cs#L613
+
+            //e.g. LDAP://DC=onecity,DC=corp,DC=fabrikam,DC=com
+            string ldapQuery = GetLDAPConnectionString();
+
+            // Bind to the users container.
+            DirectoryEntry entry = new DirectoryEntry(ldapQuery);
+            // Create a DirectorySearcher object.
+            DirectorySearcher mySearcher = new DirectorySearcher(entry);
+            // Create a SearchResultCollection object to hold a collection of SearchResults
+            // returned by the FindAll method.
+            mySearcher.PageSize = 500;  // ADD THIS LINE HERE !
+            string strFilter = string.Empty;
+            if (accountType.ToLower().Equals("user"))
+                strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samaccountname);
+            else if (accountType.ToLower().Contains("group"))
+                strFilter = string.Format("(&(objectCategory=Group)(sid={0}))", samaccountname);
+            var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
+            mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
+            mySearcher.Filter = strFilter;
+            mySearcher.CacheResults = false;
+            SearchResultCollection result = mySearcher.FindAll();
+
+            if (result != null && result.Count > 0)
+            {
+                return GetProperty(result[0], "userprincipalname");
+            }
+
+            return string.Empty;
         }
-              
+
+        /// <summary>
+        /// Get a property from resulting AD query
+        /// </summary>
+        /// <param name="searchResult"></param>
+        /// <param name="PropertyName"></param>
+        /// <returns></returns>
+        private static string GetProperty(SearchResult searchResult, string PropertyName)
+        {
+            if (searchResult.Properties.Contains(PropertyName))
+            {
+                return searchResult.Properties[PropertyName][0].ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+        
+        /// <summary>
+        /// Resolves friendly domain name to Fully Qualified Domain Name
+        /// </summary>
+        /// <param name="friendlyDomainName"></param>
+        /// <returns></returns>
+        internal string ResolveFriendlyDomainToLdapDomain(string friendlyDomainName)
+        {
+            //Reference and credit: https://www.codeproject.com/Articles/18102/Howto-Almost-Everything-In-Active-Directory-via-C#13 
+
+            string ldapPath = string.Empty;
+
+            try
+            {
+                DirectoryContext objContext = new DirectoryContext(
+                    DirectoryContextType.Domain, friendlyDomainName);
+                Domain objDomain = Domain.GetDomain(objContext);
+                ldapPath = objDomain.Name;
+            }
+            catch (DirectoryServicesCOMException e)
+            {
+                ldapPath = e.Message.ToString();
+            }
+            return ldapPath;
+        }
 
     }
 }
