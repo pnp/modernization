@@ -1,10 +1,20 @@
 ﻿using SharePoint.Scanning.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace SharePoint.Modernization.Scanner.Results
 {
     public class WorkflowScanResult: Scan
     {
+        public WorkflowScanResult()
+        {
+            this.UsedActions = new List<string>();
+            this.UnsupportedActionsInFlow = new List<string>();
+            this.UsedTriggers = new List<string>();
+            this.LastSubscriptionEdit = DateTime.MinValue;
+            this.LastDefinitionEdit = DateTime.MinValue;
+        }
+
         public string ListUrl { get; set; }
 
         public string ListTitle { get; set; }
@@ -37,6 +47,25 @@ namespace SharePoint.Modernization.Scanner.Results
 
         public bool Enabled { get; set; }
 
+        /// <summary>
+        /// Calculation showing if one should consider upgrading this workflow
+        /// </summary>
+        public bool ConsiderUpgradingToFlow
+        {
+            get
+            {
+                if ((Scope == "List" || Scope == "ContentType" || Scope == "Site") &&
+                    Enabled && !IsOOBWorkflow && HasSubscriptions)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         public string DefinitionName { get; set; }
 
         public string DefinitionDescription { get; set; }
@@ -44,5 +73,34 @@ namespace SharePoint.Modernization.Scanner.Results
         public string SubscriptionName { get; set; }
 
         public bool HasSubscriptions { get; set; }
+
+        public int ActionCount { get; set; }
+
+        public List<string> UsedActions { get; set; }
+
+        public int ToFLowMappingPercentage
+        {
+            get
+            {
+                if (ActionCount == 0)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return (int)(((double)(ActionCount - UnsupportedActionCount) / (double)ActionCount) * 100);
+                }
+            }
+        }
+
+        public int UnsupportedActionCount { get; set; }
+
+        public List<string> UnsupportedActionsInFlow { get; set; }
+
+        public List<string> UsedTriggers { get; set; }
+
+        public DateTime LastSubscriptionEdit { get; set; }
+
+        public DateTime LastDefinitionEdit { get; set; }
     }
 }

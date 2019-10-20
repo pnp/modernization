@@ -22,14 +22,21 @@ namespace SharePoint.Modernization.Scanner
         private Int32 SitesToScan = 0;
         private string CurrentVersion;
         private string NewVersion;
+        private readonly string USDateFormat = "M/d/yyyy";
+        private readonly string EuropeDateFormat = "d/M/yyyy";
+        private Options options;
+
+        internal AppOnlyManager AppOnlyManager;
 
         public Mode Mode;
         public bool ExportWebPartProperties;
         public bool SkipUsageInformation;
         public bool SkipUserInformation;
+        public string DateFormat;
         public bool ExcludeListsOnlyBlockedByOobReasons;
         public string EveryoneExceptExternalUsersClaim = "";
         public readonly string EveryoneClaim = "c:0(.s|true";
+        public bool AppOnlyHasFullControl = true;
         public ConcurrentDictionary<string, SiteScanResult> SiteScanResults;
         public ConcurrentDictionary<string, WebScanResult> WebScanResults;
         public ConcurrentDictionary<string, PageScanResult> PageScanResults;
@@ -39,6 +46,8 @@ namespace SharePoint.Modernization.Scanner
         public ConcurrentDictionary<string, PublishingPageScanResult> PublishingPageScanResults;
         public ConcurrentDictionary<string, WorkflowScanResult> WorkflowScanResults;
         public ConcurrentDictionary<string, InfoPathScanResult> InfoPathScanResults;
+        public ConcurrentDictionary<string, BlogWebScanResult> BlogWebScanResults;
+        public ConcurrentDictionary<string, BlogPageScanResult> BlogPageScanResults;
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
         public ScannerTelemetry ScannerTelemetry;        
@@ -51,6 +60,8 @@ namespace SharePoint.Modernization.Scanner
         /// <param name="options">Options instance</param>
         public ModernizationScanJob(Options options) : base(options as BaseOptions, "ModernizationScanner", "1.0")
         {
+            this.options = options;
+
             ExpandSubSites = false;
             Mode = options.Mode;
             ExportWebPartProperties = options.ExportWebPartProperties;
@@ -58,7 +69,20 @@ namespace SharePoint.Modernization.Scanner
             SkipUserInformation = options.SkipUserInformation;
             ExcludeListsOnlyBlockedByOobReasons = options.ExcludeListsOnlyBlockedByOobReasons;
             CurrentVersion = options.CurrentVersion;
-            NewVersion = options.NewVersion;            
+            NewVersion = options.NewVersion;
+
+            // Handle date format setting
+            if (options.DateFormat.Equals(USDateFormat) || options.DateFormat.Equals(EuropeDateFormat))
+            {
+                DateFormat = options.DateFormat;
+            }
+            else
+            {
+                // Default to US format in case the provided format is not valid
+                DateFormat = USDateFormat;
+            }
+
+            this.AppOnlyManager = new AppOnlyManager();
 
             // Scan results
             this.SiteScanResults = new ConcurrentDictionary<string, SiteScanResult>(options.Threads, 10000);
@@ -70,6 +94,8 @@ namespace SharePoint.Modernization.Scanner
             this.PublishingSiteScanResults = new Dictionary<string, PublishingSiteScanResult>(500);
             this.PublishingWebScanResults = new ConcurrentDictionary<string, PublishingWebScanResult>(options.Threads, 1000);
             this.PublishingPageScanResults = new ConcurrentDictionary<string, PublishingPageScanResult>(options.Threads, 10000);
+            this.BlogWebScanResults = new ConcurrentDictionary<string, BlogWebScanResult>(options.Threads, 50000);
+            this.BlogPageScanResults = new ConcurrentDictionary<string, BlogPageScanResult>(options.Threads, 500000);
 
             // Setup telemetry client
             if (!options.DisableTelemetry)
@@ -168,7 +194,7 @@ namespace SharePoint.Modernization.Scanner
                                                   p => p.UserCustomActions, // Web user custom actions 
                                                   p => p.Language, p => p.AllProperties, p => p.ServerRelativeUrl, // used in publishing analyzer
                                                   p => p.Features,
-                                                  p => p.RootFolder
+                                                  p => p.WelcomePage
                                       );
                             ccWeb.ExecuteQueryRetry();
 
@@ -271,13 +297,57 @@ namespace SharePoint.Modernization.Scanner
         /// <param name="addedSites">List of sites found to scan</param>
         /// <returns>Updated list of sites to scan</returns>
         public override List<string> ResolveAddedSites(List<string> addedSites)
-        {
-            var sites = base.ResolveAddedSites(addedSites);
+        {            
+            try
+            {
+                this.AppOnlyHasFullControl = this.AppOnlyManager.AppOnlyTokenHasFullControl(this.options, addedSites);
+            }
+            catch (Exception ex)
+            {
+                // Oops, not critical...let's continue
+            }
+
+            // Determine tenant admin center URL
+            string tenantAdmin = "";
+            if (!string.IsNullOrEmpty(this.TenantAdminSite))
+            {
+                tenantAdmin = this.TenantAdminSite;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(this.Tenant))
+                {
+                    this.Tenant = new Uri(addedSites[0]).DnsSafeHost.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[0];
+                }
+
+                tenantAdmin = $"https://{this.Tenant}-admin.sharepoint.com";
+            }
+
+            List<string> sites = null;
+            if (!this.AppOnlyHasFullControl)
+            {
+                // We don't have permission to enumerate security information, so turning off that options
+                this.SkipUserInformation = true;
+
+                // Query DO_NOT_DELETE_SPLIST_TENANTADMIN_AGGREGATED_SITECOLLECTIONS list in tenant admin as fall back scenario
+                // Using Tenant Admin API or Search with app-only only works when having full control
+                string previousRealm = this.Realm;
+                this.Realm = GetRealmFromTargetUrl(new Uri(tenantAdmin));
+                using (ClientContext ccAdmin = this.CreateClientContext(tenantAdmin))
+                {
+                    sites = this.AppOnlyManager.ResolveSitesWithoutFullControl(ccAdmin, addedSites, /*this.ExcludeOD4B*/ true);
+                }
+                this.Realm = previousRealm;
+            }
+            else
+            {
+                sites = base.ResolveAddedSites(addedSites);
+            }            
             this.SitesToScan = sites.Count;
 
             //Perform global initialization tasks, things you only want to do once per run
             if (sites.Count > 0)
-            {
+            {                
                 try
                 {
                     using (ClientContext cc = this.CreateClientContext(sites[0]))
@@ -312,21 +382,6 @@ namespace SharePoint.Modernization.Scanner
             }
 
             // Setup tenant context
-            string tenantAdmin = "";
-            if (!string.IsNullOrEmpty(this.TenantAdminSite))
-            {
-                tenantAdmin = this.TenantAdminSite;
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(this.Tenant))
-                {
-                    this.Tenant = new Uri(addedSites[0]).DnsSafeHost.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[0];
-                }
-
-                tenantAdmin = $"https://{this.Tenant}-admin.sharepoint.com";
-            }
-
             this.Realm = GetRealmFromTargetUrl(new Uri(tenantAdmin));
             using (ClientContext ccAdmin = this.CreateClientContext(tenantAdmin))
             {
@@ -337,16 +392,9 @@ namespace SharePoint.Modernization.Scanner
             this.PageTransformation = new PageTransformationManager().LoadPageTransformationModel();
 
             // Load the workflow models
-            if (Options.IncludeWorkflow(this.Mode))
+            if (Options.IncludeWorkflow(this.Mode) && this.AppOnlyHasFullControl)
             {
                 WorkflowManager.Instance.LoadWorkflowDefaultActions();
-
-                // TEST
-                //string sp2010Sample1 = "<ns0:RootWorkflowActivityWithData x:Class=\"Microsoft.SharePoint.Workflow.ROOT\" x:Name=\"ROOT\" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/workflow\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:ns0=\"clr-namespace:Microsoft.SharePoint.WorkflowActions;Assembly=Microsoft.SharePoint.WorkflowActions, Version=16.0.0.0, Culture=neutral, PublicKeyToken=null\">\r\n\t<ns0:RootWorkflowActivityWithData.WorkflowFields>\r\n\t\t<ns0:WorkflowDataField Type=\"System.String\" Name=\"__list\" />\r\n\t\t<ns0:WorkflowDataField Type=\"Microsoft.SharePoint.Workflow.SPItemKey, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c\" Name=\"__item\" />\r\n\t\t<ns0:WorkflowDataField Type=\"Microsoft.SharePoint.WorkflowActions.WorkflowContext\" Name=\"__context\" />\r\n\t\t<ns0:WorkflowDataField Type=\"Microsoft.SharePoint.Workflow.SPWorkflowActivationProperties\" Name=\"__initParams\" />\r\n\t\t<ns0:WorkflowDataField Type=\"System.Guid\" Name=\"__workflowId\" />\r\n\t\t<ns0:WorkflowDataField Type=\"System.String\" Name=\"__historylist\" />\r\n\t\t<ns0:WorkflowDataField Type=\"System.String\" Name=\"__tasklist\" />\r\n\t\t<ns0:WorkflowDataField Type=\"System.Int32\" Name=\"__itemId\" />\r\n\t</ns0:RootWorkflowActivityWithData.WorkflowFields>\r\n\t<ns0:OnWorkflowActivated WorkflowProperties=\"{ActivityBind ROOT,Path=__initParams}\" x:Name=\"ID1\">\r\n\t\t<ns0:OnWorkflowActivated.CorrelationToken>\r\n\t\t\t<wf0:CorrelationToken OwnerActivityName=\"ROOT\" Name=\"refObject\" xmlns:wf0=\"http://schemas.microsoft.com/winfx/2006/xaml/workflow\" />\r\n\t\t</ns0:OnWorkflowActivated.CorrelationToken>\r\n\t</ns0:OnWorkflowActivated>\r\n\t<ns0:ApplyActivation x:Name=\"ID2\" __WorkflowProperties=\"{ActivityBind ROOT,Path=__initParams}\" __Context=\"{ActivityBind ROOT,Path=__context}\" />\r\n\t<SequenceActivity Description=\"Step 1\" x:Name=\"ID3\">\r\n\t\t<ns0:LogToHistoryListActivity HistoryDescription=\"bla\" HistoryOutcome=\"{x:Null}\" EventId=\"WorkflowComment\" x:Name=\"ID4\" UserId=\"-1\" OtherData=\"{x:Null}\" Duration=\"00:00:00\" />\r\n\t</SequenceActivity>\r\n</ns0:RootWorkflowActivityWithData>";
-                //string sp2013Sample1 = "<Activity mc:Ignorable=\"mwaw\" x:Class=\"Demo3.MTW\" xmlns=\"http://schemas.microsoft.com/netfx/2009/xaml/activities\" xmlns:local=\"clr-namespace:Microsoft.SharePoint.WorkflowServices.Activities\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" xmlns:mwaw=\"clr-namespace:Microsoft.Web.Authoring.Workflow;assembly=Microsoft.Web.Authoring\" xmlns:scg=\"clr-namespace:System.Collections.Generic;assembly=mscorlib\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"><Sequence><Sequence><mwaw:SPDesignerXamlWriter.CustomAttributes><scg:Dictionary x:TypeArguments=\"x:String, x:String\"><x:String x:Key=\"InitBlock\">InitBlock-7751C281-B0D1-4336-87B4-83F2198EDE6D</x:String></scg:Dictionary></mwaw:SPDesignerXamlWriter.CustomAttributes></Sequence><Flowchart StartNode=\"{x:Reference __ReferenceID0}\"><FlowStep x:Name=\"__ReferenceID0\"><mwaw:SPDesignerXamlWriter.CustomAttributes><scg:Dictionary x:TypeArguments=\"x:String, x:String\"><x:String x:Key=\"Next\">4294967294</x:String></scg:Dictionary></mwaw:SPDesignerXamlWriter.CustomAttributes><Sequence><mwaw:SPDesignerXamlWriter.CustomAttributes><scg:Dictionary x:TypeArguments=\"x:String, x:String\"><x:String x:Key=\"StageAttribute\">StageContainer-8EDBFE6D-DA0D-42F6-A806-F5807380DA4D</x:String></scg:Dictionary></mwaw:SPDesignerXamlWriter.CustomAttributes><local:SetWorkflowStatus Disabled=\"False\" Status=\"Stage 1\"><mwaw:SPDesignerXamlWriter.CustomAttributes><scg:Dictionary x:TypeArguments=\"x:String, x:String\"><x:String x:Key=\"StageAttribute\">StageHeader-7FE15537-DFDB-4198-ABFA-8AF8B9D669AE</x:String></scg:Dictionary></mwaw:SPDesignerXamlWriter.CustomAttributes></local:SetWorkflowStatus><Sequence DisplayName=\"Stage 1\"><local:Comment CommentText=\"Hello World!\" /></Sequence><Sequence><mwaw:SPDesignerXamlWriter.CustomAttributes><scg:Dictionary x:TypeArguments=\"x:String, x:String\"><x:String x:Key=\"StageAttribute\">StageFooter-3A59FA7C-C493-47A1-8F8B-1F481143EB08</x:String></scg:Dictionary></mwaw:SPDesignerXamlWriter.CustomAttributes></Sequence></Sequence></FlowStep></Flowchart></Sequence></Activity>";
-
-                //var sp2010OOB = WorkflowManager.Instance.ParseWorkflowDefinition(sp2010Sample1, WorkflowTypes.SP2010);
-                //var sp2013OOB = WorkflowManager.Instance.ParseWorkflowDefinition(sp2013Sample1, WorkflowTypes.SP2013);
             }
 
             return sites;
@@ -529,7 +577,7 @@ namespace SharePoint.Modernization.Scanner
                 }
 
                 outputfile = string.Format("{0}\\PageScanResults.csv", this.OutputFolder);
-                outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "PageUrl", "Library", "HomePage",
+                outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "PageUrl", "Library", "HomePage", "Uncustomized STS#0 home page",
                                            "Type", "Layout", "Mapping %", "Unmapped web parts", "ModifiedBy", "ModifiedAt",
                                            "ViewsRecent", "ViewsRecentUniqueUsers", "ViewsLifeTime", "ViewsLifeTimeUniqueUsers"};
                 Console.WriteLine("Outputting scan results to {0}", outputfile);
@@ -554,8 +602,8 @@ namespace SharePoint.Modernization.Scanner
                     outfile.Write(string.Format("{0}\r\n", header1 + header2));
                     foreach (var item in this.PageScanResults)
                     {
-                        var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.PageUrl), ToCsv(item.Value.Library), item.Value.HomePage,
-                                                                ToCsv(item.Value.PageType), ToCsv(item.Value.Layout), "{MappingPercentage}", "{UnmappedWebParts}", ToCsv(item.Value.ModifiedBy), item.Value.ModifiedAt,
+                        var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.PageUrl), ToCsv(item.Value.Library), item.Value.HomePage, item.Value.UncustomizedHomePage,
+                                                                ToCsv(item.Value.PageType), ToCsv(item.Value.Layout), "{MappingPercentage}", "{UnmappedWebParts}", ToCsv(item.Value.ModifiedBy), ToDateString(item.Value.ModifiedAt, this.DateFormat),
                                                                 (SkipUsageInformation ? 0 : item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers));
 
                         string part2 = "";
@@ -719,7 +767,7 @@ namespace SharePoint.Modernization.Scanner
                             var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.PageRelativeUrl), ToCsv(item.Value.PageName),
                                                                     ToCsv(item.Value.ContentType), ToCsv(item.Value.ContentTypeId), ToCsv(item.Value.PageLayout), ToCsv(item.Value.PageLayoutFile), item.Value.PageLayoutWasCustomized,
                                                                     ToCsv(PublishingPageScanResult.FormatList(item.Value.GlobalAudiences)), ToCsv(PublishingPageScanResult.FormatList(item.Value.SecurityGroupAudiences, "|")), ToCsv(PublishingPageScanResult.FormatList(item.Value.SharePointGroupAudiences)),
-                                                                    item.Value.ModifiedAt, ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
+                                                                    ToDateString(item.Value.ModifiedAt, this.DateFormat), ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
                                 );
 
                             string part2 = "";
@@ -775,9 +823,12 @@ namespace SharePoint.Modernization.Scanner
                 }
 
                 outputfile = string.Format("{0}\\ModernizationWorkflowScanResults.csv", this.OutputFolder);
-                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB",
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB",
                                                "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id",
-                                               "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id"  };
+                                               "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id",
+                                               "Definition Changed On", "Subscription Changed On",
+                                               "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Incompatible Action Count", "Incompatible Actions",
+                                               "Change Year", "Change Quarter", "Change Month" };
 
                 using (StreamWriter outfile = new StreamWriter(outputfile))
                 {
@@ -785,9 +836,12 @@ namespace SharePoint.Modernization.Scanner
                     foreach (var workflow in this.WorkflowScanResults)
                     {
 
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), workflow.Value.ConsiderUpgradingToFlow, ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
                                                                                            ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
-                                                                                           ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString()
+                                                                                           ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(),
+                                                                                           ToDateString(workflow.Value.LastDefinitionEdit, this.DateFormat), ToDateString(workflow.Value.LastSubscriptionEdit, this.DateFormat),
+                                                                                           workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, workflow.Value.UnsupportedActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow)),
+                                                                                           ToYearString(workflow.Value.LastDefinitionEdit), ToQuarterString(workflow.Value.LastDefinitionEdit), ToMonthString(workflow.Value.LastDefinitionEdit)
                                                      )));
                     }
                 }
@@ -805,20 +859,65 @@ namespace SharePoint.Modernization.Scanner
 
                 outputfile = string.Format("{0}\\ModernizationInfoPathScanResults.csv", this.OutputFolder);
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", 
-                                               "List Title", "List Url", "List Id", "Template"  };
+                                               "List Title", "List Url", "List Id", "Template",
+                                               "Change Year", "Change Quarter", "Change Month"  };
 
                 using (StreamWriter outfile = new StreamWriter(outputfile))
                 {
                     outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
                     foreach (var infoPath in this.InfoPathScanResults)
                     {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, infoPath.Value.LastItemUserModifiedDate, infoPath.Value.ItemCount,
-                                                                                           ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate)
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, ToDateString(infoPath.Value.LastItemUserModifiedDate, this.DateFormat), infoPath.Value.ItemCount,
+                                                                                           ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate),
+                                                                                           ToYearString(infoPath.Value.LastItemUserModifiedDate), ToQuarterString(infoPath.Value.LastItemUserModifiedDate), ToMonthString(infoPath.Value.LastItemUserModifiedDate)
                                                      )));
                     }
                 }
 
                 Console.WriteLine("Outputting scan results to {0}", outputfile);
+            }
+
+            if (Options.IncludeBlog(this.Mode))
+            {
+                // Telemetry
+                if (this.ScannerTelemetry != null)
+                {
+                    this.ScannerTelemetry.LogBlogScan(this.BlogWebScanResults, this.BlogPageScanResults);
+                }
+
+                outputfile = string.Format("{0}\\ModernizationBlogWebScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language",
+                                               "Blog Page Count", "Last blog change date", "Last blog publish date",
+                                               "Change Year", "Change Quarter", "Change Month" };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var blogWeb in this.BlogWebScanResults)
+                    {
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.WebTemplate, blogWeb.Value.Language, 
+                                                                                           blogWeb.Value.BlogPageCount, ToDateString(blogWeb.Value.LastRecentBlogPageChange, this.DateFormat), ToDateString(blogWeb.Value.LastRecentBlogPagePublish, this.DateFormat), 
+                                                                                           ToYearString(blogWeb.Value.LastRecentBlogPageChange), ToQuarterString(blogWeb.Value.LastRecentBlogPageChange), ToMonthString(blogWeb.Value.LastRecentBlogPageChange)
+                                                     )));
+                    }
+                }
+
+                Console.WriteLine("Outputting scan results to {0}", outputfile);
+
+                outputfile = string.Format("{0}\\ModernizationBlogPageScanResults.csv", this.OutputFolder);
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Page Relative Url", "Page Title",
+                                               "Modified At", "Modified By", "Published At" };
+
+                using (StreamWriter outfile = new StreamWriter(outputfile))
+                {
+                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                    foreach (var blogPage in this.BlogPageScanResults)
+                    {
+                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
+                                                                                           ToDateString(blogPage.Value.ModifiedAt, this.DateFormat), ToCsv(blogPage.Value.ModifiedBy), ToDateString(blogPage.Value.PublishedDate, this.DateFormat)
+                                                     )));
+                    }
+                }
             }
 
             VersionWarning();

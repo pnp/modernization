@@ -43,6 +43,11 @@ namespace SharePoint.Modernization.Scanner.Reports
         private const string InfoPathCSV = "ModernizationInfoPathScanResults.csv";
         private const string InfoPathMasterFile = "infopathmaster.xlsx";
         private const string InfoPathReport = "Office 365 InfoPath inventory.xlsx";
+        // Blog report variables
+        private const string BlogWebCSV = "ModernizationBlogWebScanResults.csv";
+        private const string BlogPageCSV = "ModernizationBlogPageScanResults.csv";
+        private const string BlogMasterFile = "blogmaster.xlsx";
+        private const string BlogReport = "Office 365 Blog inventory.xlsx";
 
         /// <summary>
         /// Create the list dashboard
@@ -453,6 +458,194 @@ namespace SharePoint.Modernization.Scanner.Reports
         }
 
         /// <summary>
+        /// Create the blog dashboard
+        /// </summary>
+        /// <param name="exportPaths">Paths to read data from</param>
+        public void CreateBlogReport(IList<string> exportPaths)
+        {
+            DataTable blogWebsBaseTable = null;
+            DataTable blogPagesBaseTable = null;
+            DataTable blogWebsTable = null;
+            DataTable blogPagesTable = null;
+            ScanSummary scanSummary = null;
+
+            var outputfolder = ".";
+            DateTime dateCreationTime = DateTime.MinValue;
+            if (exportPaths.Count == 1)
+            {
+                outputfolder = new DirectoryInfo(exportPaths[0]).FullName;
+                var pathToUse = exportPaths[0].TrimEnd(new char[] { '\\' });
+                dateCreationTime = File.GetCreationTime($"{pathToUse}\\{BlogWebCSV}");
+            }
+
+            // import the data and "clean" it
+            //int blogSiteCollectionsCount = 0;
+            var fileLoaded = false;
+            foreach (var path in exportPaths)
+            {
+                var pathToUse = Path.GetFullPath(path.Trim()).TrimEnd(new char[] { '\\' });
+
+                // Load the webs CSV file
+                string csvToLoad = $"{pathToUse}\\{BlogWebCSV}";
+
+                if (!File.Exists(csvToLoad))
+                {
+                    // Skipping as one does not always have this report 
+                    continue;
+                }
+                fileLoaded = true;
+
+                Console.WriteLine($"Generating Blog transformation report based upon data coming from {path}");
+
+                using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
+                {
+                    parser.FirstRowHasHeader = true;
+                    parser.MaxBufferSize = 2000000;
+                    parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
+
+                    // Read the file                    
+                    blogWebsBaseTable = parser.GetDataTable();
+
+                    var blogWebsTable1 = blogWebsBaseTable.Copy();
+                    // clean table
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language", "Blog Page Count", "Last blog change date", "Last blog publish date", "Change Year", "Change Quarter", "Change Month" };
+                    blogWebsTable1 = DropTableColumns(blogWebsTable1, columnsToKeep);
+
+                    if (blogWebsTable == null)
+                    {
+                        blogWebsTable = blogWebsTable1;
+                    }
+                    else
+                    {
+                        blogWebsTable.Merge(blogWebsTable1);
+                    }
+
+                    // Read scanner summary data
+                    var scanSummary1 = DetectScannerSummary($"{pathToUse}\\{ScannerSummaryCSV}");                    
+
+                    if (scanSummary == null)
+                    {
+                        scanSummary = scanSummary1;
+                    }
+                    else
+                    {
+                        MergeScanSummaries(scanSummary, scanSummary1);
+                    }
+                }
+
+                // Load the pages CSV file, if available
+                csvToLoad = $"{pathToUse}\\{BlogPageCSV}";
+                if (File.Exists(csvToLoad))
+                {
+                    using (GenericParserAdapter parser = new GenericParserAdapter(csvToLoad))
+                    {
+                        parser.FirstRowHasHeader = true;
+                        parser.MaxBufferSize = 2000000;
+                        parser.ColumnDelimiter = DetectUsedDelimiter(csvToLoad);
+
+                        // Read the file                    
+                        blogPagesBaseTable = parser.GetDataTable();
+
+                        // Table 1
+                        var blogPagesTable1 = blogPagesBaseTable.Copy();
+                        // clean table
+                        string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Page Relative Url", "Page Title", "Modified At", "Modified By", "Published At" };
+                        blogPagesTable1 = DropTableColumns(blogPagesTable1, columnsToKeep);
+
+                        if (blogPagesTable == null)
+                        {
+                            blogPagesTable = blogPagesTable1;
+                        }
+                        else
+                        {
+                            blogPagesTable.Merge(blogPagesTable1);
+                        }
+                    }
+                }
+            }
+
+            if (!fileLoaded)
+            {
+                // nothing loaded, so nothing to use for report generation
+                return;
+            }
+
+            // Get the template Excel file
+            using (Stream stream = typeof(Generator).Assembly.GetManifestResourceStream($"SharePoint.Modernization.Scanner.Reports.{BlogMasterFile}"))
+            {
+                if (File.Exists($"{outputfolder}\\{BlogMasterFile}"))
+                {
+                    File.Delete($"{outputfolder}\\{BlogMasterFile}");
+                }
+
+                using (var fileStream = File.Create($"{outputfolder}\\{BlogMasterFile}"))
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+                    stream.CopyTo(fileStream);
+                }
+            }
+
+            // Push the data to Excel, starting from an Excel template
+            using (var excel = new ExcelPackage(new FileInfo($"{outputfolder}\\{BlogMasterFile}"), false))
+            {
+
+                var dashboardSheet = excel.Workbook.Worksheets["Dashboard"];
+                if (scanSummary != null)
+                {
+                    if (scanSummary.SiteCollections.HasValue)
+                    {
+                        dashboardSheet.SetValue("R7", scanSummary.SiteCollections.Value);
+                    }
+                    if (scanSummary.Webs.HasValue)
+                    {
+                        dashboardSheet.SetValue("T7", scanSummary.Webs.Value);
+                    }
+                    if (scanSummary.Duration != null)
+                    {
+                        dashboardSheet.SetValue("R8", scanSummary.Duration);
+                    }
+                    if (scanSummary.Version != null)
+                    {
+                        dashboardSheet.SetValue("R9", scanSummary.Version);
+                    }
+                }
+
+                if (dateCreationTime > DateTime.Now.Subtract(new TimeSpan(5 * 365, 0, 0, 0, 0)))
+                {
+                    dashboardSheet.SetValue("R6", dateCreationTime.ToString("G", DateTimeFormatInfo.InvariantInfo));
+                }
+                else
+                {
+                    dashboardSheet.SetValue("R6", "-");
+                }
+
+                var blogWebsSheet = excel.Workbook.Worksheets["BlogWebs"];
+                InsertTableData(blogWebsSheet.Tables[0], blogWebsTable);
+
+                var blogPagesSheet = excel.Workbook.Worksheets["BlogPages"];
+                if (blogPagesTable != null)
+                {
+                    InsertTableData(blogPagesSheet.Tables[0], blogPagesTable);
+                }
+
+                // Save the resulting file
+                if (File.Exists($"{outputfolder}\\{BlogReport}"))
+                {
+                    File.Delete($"{outputfolder}\\{BlogReport}");
+                }
+                excel.SaveAs(new FileInfo($"{outputfolder}\\{BlogReport}"));
+            }
+
+            // Clean the template file
+            if (File.Exists($"{outputfolder}\\{BlogMasterFile}"))
+            {
+                Task.Delay(2000).Wait();
+                File.Delete($"{outputfolder}\\{BlogMasterFile}");
+            }
+
+        }
+
+        /// <summary>
         /// Create the site page dashboard
         /// </summary>
         /// <param name="exportPaths">Paths to read data from</param>
@@ -688,7 +881,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Table 1
                     var workflowTable1 = baseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB", "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id", "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id" };
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB", "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id", "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id", "Definition Changed On", "Subscription Changed On", "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Incompatible Action Count", "Incompatible Actions", "Change Year", "Change Quarter", "Change Month" };
                     workflowTable1 = DropTableColumns(workflowTable1, columnsToKeep);
 
                     if (workflowTable == null)
@@ -839,7 +1032,7 @@ namespace SharePoint.Modernization.Scanner.Reports
                     // Table 1
                     var infoPathTable1 = baseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", "List Title", "List Url", "List Id", "Template" };
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", "List Title", "List Url", "List Id", "Template", "Change Year", "Change Quarter", "Change Month" };
                     infoPathTable1 = DropTableColumns(infoPathTable1, columnsToKeep);
 
                     if (infoPathTable == null)

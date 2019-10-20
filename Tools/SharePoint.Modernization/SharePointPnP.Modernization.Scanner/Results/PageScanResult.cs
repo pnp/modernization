@@ -15,6 +15,7 @@ namespace SharePoint.Modernization.Scanner.Results
         public string Library { get; set; }
         public string Layout { get; set; }
         public bool HomePage { get; set; }
+        public bool UncustomizedHomePage { get; set; }
 
         // Page modification information
         public DateTime ModifiedAt { get; set; }

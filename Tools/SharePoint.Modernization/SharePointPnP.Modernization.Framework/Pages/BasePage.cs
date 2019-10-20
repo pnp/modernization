@@ -338,7 +338,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             cc.ExecuteQueryRetry();
 
             LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
-            List<WebServiceWebPartProperties> webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(wikiPage.EnsureProperty(p => p.ServerRelativeUrl)); ;
+            List<WebServiceWebPartProperties> webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(wikiPage.EnsureProperty(p => p.ServerRelativeUrl));
             var pageUrl = page[Constants.FileRefField].ToString();
 
             foreach(var foundWebPart in webPartsViaManager)

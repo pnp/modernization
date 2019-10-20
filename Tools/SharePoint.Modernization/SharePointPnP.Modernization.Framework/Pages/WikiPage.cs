@@ -1,16 +1,12 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
-using AngleSharp.Parser.Html;
 using Microsoft.SharePoint.Client;
-using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace SharePointPnP.Modernization.Framework.Pages
 {
@@ -103,7 +99,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
             // Bulk load the needed web part information
             if (webPartsToRetrieve.Count > 0)
             {
-                if (GetVersion(cc) == SPVersion.SP2010)
+                var spVersion = GetVersion(cc);
+                if (spVersion == SPVersion.SP2010 || spVersion == SPVersion.SP2013Legacy || spVersion == SPVersion.SP2016Legacy)
                 {
                     LoadWebPartsInWikiContentFromOnPremisesServer(webparts, wikiPage, webPartsToRetrieve);
                 }
@@ -185,13 +182,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
                             var tdTag = doc.All.Where(p => p.LocalName == "td" && p.HasAttribute("style")).FirstOrDefault();
                             if (tdTag != null)
                             {
-                                if (tdTag.GetAttribute("style").Equals("width:49.95%;", StringComparison.InvariantCultureIgnoreCase))
+                                if (tdTag.GetAttribute("style").IndexOf("width:49.95%;", StringComparison.InvariantCultureIgnoreCase) > -1)
                                 {
                                     return PageLayout.Wiki_TwoColumns;
                                 }
-                                else if (tdTag.GetAttribute("style").Equals("width:66.6%;", StringComparison.InvariantCultureIgnoreCase))
+                                else if (tdTag.GetAttribute("style").IndexOf("width:66.6%;", StringComparison.InvariantCultureIgnoreCase) > -1)
                                 {
                                     return PageLayout.Wiki_TwoColumnsWithSidebar;
+                                }
+                                else
+                                {
+                                    return PageLayout.Wiki_TwoColumns;
                                 }
                             }
                         }
@@ -232,13 +233,17 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
                     else if (tdTags.Count() == 2)
                     {
-                        if (tdTags.First().GetAttribute("style").Equals("width:49.95%;", StringComparison.InvariantCultureIgnoreCase))
+                        if (tdTags.First().GetAttribute("style").IndexOf("width:49.95%;", StringComparison.InvariantCultureIgnoreCase) > -1)
                         {
                             return PageLayout.Wiki_TwoColumns;
                         }
-                        else if (tdTags.First().GetAttribute("style").Equals("width:66.6%;", StringComparison.InvariantCultureIgnoreCase))
+                        else if (tdTags.First().GetAttribute("style").IndexOf("width:66.6%;", StringComparison.InvariantCultureIgnoreCase) > -1)
                         {
                             return PageLayout.Wiki_TwoColumnsWithSidebar;
+                        }
+                        else
+                        {
+                            return PageLayout.Wiki_TwoColumns;
                         }
                     }
                     else if (tdTags.Count() == 3)

@@ -243,40 +243,44 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             Stream sourceStream = null;
             var sourceAssetFile = _sourceClientContext.Web.GetFileByServerRelativeUrl(sourceFileUrl);
+            _sourceClientContext.Load(sourceAssetFile, s => s.Exists);
+            _sourceClientContext.ExecuteQueryRetry();
 
-            // Test ByPass
-            //if 2010 then
-
-            if (_sourceContextSPVersion == SPVersion.SP2010)
+            if (sourceAssetFile.Exists)
             {
-                sourceStream = new MemoryStream();
+                // Test ByPass
+                //if 2010 then
 
-                if (_sourceClientContext.HasPendingRequest)
+                if (_sourceContextSPVersion == SPVersion.SP2010)
                 {
+                    sourceStream = new MemoryStream();
+
+                    if (_sourceClientContext.HasPendingRequest)
+                    {
+                        _sourceClientContext.ExecuteQueryRetry();
+                    }
+                    var fileBinary = File.OpenBinaryDirect(_sourceClientContext, sourceFileUrl);
                     _sourceClientContext.ExecuteQueryRetry();
+                    Stream tempSourceStream = fileBinary.Stream;
+
+                    CopyStream(tempSourceStream, sourceStream);
+
+                    //Fix: https://stackoverflow.com/questions/47510815/sharepoint-uploadfile-specified-argument-was-out-of-range-of-valid-values
+                    sourceStream.Seek(0, SeekOrigin.Begin);
+
                 }
-                var fileBinary = File.OpenBinaryDirect(_sourceClientContext, sourceFileUrl);
-                _sourceClientContext.ExecuteQueryRetry();
-                Stream tempSourceStream = fileBinary.Stream;
+                else
+                {
+                    // Get the file from SharePoint
 
-                CopyStream(tempSourceStream, sourceStream);
+                    ClientResult<System.IO.Stream> sourceAssetFileData = sourceAssetFile.OpenBinaryStream();
+                    _sourceClientContext.Load(sourceAssetFile);
+                    _sourceClientContext.ExecuteQueryRetry();
+                    sourceStream = sourceAssetFileData.Value;
 
-                //Fix: https://stackoverflow.com/questions/47510815/sharepoint-uploadfile-specified-argument-was-out-of-range-of-valid-values
-                sourceStream.Seek(0, SeekOrigin.Begin);
+                }
 
-            }
-            else
-            {
-                // Get the file from SharePoint
-
-                ClientResult<System.IO.Stream> sourceAssetFileData = sourceAssetFile.OpenBinaryStream();
-                _sourceClientContext.Load(sourceAssetFile);
-                _sourceClientContext.ExecuteQueryRetry();
-                sourceStream = sourceAssetFileData.Value;
-
-            }
-
-            using (Stream sourceFileStream = sourceStream)
+                using (Stream sourceFileStream = sourceStream)
                 {
 
                     string fileName = sourceAssetFile.EnsureProperty(p => p.Name);
@@ -399,12 +403,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 }
                             }
                         }
-
                     }
-
                 }
-
-                return null;
+            }
+            LogWarning("Asset was not transferred as it was not found in the source web. Asset: " + sourceFileUrl, LogStrings.Heading_AssetTransfer);
+            return null;
             }
 
             /// <summary>

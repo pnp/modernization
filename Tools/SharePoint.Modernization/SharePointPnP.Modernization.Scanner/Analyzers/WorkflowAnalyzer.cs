@@ -1,17 +1,22 @@
-﻿using System;
-using System.Linq;
-using Microsoft.SharePoint.Client;
+﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Workflow;
 using Microsoft.SharePoint.Client.WorkflowServices;
 using SharePoint.Modernization.Scanner.Results;
+using SharePoint.Modernization.Scanner.Workflow;
 using SharePoint.Scanning.Framework;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace SharePoint.Modernization.Scanner.Analyzers
 {
     /// <summary>
     /// Workflow analyzer
     /// </summary>
-    public class WorkflowAnalyzer: BaseAnalyzer
+    public class WorkflowAnalyzer : BaseAnalyzer
     {
         private class SP2010WorkFlowAssociation
         {
@@ -21,9 +26,9 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             public ContentType AssociatedContentType { get; set; }
         }
 
-        private static readonly string[] OOBWorkflowIDStarts = new string[] 
+        private static readonly string[] OOBWorkflowIDStarts = new string[]
         {
-            "e43856d2-1bb4-40ef-b08b-016d89a00", //Publishing approval
+            "e43856d2-1bb4-40ef-b08b-016d89a00",    // Publishing approval
             "3bfb07cb-5c6a-4266-849b-8d6711700409", // Collect feedback - 2010
             "46c389a4-6e18-476c-aa17-289b0c79fb8f", // Collect feedback
             "77c71f43-f403-484b-bcb2-303710e00409", // Collect signatures - 2010
@@ -35,7 +40,8 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             "dd19a800-37c1-43c0-816d-f8eb5f4a4145", // Disposition approval
         };
 
-        private System.Collections.Generic.List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
+        private List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
+        private List workflowList;
 
         #region Construction
         /// <summary>
@@ -46,7 +52,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
         /// <param name="scanJob">Job that launched this analyzer</param>
         public WorkflowAnalyzer(string url, string siteColUrl, ModernizationScanJob scanJob) : base(url, siteColUrl, scanJob)
         {
-            this.sp2010WorkflowAssociations = new System.Collections.Generic.List<SP2010WorkFlowAssociation>(20);
+            this.sp2010WorkflowAssociations = new List<SP2010WorkFlowAssociation>(20);            
         }
         #endregion
 
@@ -60,12 +66,18 @@ namespace SharePoint.Modernization.Scanner.Analyzers
         {
             try
             {
+                // Workflow analysis does not work as the xoml / xaml files can't be read with Sites.Read.All permission
+                if (!this.ScanJob.AppOnlyHasFullControl)
+                {
+                    return TimeSpan.Zero;
+                }
+
                 Web web = cc.Web;
 
                 // Pre-load needed properties in a single call
                 cc.Load(web, w => w.Id, w => w.ServerRelativeUrl, w => w.Url, w => w.WorkflowTemplates, w => w.WorkflowAssociations);
                 cc.Load(web, p => p.ContentTypes.Include(ct => ct.WorkflowAssociations, ct => ct.Name, ct => ct.StringId));
-                cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder, li => li.ItemCount, li => li.WorkflowAssociations));
+                cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate , li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations));
                 cc.ExecuteQueryRetry();
 
                 var lists = web.Lists;
@@ -96,19 +108,23 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     siteDefinitions = definitions.ToArray();
                     siteSubscriptions = subscriptions.ToArray();
                 }
-                catch (ServerException)
+                catch (ServerException ex)
                 {
                     // If there is no workflow service present in the farm this method will throw an error. 
                     // Swallow the exception
                 }
                
                 // We've found SP2013 site scoped workflows
-                if (siteDefinitions.Count() > 0)
+                if (siteDefinitions != null && siteDefinitions.Count() > 0)
                 {
                     foreach (var siteDefinition in siteDefinitions.Where(p=>p.RestrictToType.Equals("site", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase)))
                     {
                         // Check if this workflow is also in use
                         var siteWorkflowSubscriptions = siteSubscriptions.Where(p => p.DefinitionId.Equals(siteDefinition.Id));
+
+                        // Perform workflow analysis
+                        var workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(siteDefinition.Xaml, WorkflowTypes.SP2013);
+                        var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartOnCreate"), GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartOnChange"), GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartManually"));
 
                         if (siteWorkflowSubscriptions.Count() > 0)
                         {
@@ -133,6 +149,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     DefinitionId = siteDefinition.Id,
                                     IsOOBWorkflow = false,
                                     SubscriptionId = siteWorkflowSubscription.Id,
+                                    UsedActions = workFlowAnalysisResult?.WorkflowActions,
+                                    ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                                    UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                    UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                    UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
+                                    LastDefinitionEdit = GetWorkflowPropertyDateTime(siteDefinition.Properties, "Definition.ModifiedDateUTC"),
+                                    LastSubscriptionEdit = GetWorkflowPropertyDateTime(siteWorkflowSubscription.PropertyDefinitions, "SharePointWorkflowContext.Subscription.ModifiedDateUTC"),
                                 };
 
                                 if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
@@ -169,6 +192,12 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 DefinitionId = siteDefinition.Id,
                                 IsOOBWorkflow = false,
                                 SubscriptionId = Guid.Empty,
+                                UsedActions = workFlowAnalysisResult?.WorkflowActions,
+                                ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                                UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
+                                UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                LastDefinitionEdit = GetWorkflowPropertyDateTime(siteDefinition.Properties, "Definition.ModifiedDateUTC"),
                             };
 
                             if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
@@ -187,12 +216,16 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 }
 
                 // We've found SP2013 list scoped workflows
-                if (siteDefinitions.Count() > 0)
+                if (siteDefinitions != null && siteDefinitions.Count() > 0)
                 {
                     foreach (var listDefinition in siteDefinitions.Where(p => p.RestrictToType.Equals("list", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase)))
                     {
                         // Check if this workflow is also in use
                         var listWorkflowSubscriptions = siteSubscriptions.Where(p => p.DefinitionId.Equals(listDefinition.Id));
+
+                        // Perform workflow analysis
+                        var workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(listDefinition.Xaml, WorkflowTypes.SP2013);
+                        var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartOnCreate"), GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartOnChange"), GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartManually"));
 
                         if (listWorkflowSubscriptions.Count() > 0)
                         {
@@ -234,6 +267,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     DefinitionId = listDefinition.Id,
                                     IsOOBWorkflow = false,
                                     SubscriptionId = listWorkflowSubscription.Id,
+                                    UsedActions = workFlowAnalysisResult?.WorkflowActions,
+                                    ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                                    UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                    UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                    UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
+                                    LastDefinitionEdit = GetWorkflowPropertyDateTime(listDefinition.Properties, "Definition.ModifiedDateUTC"),
+                                    LastSubscriptionEdit = GetWorkflowPropertyDateTime(listWorkflowSubscription.PropertyDefinitions, "SharePointWorkflowContext.Subscription.ModifiedDateUTC"),
                                 };
 
                                 if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
@@ -271,7 +311,12 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                 DefinitionId = listDefinition.Id,
                                 IsOOBWorkflow = false,
                                 SubscriptionId = Guid.Empty,
-
+                                UsedActions = workFlowAnalysisResult?.WorkflowActions,
+                                ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                                UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
+                                LastDefinitionEdit = GetWorkflowPropertyDateTime(listDefinition.Properties, "Definition.ModifiedDateUTC"),
                             };
 
                             if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
@@ -319,26 +364,39 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 }
 
                 // Process 2010 worflows
-                System.Collections.Generic.List<Guid> processedWorkflowAssociations = new System.Collections.Generic.List<Guid>(this.sp2010WorkflowAssociations.Count);
+                List<Guid> processedWorkflowAssociations = new List<Guid>(this.sp2010WorkflowAssociations.Count);
+
                 if (web.WorkflowTemplates.Count > 0)
                 {
+
+                    // Process the templates
                     foreach (var workflowTemplate in web.WorkflowTemplates)
                     {
                         // do we have workflows associated for this template?
                         var associatedWorkflows = this.sp2010WorkflowAssociations.Where(p => p.WorkflowAssociation.BaseId.Equals(workflowTemplate.Id));
-
                         if (associatedWorkflows.Count() > 0)
                         {
-                            foreach(var associatedWorkflow in associatedWorkflows)
+                            // Perform workflow analysis
+                            // If returning null than this workflow template was an OOB workflow one
+                            WorkflowActionAnalysis workFlowAnalysisResult = null;
+                            var loadedWorkflow = LoadWorkflowDefinition(cc, workflowTemplate);
+                            if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                            {
+                                workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                            }
+
+                            foreach (var associatedWorkflow in associatedWorkflows)
                             {
                                 processedWorkflowAssociations.Add(associatedWorkflow.WorkflowAssociation.Id);
 
                                 // Skip previous versions of a workflow
-                                // todo: non-english sites will use another string
+                                // TODO: non-english sites will use another string
                                 if (associatedWorkflow.WorkflowAssociation.Name.Contains("(Previous Version:"))
                                 {
                                     continue;
                                 }
+
+                                var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(associatedWorkflow.WorkflowAssociation.AutoStartCreate, associatedWorkflow.WorkflowAssociation.AutoStartChange, associatedWorkflow.WorkflowAssociation.AllowManual);
 
                                 WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
@@ -360,6 +418,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     DefinitionId = workflowTemplate.Id,
                                     IsOOBWorkflow = IsOOBWorkflow(workflowTemplate.Id.ToString()),
                                     SubscriptionId = associatedWorkflow.WorkflowAssociation.Id,
+                                    UsedActions = workFlowAnalysisResult?.WorkflowActions,
+                                    ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                                    UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                    UnsupportedActionsInFlow = workFlowAnalysisResult?.UnsupportedActions,
+                                    UnsupportedActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.UnsupportedAccountCount : 0,
+                                    LastDefinitionEdit = loadedWorkflow != null ? loadedWorkflow.Item2 : associatedWorkflow.WorkflowAssociation.Modified,
+                                    LastSubscriptionEdit = associatedWorkflow.WorkflowAssociation.Modified,
                                 };
 
                                 if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
@@ -380,6 +445,16 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             // Only add non OOB workflow templates when there's no associated workflow - makes the dataset smaller
                             if (!IsOOBWorkflow(workflowTemplate.Id.ToString()))
                             {
+                                // Perform workflow analysis
+                                WorkflowActionAnalysis workFlowAnalysisResult = null;
+                                var loadedWorkflow = LoadWorkflowDefinition(cc, workflowTemplate);
+                                if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                                {
+                                    workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                                }
+
+
+                                var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(workflowTemplate.AutoStartCreate, workflowTemplate.AutoStartChange, workflowTemplate.AllowManual);
 
                                 WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
@@ -401,6 +476,10 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                                     DefinitionId = workflowTemplate.Id,
                                     IsOOBWorkflow = IsOOBWorkflow(workflowTemplate.Id.ToString()),
                                     SubscriptionId = Guid.Empty,
+                                    UsedActions = workFlowAnalysisResult?.WorkflowActions,
+                                    ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                                    UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                                    LastDefinitionEdit = loadedWorkflow != null ? loadedWorkflow.Item2 : DateTime.MinValue,
                                 };
 
                                 if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
@@ -419,17 +498,27 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     }
                 }
 
-                // Are there associated workflows for which we did not find a template
+                // Are there associated workflows for which we did not find a template (especially when the WF is created for a list)
                 foreach(var associatedWorkflow in this.sp2010WorkflowAssociations)
                 {
                     if (!processedWorkflowAssociations.Contains(associatedWorkflow.WorkflowAssociation.Id))
                     {
                         // Skip previous versions of a workflow
-                        // todo: non-english sites will use another string
+                        // TODO: non-english sites will use another string
                         if (associatedWorkflow.WorkflowAssociation.Name.Contains("(Previous Version:"))
                         {
                             continue;
                         }
+
+                        // Perform workflow analysis
+                        WorkflowActionAnalysis workFlowAnalysisResult = null;
+                        var loadedWorkflow = LoadWorkflowDefinition(cc, associatedWorkflow.WorkflowAssociation);
+                        if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                        {
+                            workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                        }
+
+                        var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(associatedWorkflow.WorkflowAssociation.AutoStartCreate, associatedWorkflow.WorkflowAssociation.AutoStartChange, associatedWorkflow.WorkflowAssociation.AllowManual);
 
                         WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                         {
@@ -451,6 +540,11 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                             DefinitionId = Guid.Empty,
                             IsOOBWorkflow = false,
                             SubscriptionId = associatedWorkflow.WorkflowAssociation.Id,
+                            UsedActions = workFlowAnalysisResult?.WorkflowActions,
+                            ActionCount = workFlowAnalysisResult != null ? workFlowAnalysisResult.ActionCount : 0,
+                            UsedTriggers = workFlowTriggerAnalysisResult?.WorkflowTriggers,
+                            LastSubscriptionEdit = associatedWorkflow.WorkflowAssociation.Modified,
+                            LastDefinitionEdit = loadedWorkflow != null ? loadedWorkflow.Item2 : associatedWorkflow.WorkflowAssociation.Modified,
                         };
 
                         if (!this.ScanJob.WorkflowScanResults.TryAdd($"workflowScanResult.SiteURL.{Guid.NewGuid()}", workflowScanResult))
@@ -467,6 +561,26 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     }
                 }
             }
+            catch(Exception ex)
+            {
+                ScanError error = new ScanError()
+                {
+                    Error = ex.Message,
+                    SiteColUrl = this.SiteCollectionUrl,
+                    SiteURL = this.SiteUrl,
+                    Field1 = "WorkflowAnalyzer",
+                    Field2 = ex.StackTrace,
+                };
+
+                // Send error to telemetry to make scanner better
+                if (this.ScanJob.ScannerTelemetry != null)
+                {
+                    this.ScanJob.ScannerTelemetry.LogScanError(ex, error);
+                }
+
+                this.ScanJob.ScanErrors.Push(error);
+                Console.WriteLine("Error during Workflow analysis for site {1}: {0}", ex.Message, $"{this.SiteUrl}");
+            }
             finally
             {
                 this.StopTime = DateTime.Now;
@@ -478,6 +592,152 @@ namespace SharePoint.Modernization.Scanner.Analyzers
         #endregion
 
         #region Helper methods
+        private DateTime GetWorkflowPropertyDateTime(IDictionary<string, string> properties, string property)
+        {
+            if (string.IsNullOrEmpty(property) || properties == null)
+            {
+                return DateTime.MinValue;
+            }
+
+            if (properties.ContainsKey(property))
+            {
+                if (DateTime.TryParseExact(properties[property], "M/d/yyyy h:m:s tt", new CultureInfo("en-US"), DateTimeStyles.AssumeUniversal, out DateTime parsedValue))
+                {
+                    return parsedValue;
+                }
+            }
+
+            return DateTime.MinValue;
+        }
+
+        private bool GetWorkflowPropertyBool(IDictionary<string, string> properties, string property)
+        {
+            if (string.IsNullOrEmpty(property) || properties == null)
+            {
+                return false;
+            }
+
+            if (properties.ContainsKey(property))
+            {
+                if (bool.TryParse(properties[property], out bool parsedValue))
+                {
+                    return parsedValue;
+                }
+            }
+
+            return false;
+        }
+
+        private Tuple<string, DateTime> LoadWorkflowDefinition(ClientContext cc, WorkflowAssociation workflowAssociation)
+        {            
+            // Ensure the workflow library was loaded if not yet done
+            LoadWorkflowLibrary(cc);
+            try
+            {
+                return GetFileInformation(cc.Web, $"{this.workflowList.RootFolder.ServerRelativeUrl}/{workflowAssociation.Name}/{workflowAssociation.Name}.xoml");
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return null;
+        }
+
+        private Tuple<string, DateTime> LoadWorkflowDefinition(ClientContext cc, WorkflowTemplate workflowTemplate)
+        {
+            if (!IsOOBWorkflow(workflowTemplate.Id.ToString()))
+            {
+                // Ensure the workflow library was loaded if not yet done
+                LoadWorkflowLibrary(cc);                
+                try
+                {
+                    return GetFileInformation(cc.Web, $"{this.workflowList.RootFolder.ServerRelativeUrl}/{workflowTemplate.Name}/{workflowTemplate.Name}.xoml");
+                }
+                catch(Exception ex)
+                {
+
+                }
+            }
+
+            return null;
+        }
+
+        private static Tuple<string, DateTime> GetFileInformation(Web web, string serverRelativeUrl)
+        {
+            var file = web.GetFileByServerRelativePath(ResourcePath.FromDecodedUrl(serverRelativeUrl));
+
+            web.Context.Load(file, p => p.ListItemAllFields);
+            web.Context.ExecuteQueryRetry();
+
+            // TODO: fails when using sites.read.all role on xoml file download (access denied, requires ACP permission level)
+            ClientResult<Stream> stream = file.OpenBinaryStream();
+            web.Context.ExecuteQueryRetry();
+
+            string returnString = string.Empty;
+            DateTime date = DateTime.MinValue;
+
+            date = file.ListItemAllFields.LastModifiedDateTime();
+
+            using (Stream memStream = new MemoryStream())
+            {
+                CopyStream(stream.Value, memStream);
+                memStream.Position = 0;
+                StreamReader reader = new StreamReader(memStream);
+                returnString = reader.ReadToEnd();
+            }
+
+            return new Tuple<string, DateTime>(returnString, date);
+        }
+
+        private static void CopyStream(Stream source, Stream destination)
+        {
+            byte[] buffer = new byte[32768];
+            int bytesRead;
+
+            do
+            {
+                bytesRead = source.Read(buffer, 0, buffer.Length);
+                destination.Write(buffer, 0, bytesRead);
+            } while (bytesRead != 0);
+        }
+
+        private List LoadWorkflowLibrary(ClientContext cc)
+        {
+            if (this.workflowList != null)
+            {
+                return this.workflowList;
+            }
+
+            var baseExpressions = new List<Expression<Func<List, object>>> { l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, l => l.Hidden, l=>l.RootFolder.ServerRelativeUrl };
+            var query = cc.Web.Lists.IncludeWithDefaultProperties(baseExpressions.ToArray());
+            var lists = cc.Web.Context.LoadQuery(query.Where(l => l.Title == "Workflows"));
+            cc.ExecuteQueryRetry();
+            this.workflowList = lists.FirstOrDefault();
+
+            return this.workflowList;
+        }
+
+        #region Not used code
+        //private List LoadWorkflowCatalog(ClientContext cc)
+        //{
+        //    if (this.workflowCatalog != null)
+        //    {
+        //        return this.workflowCatalog;
+        //    }
+
+        //    //TODO: does this work for sub sites, verify that this library exists on sub sites?
+        //    this.workflowCatalog = cc.Web.GetListByTitle("wfpub");
+        //    if (this.workflowCatalog != null)
+        //    {
+        //        //this.workflowCatalog.EnsureProperty(p => p.RootFolder);
+        //        this.workflowCatalog.RootFolder.EnsureProperty(p => p.ServerRelativeUrl);
+        //    }
+
+        //    return this.workflowCatalog;
+        //}
+        #endregion
+
         private string GetWorkflowProperty(WorkflowSubscription subscription, string propertyName)
         {
             if (subscription.PropertyDefinitions.ContainsKey(propertyName))

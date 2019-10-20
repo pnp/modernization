@@ -127,6 +127,27 @@ namespace Microsoft.SharePoint.Client
         }
         #endregion
 
+        #region Blog information
+        /// <summary>
+        /// Get's the blog last published date time
+        /// </summary>
+        /// <param name="item">Page list item</param>
+        /// <returns>DateTime of the last modification</returns>
+        public static DateTime LastPublishedDateTime(this ListItem item)
+        {
+            if (FieldExistsAndUsed(item, Constants.PublishedDateField) && !String.IsNullOrEmpty(item[Constants.PublishedDateField].ToString()))
+            {
+                DateTime dt;
+                if (DateTime.TryParse(item[Constants.PublishedDateField].ToString(), out dt))
+                {
+                    return dt;
+                }
+            }
+
+            return DateTime.MinValue;
+        }
+        #endregion
+
         #region Publishing Page information
         /// <summary>
         /// Get's the page page layout file

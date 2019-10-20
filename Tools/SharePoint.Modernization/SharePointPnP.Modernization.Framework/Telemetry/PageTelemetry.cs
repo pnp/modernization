@@ -49,9 +49,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                 this.telemetryClient.Context.Session.Id = Guid.NewGuid().ToString();
                 this.telemetryClient.Context.Cloud.RoleInstance = "SharePointPnPPageTransformation";
                 this.telemetryClient.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
-                //this.telemetryClient.Context.GlobalProperties.Add(EngineVersion, version);
             }
-            catch (Exception ex)
+            catch
             {
                 this.telemetryClient = null;
             }
@@ -122,10 +121,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
                 {
                     properties.Add("Location", location);
                 }
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
                 this.telemetryClient.TrackException(ex, properties, metrics);
             }
-            catch (Exception ex2)
+            catch
             {
                 // Eat all exceptions 
             }

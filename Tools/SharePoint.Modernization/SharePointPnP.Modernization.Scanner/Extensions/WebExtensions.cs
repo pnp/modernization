@@ -26,8 +26,8 @@ namespace Microsoft.SharePoint.Client
 
             ListCollection listCollection = web.Lists;
             listCollection.EnsureProperties(coll => coll.Include(li=>li.Id, li => li.ForceCheckout, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, 
-                                                                 li => li.BaseTemplate, li => li.RootFolder, li => li.ListExperienceOptions, li => li.ItemCount, 
-                                                                 li => li.UserCustomActions, li => li.LastItemUserModifiedDate));
+                                                                 li => li.BaseTemplate, li => li.RootFolder.ServerRelativeUrl, li => li.ListExperienceOptions, li => li.ItemCount, 
+                                                                 li => li.UserCustomActions, li => li.LastItemUserModifiedDate, li => li.DocumentTemplateUrl));
 
             // Let's process the visible lists
             IQueryable<List> listsToReturn = null;

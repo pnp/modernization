@@ -19,7 +19,11 @@ namespace SharePoint.Modernization.Scanner.Telemetry
     public class ScannerTelemetry
     {
         private readonly TelemetryClient telemetryClient;
-        private Guid tenantId;
+        private Guid aadTenantId;
+        private string version;
+
+        private const string EngineVersion = "Version";
+        private const string AADTenantId = "AADTenantId";
 
         #region Construction
         /// <summary>
@@ -29,6 +33,9 @@ namespace SharePoint.Modernization.Scanner.Telemetry
         {
             try
             {
+                var coreAssembly = Assembly.GetExecutingAssembly();
+                this.version = ((AssemblyFileVersionAttribute)coreAssembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version.ToString();
+
                 this.telemetryClient = new TelemetryClient
                 {
                     InstrumentationKey = "70f0a42a-e1ae-4dc5-ad9a-380ce98dc30a"
@@ -40,8 +47,7 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 this.telemetryClient.Context.Session.Id = Guid.NewGuid().ToString();
                 this.telemetryClient.Context.Cloud.RoleInstance = "SharePointPnPModernizationScanner";
                 this.telemetryClient.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
-                var coreAssembly = Assembly.GetExecutingAssembly();
-                this.telemetryClient.Context.GlobalProperties.Add("Version", ((AssemblyFileVersionAttribute)coreAssembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version.ToString());
+
             }
             catch (Exception ex)
             {
@@ -68,6 +74,10 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
                 // Mode
                 properties.Add(ScanStart.Mode.ToString(), options.Mode.ToString());
                 // Used authentication approach
@@ -100,8 +110,10 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                     siteSelectionModel = "Tenant";
                 }
                 properties.Add(ScanStart.SiteSelectionModel.ToString(), siteSelectionModel);
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
-                // track event
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.ScanStart.ToString(), properties, metrics);
             }
             catch
@@ -130,10 +142,17 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
                 properties.Add(PagesResults.Sites.ToString(), scannedSites.ToString());
                 properties.Add(PagesResults.Webs.ToString(), scannedWebs.ToString());
                 properties.Add(PagesResults.Pages.ToString(), pageScanResults.Count.ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.Pages.ToString(), properties, metrics);
 
                 this.telemetryClient.GetMetric($"Pages.{PagesResults.Sites.ToString()}").TrackValue(scannedSites);
@@ -182,7 +201,7 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // Eat all exceptions 
             }
@@ -211,12 +230,20 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+                
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
                 properties.Add(ListResults.Sites.ToString(), scannedSites.ToString());
                 properties.Add(ListResults.Webs.ToString(), scannedWebs.ToString());
                 properties.Add(ListResults.Lists.ToString(), scannedLists.ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.List.ToString(), properties, metrics);
 
+                // Populate metrics
                 this.telemetryClient.GetMetric($"List.{ListResults.Sites.ToString()}").TrackValue(scannedSites);
                 this.telemetryClient.GetMetric($"List.{ListResults.Webs.ToString()}").TrackValue(scannedWebs);
                 this.telemetryClient.GetMetric($"List.{ListResults.Lists.ToString()}").TrackValue(scannedLists);
@@ -237,7 +264,7 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Metric webBlocking = this.telemetryClient.GetMetric($"List.{ListResults.WebBlocking.ToString()}", "List.WebBlocking");
                 Metric listBlocking = this.telemetryClient.GetMetric($"List.{ListResults.ListBlocking.ToString()}", "List.ListBlocking");
 
-                foreach(var item in listScanResults)
+                foreach (var item in listScanResults)
                 {
                     WriteMetric(onlyBlockedByOOB, item.Value.OnlyBlockedByOOBReasons);
                     WriteMetric(renderType, item.Value.PageRenderType.ToString());
@@ -257,13 +284,57 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 }
 
             }
-            catch (Exception ex)
+            catch
             {
                 // Eat all exceptions 
             }
             finally
             {
                 this.telemetryClient.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Log blog scanning results
+        /// </summary>
+        /// <param name="blogWebScanResults">Web blog scan result collection</param>
+        /// <param name="blogPageScanResults">Page blog scan result collection</param>
+        public void LogBlogScan(ConcurrentDictionary<string, BlogWebScanResult> blogWebScanResults, ConcurrentDictionary<string, BlogPageScanResult> blogPageScanResults)
+        {
+            if (this.telemetryClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Prepare event data
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                Dictionary<string, double> metrics = new Dictionary<string, double>();
+
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
+                properties.Add(BlogResults.Webs.ToString(), blogWebScanResults.Count.ToString());
+                properties.Add(BlogResults.Posts.ToString(), blogPageScanResults.Count.ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
+
+                // Send the event
+                this.telemetryClient.TrackEvent(TelemetryEvents.Blogs.ToString(), properties, metrics);
+
+                Metric language = this.telemetryClient.GetMetric($"Blog.{BlogResults.Language.ToString()}", "Blog.Language");
+
+                foreach (var item in blogWebScanResults)
+                {
+                    WriteMetric(language, item.Value.Language);
+                }
+
+            }
+            catch
+            {
+
             }
         }
 
@@ -284,23 +355,32 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
-                properties.Add(WorkflowResults.Workflows.ToString(), worklflowScanResults.Count.ToString());
+                // Populate properties
 
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
+                properties.Add(WorkflowResults.Workflows.ToString(), worklflowScanResults.Count.ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
+
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.Workflows.ToString(), properties, metrics);
 
                 this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Workflows.ToString()}").TrackValue(worklflowScanResults.Count);
 
                 Metric version = this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Version.ToString()}", "Workflow.Version");
                 Metric scope = this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Scope.ToString()}", "Workflow.Scope");
+                Metric upgradability = this.telemetryClient.GetMetric($"Workflow.{WorkflowResults.Upgradability.ToString()}", "Workflow.Upgradability");
 
-                foreach(var item in worklflowScanResults)
+                foreach (var item in worklflowScanResults)
                 {
                     WriteMetric(version, item.Value.Version);
                     WriteMetric(scope, item.Value.Scope);
+                    WriteMetric(upgradability, item.Value.ToFLowMappingPercentage);
                 }
 
             }
-            catch (Exception ex)
+            catch
             {
                 // Eat all exceptions 
             }
@@ -327,8 +407,15 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
-                properties.Add(InfoPathResults.FormsFound.ToString(), infoPathScanResults.Count.ToString());
+                // Populate properties
 
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
+                properties.Add(InfoPathResults.FormsFound.ToString(), infoPathScanResults.Count.ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
+
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.Workflows.ToString(), properties, metrics);
 
                 this.telemetryClient.GetMetric($"InfoPath.{InfoPathResults.FormsFound.ToString()}").TrackValue(infoPathScanResults.Count);
@@ -371,9 +458,16 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
                 properties.Add(GroupConnectResults.Sites.ToString(), siteScanResults.Count.ToString());
                 properties.Add(GroupConnectResults.Webs.ToString(), webScanResults.Count.ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.GroupConnect.ToString(), properties, metrics);
 
                 this.telemetryClient.GetMetric($"GroupConnect.{GroupConnectResults.Sites.ToString()}").TrackValue(siteScanResults.Count);
@@ -419,7 +513,7 @@ namespace SharePoint.Modernization.Scanner.Telemetry
 
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // Eat all exceptions 
             }
@@ -452,10 +546,17 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
                 properties.Add(PublishingResults.Sites.ToString(), publishingSiteScanResults.Count.ToString());
                 properties.Add(PublishingResults.Webs.ToString(), publishingWebScanResults.Count.ToString());
                 properties.Add(PublishingResults.Pages.ToString(), (publishingSiteScanResults != null ? publishingPageScanResults.Count : 0).ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.PublishingPortals.ToString(), properties, metrics);
 
                 this.telemetryClient.GetMetric($"Publishing.{PublishingResults.Sites.ToString()}").TrackValue(publishingSiteScanResults.Count);
@@ -541,7 +642,7 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                     }
                 }
             }
-            catch(Exception ex)
+            catch
             {
                 // Eat all exceptions 
             }
@@ -568,11 +669,20 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
                 if (duration != null)
                 {
                     properties.Add(ScanDone.Duration.ToString(), duration.Minutes.ToString());
+                    // How long did it take to transform this page
+                    metrics.Add(ScanDone.Duration.ToString(), duration.Minutes);
                 }
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.ScanDone.ToString(), properties, metrics);
             }
             catch
@@ -594,6 +704,11 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
+
                 if (error != null)
                 {
                     // Field 1 never contain PII data
@@ -602,10 +717,13 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                         properties.Add(ScanCrash.StackTrace.ToString(), error.Field1);
                     }
                 }
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
+                // Send the event
                 this.telemetryClient.TrackException(ex, properties, metrics);
             }
-            catch(Exception ex2)
+            catch
             {
                 // Eat all exceptions 
             }
@@ -629,6 +747,11 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                 Dictionary<string, string> properties = new Dictionary<string, string>();
                 Dictionary<string, double> metrics = new Dictionary<string, double>();
 
+                // Populate properties
+
+                // Page transformation engine version
+                properties.Add(EngineVersion, this.version);
+
                 if (crash != null)
                 {
                     if (crash is Exception)
@@ -643,7 +766,10 @@ namespace SharePoint.Modernization.Scanner.Telemetry
                         }
                     }
                 }
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
 
+                // Send the event
                 this.telemetryClient.TrackEvent(TelemetryEvents.ScanCrash.ToString(), properties, metrics);
             }
             catch
@@ -737,12 +863,7 @@ namespace SharePoint.Modernization.Scanner.Telemetry
 
                     if (Guid.TryParse(targetRealm, out realmGuid))
                     {
-                        this.tenantId = realmGuid;
-
-                        if (!this.telemetryClient.Context.GlobalProperties.ContainsKey("AADTenantId"))
-                        {
-                            this.telemetryClient.Context.GlobalProperties.Add("AADTenantId", this.tenantId.ToString());
-                        }
+                        this.aadTenantId = realmGuid;
                     }
                 }
             }
