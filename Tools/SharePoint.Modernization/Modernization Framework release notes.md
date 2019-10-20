@@ -23,6 +23,7 @@
 - Allow overriding the target page name for web part pages living outside of a library
 - Fix: Improved wiki page layout detection, ensure we always return a layout type with the correct amount of column to avoid index errors #304
 - Fix: Only populate page header author information when transforming from on-premises. Pages with bad author information cannot be edited 
+- Fix: The swap pages (TargetPageTakesSourcePageName option) now uses File.Move instead of File.Copy. This fixes the issue described in #275
 
 ## [October release - version 1.0.1910.0]
 
