@@ -54,12 +54,28 @@ namespace SharePointPnP.Modernization.Framework.Pages
             //       only possible option to add parsing of the raw page aspx file.
             var limitedWPManager = webPartPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
             cc.Load(limitedWPManager);
-            
-            IEnumerable<WebPartDefinition> webParts = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
+
+            IEnumerable<WebPartDefinition> webParts = null;
+
+            var version = GetVersion(cc);
+            if (version == Transform.SPVersion.SP2010)
+            {
+                // No zoneid and properties properties in 2010 csom
+                webParts = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
+            }
+            else
+            {
+                webParts = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.ZoneId, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties));
+            }
             cc.ExecuteQueryRetry();
 
             LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
-            List<WebServiceWebPartProperties> webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(webPartPage.EnsureProperty(p => p.ServerRelativeUrl)); ;
+            List<WebServiceWebPartProperties> webServiceWebPartEntities = null;
+            if (version == Transform.SPVersion.SP2010)
+            {
+                webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(webPartPage.EnsureProperty(p => p.ServerRelativeUrl));
+            }
+
             var pageUrl = page[Constants.FileRefField].ToString();
 
             // Check page type
@@ -78,57 +94,82 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         WebPartType = "",
                     });
                 }
-
                 
                 foreach (var foundWebPart in webPartsToRetrieve)
                 {
-                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
-
-                    // Skip Microsoft.SharePoint.WebPartPages.TitleBarWebPart webpart in TitleBar zone
-                    if (wsWp.ZoneId.Equals("TitleBar", StringComparison.InvariantCultureIgnoreCase))
+                    if (version == Transform.SPVersion.SP2010)
                     {
-                        if (!includeTitleBarWebPart)
+                        if (webServiceWebPartEntities != null)
                         {
-                            continue;
+                            var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                            if (wsWp != null)
+                            {
+                                // Skip Microsoft.SharePoint.WebPartPages.TitleBarWebPart webpart in TitleBar zone
+                                if (wsWp.ZoneId.Equals("TitleBar", StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    if (!includeTitleBarWebPart)
+                                    {
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (foundWebPart.WebPartDefinition.ZoneId.Equals("TitleBar", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            if (!includeTitleBarWebPart)
+                            {
+                                continue;
+                            }
                         }
                     }
 
-                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
-
-                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.Equals("all", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        var webPartXml = ExportWebPartXmlWorkaround(pageUrl, foundWebPart.WebPartDefinition.Id.ToString());
-                        foundWebPart.WebPartXmlOnPremises = webPartXml;
-                    }
+                    var webPartXml = ExportWebPartXmlWorkaround(pageUrl, foundWebPart.WebPartDefinition.Id.ToString());
+                    foundWebPart.WebPartXmlOnPremises = webPartXml;
                 }
                 
-
                 foreach (var foundWebPart in webPartsToRetrieve)
                 {
-                    bool isExportable = false;
+                    string zoneId = null;
                     Dictionary<string, object> webPartProperties = null;
 
-                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
-                    webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
-
-                    // Skip Microsoft.SharePoint.WebPartPages.TitleBarWebPart webpart in TitleBar zone
-                    if (wsWp.ZoneId.Equals("TitleBar", StringComparison.InvariantCultureIgnoreCase))
+                    if (version == Transform.SPVersion.SP2010)
                     {
-                        if (!includeTitleBarWebPart)
+                        if (webServiceWebPartEntities != null)
                         {
-                            continue;
+                            var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == foundWebPart.WebPartDefinition.Id);
+                            if (wsWp != null)
+                            {
+                                zoneId = wsWp.ZoneId;
+                                webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
+
+                                // Skip Microsoft.SharePoint.WebPartPages.TitleBarWebPart webpart in TitleBar zone
+                                if (wsWp.ZoneId.Equals("TitleBar", StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    if (!includeTitleBarWebPart)
+                                    {
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        zoneId = foundWebPart.WebPartDefinition.ZoneId;
+                        webPartProperties = foundWebPart.WebPartDefinition.WebPart.Properties.FieldValues;
+                        if (foundWebPart.WebPartDefinition.ZoneId.Equals("TitleBar", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            if (!includeTitleBarWebPart)
+                            {
+                                continue;
+                            }
                         }
                     }
 
-                    // If the web service call includes the export mode value then set the export options
-                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
-
-                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.ToString().Equals("all", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        isExportable = true;
-                    }
-
-                    if (!isExportable)
+                    if (string.IsNullOrEmpty(foundWebPart.WebPartXmlOnPremises))
                     {
                         // Use different approach to determine type as we can't export the web part XML without indroducing a change
                         foundWebPart.WebPartType = GetTypeFromProperties(webPartProperties, true);
@@ -139,7 +180,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     }
 
                     LogInfo(string.Format(LogStrings.ContentTransformFoundSourceWebParts,
-                       foundWebPart.WebPartDefinition.WebPart.Title, foundWebPart.WebPartType.GetTypeShort()), LogStrings.Heading_ContentTransform);
+                       foundWebPart.WebPartDefinition.WebPart.Title, foundWebPart.WebPartType.GetTypeShort()), LogStrings.Heading_ContentTransform);                    
 
                     webparts.Add(new WebPartEntity()
                     {
@@ -147,10 +188,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         Type = foundWebPart.WebPartType,
                         Id = foundWebPart.WebPartDefinition.Id,
                         ServerControlId = foundWebPart.WebPartDefinition.Id.ToString(),
-                        Row = GetRow(wsWp.ZoneId, layout),
-                        Column = GetColumn(wsWp.ZoneId, layout),
+                        Row = GetRow(zoneId, layout),
+                        Column = GetColumn(zoneId, layout),
                         Order = foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
-                        ZoneId = wsWp.ZoneId,
+                        ZoneId = zoneId,
                         ZoneIndex = (uint)foundWebPart.WebPartDefinition.WebPart.ZoneIndex,
                         IsClosed = foundWebPart.WebPartDefinition.WebPart.IsClosed,
                         Hidden = foundWebPart.WebPartDefinition.WebPart.Hidden,
