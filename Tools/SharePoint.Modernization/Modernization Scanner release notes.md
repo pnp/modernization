@@ -4,19 +4,24 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
-## [Unreleased]
+## [Version 2.6]
 
 ### Added
 
+- Blog site/page scanning: provides you the needed information on blog usage in your environment
+- Option to run scanner with Sites.Read.All permission when using Azure AD App-Only. Note that this implies that the SkipUserInformation will be automatically turned on and that workflow scanning is skipped.
 - Workflow report now contains an "upgradability" score based upon the mapping of workflow to Flow actions
 - Workflow report now also allows to filter on last change date of a workflow definition, this can be used to identify the recently changed workflows 
 - Page report contains a column to identify "uncustomized" STS#0 home pages
+- New parameter (-q) and UI option to configure the date format to be used in the exported CSV files
 
 ### Changed
 
+- Tenant root site collection is now included if you scan for a complete tenant
 - Add tenantid in telemetry data
 - InfoPath scanner detects form libraries which are created by adding the Form content type as default
 - InfoPath scanner detects libraries which have a Form content type attached
+- DateTime values are outputted as Date strings based upon the chosen date format
 
 ## [Version 2.5]
 

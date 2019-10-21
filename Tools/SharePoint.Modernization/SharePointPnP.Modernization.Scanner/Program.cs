@@ -50,6 +50,7 @@ namespace SharePoint.Modernization.Scanner
                 generator.CreatePublishingReport(options.ExportPaths);
                 generator.CreateWorkflowReport(options.ExportPaths);
                 generator.CreateInfoPathReport(options.ExportPaths);
+                generator.CreateBlogReport(options.ExportPaths);
             }
             else
             {
@@ -108,6 +109,11 @@ namespace SharePoint.Modernization.Scanner
                         if (Options.IncludeInfoPath(options.Mode))
                         {
                             generator.CreateInfoPathReport(paths);
+                        }
+
+                        if (Options.IncludeBlog(options.Mode))
+                        {
+                            generator.CreateBlogReport(paths);
                         }
                     }
 

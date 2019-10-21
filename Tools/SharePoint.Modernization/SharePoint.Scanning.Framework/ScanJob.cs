@@ -1,15 +1,16 @@
-﻿using OfficeDevPnP.Core.Framework.TimerJobs;
+﻿using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Search.Query;
+using OfficeDevPnP.Core.Framework.TimerJobs;
 using OfficeDevPnP.Core.Framework.TimerJobs.Enums;
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using Microsoft.SharePoint.Client;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
-using Microsoft.SharePoint.Client.Search.Query;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Reflection;
 
 namespace SharePoint.Scanning.Framework
 {
@@ -76,8 +77,8 @@ namespace SharePoint.Scanning.Framework
             // Configure sites to scan
             if (!String.IsNullOrEmpty(this.Tenant))
             {
-                this.AddSite(string.Format("https://{0}.sharepoint.com/*", this.Tenant));
-                this.AddSite(string.Format("https://{0}-my.sharepoint.com/*", this.Tenant));
+                this.AddSite(string.Format("https://{0}.sharepoint.com*", this.Tenant));
+                this.AddSite(string.Format("https://{0}-my.sharepoint.com*", this.Tenant));
             }
             else if (this.Urls != null && this.Urls.Count > 0)
             {
@@ -268,6 +269,89 @@ namespace SharePoint.Scanning.Framework
             else
             {
                 return $"\"{value.Trim().Replace("\r\n", string.Empty).Replace("\"", "\"\"")}\"";
+            }
+        }
+
+        /// <summary>
+        /// Transforms DateTime to Date string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Date in string format</returns>
+        public static string ToDateString(DateTime value, string dateFormat)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                return value.ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <summary>
+        /// Transforms DateTime to Year string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Year in string format</returns>
+        public static string ToYearString(DateTime value)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                return value.Year.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Transforms DateTime to Month string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Month in string format</returns>
+        public static string ToMonthString(DateTime value)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                return CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(value.Month);
+            }
+        }
+
+        /// <summary>
+        /// Transforms DateTime to quarter string
+        /// </summary>
+        /// <param name="value">DateTime to convert</param>
+        /// <returns>Quarter in string format</returns>
+        public static string ToQuarterString(DateTime value)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                return "";
+            }
+            else
+            {
+                if (value.Month <= 3)
+                {
+                    return "Q1";
+                }
+                else if (value.Month <= 6)
+                {
+                    return "Q2";
+                }
+                else if (value.Month <= 9)
+                {
+                    return "Q3";
+                }
+                else
+                {
+                    return "Q4";
+                }
             }
         }
 

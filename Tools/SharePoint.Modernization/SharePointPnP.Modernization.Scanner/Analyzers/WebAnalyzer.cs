@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.SharePoint.Client;
-using System.Collections.Concurrent;
 using SharePoint.Modernization.Scanner.Results;
 using SharePoint.Scanning.Framework;
 using System.Collections.Generic;
@@ -70,7 +69,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
                 // Ensure needed data is loaded
                 Web web = cc.Web;
-                web.EnsureProperties(p => p.UserCustomActions, p => p.AlternateCssUrl, p => p.CustomMasterUrl, p => p.MasterUrl, p => p.Features, p => p.WebTemplate, p => p.Configuration, p => p.HasUniqueRoleAssignments, p => p.RootFolder);
+                web.EnsureProperties(p => p.UserCustomActions, p => p.AlternateCssUrl, p => p.CustomMasterUrl, p => p.MasterUrl, p => p.Features, p => p.WebTemplate, p => p.Configuration, p => p.HasUniqueRoleAssignments);
 
                 // Log in Site scan data that the scanned web is a sub site
                 if (web.IsSubSite())
@@ -227,16 +226,19 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
                 // Get home page from the web and check whether it's a modern page or not
                 scanResult.ModernHomePage = false;
-                var homePageUrl = web.RootFolder.WelcomePage;
-                var homepageName = System.IO.Path.GetFileName(web.RootFolder.WelcomePage);
-                if (string.IsNullOrEmpty(homepageName))
+
+                var homePageUrl = web.WelcomePage;
+                if (string.IsNullOrEmpty(homePageUrl))
                 {
-                    homepageName = "Home.aspx";
+                    // Will be case when the site home page is a web part page
+                    homePageUrl = "default.aspx";
                 }
+                var homepageName = System.IO.Path.GetFileName(homePageUrl);
+
                 var sitePagesLibraryForWeb = web.GetListsToScan().Where(p => p.BaseTemplate == (int)ListTemplateType.WebPageLibrary).FirstOrDefault();
-                if (sitePagesLibraryForWeb != null)
+                if (sitePagesLibraryForWeb != null && homePageUrl.StartsWith("SitePages", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var homePageFile = web.GetFileByServerRelativeUrl($"{sitePagesLibraryForWeb.RootFolder.ServerRelativeUrl}/{homepageName}");
+                    var homePageFile = web.GetFileByServerRelativeUrl($"{(web.ServerRelativeUrl.Length == 1 ? "" : web.ServerRelativeUrl)}/{homePageUrl}");
                     cc.Load(homePageFile, f => f.ListItemAllFields, f => f.Exists);
                     cc.ExecuteQueryRetry();
                     if (homePageFile.Exists)
@@ -366,6 +368,13 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     // Kick off InfoPath analysis
                     var infoPathAnalyzer = new InfoPathAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
                     infoPathAnalyzer.Analyze(cc);
+                }
+
+                if (Options.IncludeBlog(this.ScanJob.Mode))
+                {
+                    // Kick off Blog analysis
+                    var blogAnalyzer = new BlogAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
+                    blogAnalyzer.Analyze(cc);
                 }
 
                 // Place workflow as last scan as it's reloading the web.Lists with different properties. The GetListsToScan method will not reload and hence cause missing properties otherwise

@@ -1,6 +1,4 @@
-﻿using Microsoft.Graph;
-using Microsoft.ProjectServer.Client;
-using SharePoint.Modernization.Scanner.Utilities;
+﻿using SharePoint.Modernization.Scanner.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +8,9 @@ using System.Xml.Serialization;
 
 namespace SharePoint.Modernization.Scanner.Workflow
 {
+    /// <summary>
+    /// Class to handle workflow analysis
+    /// </summary>
     public sealed class WorkflowManager
     {
         private static readonly Lazy<WorkflowManager> _lazyInstance = new Lazy<WorkflowManager>(() => new WorkflowManager());
@@ -84,7 +85,11 @@ namespace SharePoint.Modernization.Scanner.Workflow
             "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexActivity",
             "Microsoft.SharePoint.WorkflowActions.ExtractSubstringFromIndexLengthActivity",
             "Microsoft.SharePoint.WorkflowActions.CommentActivity",
-            "Microsoft.SharePoint.WorkflowActions.PersistOnCloseActivity"
+            "Microsoft.SharePoint.WorkflowActions.PersistOnCloseActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.AddListItemPermissionsActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.RemoveListItemPermissionsActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.ReplaceListItemPermissionsActivity",
+            "Microsoft.SharePoint.WorkflowActions.WithKey.InheritListItemParentPermissionsActivity"
         };
 
         /// <summary>
@@ -106,6 +111,13 @@ namespace SharePoint.Modernization.Scanner.Workflow
         }
         #endregion
 
+        /// <summary>
+        /// Translate workflow trigger to a string
+        /// </summary>
+        /// <param name="onItemCreate">On create was set</param>
+        /// <param name="onItemChange">on change wat set</param>
+        /// <param name="allowManual">manual execution is allowed</param>
+        /// <returns>string representation of the used workflow triggers</returns>
         public WorkflowTriggerAnalysis ParseWorkflowTriggers(bool onItemCreate, bool onItemChange, bool allowManual)
         {
             List<string> triggers = new List<string>();

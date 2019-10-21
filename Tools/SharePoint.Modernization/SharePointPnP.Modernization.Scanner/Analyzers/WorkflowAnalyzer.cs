@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace SharePoint.Modernization.Scanner.Analyzers
 {
@@ -41,7 +42,6 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
         private List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
         private List workflowList;
-        private List workflowCatalog;
 
         #region Construction
         /// <summary>
@@ -66,12 +66,18 @@ namespace SharePoint.Modernization.Scanner.Analyzers
         {
             try
             {
+                // Workflow analysis does not work as the xoml / xaml files can't be read with Sites.Read.All permission
+                if (!this.ScanJob.AppOnlyHasFullControl)
+                {
+                    return TimeSpan.Zero;
+                }
+
                 Web web = cc.Web;
 
                 // Pre-load needed properties in a single call
                 cc.Load(web, w => w.Id, w => w.ServerRelativeUrl, w => w.Url, w => w.WorkflowTemplates, w => w.WorkflowAssociations);
                 cc.Load(web, p => p.ContentTypes.Include(ct => ct.WorkflowAssociations, ct => ct.Name, ct => ct.StringId));
-                cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder, li => li.ItemCount, li => li.WorkflowAssociations));
+                cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate , li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations));
                 cc.ExecuteQueryRetry();
 
                 var lists = web.Lists;
@@ -102,14 +108,14 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     siteDefinitions = definitions.ToArray();
                     siteSubscriptions = subscriptions.ToArray();
                 }
-                catch (ServerException)
+                catch (ServerException ex)
                 {
                     // If there is no workflow service present in the farm this method will throw an error. 
                     // Swallow the exception
                 }
                
                 // We've found SP2013 site scoped workflows
-                if (siteDefinitions.Count() > 0)
+                if (siteDefinitions != null && siteDefinitions.Count() > 0)
                 {
                     foreach (var siteDefinition in siteDefinitions.Where(p=>p.RestrictToType.Equals("site", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase)))
                     {
@@ -210,7 +216,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 }
 
                 // We've found SP2013 list scoped workflows
-                if (siteDefinitions.Count() > 0)
+                if (siteDefinitions != null && siteDefinitions.Count() > 0)
                 {
                     foreach (var listDefinition in siteDefinitions.Where(p => p.RestrictToType.Equals("list", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase)))
                     {
@@ -555,6 +561,26 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                     }
                 }
             }
+            catch(Exception ex)
+            {
+                ScanError error = new ScanError()
+                {
+                    Error = ex.Message,
+                    SiteColUrl = this.SiteCollectionUrl,
+                    SiteURL = this.SiteUrl,
+                    Field1 = "WorkflowAnalyzer",
+                    Field2 = ex.StackTrace,
+                };
+
+                // Send error to telemetry to make scanner better
+                if (this.ScanJob.ScannerTelemetry != null)
+                {
+                    this.ScanJob.ScannerTelemetry.LogScanError(ex, error);
+                }
+
+                this.ScanJob.ScanErrors.Push(error);
+                Console.WriteLine("Error during Workflow analysis for site {1}: {0}", ex.Message, $"{this.SiteUrl}");
+            }
             finally
             {
                 this.StopTime = DateTime.Now;
@@ -603,14 +629,12 @@ namespace SharePoint.Modernization.Scanner.Analyzers
         }
 
         private Tuple<string, DateTime> LoadWorkflowDefinition(ClientContext cc, WorkflowAssociation workflowAssociation)
-        {
-            Tuple<string, DateTime> workflowDefinition = null;
+        {            
             // Ensure the workflow library was loaded if not yet done
             LoadWorkflowLibrary(cc);
             try
             {
-                workflowDefinition = GetFileInformation(cc.Web, $"{this.workflowList.RootFolder.ServerRelativeUrl}/{workflowAssociation.Name}/{workflowAssociation.Name}.xoml");
-                return workflowDefinition;
+                return GetFileInformation(cc.Web, $"{this.workflowList.RootFolder.ServerRelativeUrl}/{workflowAssociation.Name}/{workflowAssociation.Name}.xoml");
             }
             catch (Exception ex)
             {
@@ -622,45 +646,19 @@ namespace SharePoint.Modernization.Scanner.Analyzers
 
         private Tuple<string, DateTime> LoadWorkflowDefinition(ClientContext cc, WorkflowTemplate workflowTemplate)
         {
-            Tuple<string, DateTime> workflowDefinition = null;
             if (!IsOOBWorkflow(workflowTemplate.Id.ToString()))
             {
                 // Ensure the workflow library was loaded if not yet done
                 LoadWorkflowLibrary(cc);                
                 try
                 {
-                    workflowDefinition = GetFileInformation(cc.Web, $"{this.workflowList.RootFolder.ServerRelativeUrl}/{workflowTemplate.Name}/{workflowTemplate.Name}.xoml");
-                    return workflowDefinition;
+                    return GetFileInformation(cc.Web, $"{this.workflowList.RootFolder.ServerRelativeUrl}/{workflowTemplate.Name}/{workflowTemplate.Name}.xoml");
                 }
                 catch(Exception ex)
                 {
 
                 }
             }
-
-            #region Old code
-            /*
-            // Ensure the workflow catalog was loaded if not yet done
-            LoadWorkflowCatalog(cc);
-            try
-            {
-                string xomlFileName = "";
-                if (workflowTemplate.Name.Equals("Approval - SharePoint 2010", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    xomlFileName = "Approval - SharePoint 2010/ReviewApproval_1033.xoml";
-                }
-
-                if (!string.IsNullOrEmpty(xomlFileName))
-                {
-                    workflowDefinition = cc.Web.GetFileAsString($"{this.workflowCatalog.RootFolder.ServerRelativeUrl}/{xomlFileName}");
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            */
-            #endregion
 
             return null;
         }
@@ -672,6 +670,7 @@ namespace SharePoint.Modernization.Scanner.Analyzers
             web.Context.Load(file, p => p.ListItemAllFields);
             web.Context.ExecuteQueryRetry();
 
+            // TODO: fails when using sites.read.all role on xoml file download (access denied, requires ACP permission level)
             ClientResult<Stream> stream = file.OpenBinaryStream();
             web.Context.ExecuteQueryRetry();
 
@@ -710,31 +709,35 @@ namespace SharePoint.Modernization.Scanner.Analyzers
                 return this.workflowList;
             }
 
-            this.workflowList = cc.Web.GetListByTitle("Workflows");
-            if (this.workflowList != null)
-            {
-                this.workflowList.EnsureProperty(p => p.RootFolder);
-            }
+            var baseExpressions = new List<Expression<Func<List, object>>> { l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, l => l.Hidden, l=>l.RootFolder.ServerRelativeUrl };
+            var query = cc.Web.Lists.IncludeWithDefaultProperties(baseExpressions.ToArray());
+            var lists = cc.Web.Context.LoadQuery(query.Where(l => l.Title == "Workflows"));
+            cc.ExecuteQueryRetry();
+            this.workflowList = lists.FirstOrDefault();
 
             return this.workflowList;
         }
 
-        private List LoadWorkflowCatalog(ClientContext cc)
-        {
-            if (this.workflowCatalog != null)
-            {
-                return this.workflowCatalog;
-            }
+        #region Not used code
+        //private List LoadWorkflowCatalog(ClientContext cc)
+        //{
+        //    if (this.workflowCatalog != null)
+        //    {
+        //        return this.workflowCatalog;
+        //    }
 
-            //TODO: does this work for sub sites, verify that this library exists on sub sites?
-            this.workflowCatalog = cc.Web.GetListByTitle("wfpub");
-            if (this.workflowCatalog != null)
-            {
-                this.workflowCatalog.EnsureProperty(p => p.RootFolder);
-            }
+        //    //TODO: does this work for sub sites, verify that this library exists on sub sites?
+        //    this.workflowCatalog = cc.Web.GetListByTitle("wfpub");
+        //    if (this.workflowCatalog != null)
+        //    {
+        //        //this.workflowCatalog.EnsureProperty(p => p.RootFolder);
+        //        this.workflowCatalog.RootFolder.EnsureProperty(p => p.ServerRelativeUrl);
+        //    }
 
-            return this.workflowCatalog;
-        }
+        //    return this.workflowCatalog;
+        //}
+        #endregion
+
         private string GetWorkflowProperty(WorkflowSubscription subscription, string propertyName)
         {
             if (subscription.PropertyDefinitions.ContainsKey(propertyName))

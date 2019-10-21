@@ -219,6 +219,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analyzers\BlogAnalyzer.cs" />
     <Compile Include="Analyzers\IBaseAnalyzer.cs" />
     <Compile Include="Analyzers\InfoPathAnalyzer.cs" />
     <Compile Include="Analyzers\ListAnalyzer.cs" />
@@ -250,6 +251,8 @@
     </Compile>
     <Compile Include="Reports\Generator.cs" />
     <Compile Include="Reports\ScanSummary.cs" />
+    <Compile Include="Results\BlogPageScanResult.cs" />
+    <Compile Include="Results\BlogWebScanResult.cs" />
     <Compile Include="Results\InfoPathScanResult.cs" />
     <Compile Include="Results\ListScanResult.cs" />
     <Compile Include="Results\PageScanResult.cs" />
@@ -264,6 +267,7 @@
     <Compile Include="Telemetry\ScannerTelemetry.cs" />
     <Compile Include="Telemetry\TelemetryEvents.cs" />
     <Compile Include="Telemetry\VersionCheck.cs" />
+    <Compile Include="Utilities\AppOnlyManager.cs" />
     <Compile Include="Utilities\PageTransformationManager.cs" />
     <Compile Include="Utilities\WebpartMappingLoader.cs" />
     <Compile Include="Workflow\sp2010wfmodel.cs">
@@ -297,6 +301,7 @@
     <EmbeddedResource Include="Reports\listmaster.xlsx" />
     <EmbeddedResource Include="Reports\workflowmaster.xlsx" />
     <EmbeddedResource Include="Reports\infopathmaster.xlsx" />
+    <EmbeddedResource Include="Reports\blogmaster.xlsx" />
     <None Include="Workflow\sp2010wfmodel.xsd">
       <SubType>Designer</SubType>
     </None>

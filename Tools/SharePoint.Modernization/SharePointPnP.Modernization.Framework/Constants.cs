@@ -39,6 +39,7 @@ namespace SharePointPnP.Modernization.Framework
         public const string CanvasContentField = "CanvasContent1";
         public const string IDField = "ID";
         public const string BodyField = "Body"; // Blog pages
+        public const string PublishedDateField = "PublishedDate"; // Blog pages
 
         // Content Type ID's
         public const string PageLayoutBaseContentTypeId = "0x01010007FF3E057FA8AB4AA42FCB67B453FFC1"; //Page Layout Content Type Id
