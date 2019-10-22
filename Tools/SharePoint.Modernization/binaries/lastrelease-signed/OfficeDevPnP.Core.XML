@@ -1095,6 +1095,21 @@
               Looks up a localized string similar to Content Type {0} with ID {1} cannot be updated because delta handling for DocumentSets is on hold..
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_ErrorDocumentTemplate">
+            <summary>
+              Looks up a localized string similar to Failed to add &apos;{1}&apos; as DocumentTemplate to ContentType &apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_ErrorExtractDocumentSetTemplate">
+            <summary>
+              Looks up a localized string similar to Failed to extract DefaultDocument &apos;{0}&apos; from DocumentSet.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_ErrorSaveDocumentTemplateToConnector">
+            <summary>
+              Looks up a localized string similar to Failed to extract DocumentTemplate &apos;{1}&apos; from ContentType &apos;{0}&apos;.
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_Field__0__exists_in_content_type">
             <summary>
               Looks up a localized string similar to Field {0} exists in content type.
@@ -1118,6 +1133,11 @@
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_SkipDocumentSetDefaultDocuments">
             <summary>
               Looks up a localized string similar to Skipping adding default documents to document set &apos;{0}&apos; because this is not supported on &apos;noscript&apos; sites..
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_SkipDocumentTemplate">
+            <summary>
+              Looks up a localized string similar to Skipping adding DocumentTemplate to ContentType &apos;{0}&apos; because we can&apos;t upload them on &apos;noscript&apos; sites..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_Updating_existing_Content_Type___0_____1_">
@@ -10660,6 +10680,11 @@
             <remarks>
             It has to be a JSON object representing a dictionary of colors
             </remarks>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Theme.Overwrite">
+            <summary>
+            If true, will overwrite existing tenant theme
+            </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.Theme.GetHashCode">
             <summary>
@@ -48268,10 +48293,22 @@
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32)">
             <summary>
-            Creates a new Modern Team Site Collection
+            Creates a new Modern Team Site Collection (so with an Office 365 group connected)
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
+            <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
+            <returns>ClientContext object for the created site collection</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Create a modern site without a group (so communication site and modern team sites without group STS#3)
+            </summary>
+            <param name="clientContext">ClientContext object of a regular site</param>
+            <param name="owner">Owner for the created site (needed when using app-only)</param>
+            <param name="payload">Body of the request</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
             <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
