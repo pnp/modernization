@@ -219,7 +219,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
 
                 //Load User Mapping File
-                LoadUserMappingFile(pageTransformationInformation);
+                InitializeUserMapping(pageTransformationInformation);
             }
 
             if (IsBlogPage(pageType) && !hasTargetContext)

@@ -200,7 +200,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 
                 //Load User Mapping File
-                LoadUserMappingFile(publishingPageTransformationInformation);
+                InitializeUserMapping(publishingPageTransformationInformation);
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
