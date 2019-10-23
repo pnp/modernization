@@ -8,6 +8,7 @@ using System.Configuration;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -168,12 +169,24 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Gets the transform executing domain
         /// </summary>
         /// <returns></returns>
-        internal string GetComputerDomain()
+        internal string GetFriendlyComputerDomain()
         {
             try
             {
-                var domain = Domain.GetComputerDomain();
-                return domain.Name;
+                //System.DirectoryServices.ActiveDirectory.Domain.GetComputerDomain() - can fail if AD system unstable
+                //System.Environment.UserDomainName
+                //System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+
+                if(_sourceContext != null && _sourceContext.Credentials is NetworkCredential)
+                {
+                    var credential = _sourceContext.Credentials as NetworkCredential;
+                    return credential.Domain;
+                }
+                else
+                {
+                    return System.Environment.UserDomainName;
+                }
+ 
             }
             catch
             {
@@ -205,12 +218,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             // User Provided with the base transformation information
 
-            // Auto Detect
-            //var friendlyDomainName = GetComputerDomain();
-            //var fqdn = ResolveFriendlyDomainToLdapDomain(friendlyDomainName);
+            // Auto Detect and calculate
+            var friendlyDomainName = GetFriendlyComputerDomain();
+            var fqdn = ResolveFriendlyDomainToLdapDomain(friendlyDomainName);
+            StringBuilder builder = new StringBuilder();
+            builder.Append("LDAP://");
+            foreach(var part in fqdn.Split('.'))
+            {
+                builder.Append($"DC={part},");
+            }
             
-
-            throw new NotImplementedException();
+            return builder.ToString().TrimEnd(',');
         }
 
         /// <summary>
@@ -220,32 +238,40 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="samaccountname"></param>
         internal string SearchSourceDomainForUPN(string accountType, string samaccountname)
         {
-            //reference: https://github.com/SharePoint/PnP-Transformation/blob/master/InfoPath/Migration/PeoplePickerRemediation.Console/PeoplePickerRemediation.Console/PeoplePickerRemediation.cs#L613
-
-            //e.g. LDAP://DC=onecity,DC=corp,DC=fabrikam,DC=com
-            string ldapQuery = GetLDAPConnectionString();
-
-            // Bind to the users container.
-            DirectoryEntry entry = new DirectoryEntry(ldapQuery);
-            // Create a DirectorySearcher object.
-            DirectorySearcher mySearcher = new DirectorySearcher(entry);
-            // Create a SearchResultCollection object to hold a collection of SearchResults
-            // returned by the FindAll method.
-            mySearcher.PageSize = 500;  // ADD THIS LINE HERE !
-            string strFilter = string.Empty;
-            if (accountType.ToLower().Equals("user"))
-                strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samaccountname);
-            else if (accountType.ToLower().Contains("group"))
-                strFilter = string.Format("(&(objectCategory=Group)(sid={0}))", samaccountname);
-            var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
-            mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
-            mySearcher.Filter = strFilter;
-            mySearcher.CacheResults = false;
-            SearchResultCollection result = mySearcher.FindAll();
-
-            if (result != null && result.Count > 0)
+            try
             {
-                return GetProperty(result[0], "userprincipalname");
+
+                //reference: https://github.com/SharePoint/PnP-Transformation/blob/master/InfoPath/Migration/PeoplePickerRemediation.Console/PeoplePickerRemediation.Console/PeoplePickerRemediation.cs#L613
+
+                //e.g. LDAP://DC=onecity,DC=corp,DC=fabrikam,DC=com
+                string ldapQuery = GetLDAPConnectionString();
+
+                // Bind to the users container.
+                DirectoryEntry entry = new DirectoryEntry(ldapQuery);
+                // Create a DirectorySearcher object.
+                DirectorySearcher mySearcher = new DirectorySearcher(entry);
+                // Create a SearchResultCollection object to hold a collection of SearchResults
+                // returned by the FindAll method.
+                mySearcher.PageSize = 500;  // ADD THIS LINE HERE !
+                string strFilter = string.Empty;
+                if (accountType.ToLower().Equals("user"))
+                    strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samaccountname);
+                else if (accountType.ToLower().Contains("group"))
+                    strFilter = string.Format("(&(objectCategory=Group)(sid={0}))", samaccountname);
+                var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
+                mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
+                mySearcher.Filter = strFilter;
+                mySearcher.CacheResults = false;
+                SearchResultCollection result = mySearcher.FindAll();
+
+                if (result != null && result.Count > 0)
+                {
+                    return GetProperty(result[0], "userprincipalname");
+                }
+            }
+            catch(Exception ex)
+            {
+                LogError("Error Searching Source Domain For UPN", LogStrings.Heading_UserTransform, ex);
             }
 
             return string.Empty;
@@ -286,12 +312,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     DirectoryContextType.Domain, friendlyDomainName);
                 Domain objDomain = Domain.GetDomain(objContext);
                 ldapPath = objDomain.Name;
+                return ldapPath;
             }
-            catch (DirectoryServicesCOMException e)
+            catch (Exception ex)
             {
-                ldapPath = e.Message.ToString();
+                //LogWarning("Cannot Resolve Friendly Domain To Ldap Domain", LogStrings.Heading_UserTransform);
+                
+                LogError("Error Resolving Friendly Domain To Ldap Domain", LogStrings.Heading_UserTransform, ex);
             }
-            return ldapPath;
+            return string.Empty;
         }
 
     }
