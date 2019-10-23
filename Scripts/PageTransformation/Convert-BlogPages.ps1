@@ -48,13 +48,13 @@ begin
     }
     else
     {
-        # For MFA Tenants - UseWebLogin opens a browser window
         Connect-PnPOnline -Url $sourceUrl -SPOManagementShell -ClearTokenCache -Verbose
-        Start-Sleep -s 2
     }
 }
 process 
 {    
+    Start-Sleep -s 2
+
     Write-Host "Modernizing blog pages..." -ForegroundColor Cyan
 
     $posts = Get-PnPListItem -List "Posts"
@@ -85,5 +85,5 @@ process
     # Write the logs to the folder
     Save-PnPClientSidePageConversionLog
 
-    Write-Host "Script Complete! :)" -ForegroundColor Green
+    Write-Host "Blog site modernization complete! :)" -ForegroundColor Green
 }
