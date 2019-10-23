@@ -187,12 +187,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     // If a group, remove the domain element if specified
                     // this assumes that groups are named the same in SharePoint Online
-                    var principalResult = SearchSourceDomainForUPN(AccountType.User, principalInput);
+                    var basicPrincipal = StripUserPrefixTokenAndDomain(principalInput);
+                    var principalResult = SearchSourceDomainForUPN(AccountType.User, basicPrincipal);
 
                     if (string.IsNullOrEmpty(principalResult))
                     {
                         // If a user, replace with the UPN
-                        principalResult = SearchSourceDomainForUPN(AccountType.Group, principalInput);
+                        principalResult = SearchSourceDomainForUPN(AccountType.Group, basicPrincipal);
                     }
 
                     if (!string.IsNullOrEmpty(principalResult))
@@ -385,6 +386,27 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 LogError("Error Resolving Friendly Domain To Ldap Domain", LogStrings.Heading_UserTransform, ex);
             }
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Strip User Prefix Token And Domain
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
+        public string StripUserPrefixTokenAndDomain(string principal)
+        {
+            var cleanerString = principal;
+
+            if (principal.Contains('|'))
+            {
+                cleanerString = principal.Split('|')[1];
+            }
+
+            if (principal.Contains('\\')){
+                cleanerString = principal.Split('\\')[1];
+            }
+
+            return cleanerString;
         }
 
     }
