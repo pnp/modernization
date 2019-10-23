@@ -101,6 +101,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         public string UserMappingFile { get; set; }
 
+        /// <summary>
+        /// Searches for users within a specific LDAP Query, if not specified domain LDAP will be calculated
+        /// </summary>
+        public string LDAPQuery { get; set; }
+
+
         #endregion
 
         #region Override properties

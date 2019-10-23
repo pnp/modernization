@@ -21,17 +21,28 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private ClientContext _targetContext;
         private List<UserMappingEntity> _userMapping;
         private bool _useOriginalValuesOnNoMatch;
+        private string _ldapSpecifiedByUser;
+        private SPVersion _sourceVersion;
 
         /// <summary>
         /// Determine if the user transforming according to mapped file
         /// </summary>
-        public bool IsUserTranforming { get
+        public bool IsUserMappingSpecified { get
             {
                 return (this._userMapping != default);
             } 
         }
 
         #region Construction
+        
+        /// <summary>
+        /// User Transformator constructor
+        /// </summary>
+        /// <param name="baseTransformationInformation">Transformation configuration settings</param>
+        /// <param name="sourceContext">Source Context</param>
+        /// <param name="targetContext">Target Context</param>
+        /// <param name="logObservers">Logging</param>
+        /// <param name="useOriginalValuesOnNoMatch"></param>
         public UserTransformator(BaseTransformationInformation baseTransformationInformation, ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null, bool useOriginalValuesOnNoMatch = true)
         {
             // Hookup logging
@@ -69,6 +80,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             _useOriginalValuesOnNoMatch = useOriginalValuesOnNoMatch;
 
+            _ldapSpecifiedByUser = baseTransformationInformation?.LDAPQuery ?? string.Empty;
+
+            _sourceVersion = baseTransformationInformation?.SourceVersion ?? SPVersion.SPO; // SPO Fall Back
         }
 
         #endregion
@@ -100,7 +114,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         public string RemapPrincipal(string principalInput)
         {
-            if(this.IsUserTranforming)
+            LogDebug($"Princiapl Input: {principalInput}", LogStrings.Heading_UserTransform);
+
+            // Mapping Provided
+            // Allow all types of platforms
+            if(this.IsUserMappingSpecified)
             {
                 // Find Mapping
                 // We dont like mulitple matches
@@ -160,8 +178,32 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 return result;
+
+            }
+            else
+            {
+                // If not then default user transformation from on-premises only.
+                if(_sourceVersion != SPVersion.SPO)
+                {
+                    // If a group, remove the domain element if specified
+                    // this assumes that groups are named the same in SharePoint Online
+                    var principalResult = SearchSourceDomainForUPN(AccountType.User, principalInput);
+
+                    if (string.IsNullOrEmpty(principalResult))
+                    {
+                        // If a user, replace with the UPN
+                        principalResult = SearchSourceDomainForUPN(AccountType.Group, principalInput);
+                    }
+
+                    if (!string.IsNullOrEmpty(principalResult))
+                    {
+                        // Resolve group SID or name
+                        principalInput = principalResult;
+                    }
+                }
             }
 
+            //Returns original input to pass through where re-mapping is not required
             return principalInput;
         }
         
@@ -179,7 +221,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if(_sourceContext != null && _sourceContext.Credentials is NetworkCredential)
                 {
-                    var credential = _sourceContext.Credentials as NetworkCredential;
+                    //Assumes the connection domain to SP is the same domain as the user
+                    var credential = _sourceContext.Credentials as NetworkCredential; 
                     return credential.Domain;
                 }
                 else
@@ -202,41 +245,48 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         internal string GetLDAPConnectionString()
         {
-            // Example from test rig
-            /*
-                Forest                  : AlphaDelta.Local
-                DomainControllers       : {AD.AlphaDelta.Local}
-                Children                : {}
-                DomainMode              : Unknown
-                DomainModeLevel         : 7
-                Parent                  :
-                PdcRoleOwner            : AD.AlphaDelta.Local
-                RidRoleOwner            : AD.AlphaDelta.Local
-                InfrastructureRoleOwner : AD.AlphaDelta.Local
-                Name                    : AlphaDelta.Local
-            */
-
-            // User Provided with the base transformation information
-
-            // Auto Detect and calculate
-            var friendlyDomainName = GetFriendlyComputerDomain();
-            var fqdn = ResolveFriendlyDomainToLdapDomain(friendlyDomainName);
-            StringBuilder builder = new StringBuilder();
-            builder.Append("LDAP://");
-            foreach(var part in fqdn.Split('.'))
+            if (!string.IsNullOrEmpty(this._ldapSpecifiedByUser))
             {
-                builder.Append($"DC={part},");
+                return _ldapSpecifiedByUser;
             }
-            
-            return builder.ToString().TrimEnd(',');
+            else
+            {
+                // Example from test rig
+                /*
+                    Forest                  : AlphaDelta.Local
+                    DomainControllers       : {AD.AlphaDelta.Local}
+                    Children                : {}
+                    DomainMode              : Unknown
+                    DomainModeLevel         : 7
+                    Parent                  :
+                    PdcRoleOwner            : AD.AlphaDelta.Local
+                    RidRoleOwner            : AD.AlphaDelta.Local
+                    InfrastructureRoleOwner : AD.AlphaDelta.Local
+                    Name                    : AlphaDelta.Local
+                */
+
+                // User Provided with the base transformation information
+
+                // Auto Detect and calculate
+                var friendlyDomainName = GetFriendlyComputerDomain();
+                var fqdn = ResolveFriendlyDomainToLdapDomain(friendlyDomainName);
+                StringBuilder builder = new StringBuilder();
+                builder.Append("LDAP://");
+                foreach (var part in fqdn.Split('.'))
+                {
+                    builder.Append($"DC={part},");
+                }
+
+                return builder.ToString().TrimEnd(',');
+            }            
         }
 
         /// <summary>
         /// Search the source domain for a UPN
         /// </summary>
         /// <param name="accountType"></param>
-        /// <param name="samaccountname"></param>
-        internal string SearchSourceDomainForUPN(string accountType, string samaccountname)
+        /// <param name="samAccountName"></param>
+        internal string SearchSourceDomainForUPN(AccountType accountType, string samAccountName)
         {
             try
             {
@@ -252,21 +302,37 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 DirectorySearcher mySearcher = new DirectorySearcher(entry);
                 // Create a SearchResultCollection object to hold a collection of SearchResults
                 // returned by the FindAll method.
-                mySearcher.PageSize = 500;  // ADD THIS LINE HERE !
+                mySearcher.PageSize = 500;
+                
                 string strFilter = string.Empty;
-                if (accountType.ToLower().Equals("user"))
-                    strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samaccountname);
-                else if (accountType.ToLower().Contains("group"))
-                    strFilter = string.Format("(&(objectCategory=Group)(sid={0}))", samaccountname);
+                if (accountType == AccountType.User)
+                {
+                    strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samAccountName);
+                }
+                else if (accountType == AccountType.Group)
+                {
+                    strFilter = string.Format("(&(objectCategory=Group)(objectClass=group)(| (objectsid={0})(name={0})))", samAccountName);
+                }
+                
                 var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
+                
                 mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
                 mySearcher.Filter = strFilter;
                 mySearcher.CacheResults = false;
+
                 SearchResultCollection result = mySearcher.FindAll();
 
                 if (result != null && result.Count > 0)
                 {
-                    return GetProperty(result[0], "userprincipalname");
+                    if(accountType == AccountType.User)
+                    {
+                        return GetProperty(result[0], "userprincipalname");
+                    }
+
+                    if(accountType == AccountType.Group)
+                    {
+                        return GetProperty(result[0], "samaccountname"); // This will only confirm existance
+                    }
                 }
             }
             catch(Exception ex)
@@ -316,12 +382,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch (Exception ex)
             {
-                //LogWarning("Cannot Resolve Friendly Domain To Ldap Domain", LogStrings.Heading_UserTransform);
-                
                 LogError("Error Resolving Friendly Domain To Ldap Domain", LogStrings.Heading_UserTransform, ex);
             }
             return string.Empty;
         }
 
+    }
+
+    /// <summary>
+    /// Simple class for value for account type
+    /// </summary>
+    public enum AccountType
+    {
+        User,
+        Group
     }
 }

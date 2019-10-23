@@ -57,7 +57,68 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
 
                     UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
 
-                    var result = userTransformator.SearchSourceDomainForUPN("user", "test.user3");
+                    var result = userTransformator.SearchSourceDomainForUPN(AccountType.User, "test.user3");
+                    Console.WriteLine(result);
+
+                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetUPNFromGroupTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+                        // Don't log test runs
+                        SkipTelemetry = true,
+                        //Permissions are should work given cross domain with mapping
+                        KeepPageSpecificPermissions = true,
+                        // Replace User Mapping
+                        UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
+                    };
+
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+
+                    var result = userTransformator.SearchSourceDomainForUPN(AccountType.Group, "SharePoint-Editors"); //My test rig has this setup
+                    Console.WriteLine(result);
+
+                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetUPNFromGroupWithSIDTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+                        // Don't log test runs
+                        SkipTelemetry = true,
+                        //Permissions are should work given cross domain with mapping
+                        KeepPageSpecificPermissions = true,
+                        // Replace User Mapping
+                        UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
+                    };
+
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+
+                    // SharePoint-Readers (note specific to PBs test rig)
+                    var result = userTransformator.SearchSourceDomainForUPN(AccountType.Group, "s-1-5-21-2364077317-3999105188-691961326-1129"); 
                     Console.WriteLine(result);
 
                     Assert.IsTrue(!string.IsNullOrEmpty(result));
@@ -132,5 +193,38 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
             Assert.IsTrue(!string.IsNullOrEmpty(result));
         }
 
+        [TestMethod]
+        public void PrincipalAccountTest()
+        {
+
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        //Permissions are should work given cross domain with mapping
+                        KeepPageSpecificPermissions = true,
+
+                        SourceVersion = SPVersion.SP2010 //example only
+                    };
+
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+
+                    var result = userTransformator.RemapPrincipal("test.user3");
+                    Console.WriteLine(result);
+
+                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+
+                }
+            }
+        }
     }
 }
