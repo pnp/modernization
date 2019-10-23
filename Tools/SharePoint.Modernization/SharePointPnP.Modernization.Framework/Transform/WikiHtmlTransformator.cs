@@ -9,6 +9,7 @@ using System.Linq;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Telemetry;
+using SharePointPnP.Modernization.Framework.Extensions;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -95,7 +96,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     htmlToParse = wp.Properties["Text"];
                 }
-                else if (wp.Type == WebParts.ContentEditor)
+                else if (wp.Type.GetTypeShort() == WebParts.ContentEditor.GetTypeShort())
                 {
                     string fileContents = "";
                     if (wp.Properties.ContainsKey("ContentLink") && !string.IsNullOrEmpty(wp.Properties["ContentLink"]) && !wp.Properties["ContentLink"].ToLower().EndsWith(".aspx"))

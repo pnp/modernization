@@ -185,6 +185,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string TransformationMode = "{0} Transformation";
         public const string AnalysingNoWebPartsFound = "No web parts were found on page";
         public const string ContentTransformFoundSourceWebParts = "Source page contains webpart `{0}` of type `{1}`";
+        public const string WebPartXmlNotExported = "Xml definition for web part {0} was not exportable. Error {1}.";
 
         #endregion
 

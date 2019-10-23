@@ -329,43 +329,84 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="webPartsToRetrieve"></param>
         internal void LoadWebPartsInWikiContentFromOnPremisesServer(List<WebPartEntity> webparts, File wikiPage, List<WebPartPlaceHolder> webPartsToRetrieve)
         {
+            var version = GetVersion(cc);
+
             // Load web part manager and use it to load each web part
             LimitedWebPartManager limitedWPManager = wikiPage.GetLimitedWebPartManager(PersonalizationScope.Shared);
             cc.Load(limitedWPManager);
 
-            IEnumerable<WebPartDefinition> webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
+            IEnumerable<WebPartDefinition> webPartsViaManager = null;
+            List<WebServiceWebPartProperties> webServiceWebPartEntities = null;
 
-            cc.ExecuteQueryRetry();
-
-            LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
-            List<WebServiceWebPartProperties> webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(wikiPage.EnsureProperty(p => p.ServerRelativeUrl));
-            var pageUrl = page[Constants.FileRefField].ToString();
-
-            foreach(var foundWebPart in webPartsViaManager)
+            if (version == SPVersion.SP2010)
             {
-                var wsWpProps = webServiceWebPartEntities.SingleOrDefault(o => o.Id == foundWebPart.Id);
-                if (wsWpProps != null && wsWpProps != default)
+                LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
+                webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(wikiPage.EnsureProperty(p => p.ServerRelativeUrl));
+                
+                // No zoneid and properties properties in 2010 csom
+                webPartsViaManager = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
+                cc.ExecuteQueryRetry();
+
+                foreach (var foundWebPart in webPartsViaManager)
                 {
-                    var webPartPlaceholder = webPartsToRetrieve.SingleOrDefault(o => o.ControlId == wsWpProps.ControlId);
-                    if (webPartPlaceholder != null && webPartPlaceholder != default)
+                    var wsWpProps = webServiceWebPartEntities.SingleOrDefault(o => o.Id == foundWebPart.Id);
+                    if (wsWpProps != null && wsWpProps != default)
                     {
-                        webPartPlaceholder.WebPartDefinition = foundWebPart;
+                        var webPartPlaceholder = webPartsToRetrieve.SingleOrDefault(o => o.ControlId == wsWpProps.ControlId);
+                        if (webPartPlaceholder != null && webPartPlaceholder != default)
+                        {
+                            webPartPlaceholder.WebPartDefinition = foundWebPart;
+                        }
                     }
                 }
             }
 
-            // Load the web part XML for the web parts that do allow it
-            //bool isDirty = false;
+            var pageUrl = page[Constants.FileRefField].ToString();
+
+            // Don't load export mode as it's not available in on-premises, we'll try to complement this data afterwards with data retrieved via the web service call
             foreach (var webPartToRetrieve in webPartsToRetrieve)
             {
-                // Important to only process the web parts that did not return an error in the previous server call
-                if (webPartToRetrieve.WebPartDefinition != null && (webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.HasValue && webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.Value == false))
+                // Check if the web part was loaded when we loaded the web parts collection via the web part manager
+                if (!Guid.TryParse(webPartToRetrieve.Id, out Guid webPartToRetrieveGuid))
                 {
-                    // If the web service call includes the export mode value then set the export options
-                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == webPartToRetrieve.WebPartDefinition.Id);
-                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
-                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.Equals("all", StringComparison.InvariantCultureIgnoreCase))
+                    // Skip since guid is not valid
+                    continue;
+                }
+
+                if (version != SPVersion.SP2010)                
+                {
+                    // Sometimes the returned wiki html contains web parts which are not anymore on the page...using the ExceptionHandlingScope 
+                    // we can handle these errors server side while just doing a single roundtrip
+                    var scope = new ExceptionHandlingScope(cc);
+                    using (scope.StartScope())
                     {
+                        using (scope.StartTry())
+                        {
+                            webPartToRetrieve.WebPartDefinition = limitedWPManager.WebParts.GetByControlId(webPartToRetrieve.ControlId);
+                            cc.Load(webPartToRetrieve.WebPartDefinition, wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden, wp => wp.WebPart.Properties);
+                        }
+                        using (scope.StartCatch())
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            if (version != SPVersion.SP2010)
+            {
+                cc.ExecuteQueryRetry();
+            }
+
+            // Load the web part XML for the web parts that do allow it
+            foreach (var webPartToRetrieve in webPartsToRetrieve)
+            {
+                if (webPartToRetrieve.WebPartDefinition != null)
+                {
+                    // Important to only process the web parts that did not return an error in the previous server call
+                    if (webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.HasValue && webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.Value == false)
+                    {
+                        // Let's try to retrieve the web part XML...this will fail for web parts that are not exportable
                         var webPartXml = ExportWebPartXmlWorkaround(pageUrl, webPartToRetrieve.WebPartDefinition.Id.ToString());
                         webPartToRetrieve.WebPartXmlOnPremises = webPartXml;
                     }
@@ -377,21 +418,22 @@ namespace SharePointPnP.Modernization.Framework.Pages
             {
                 if (webPartToRetrieve.WebPartDefinition != null && (webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.HasValue && webPartToRetrieve.WebPartDefinition.ServerObjectIsNull.Value == false))
                 {
-                    bool isExportable = false;
-
                     Dictionary<string, object> webPartProperties = null;
 
-                    var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == webPartToRetrieve.WebPartDefinition.Id);
-                    webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
-
-                    // If the web service call includes the export mode value then set the export options
-                    var wsExportMode = wsWp.Properties.FirstOrDefault(o => o.Key.Equals("exportmode", StringComparison.InvariantCultureIgnoreCase));
-                    if (!string.IsNullOrEmpty(wsExportMode.Value) && wsExportMode.Value.ToString().Equals("all", StringComparison.InvariantCultureIgnoreCase))
+                    if (version == SPVersion.SP2010)
                     {
-                        isExportable = true;
+                        var wsWp = webServiceWebPartEntities.FirstOrDefault(o => o.Id == webPartToRetrieve.WebPartDefinition.Id);
+                        if (wsWp != null)
+                        {
+                            webPartProperties = wsWp.PropertiesAsStringObjectDictionary();
+                        }
+                    }
+                    else
+                    {
+                        webPartProperties = webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues;
                     }
 
-                    if (!isExportable)
+                    if (string.IsNullOrEmpty(webPartToRetrieve.WebPartXmlOnPremises))
                     {
                         // Use different approach to determine type as we can't export the web part XML without indroducing a change
                         webPartToRetrieve.WebPartType = GetTypeFromProperties(webPartProperties, true);
@@ -706,7 +748,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             if (string.IsNullOrEmpty(webPartXml))
             {
-                if (webPartType == WebParts.Client)
+                if (webPartType.GetTypeShort() == WebParts.Client.GetTypeShort())
                 {
                     // Special case since we don't know upfront which properties are relevant here...so let's take them all
                     foreach (var prop in properties)
@@ -738,7 +780,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 var xmlns = xml.XPathSelectElement("*").GetDefaultNamespace();
                 if (xmlns.NamespaceName.Equals("http://schemas.microsoft.com/WebPart/v3", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (webPartType == WebParts.Client)
+                    if (webPartType.GetTypeShort() == WebParts.Client.GetTypeShort())
                     {
                         // Special case since we don't know upfront which properties are relevant here...so let's take them all
                         foreach (var prop in properties)
@@ -790,7 +832,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                 }
 
                                 // Some properties do have their own namespace defined
-                                if (webPartType == WebParts.SimpleForm && property.Name.Equals("Content", StringComparison.InvariantCultureIgnoreCase))
+                                if (webPartType.GetTypeShort() == WebParts.SimpleForm.GetTypeShort() && property.Name.Equals("Content", StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     // Load using the http://schemas.microsoft.com/WebPart/v2/SimpleForm namespace
                                     XNamespace xmlcontentns = "http://schemas.microsoft.com/WebPart/v2/SimpleForm";
@@ -803,7 +845,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         }
                                     }
                                 }
-                                else if (webPartType == WebParts.ContentEditor)
+                                else if (webPartType.GetTypeShort() == WebParts.ContentEditor.GetTypeShort())
                                 {
                                     if (property.Name.Equals("ContentLink", StringComparison.InvariantCultureIgnoreCase) ||
                                         property.Name.Equals("Content", StringComparison.InvariantCultureIgnoreCase) ||
@@ -820,7 +862,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         }
                                     }
                                 }
-                                else if (webPartType == WebParts.Xml)
+                                else if (webPartType.GetTypeShort() == WebParts.Xml.GetTypeShort())
                                 {
                                     if (property.Name.Equals("XMLLink", StringComparison.InvariantCultureIgnoreCase) ||
                                         property.Name.Equals("XML", StringComparison.InvariantCultureIgnoreCase) ||
@@ -839,7 +881,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         }
                                     }
                                 }
-                                else if (webPartType == WebParts.SiteDocuments)
+                                else if (webPartType.GetTypeShort() == WebParts.SiteDocuments.GetTypeShort())
                                 {
                                     if (property.Name.Equals("UserControlledNavigation", StringComparison.InvariantCultureIgnoreCase) ||
                                         property.Name.Equals("ShowMemberships", StringComparison.InvariantCultureIgnoreCase) ||
@@ -995,7 +1037,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
             catch (WebException ex)
             {
-                LogError(LogStrings.Error_ExportWebPartXmlWorkaround, LogStrings.Heading_ContentTransform, ex);
+                LogInfo(string.Format(LogStrings.WebPartXmlNotExported, "webPartGuid", ex.Message), LogStrings.Heading_ContentTransform);
             }
 
             return string.Empty;
