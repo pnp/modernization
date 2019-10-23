@@ -8,7 +8,6 @@ Using the modernization scanner you can prepare your classic sites for moderniza
 
 - [Getting started with the Modernization Scanner](https://aka.ms/sppnp-modernizationscanner)
 - [Modernization scanner release notes](Modernization%20Scanner%20release%20notes.md)
-- [Modernization scanner guide (detailed)](Modernization%20Scanner.md)
 
 ## Page Transformation (Modernization framework)
 
