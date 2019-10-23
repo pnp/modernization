@@ -183,7 +183,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             else
             {
                 // If not then default user transformation from on-premises only.
-                if(_sourceVersion != SPVersion.SPO)
+                if(_sourceVersion != SPVersion.SPO && IsExecutingTransformOnDomain())
                 {
                     // If a group, remove the domain element if specified
                     // this assumes that groups are named the same in SharePoint Online
@@ -208,6 +208,30 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return principalInput;
         }
         
+        /// <summary>
+        /// Determine if the transform is running on a computer on the domain
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsExecutingTransformOnDomain()
+        {
+            try
+            {
+                if (_sourceContext != null && _sourceContext.Credentials is NetworkCredential)
+                {
+                    //Assumes the connection domain to SP is the same domain as the user
+                    var credential = _sourceContext.Credentials as NetworkCredential;
+                    return (credential.Domain == System.Environment.UserDomainName);
+                }
+            }
+            catch
+            {
+                // Cannot be sure the user is on the domain for the auto-resolution
+                LogWarning("Failed to detect if user is part of the domain, please use mapping instead.", LogStrings.Heading_UserTransform);
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Gets the transform executing domain
         /// </summary>
@@ -271,14 +295,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // Auto Detect and calculate
                 var friendlyDomainName = GetFriendlyComputerDomain();
                 var fqdn = ResolveFriendlyDomainToLdapDomain(friendlyDomainName);
-                StringBuilder builder = new StringBuilder();
-                builder.Append("LDAP://");
-                foreach (var part in fqdn.Split('.'))
+
+                if (!string.IsNullOrEmpty(fqdn))
                 {
-                    builder.Append($"DC={part},");
+                    StringBuilder builder = new StringBuilder();
+                    builder.Append("LDAP://");
+                    foreach (var part in fqdn.Split('.'))
+                    {
+                        builder.Append($"DC={part},");
+                    }
+
+                    return builder.ToString().TrimEnd(',');
                 }
 
-                return builder.ToString().TrimEnd(',');
+                return string.Empty;
             }            
         }
 
@@ -297,43 +327,53 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 //e.g. LDAP://DC=onecity,DC=corp,DC=fabrikam,DC=com
                 string ldapQuery = GetLDAPConnectionString();
 
-                // Bind to the users container.
-                DirectoryEntry entry = new DirectoryEntry(ldapQuery);
-                // Create a DirectorySearcher object.
-                DirectorySearcher mySearcher = new DirectorySearcher(entry);
-                // Create a SearchResultCollection object to hold a collection of SearchResults
-                // returned by the FindAll method.
-                mySearcher.PageSize = 500;
-                
-                string strFilter = string.Empty;
-                if (accountType == AccountType.User)
+                if (!string.IsNullOrEmpty(ldapQuery))
                 {
-                    strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samAccountName);
-                }
-                else if (accountType == AccountType.Group)
-                {
-                    strFilter = string.Format("(&(objectCategory=Group)(objectClass=group)(| (objectsid={0})(name={0})))", samAccountName);
-                }
-                
-                var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
-                
-                mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
-                mySearcher.Filter = strFilter;
-                mySearcher.CacheResults = false;
 
-                SearchResultCollection result = mySearcher.FindAll();
+                    // Bind to the users container.
+                    DirectoryEntry entry = new DirectoryEntry(ldapQuery);
 
-                if (result != null && result.Count > 0)
-                {
-                    if(accountType == AccountType.User)
+                    // Create a DirectorySearcher object.
+                    DirectorySearcher mySearcher = new DirectorySearcher(entry);
+                    // Create a SearchResultCollection object to hold a collection of SearchResults
+                    // returned by the FindAll method.
+                    mySearcher.PageSize = 500;
+
+                    string strFilter = string.Empty;
+                    if (accountType == AccountType.User)
                     {
-                        return GetProperty(result[0], "userprincipalname");
+                        strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samAccountName);
+                    }
+                    else if (accountType == AccountType.Group)
+                    {
+                        strFilter = string.Format("(&(objectCategory=Group)(objectClass=group)(| (objectsid={0})(name={0})))", samAccountName);
                     }
 
-                    if(accountType == AccountType.Group)
+                    var propertiesToLoad = new[] { "SAMAccountName", "userprincipalname", "sid" };
+
+                    mySearcher.PropertiesToLoad.AddRange(propertiesToLoad);
+                    mySearcher.Filter = strFilter;
+                    mySearcher.CacheResults = false;
+
+                    SearchResultCollection result = mySearcher.FindAll(); //Consider FindOne
+
+                    if (result != null && result.Count > 0)
                     {
-                        return GetProperty(result[0], "samaccountname"); // This will only confirm existance
+                        if (accountType == AccountType.User)
+                        {
+                            return GetProperty(result[0], "userprincipalname");
+                        }
+
+                        if (accountType == AccountType.Group)
+                        {
+                            return GetProperty(result[0], "samaccountname"); // This will only confirm existance
+                        }
                     }
+
+                }
+                else
+                {
+                    LogWarning("Cann use the LDAP Query to connect to domain", LogStrings.Heading_UserTransform);
                 }
             }
             catch(Exception ex)

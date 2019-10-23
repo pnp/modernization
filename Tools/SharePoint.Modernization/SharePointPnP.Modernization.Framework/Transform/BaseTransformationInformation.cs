@@ -95,6 +95,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Url to an URL mapping file
         /// </summary>
         public string UrlMappingFile { get; set; }
+        
+        #endregion
+
+        #region User Mapping Properties
 
         /// <summary>
         /// User Mapping file
@@ -104,10 +108,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Searches for users within a specific LDAP Query, if not specified domain LDAP will be calculated
         /// </summary>
+        /// <example>
+        /// LDAP://OU=Test,DC=ALPHADELTA,DC=LOCAL
+        /// </example>
         public string LDAPQuery { get; set; }
 
+        /// <summary>
+        /// Provide fully qualified domain name
+        /// </summary>
+        /// <example>
+        /// AlphaDelta.local
+        /// </example>
+        public string FQDNDomain { get; set; }
 
         #endregion
+
 
         #region Override properties
         /// <summary>
