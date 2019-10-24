@@ -114,7 +114,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         public string RemapPrincipal(string principalInput)
         {
-            LogDebug($"Principal Input: {principalInput}", LogStrings.Heading_UserTransform);
+            LogDebug(string.Format(LogStrings.UserTransformPrincipalInput, principalInput), LogStrings.Heading_UserTransform);
 
             // Mapping Provided
             // Allow all types of platforms
@@ -185,7 +185,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // If not then default user transformation from on-premises only.
                 if(_sourceVersion != SPVersion.SPO && IsExecutingTransformOnDomain())
                 {
-                    LogDebug($"Default remapping mechanism for user {principalInput}", LogStrings.Heading_UserTransform);
+                    LogDebug(string.Format(LogStrings.UserTransformDefaultMapping, principalInput), LogStrings.Heading_UserTransform);
 
                     // If a group, remove the domain element if specified
                     // this assumes that groups are named the same in SharePoint Online
@@ -203,7 +203,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // Check the user exists on the target application, fall back to transforming user
                         var validatedUser = EnsureValidUserExists(principalResult);
 
-                        LogInfo($"Remapped user {principalInput} with {validatedUser}", LogStrings.Heading_UserTransform);
+                        LogInfo(string.Format(LogStrings.UserTransformRemappedUser, principalInput, validatedUser), LogStrings.Heading_UserTransform);
                         
                         // Resolve group SID or name
                         principalInput = validatedUser;
@@ -212,7 +212,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
                 else
                 {
-                    LogInfo($"Not remapping user {principalInput}", LogStrings.Heading_UserTransform);
+                    LogInfo(string.Format(LogStrings.UserTransformNotRemappedUser, principalInput), LogStrings.Heading_UserTransform);
                 }
             }
 
@@ -238,7 +238,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             catch
             {
                 // Cannot be sure the user is on the domain for the auto-resolution
-                LogWarning("Failed to detect if user is part of the domain, please use mapping instead.", LogStrings.Heading_UserTransform);
+                LogWarning(LogStrings.Warning_UserTransformUserNotOnDomain, LogStrings.Heading_UserTransform);
             }
 
             return false;
@@ -250,12 +250,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         internal string DefaultUPN()
         {
-            //if(_targetContext.Credentials is NetworkCredential)
-            //{
-            //    return (_targetContext.Credentials as NetworkCredential).UserName;
-
-            //}
-
             // The current transforming user is the default user for the target
             using (var clonedTargetContext = _targetContext.Clone(_targetContext.Web.GetUrl()))
             {
@@ -291,8 +285,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch(Exception ex)
             {
-                LogDebug($"Error occurred ensuring valid user exists: {ex.Message}", LogStrings.Heading_UserTransform);
-                LogWarning($"Cannot validate user {principal} exists", LogStrings.Heading_UserTransform);
+                LogDebug(string.Format(LogStrings.Error_UserMappingValidateExists, ex.Message), LogStrings.Heading_UserTransform);
+                LogWarning(string.Format(
+                    LogStrings.Warning_UserTransformCannotValidateUserExists, principal), LogStrings.Heading_UserTransform);
             }
 
             return DefaultUPN();
@@ -326,7 +321,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch
             {
-                LogWarning("Cannot get current domain", LogStrings.Heading_UserTransform);
+                LogWarning(LogStrings.Warning_UserTransformCannotGetDomain, LogStrings.Heading_UserTransform);
             }
 
             return string.Empty;
@@ -441,12 +436,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
                 else
                 {
-                    LogWarning("Cann use the LDAP Query to connect to domain", LogStrings.Heading_UserTransform);
+                    LogWarning(LogStrings.Warning_UserTransformCannotUseLDAPConnection, LogStrings.Heading_UserTransform);
                 }
             }
             catch(Exception ex)
             {
-                LogError("Error Searching Source Domain For UPN", LogStrings.Heading_UserTransform, ex);
+                LogError(LogStrings.Error_ErrorSearchingDomain, LogStrings.Heading_UserTransform, ex);
             }
 
             return string.Empty;
@@ -491,7 +486,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch (Exception ex)
             {
-                LogError("Error Resolving Friendly Domain To Ldap Domain", LogStrings.Heading_UserTransform, ex);
+                LogError(LogStrings.Error_UserTransfomrmCannotResolveDomain, LogStrings.Heading_UserTransform, ex);
             }
             return string.Empty;
         }
