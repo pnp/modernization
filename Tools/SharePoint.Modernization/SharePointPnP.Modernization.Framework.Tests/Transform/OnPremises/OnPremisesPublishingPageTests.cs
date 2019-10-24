@@ -143,7 +143,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
                 {
                     //"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml"
                     //"C:\temp\onprem-mapping-all-test.xml.xml"
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext);
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\onprem-mapping-all-test.xml");
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true, includeDebugEntries: true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
@@ -156,29 +156,41 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                     pages.FailTestIfZero();
 
-                    foreach (var page in pages)
+                    try
                     {
-                        PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation(page)
+                        foreach (var page in pages)
                         {
-                            // If target page exists, then overwrite it
-                            Overwrite = true,
+                            PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation(page)
+                            {
+                                // If target page exists, then overwrite it
+                                Overwrite = true,
 
-                            // Don't log test runs
-                            SkipTelemetry = true,
+                                // Don't log test runs
+                                SkipTelemetry = true,
 
-                            //Permissions are should work given cross domain with mapping
-                            KeepPageSpecificPermissions = true,
-                        };
+                                //Permissions are should work given cross domain with mapping
+                                KeepPageSpecificPermissions = true,
 
-                        Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
+                                KeepPageCreationModificationInformation = true
 
-                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
-                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
 
-                        var result = pageTransformator.Transform(pti);
+                            };
+
+                            Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
+
+                            pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                            pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                            var result = pageTransformator.Transform(pti);
+                        }
+
+                        pageTransformator.FlushObservers();
                     }
-
-                    pageTransformator.FlushObservers();
+                    catch
+                    {
+                        pageTransformator.FlushObservers();
+                        Assert.Fail("Exception occurred");
+                    }
 
                 }
             }
