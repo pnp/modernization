@@ -24,7 +24,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal Stopwatch watch;
         internal const string ExecutionLog = "execution.csv";
         internal PageTransformation pageTransformation;
-        internal UserTransformator userTransformation;
+        internal UserTransformator userTransformator;
         internal string version = "undefined";
         internal PageTelemetry pageTelemetry;
         internal bool isRootPage = false;
@@ -324,7 +324,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //On-Prem User Mapping - Dont replace the source
             if (hasTargetContext)
             {
-                principalInput = this.userTransformation.RemapPrincipal(principalInput);
+                principalInput = this.userTransformator.RemapPrincipal(principalInput);
             }
 
             Principal principal = web.SiteGroups.FirstOrDefault(g => g.LoginName.Equals(principalInput, StringComparison.OrdinalIgnoreCase));
@@ -512,7 +512,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     {
                                         // Source User
                                         var fieldUser = (fieldValueToSet as FieldUserValue).LookupValue;
-                                        fieldUser = this.userTransformation.RemapPrincipal(fieldUser);
+                                        fieldUser = this.userTransformator.RemapPrincipal(fieldUser);
 
                                         var user = clonedTargetContext.Web.EnsureUser(fieldUser);
                                         clonedTargetContext.Load(user);
@@ -542,7 +542,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         {
                                             // Source User
                                             var fieldUser = (currentUser as FieldUserValue).LookupValue;
-                                            fieldUser = this.userTransformation.RemapPrincipal(fieldUser);
+                                            fieldUser = this.userTransformator.RemapPrincipal(fieldUser);
 
                                             var user = clonedTargetContext.Web.EnsureUser(fieldUser);
                                             clonedTargetContext.Load(user);
@@ -812,8 +812,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     // Using a cloned context to not mess up with the pending list item updates
                     using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                     {
-                        var srcPageAuthor = this.userTransformation.RemapPrincipal(this.SourcePageAuthor.LookupValue);
-                        var srcPageEditor = this.userTransformation.RemapPrincipal(this.SourcePageEditor.LookupValue);
+                        var srcPageAuthor = this.userTransformator.RemapPrincipal(this.SourcePageAuthor.LookupValue);
+                        var srcPageEditor = this.userTransformator.RemapPrincipal(this.SourcePageEditor.LookupValue);
 
                         var pageAuthorUser = clonedTargetContext.Web.EnsureUser(srcPageAuthor);
                         var pageEditorUser = clonedTargetContext.Web.EnsureUser(srcPageEditor);
@@ -890,7 +890,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal List<UserMappingEntity> InitializeUserMapping(BaseTransformationInformation baseTransformationInformation)
         {
             // Create an instance of the user transformation class
-            this.userTransformation = new UserTransformator(baseTransformationInformation, sourceClientContext, targetClientContext, RegisteredLogObservers);
+            this.userTransformator = new UserTransformator(baseTransformationInformation, sourceClientContext, targetClientContext, RegisteredLogObservers);
 
             if (!string.IsNullOrEmpty(baseTransformationInformation.UserMappingFile)){
 
