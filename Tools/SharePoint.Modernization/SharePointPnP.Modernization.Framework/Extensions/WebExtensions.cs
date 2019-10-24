@@ -570,6 +570,20 @@ namespace Microsoft.SharePoint.Client
         }
 
         /// <summary>
+        /// Gets blog post library in an SP2010 compatible fashion
+        /// </summary>
+        /// <param name="web"></param>
+        /// <returns></returns>
+        public static List GetPostsLibrary(this Web web)
+        {
+            var lists = web.Lists;
+            web.Context.Load(lists, list => list.Where(l => l.BaseTemplate == (int)ListTemplateType.Posts).Include(l => l.Id, l => l.Fields));
+            web.Context.ExecuteQueryRetry();
+
+            return lists.SingleOrDefault();
+        }
+
+        /// <summary>
         /// Gets list from web in an SP2010 compatible fashion
         /// </summary>
         /// <param name="web"></param>

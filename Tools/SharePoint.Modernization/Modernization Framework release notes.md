@@ -16,6 +16,8 @@
 
 ### Added
 
+- Blog page transformation now also works for SharePoint 2010 blog pages
+
 ### Changed
 
 

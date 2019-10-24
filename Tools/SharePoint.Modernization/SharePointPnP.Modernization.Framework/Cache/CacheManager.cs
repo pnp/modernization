@@ -427,11 +427,18 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
             else
             {
-                // Fall back to older logic
-                ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:blogpost_Folder", "core", int.Parse(lcid.ToString()));
-                context.ExecuteQueryRetry();
-
-                var altBlogListName = new Regex(@"['´`]").Replace(result.Value, "");
+                string altBlogListName = null;
+                try
+                {
+                    ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(context, "$Resources:blogpost_Folder", "core", int.Parse(lcid.ToString()));
+                    context.ExecuteQueryRetry();
+                    altBlogListName = new Regex(@"['´`]").Replace(result.Value, "");
+                }
+                catch
+                {
+                    // Use "simple" method, which also works for SharePoint 2010
+                    altBlogListName = PostsTranslation(lcid);
+                }
 
                 if (string.IsNullOrEmpty(altBlogListName))
                 {
@@ -727,6 +734,42 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Helper methods
+        private static string PostsTranslation(uint lcid)
+        {
+            switch (lcid)
+            {
+                case 1033: return "Posts";
+                case 1027: return "Publicacions";
+                case 1029: return "Prispevky";
+                case 1030: return "Blogmeddelelser";
+                case 1031: return "Beitraege";
+                case 1035: return "Viestit";
+                case 1036: return "Billets";
+                case 1038: return "Bejegyzesek";
+                case 1040: return "Post";
+                case 1043: return "Berichten";
+                case 1044: return "Innlegg";
+                case 1046: return "Postagens";
+                case 1050: return "Clanci";
+                case 1053: return "Anslag";
+                case 1057: return "Pos";
+                case 1060: return "Obvestila";
+                case 1061: return "Postitused";
+                case 1069: return "Blog-sarrerak";
+                case 1086: return "Catatan";
+                case 1106: return "Postiadau";
+                case 1110: return "Mensaxes";
+                case 2070: return "Artigos";
+                case 2074: return "ObjavljenePoruke";
+                case 2108: return "Poist";
+                case 3082: return "EntradasDeBlog";
+                case 5146: return "Objave";
+                case 9424: return "ObjavljenePoruke";
+                default: return "Posts";
+            }
+        }
+
+
         private static string Sha256(string randomString)
         {
             SHA256CryptoServiceProvider provider = new SHA256CryptoServiceProvider();
