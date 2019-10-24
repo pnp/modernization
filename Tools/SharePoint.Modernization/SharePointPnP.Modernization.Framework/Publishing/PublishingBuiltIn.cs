@@ -282,11 +282,18 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             if (int.TryParse(userId, out int userIdInt))
             {
-                //TODO: On-Prem User Mapping
-                var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt);
+                var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt, baseTransformationInformation.SourceVersion);
 
                 if (author != null)
                 {
+                    var newUpn = this.userTransformator.RemapPrincipal(author.Upn);
+
+                    if(!author.Upn.Equals(newUpn))
+                    {
+                        author.Upn = newUpn;
+                        author.Id = $"i:0#.f|membership|{author.Upn}";
+                    }
+
                     // Don't serialize null values
                     var jsonSerializerSettings = new JsonSerializerSettings()
                     {

@@ -207,7 +207,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         
                         // Resolve group SID or name
                         principalInput = validatedUser;
-                        
+                        return principalInput;
                     }
                 }
                 else

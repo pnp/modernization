@@ -1402,7 +1402,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         clonedTargetContext.Load(pageAuthorUser);
                         clonedTargetContext.ExecuteQueryRetry();
 
-                        var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, pageAuthorUser.Id);
+                        var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, pageAuthorUser.Id, sourcePlatformVersion);
+
+                        var newUpn = this.userTransformator.RemapPrincipal(author.Upn);
+
+                        if (!author.Upn.Equals(newUpn))
+                        {
+                            author.Upn = newUpn;
+                            author.Id = $"i:0#.f|membership|{author.Upn}";
+                        }
 
                         if (author != null)
                         {
