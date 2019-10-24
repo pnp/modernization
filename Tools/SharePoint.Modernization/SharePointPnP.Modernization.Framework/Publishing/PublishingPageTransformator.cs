@@ -469,7 +469,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 #endregion
 
                 #region Page metadata handling
-                PublishingMetadataTransformator publishingMetadataTransformator = new PublishingMetadataTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, targetPage, pageLayoutMappingModel, this.publishingPageTransformation, base.RegisteredLogObservers);
+                PublishingMetadataTransformator publishingMetadataTransformator = 
+                    new PublishingMetadataTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, targetPage, 
+                        pageLayoutMappingModel, this.publishingPageTransformation, this.userTransformation, base.RegisteredLogObservers);
+
                 publishingMetadataTransformator.Transform();
                 #endregion
 

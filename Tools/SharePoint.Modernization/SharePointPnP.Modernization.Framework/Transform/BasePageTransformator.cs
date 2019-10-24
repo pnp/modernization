@@ -503,73 +503,72 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         if (fieldToCopy.FieldType == "User" || fieldToCopy.FieldType == "UserMulti")
                         {
-                            //TODO: On-Prem User Mapping
-
-                            if (pageTransformationInformation.IsCrossFarmTransformation)
+                            object fieldValueToSet = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
+                            if (fieldValueToSet is FieldUserValue)
                             {
-                                // we can't copy these fields in a cross farm scenario as we do not yet support user account mapping
-                                LogWarning($"{LogStrings.TransformCopyingUserMetaDataFieldSkipped} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
+                                {
+                                    try
+                                    {
+                                        // Source User
+                                        var fieldUser = (fieldValueToSet as FieldUserValue).LookupValue;
+                                        fieldUser = this.userTransformation.RemapPrincipal(fieldUser);
+
+                                        var user = clonedTargetContext.Web.EnsureUser(fieldUser);
+                                        clonedTargetContext.Load(user);
+                                        clonedTargetContext.ExecuteQueryRetry();
+
+                                        // Prep a new FieldUserValue object instance and update the list item
+                                        var newUser = new FieldUserValue()
+                                        {
+                                            LookupId = user.Id
+                                        };
+                                        targetPage.PageListItem[fieldToCopy.FieldName] = newUser;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                    }
+                                }
                             }
                             else
                             {
-                                object fieldValueToSet = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
-                                if (fieldValueToSet is FieldUserValue)
+                                List<FieldUserValue> userValues = new List<FieldUserValue>();
+                                using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
                                 {
-                                    using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
+                                    foreach (var currentUser in (fieldValueToSet as Array))
                                     {
                                         try
                                         {
-                                            var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
+                                            // Source User
+                                            var fieldUser = (currentUser as FieldUserValue).LookupValue;
+                                            fieldUser = this.userTransformation.RemapPrincipal(fieldUser);
+
+                                            var user = clonedTargetContext.Web.EnsureUser(fieldUser);
                                             clonedTargetContext.Load(user);
                                             clonedTargetContext.ExecuteQueryRetry();
 
-                                            // Prep a new FieldUserValue object instance and update the list item
+                                            // Prep a new FieldUserValue object instance
                                             var newUser = new FieldUserValue()
                                             {
                                                 LookupId = user.Id
                                             };
-                                            targetPage.PageListItem[fieldToCopy.FieldName] = newUser;
+
+                                            userValues.Add(newUser);
                                         }
                                         catch (Exception ex)
                                         {
                                             LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                    using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
+
+                                    if (userValues.Count > 0)
                                     {
-                                        foreach (var currentUser in (fieldValueToSet as Array))
-                                        {
-                                            try
-                                            {
-                                                var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
-                                                clonedTargetContext.Load(user);
-                                                clonedTargetContext.ExecuteQueryRetry();
-
-                                                // Prep a new FieldUserValue object instance
-                                                var newUser = new FieldUserValue()
-                                                {
-                                                    LookupId = user.Id
-                                                };
-
-                                                userValues.Add(newUser);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
-                                            }
-                                        }
-
-                                        if (userValues.Count > 0)
-                                        {
-                                            targetPage.PageListItem[fieldToCopy.FieldName] = userValues.ToArray();
-                                        }
+                                        targetPage.PageListItem[fieldToCopy.FieldName] = userValues.ToArray();
                                     }
                                 }
                             }
+                            
                         }
                         else
                         {
@@ -726,11 +725,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 // Override the setting for keeping item level permissions
                 if (!sourceUrl.Equals(targetUrl, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    //TODO: User Mapping, Add defensive coding
-                    //baseTransformationInformation.KeepPageSpecificPermissions = false;
-                    //LogWarning(LogStrings.Warning_ContextValidationFailWithKeepPermissionsEnabled, LogStrings.Heading_InputValidation);
-
+                {   
                     // Set a global flag to indicate this is a cross farm transformation (on-prem to SPO tenant or SPO Tenant A to SPO Tenant B)
                     baseTransformationInformation.IsCrossFarmTransformation = true;
                 }
@@ -808,22 +803,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             try
             {
-                //TODO: On-Prem User Mapping
-
                 FieldUserValue pageAuthor = this.SourcePageAuthor;
                 FieldUserValue pageEditor = this.SourcePageEditor;
 
-                // Keeping page author information is only possible when staying in SPO...for cross site support we first do need user account mapping
-                var sourcePlatformVersion = baseTransformationInformation.SourceVersion;
-
-                if (crossSiteTransformation && baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
+                if (crossSiteTransformation && baseTransformationInformation.KeepPageCreationModificationInformation)
                 {
                     // If transformtion is cross site collection we'll need to lookup users again
                     // Using a cloned context to not mess up with the pending list item updates
                     using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                     {
-                        var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
-                        var pageEditorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageEditor.LookupValue);
+                        var srcPageAuthor = this.userTransformation.RemapPrincipal(this.SourcePageAuthor.LookupValue);
+                        var srcPageEditor = this.userTransformation.RemapPrincipal(this.SourcePageEditor.LookupValue);
+
+                        var pageAuthorUser = clonedTargetContext.Web.EnsureUser(srcPageAuthor);
+                        var pageEditorUser = clonedTargetContext.Web.EnsureUser(srcPageEditor);
                         clonedTargetContext.Load(pageAuthorUser);
                         clonedTargetContext.Load(pageEditorUser);
                         clonedTargetContext.ExecuteQueryRetry();
@@ -843,7 +836,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 if (baseTransformationInformation.KeepPageCreationModificationInformation || baseTransformationInformation.PostAsNews)
                 {
-                    if (baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
+                    if (baseTransformationInformation.KeepPageCreationModificationInformation)
                     {
                         // All 4 fields have to be set!
                         targetPage[Constants.CreatedByField] = pageAuthor;
@@ -857,7 +850,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         targetPage[Constants.PromotedStateField] = "2";
 
                         // Determine what will be the publishing date that will show up in the news rollup
-                        if (baseTransformationInformation.KeepPageCreationModificationInformation && sourcePlatformVersion == SPVersion.SPO)
+                        if (baseTransformationInformation.KeepPageCreationModificationInformation)
                         {
                             targetPage[Constants.FirstPublishedDateField] = this.SourcePageModified;
                         }
@@ -882,6 +875,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch (Exception ex)
             {
+                LogDebug($"Error in updating with source page information {ex.Message}", LogStrings.Heading_ArticlePageHandling);
                 // Eat exceptions as this is not critical for the generated page
                 LogWarning(LogStrings.Warning_NonCriticalErrorDuringPublish, LogStrings.Heading_ArticlePageHandling);
             }
