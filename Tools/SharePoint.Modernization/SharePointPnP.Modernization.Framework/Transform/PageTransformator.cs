@@ -1445,7 +1445,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Load the pages library and page file (if exists) in one go 
             if (GetVersion(sourceClientContext) == SPVersion.SP2010)
             {
-                pagesLibrary = sourceContext.Web.GetSitePagesLibrary();
+                if (IsBlogPage(pageType))
+                {
+                    pagesLibrary = sourceContext.Web.GetPostsLibrary();
+                }
+                else
+                {
+                    pagesLibrary = sourceContext.Web.GetSitePagesLibrary();
+                }
             }
             else
             {

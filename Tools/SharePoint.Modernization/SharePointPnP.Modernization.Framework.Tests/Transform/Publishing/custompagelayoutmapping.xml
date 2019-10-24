@@ -5,7 +5,10 @@
   </AddOns>
   <PageLayouts>
     <!-- To test contentype handling, set AssociatedContentType to CustomPage1 + adjust the metadata -->
-    <PageLayout Name="VolvoArticleLeftXXX" AlsoAppliesTo="VolvoArticle1;VolvoArticleLeft;VolvoArticle2;ArticleLeft;ArticleRight" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" PageHeader="Custom">
+    <PageLayout Name="VolvoArticleLeftXXX" AlsoAppliesTo="VolvoArticle1;VolvoArticleLeft;VolvoArticle2;ArticleLeft;ArticleRight" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" IncludeVerticalColumn="true" PageHeader="Custom">
+      <SectionEmphasis VerticalColumnEmphasis="Soft">
+        <Section Row="3" Emphasis="Neutral" />
+      </SectionEmphasis>
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage;PublishingPageImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({@name})" />
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />-->
@@ -18,7 +21,7 @@
         <Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({PublishingContact})"/>
         <!--<Field Name="PublishingContact" HeaderProperty="Authors" Functions="ToAuthors({Editor})"/>-->
       </Header>
-      <MetaData ShowPageProperties="true" PagePropertiesRow="1" PagePropertiesColumn="3" PagePropertiesOrder="1">
+      <MetaData ShowPageProperties="true" PagePropertiesRow="1" PagePropertiesColumn="4" PagePropertiesOrder="1">
         <!-- Use Custom1 field when AssociatedContentType is set to CustomPage1 -->
         <!--<Field Name="PublishingContactEmail" TargetFieldName="BannerImageUrl" Functions="StaticString('https://bertonline.sharepoint.com/_layouts/15/getpreview.ashx?guidSite=88eebac1710b464cb6816639340fac55&amp;guidWeb=277fe40db9d24da5bbc6827714184958&amp;guidFile=91bf17fd54e849149a3ad6b4f006304e&amp;ext=jpg')" />-->
         <!--<Field Name="PreviewImage" TargetFieldName="BannerImageUrl" Functions="ToPreviewImageUrl({PreviewImage})" />-->
@@ -59,7 +62,7 @@
         <!--<Field Name="ID"  TargetWebPart="SharePointPnP.Demo.HelloWorld" Row="4" Column="1" Order="1">
           <Property Name="HelloWorld" Type="string" Functions="StaticString('Hi bert')"/>
         </Field>-->
-        <Field Name="SummaryLinks" TargetWebPart="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="1" Column="3" Order="2">
+        <Field Name="SummaryLinks" TargetWebPart="Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" Row="1" Column="4" Order="2">
           <Property Name="SummaryLinkStore" Type="string" />
           <Property Name="Title" Type="string" Functions="StaticString('Hi there')" />
         </Field>

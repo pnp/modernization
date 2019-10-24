@@ -588,7 +588,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 }
                                 else
                                 {
-                                    postCategoryFieldValue = ((FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName])[0].LookupValue;
+                                    if (((FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName]).Length == 1)
+                                    {
+                                        postCategoryFieldValue = ((FieldLookupValue[])pageTransformationInformation.SourcePage[fieldToCopy.FieldName])[0].LookupValue;
+                                    }
                                 }
 
                                 targetPage.PageListItem[fieldToCopy.FieldName] = postCategoryFieldValue;

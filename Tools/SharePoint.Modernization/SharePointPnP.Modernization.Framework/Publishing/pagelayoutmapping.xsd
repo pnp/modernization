@@ -14,6 +14,33 @@
     </xs:annotation>
   </xs:element>
 
+  <xs:simpleType name="BackgroundEmphasis">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Neutral" />
+      <xs:enumeration value="Soft" />
+      <xs:enumeration value="Strong" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Section">
+    <xs:attribute name="Row" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="Emphasis" type="BackgroundEmphasis" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="SectionEmphasis">
+    <xs:sequence>
+      <xs:element name="Section" type="Section" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="VerticalColumnEmphasis" type="BackgroundEmphasis" use="optional" />
+  </xs:complexType>
+  
   <xs:complexType name="HeaderField">
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="HeaderProperty" use="required">
@@ -49,7 +76,7 @@
       <xs:simpleType>
         <xs:restriction base="xs:int">
           <xs:minInclusive value="1" />
-          <xs:maxInclusive value="3" />
+          <xs:maxInclusive value="4" />        
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -85,7 +112,7 @@
       <xs:simpleType>
         <xs:restriction base="xs:int">
           <xs:minInclusive value="1" />
-          <xs:maxInclusive value="3" />
+          <xs:maxInclusive value="4" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -114,7 +141,7 @@
       <xs:simpleType>
         <xs:restriction base="xs:int">
           <xs:minInclusive value="1" />
-          <xs:maxInclusive value="3" />
+          <xs:maxInclusive value="4" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -167,7 +194,7 @@
       <xs:simpleType>
         <xs:restriction base="xs:int">
           <xs:minInclusive value="1" />
-          <xs:maxInclusive value="3" />
+          <xs:maxInclusive value="4" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -221,7 +248,7 @@
       <xs:simpleType>
         <xs:restriction base="xs:int">
           <xs:minInclusive value="1" />
-          <xs:maxInclusive value="3" />
+          <xs:maxInclusive value="4" />
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -254,6 +281,7 @@
 
   <xs:complexType name="PageLayout">
     <xs:sequence>
+      <xs:element name="SectionEmphasis" type="SectionEmphasis" minOccurs="0" maxOccurs="1" />
       <xs:element name="Header" type="Header" minOccurs="0" maxOccurs="1" />
       <xs:element name="MetaData" type="MetaData" minOccurs="0" maxOccurs="1" />
       <xs:element name="WebParts" type="WebParts" minOccurs="0" maxOccurs="1" />
@@ -279,6 +307,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="IncludeVerticalColumn" type="xs:boolean" use="optional" />
     <xs:attribute name="PageHeader" use="required">
       <xs:simpleType>
         <xs:restriction base="xs:string">

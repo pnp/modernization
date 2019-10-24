@@ -67,7 +67,13 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             // Map layout
-            PageLayout layout = MapToLayout(publishingPageTransformationModel.PageLayoutTemplate);
+            bool includeVerticalColumn = false;
+            if (publishingPageTransformationModel.IncludeVerticalColumnSpecified)
+            {
+                includeVerticalColumn = publishingPageTransformationModel.IncludeVerticalColumn;
+            }
+
+            PageLayout layout = MapToLayout(publishingPageTransformationModel.PageLayoutTemplate, includeVerticalColumn);
 
             #region Process fields that become web parts 
             if (publishingPageTransformationModel.WebParts != null)

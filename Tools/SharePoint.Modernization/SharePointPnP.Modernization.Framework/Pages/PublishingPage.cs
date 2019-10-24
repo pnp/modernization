@@ -85,7 +85,13 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             // Map layout
-            PageLayout layout = MapToLayout(publishingPageTransformationModel.PageLayoutTemplate);
+            bool includeVerticalColumn = false;
+            if (publishingPageTransformationModel.IncludeVerticalColumnSpecified)
+            {
+                includeVerticalColumn = publishingPageTransformationModel.IncludeVerticalColumn;
+            }
+
+            PageLayout layout = MapToLayout(publishingPageTransformationModel.PageLayoutTemplate, includeVerticalColumn);
 
             #region Process fields that become web parts 
             if (publishingPageTransformationModel.WebParts != null)
@@ -591,20 +597,30 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
         }
 
-        internal PageLayout MapToLayout(PageLayoutPageLayoutTemplate layoutFromTemplate)
+        internal PageLayout MapToLayout(PageLayoutPageLayoutTemplate layoutFromTemplate, bool includeVerticalColumn)
         {
             switch (layoutFromTemplate)
             {
                 case PageLayoutPageLayoutTemplate.OneColumn: return PageLayout.Wiki_OneColumn;
                 case PageLayoutPageLayoutTemplate.TwoColumns: return PageLayout.Wiki_TwoColumns;
-                case PageLayoutPageLayoutTemplate.TwoColumnsWithSidebarLeft:return PageLayout.Wiki_TwoColumnsWithSidebar;
+                case PageLayoutPageLayoutTemplate.TwoColumnsWithSidebarLeft: return PageLayout.Wiki_TwoColumnsWithSidebar;
                 case PageLayoutPageLayoutTemplate.TwoColumnsWithSidebarRight: return PageLayout.Wiki_TwoColumnsWithSidebar;
                 case PageLayoutPageLayoutTemplate.TwoColumnsWithHeader: return PageLayout.Wiki_TwoColumnsWithHeader;
                 case PageLayoutPageLayoutTemplate.TwoColumnsWithHeaderAndFooter: return PageLayout.Wiki_TwoColumnsWithHeaderAndFooter;
                 case PageLayoutPageLayoutTemplate.ThreeColumns: return PageLayout.Wiki_ThreeColumns;
                 case PageLayoutPageLayoutTemplate.ThreeColumnsWithHeader: return PageLayout.Wiki_ThreeColumnsWithHeader;
                 case PageLayoutPageLayoutTemplate.ThreeColumnsWithHeaderAndFooter: return PageLayout.Wiki_ThreeColumnsWithHeaderAndFooter;
-                case PageLayoutPageLayoutTemplate.AutoDetect: return PageLayout.PublishingPage_AutoDetect;
+                case PageLayoutPageLayoutTemplate.AutoDetect:
+                    {
+                        if (includeVerticalColumn)
+                        {
+                            return PageLayout.PublishingPage_AutoDetectWithVerticalColumn;
+                        }
+                        else
+                        {
+                            return PageLayout.PublishingPage_AutoDetect;
+                        }
+                    }                
                 default: return PageLayout.Wiki_OneColumn;
             }
         }
