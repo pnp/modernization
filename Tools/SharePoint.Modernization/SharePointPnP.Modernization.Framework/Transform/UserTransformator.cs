@@ -114,7 +114,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         public string RemapPrincipal(string principalInput)
         {
-            LogDebug($"Princiapl Input: {principalInput}", LogStrings.Heading_UserTransform);
+            LogDebug($"Principal Input: {principalInput}", LogStrings.Heading_UserTransform);
 
             // Mapping Provided
             // Allow all types of platforms
@@ -185,6 +185,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // If not then default user transformation from on-premises only.
                 if(_sourceVersion != SPVersion.SPO && IsExecutingTransformOnDomain())
                 {
+                    LogDebug($"Default remapping of user {principalInput}", LogStrings.Heading_UserTransform);
+
                     // If a group, remove the domain element if specified
                     // this assumes that groups are named the same in SharePoint Online
                     var basicPrincipal = StripUserPrefixTokenAndDomain(principalInput);
@@ -198,9 +200,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (!string.IsNullOrEmpty(principalResult))
                     {
+                        LogInfo($"Remapped user {principalInput} with {principalResult}", LogStrings.Heading_UserTransform);
+                        
                         // Resolve group SID or name
                         principalInput = principalResult;
+                        
                     }
+                }
+                else
+                {
+                    LogInfo($"Not remapping user {principalInput}", LogStrings.Heading_UserTransform);
                 }
             }
 
@@ -342,7 +351,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     string strFilter = string.Empty;
                     if (accountType == AccountType.User)
                     {
-                        strFilter = string.Format("(&(objectCategory=User)(SAMAccountName={0}))", samAccountName);
+                        strFilter = string.Format("(&(objectCategory=User)(| (SAMAccountName={0})(cn={0})))", samAccountName);
                     }
                     else if (accountType == AccountType.Group)
                     {
