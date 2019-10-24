@@ -736,6 +736,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #region Helper methods
         private static string PostsTranslation(uint lcid)
         {
+            // See https://capacreative.co.uk/resources/reference-sharepoint-online-languages-ids/ for list of language id's
             switch (lcid)
             {
                 case 1033: return "Posts";
