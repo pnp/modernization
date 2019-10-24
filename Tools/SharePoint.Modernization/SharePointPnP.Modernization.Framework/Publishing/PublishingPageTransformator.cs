@@ -332,7 +332,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 {
                     pageData = new PublishingPageOnPremises(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, targetContext: targetClientContext, logObservers: base.RegisteredLogObservers).Analyze(pageLayoutMappingModel);
                 }
-                else {
+                else
+                {
                     pageData = new PublishingPage(publishingPageTransformationInformation.SourcePage, pageTransformation, this.publishingPageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, targetContext: targetClientContext, logObservers: base.RegisteredLogObservers).Analyze(pageLayoutMappingModel);
                 }
 
@@ -385,7 +386,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 layoutTransformator.Transform(pageData);
 
                 // If needed call the specific publishing page layout transformator
-                if (pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetect && !useCustomLayoutTransformator)
+                if ((pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetect || pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetectWithVerticalColumn) && !useCustomLayoutTransformator)
                 {
                     // Call out the specific publishing layout transformator implementation
                     PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage, base.RegisteredLogObservers);

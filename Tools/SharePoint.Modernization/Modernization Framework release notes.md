@@ -16,6 +16,7 @@
 
 ### Added
 
+- Publishing pages can be transformed to a target page that uses a vertical column. Add IncludeVerticalColumn="true" to the PageLayout element in your page layout mapping file
 - Blog page transformation now also works for SharePoint 2010 blog pages
 
 ### Changed

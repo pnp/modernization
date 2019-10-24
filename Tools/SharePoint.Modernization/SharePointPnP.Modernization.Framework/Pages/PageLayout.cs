@@ -24,7 +24,8 @@
         WebPart_RightColumnHeaderFooterTopRow3Columns = 27,
         WebPart_Custom = 28,
         WebPart_2010_TwoColumnsLeft = 29,
-        PublishingPage_AutoDetect = 40
+        PublishingPage_AutoDetect = 40,
+        PublishingPage_AutoDetectWithVerticalColumn = 41
 
     }
 }

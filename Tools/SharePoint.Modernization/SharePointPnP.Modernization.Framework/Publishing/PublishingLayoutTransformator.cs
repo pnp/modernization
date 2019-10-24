@@ -38,6 +38,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
         public void Transform(Tuple<Pages.PageLayout, List<WebPartEntity>> pageData)
         {
+
+            bool includeVerticalColumn = false;
+
+            if (pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetectWithVerticalColumn)
+            {
+                includeVerticalColumn = true;
+            }
+
+
             // First drop all sections...ensure the default section is gone
             page.Sections.Clear();
 
@@ -70,6 +79,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         }
                     }
 
+                    // Deduct the vertical column 
+                    if (includeVerticalColumn && rowIterator == firstRow)
+                    {
+                        maxColumns--;
+                    }
+
                     if (maxColumns > 3)
                     {
                         LogError(LogStrings.Error_Maximum3ColumnsAllowed, LogStrings.Heading_PublishingLayoutTransformator);
@@ -79,7 +94,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     {
                         if (maxColumns == 1)
                         {
-                            page.AddSection(CanvasSectionTemplate.OneColumn, sectionOrder);
+                            if (includeVerticalColumn && rowIterator == firstRow)
+                            {
+                                page.AddSection(CanvasSectionTemplate.OneColumnVerticalSection, sectionOrder);
+                            }
+                            else
+                            {
+                                page.AddSection(CanvasSectionTemplate.OneColumn, sectionOrder);
+                            }
                         }
                         else if (maxColumns == 2)
                         {
@@ -115,17 +137,38 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         if (orderedList.Column == firstImageColumn.Key)
                                         {
                                             // image left
-                                            page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                            if (includeVerticalColumn && rowIterator == firstRow)
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRightVerticalSection, sectionOrder);
+                                            }
+                                            else
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                            }
                                         }
                                         else
                                         {
                                             // image right
-                                            page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                            if (includeVerticalColumn && rowIterator == firstRow)
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeftVerticalSection, sectionOrder);
+                                            }
+                                            else
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                        if (includeVerticalColumn && rowIterator == firstRow)
+                                        {
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                        }
+                                        else
+                                        {
+                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                        }
                                     }
                                 }
                                 else
@@ -139,35 +182,84 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         if (firstImageColumnOtherWebParts.Count() == 0 && secondImageColumnOtherWebParts.Count() == 0)
                                         {
                                             // two columns with each only one image...
-                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                            if (includeVerticalColumn && rowIterator == firstRow)
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                            }
+                                            else
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                            }
                                         }
                                         else if (firstImageColumnOtherWebParts.Count() == 0 && secondImageColumnOtherWebParts.Count() > 0)
                                         {
-                                            page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                            if (includeVerticalColumn && rowIterator == firstRow)
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRightVerticalSection, sectionOrder);
+                                            }
+                                            else
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                            }
                                         }
                                         else if (firstImageColumnOtherWebParts.Count() > 0 && secondImageColumnOtherWebParts.Count() == 0)
                                         {
-                                            page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                            if (includeVerticalColumn && rowIterator == firstRow)
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeftVerticalSection, sectionOrder);
+                                            }
+                                            else
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (includeVerticalColumn && rowIterator == firstRow)
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                            }
+                                            else
+                                            {
+                                                page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (includeVerticalColumn && rowIterator == firstRow)
+                                        {
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
                                         }
                                         else
                                         {
                                             page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
                                         }
                                     }
-                                    else
-                                    {
-                                        page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
-                                    }
                                 }
                             }
                             else
                             {
-                                page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                if (includeVerticalColumn && rowIterator == firstRow)
+                                {
+                                    page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                }
+                                else
+                                {
+                                    page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                }
                             }
                         }
                         else if (maxColumns == 3)
                         {
-                            page.AddSection(CanvasSectionTemplate.ThreeColumn, sectionOrder);
+                            if (includeVerticalColumn && rowIterator == firstRow)
+                            {
+                                page.AddSection(CanvasSectionTemplate.ThreeColumnVerticalSection, sectionOrder);
+                            }
+                            else
+                            {
+                                page.AddSection(CanvasSectionTemplate.ThreeColumn, sectionOrder);
+                            }
                         }
 
                         sectionOrder++;
