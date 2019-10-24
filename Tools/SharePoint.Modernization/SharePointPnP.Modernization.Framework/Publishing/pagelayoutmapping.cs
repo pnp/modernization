@@ -983,7 +983,111 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public partial class Section {
+        
+        private int rowField;
+        
+        private BackgroundEmphasis emphasisField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int Row {
+            get {
+                return this.rowField;
+            }
+            set {
+                this.rowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public BackgroundEmphasis Emphasis {
+            get {
+                return this.emphasisField;
+            }
+            set {
+                this.emphasisField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public enum BackgroundEmphasis {
+        
+        /// <remarks/>
+        None,
+        
+        /// <remarks/>
+        Neutral,
+        
+        /// <remarks/>
+        Soft,
+        
+        /// <remarks/>
+        Strong,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
+    public partial class SectionEmphasis {
+        
+        private Section[] sectionField;
+        
+        private BackgroundEmphasis verticalColumnEmphasisField;
+        
+        private bool verticalColumnEmphasisFieldSpecified;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("Section")]
+        public Section[] Section {
+            get {
+                return this.sectionField;
+            }
+            set {
+                this.sectionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public BackgroundEmphasis VerticalColumnEmphasis {
+            get {
+                return this.verticalColumnEmphasisField;
+            }
+            set {
+                this.verticalColumnEmphasisField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool VerticalColumnEmphasisSpecified {
+            get {
+                return this.verticalColumnEmphasisFieldSpecified;
+            }
+            set {
+                this.verticalColumnEmphasisFieldSpecified = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema")]
     public partial class PageLayout {
+        
+        private SectionEmphasis sectionEmphasisField;
         
         private Header headerField;
         
@@ -1008,6 +1112,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing {
         private bool includeVerticalColumnFieldSpecified;
         
         private PageLayoutPageHeader pageHeaderField;
+        
+        /// <remarks/>
+        public SectionEmphasis SectionEmphasis {
+            get {
+                return this.sectionEmphasisField;
+            }
+            set {
+                this.sectionEmphasisField = value;
+            }
+        }
         
         /// <remarks/>
         public Header Header {

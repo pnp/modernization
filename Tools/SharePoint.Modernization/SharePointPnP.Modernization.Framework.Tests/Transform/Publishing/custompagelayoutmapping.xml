@@ -6,6 +6,9 @@
   <PageLayouts>
     <!-- To test contentype handling, set AssociatedContentType to CustomPage1 + adjust the metadata -->
     <PageLayout Name="VolvoArticleLeftXXX" AlsoAppliesTo="VolvoArticle1;VolvoArticleLeft;VolvoArticle2;ArticleLeft;ArticleRight" AssociatedContentType="CustomPage1" PageLayoutTemplate="AutoDetect" IncludeVerticalColumn="true" PageHeader="Custom">
+      <SectionEmphasis VerticalColumnEmphasis="Soft">
+        <Section Row="3" Emphasis="Neutral" />
+      </SectionEmphasis>
       <Header Type="FullWidthImage" Alignment="Left" ShowPublishedDate="true">
         <Field Name="PublishingRollupImage;PublishingPageImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({@name})" />
         <!--<Field Name="PublishingRollupImage" HeaderProperty="ImageServerRelativeUrl" Functions="ToImageUrl({PublishingRollupImage})" />-->

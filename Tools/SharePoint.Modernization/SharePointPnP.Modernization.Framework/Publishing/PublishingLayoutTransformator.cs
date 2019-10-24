@@ -14,13 +14,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
     public class PublishingLayoutTransformator : BaseTransform, ILayoutTransformator
     {
         private ClientSidePage page;
+        private PageLayout pageLayoutMappingModel;
 
         #region Construction
         /// <summary>
         /// Creates a layout transformator instance
         /// </summary>
         /// <param name="page">Client side page that will be receive the created layout</param>
-        public PublishingLayoutTransformator(ClientSidePage page, IList<ILogObserver> logObservers = null)
+        public PublishingLayoutTransformator(ClientSidePage page, PageLayout pageLayoutMappingModel, IList<ILogObserver> logObservers = null)
         {
             // Register observers
             if (logObservers != null)
@@ -32,6 +33,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             this.page = page;
+            this.pageLayoutMappingModel = pageLayoutMappingModel;
         }
         #endregion
 
@@ -40,12 +42,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
 
             bool includeVerticalColumn = false;
+            int verticalColumnEmphasis = 0;
 
             if (pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetectWithVerticalColumn)
             {
                 includeVerticalColumn = true;
+                verticalColumnEmphasis = GetVerticalColumnBackgroundEmphasis();
             }
-
 
             // First drop all sections...ensure the default section is gone
             page.Sections.Clear();
@@ -53,7 +56,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Should not occur, but to be at the safe side...
             if (pageData.Item2.Count == 0)
             {
-                page.AddSection(CanvasSectionTemplate.OneColumn, 1);
+                page.AddSection(CanvasSectionTemplate.OneColumn, 1, GetBackgroundEmphasis(1));
                 return;
             }
 
@@ -96,11 +99,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         {
                             if (includeVerticalColumn && rowIterator == firstRow)
                             {
-                                page.AddSection(CanvasSectionTemplate.OneColumnVerticalSection, sectionOrder);
+                                page.AddSection(CanvasSectionTemplate.OneColumnVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                             }
                             else
                             {
-                                page.AddSection(CanvasSectionTemplate.OneColumn, sectionOrder);
+                                page.AddSection(CanvasSectionTemplate.OneColumn, sectionOrder, GetBackgroundEmphasis(rowIterator));
                             }
                         }
                         else if (maxColumns == 2)
@@ -139,11 +142,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             // image left
                                             if (includeVerticalColumn && rowIterator == firstRow)
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnRightVerticalSection, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRightVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                             }
                                             else
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                             }
                                         }
                                         else
@@ -151,11 +154,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             // image right
                                             if (includeVerticalColumn && rowIterator == firstRow)
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeftVerticalSection, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeftVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                             }
                                             else
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                             }
                                         }
                                     }
@@ -163,11 +166,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                     {
                                         if (includeVerticalColumn && rowIterator == firstRow)
                                         {
-                                            page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                         }
                                         else
                                         {
-                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                         }
                                     }
                                 }
@@ -184,44 +187,44 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             // two columns with each only one image...
                                             if (includeVerticalColumn && rowIterator == firstRow)
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                             }
                                             else
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                             }
                                         }
                                         else if (firstImageColumnOtherWebParts.Count() == 0 && secondImageColumnOtherWebParts.Count() > 0)
                                         {
                                             if (includeVerticalColumn && rowIterator == firstRow)
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnRightVerticalSection, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRightVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                             }
                                             else
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnRight, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                             }
                                         }
                                         else if (firstImageColumnOtherWebParts.Count() > 0 && secondImageColumnOtherWebParts.Count() == 0)
                                         {
                                             if (includeVerticalColumn && rowIterator == firstRow)
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeftVerticalSection, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeftVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                             }
                                             else
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnLeft, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                             }
                                         }
                                         else
                                         {
                                             if (includeVerticalColumn && rowIterator == firstRow)
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                             }
                                             else
                                             {
-                                                page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                                page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                             }
                                         }
                                     }
@@ -229,11 +232,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                     {
                                         if (includeVerticalColumn && rowIterator == firstRow)
                                         {
-                                            page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                            page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                         }
                                         else
                                         {
-                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                            page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                         }
                                     }
                                 }
@@ -242,11 +245,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                             {
                                 if (includeVerticalColumn && rowIterator == firstRow)
                                 {
-                                    page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder);
+                                    page.AddSection(CanvasSectionTemplate.TwoColumnVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                                 }
                                 else
                                 {
-                                    page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder);
+                                    page.AddSection(CanvasSectionTemplate.TwoColumn, sectionOrder, GetBackgroundEmphasis(rowIterator));
                                 }
                             }
                         }
@@ -254,11 +257,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         {
                             if (includeVerticalColumn && rowIterator == firstRow)
                             {
-                                page.AddSection(CanvasSectionTemplate.ThreeColumnVerticalSection, sectionOrder);
+                                page.AddSection(CanvasSectionTemplate.ThreeColumnVerticalSection, sectionOrder, GetBackgroundEmphasis(rowIterator), verticalColumnEmphasis);
                             }
                             else
                             {
-                                page.AddSection(CanvasSectionTemplate.ThreeColumn, sectionOrder);
+                                page.AddSection(CanvasSectionTemplate.ThreeColumn, sectionOrder, GetBackgroundEmphasis(rowIterator));
                             }
                         }
 
@@ -270,6 +273,53 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // non used row...ignore
                 }
             }
+        }
+
+        private int GetBackgroundEmphasis(int row)
+        {
+            BackgroundEmphasis emphasis = BackgroundEmphasis.None;
+
+            if (this.pageLayoutMappingModel != null)
+            {
+                if (this.pageLayoutMappingModel.SectionEmphasis != null && this.pageLayoutMappingModel.SectionEmphasis.Section != null)
+                {
+                    var section = this.pageLayoutMappingModel.SectionEmphasis.Section.Where(p => p.Row == row).FirstOrDefault();
+                    if (section != null)
+                    {
+                        return BackgroundEmphasisToInt(section.Emphasis);
+                    }
+                }
+            }
+
+            return BackgroundEmphasisToInt(emphasis);
+        }
+
+        private int GetVerticalColumnBackgroundEmphasis()
+        {
+            BackgroundEmphasis emphasis = BackgroundEmphasis.None;
+
+            if (this.pageLayoutMappingModel != null)
+            {
+                if (this.pageLayoutMappingModel.SectionEmphasis != null && this.pageLayoutMappingModel.SectionEmphasis.VerticalColumnEmphasisSpecified)
+                {
+                    return BackgroundEmphasisToInt(this.pageLayoutMappingModel.SectionEmphasis.VerticalColumnEmphasis);
+                }
+            }
+
+            return BackgroundEmphasisToInt(emphasis);
+        }
+
+        private int BackgroundEmphasisToInt(BackgroundEmphasis emphasis)
+        {
+            switch (emphasis)
+            {
+                case BackgroundEmphasis.None: return 0;
+                case BackgroundEmphasis.Neutral: return 1;
+                case BackgroundEmphasis.Soft: return 2;
+                case BackgroundEmphasis.Strong: return 3;
+            }
+
+            return 0;
         }
     }
 }
