@@ -185,7 +185,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // If not then default user transformation from on-premises only.
                 if(_sourceVersion != SPVersion.SPO && IsExecutingTransformOnDomain())
                 {
-                    LogDebug($"Default remapping of user {principalInput}", LogStrings.Heading_UserTransform);
+                    LogDebug($"Default remapping mechanism for user {principalInput}", LogStrings.Heading_UserTransform);
 
                     // If a group, remove the domain element if specified
                     // this assumes that groups are named the same in SharePoint Online
@@ -200,10 +200,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (!string.IsNullOrEmpty(principalResult))
                     {
-                        LogInfo($"Remapped user {principalInput} with {principalResult}", LogStrings.Heading_UserTransform);
+                        // Check the user exists on the target application, fall back to transforming user
+                        var validatedUser = EnsureValidUserExists(principalResult);
+
+                        LogInfo($"Remapped user {principalInput} with {validatedUser}", LogStrings.Heading_UserTransform);
                         
                         // Resolve group SID or name
-                        principalInput = principalResult;
+                        principalInput = validatedUser;
                         
                     }
                 }
@@ -240,6 +243,62 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             return false;
         }
+
+        /// <summary>
+        /// Gets a default UPN in the event that destination does not find user
+        /// </summary>
+        /// <returns></returns>
+        internal string DefaultUPN()
+        {
+            //if(_targetContext.Credentials is NetworkCredential)
+            //{
+            //    return (_targetContext.Credentials as NetworkCredential).UserName;
+
+            //}
+
+            // The current transforming user is the default user for the target
+            using (var clonedTargetContext = _targetContext.Clone(_targetContext.Web.GetUrl()))
+            {
+                var user = clonedTargetContext.Web.CurrentUser;
+                clonedTargetContext.Load(user);
+                clonedTargetContext.ExecuteQueryRetry();
+                
+                // TODO: Consider caching
+                return StripUserPrefixTokenAndDomain(user.LoginName);
+            }
+        }
+
+        /// <summary>
+        /// Ensures the current user exists on the target site
+        /// </summary>
+        /// <param name="principal"></param>
+        /// <returns></returns>
+        internal string EnsureValidUserExists(string principal)
+        {
+            try
+            {
+                using (var clonedTargetContext = _targetContext.Clone(_targetContext.Web.GetUrl()))
+                {
+
+                    // This might be inefficient way of doing this...
+                    var user = clonedTargetContext.Web.EnsureUser(principal);
+                    clonedTargetContext.Load(user);
+                    clonedTargetContext.ExecuteQueryRetry();
+
+                    return principal; //return the principal, as it is all ok.
+
+                }
+            }
+            catch(Exception ex)
+            {
+                LogDebug($"Error occurred ensuring valid user exists: {ex.Message}", LogStrings.Heading_UserTransform);
+                LogWarning($"Cannot validate user {principal} exists", LogStrings.Heading_UserTransform);
+            }
+
+            return DefaultUPN();
+
+        }
+
 
         /// <summary>
         /// Gets the transform executing domain
@@ -448,7 +507,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (principal.Contains('|'))
             {
-                cleanerString = principal.Split('|')[1];
+                cleanerString = principal.Split('|').Last();
             }
 
             if (principal.Contains('\\')){
