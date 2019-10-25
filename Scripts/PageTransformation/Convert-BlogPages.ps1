@@ -36,24 +36,21 @@ param (
 )
 begin
 {
-    # first disconnect 
-    Disconnect-PnPOnline
-
     Write-Host "Connecting to " $SourceUrl
     
     if($Credentials)
     {
-
         Connect-PnPOnline -Url $SourceUrl -Credentials $Credentials -Verbose
+        Start-Sleep -s 3
     }
     else
     {
         Connect-PnPOnline -Url $sourceUrl -SPOManagementShell -ClearTokenCache -Verbose
+        Start-Sleep -s 3
     }
 }
 process 
 {    
-    Start-Sleep -s 2
 
     Write-Host "Modernizing blog pages..." -ForegroundColor Cyan
 
