@@ -138,18 +138,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 }
 
                 // Authors handling
-                if (publishingPageTransformationInformation.SourceVersion == SPVersion.SPO)
+                HeaderField authorsHeaderField = GetHeaderField(publishingPageTransformationModel, HeaderFieldHeaderProperty.Authors);
+                if (authorsHeaderField != null)
                 {
-                    HeaderField authorsHeaderField = GetHeaderField(publishingPageTransformationModel, HeaderFieldHeaderProperty.Authors);
-                    if (authorsHeaderField != null)
+                    var authorsHeader = GetFieldValue(authorsHeaderField, PublishingFunctionProcessor.FieldType.User);
+                    if (!string.IsNullOrEmpty(authorsHeader))
                     {
-                        var authorsHeader = GetFieldValue(authorsHeaderField, PublishingFunctionProcessor.FieldType.User);
-                        if (!string.IsNullOrEmpty(authorsHeader))
-                        {
-                            targetPage.PageHeader.Authors = authorsHeader;
-                        }
+                        targetPage.PageHeader.Authors = authorsHeader;
                     }
                 }
+                
             }
         }
 

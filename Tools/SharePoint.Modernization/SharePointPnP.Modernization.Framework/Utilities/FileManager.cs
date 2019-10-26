@@ -73,6 +73,52 @@ namespace SharePointPnP.Modernization.Framework.Utilities
             return urlMappings;
         }
 
+        /// <summary>
+        /// Load User Mapping File
+        /// </summary>
+        /// <param name="mappingFile"></param>
+        /// <returns></returns>
+        public List<UserMappingEntity> LoadUserMappingFile(string mappingFile)
+        {
+            List<UserMappingEntity> userMappings = new List<UserMappingEntity>();
+
+            LogInfo(string.Format(LogStrings.LoadingUserMappingFile, mappingFile), LogStrings.Heading_UserMapping);
+
+            if (System.IO.File.Exists(mappingFile))
+            {
+                var lines = System.IO.File.ReadLines(mappingFile);
+
+                if (lines.Count() > 0)
+                {
+                    string delimiter = this.DetectDelimiter(lines);
+
+                    foreach (var line in lines)
+                    {
+                        var split = line.Split(new string[] { delimiter }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (split.Length == 2)
+                        {
+                            string sourceUser = split[0];
+                            string targetUser = split[1];
+
+                            if (!string.IsNullOrEmpty(sourceUser) && !string.IsNullOrEmpty(targetUser))
+                            {
+                                userMappings.Add(new UserMappingEntity() { SourceUser = sourceUser, TargetUser = targetUser });
+                                LogDebug(string.Format(LogStrings.UserMappingLoaded, sourceUser, targetUser), LogStrings.Heading_UserMapping);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                LogError(string.Format(LogStrings.Error_UserMappingFileNotFound, mappingFile), LogStrings.Heading_UserMapping);
+                throw new Exception(string.Format(LogStrings.Error_UserMappingFileNotFound, mappingFile));
+            }
+
+            return userMappings;
+        }
+
         #region Helper methods
         private string DetectDelimiter(IEnumerable<string> lines)
         {

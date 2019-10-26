@@ -199,6 +199,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
                 LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
 
+                //Load User Mapping File
+                InitializeUserMapping(publishingPageTransformationInformation);
+
 #if DEBUG && MEASURE
             Stop("Telemetry");
 #endif
@@ -465,7 +468,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 #endregion
 
                 #region Page metadata handling
-                PublishingMetadataTransformator publishingMetadataTransformator = new PublishingMetadataTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, targetPage, pageLayoutMappingModel, this.publishingPageTransformation, base.RegisteredLogObservers);
+                PublishingMetadataTransformator publishingMetadataTransformator = 
+                    new PublishingMetadataTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, targetPage, 
+                        pageLayoutMappingModel, this.publishingPageTransformation, this.userTransformator, base.RegisteredLogObservers);
+
                 publishingMetadataTransformator.Transform();
                 #endregion
 

@@ -216,6 +216,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogError(LogStrings.Error_CannotUsePageAcceptBannerCrossSite, LogStrings.Heading_InputValidation);
                     throw new ArgumentException(LogStrings.Error_CannotUsePageAcceptBannerCrossSite);
                 }
+
+
+                //Load User Mapping File
+                InitializeUserMapping(pageTransformationInformation);
             }
 
             if (IsBlogPage(pageType) && !hasTargetContext)
@@ -1388,40 +1392,45 @@ namespace SharePointPnP.Modernization.Framework.Transform
             try
             {
                 var sourcePlatformVersion = GetVersion(this.sourceClientContext);
+                                                    
+                using (var clonedTargetContext = targetClientSidePage.Context.Clone(targetClientSidePage.Context.Web.GetUrl()))
+                {
+                    var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
+                    clonedTargetContext.Load(pageAuthorUser);
+                    clonedTargetContext.ExecuteQueryRetry();
 
-                // Author source platforms do require account mapping, to be updated once that feature is available
-                if (sourcePlatformVersion == SPVersion.SPO)
-                {                    
-                    using (var clonedTargetContext = targetClientSidePage.Context.Clone(targetClientSidePage.Context.Web.GetUrl()))
+                    var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, pageAuthorUser.Id, sourcePlatformVersion);
+
+                    var newUpn = this.userTransformator.RemapPrincipal(author.Upn);
+
+                    if (!author.Upn.Equals(newUpn))
                     {
-                        var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
-                        clonedTargetContext.Load(pageAuthorUser);
-                        clonedTargetContext.ExecuteQueryRetry();
+                        author.Upn = newUpn;
+                        author.Id = $"i:0#.f|membership|{author.Upn}";
+                    }
 
-                        var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, pageAuthorUser.Id);
-
-                        if (author != null)
+                    if (author != null)
+                    {
+                        // Don't serialize null values
+                        var jsonSerializerSettings = new JsonSerializerSettings()
                         {
-                            // Don't serialize null values
-                            var jsonSerializerSettings = new JsonSerializerSettings()
-                            {
-                                MissingMemberHandling = MissingMemberHandling.Ignore,
-                                NullValueHandling = NullValueHandling.Ignore
-                            };
+                            MissingMemberHandling = MissingMemberHandling.Ignore,
+                            NullValueHandling = NullValueHandling.Ignore
+                        };
 
-                            var json = JsonConvert.SerializeObject(author, jsonSerializerSettings);
+                        var json = JsonConvert.SerializeObject(author, jsonSerializerSettings);
 
-                            if (!string.IsNullOrEmpty(json))
-                            {
-                                targetClientSidePage.PageHeader.Authors = json;
-                            }
-                        }
-                        else
+                        if (!string.IsNullOrEmpty(json))
                         {
-                            this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, $"Author {this.SourcePageAuthor.LookupValue} could not be resolved."), LogStrings.Heading_ArticlePageHandling);
+                            targetClientSidePage.PageHeader.Authors = json;
                         }
                     }
+                    else
+                    {
+                        this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, $"Author {this.SourcePageAuthor.LookupValue} could not be resolved."), LogStrings.Heading_ArticlePageHandling);
+                    }
                 }
+                
             }
             catch (Exception ex)
             {

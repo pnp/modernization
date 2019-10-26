@@ -62,7 +62,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Heading_GetPrincipal = "Get Principal";
 
         #endregion
-        
+
         #region Error Messages
 
         public const string Error_SourcePageNotFound = "Source page cannot be null";
@@ -329,5 +329,34 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string UrlMappingLoaded = "Mapping from {0} to {1} loaded";
         public const string UrlRewritten = "ULR rewritten from: {0} to: {1}";
         #endregion
+
+        #region User Mapping
+
+        public const string Heading_UserMapping = "User Mapping";
+        public const string Heading_UserTransform = "User Transform";
+
+        public const string Error_UserMappingFileNotFound = "User mapping file {0} was not found";
+        public const string Error_UserMappingValidateExists = "Error occurred ensuring valid user exists: {0}";
+        public const string Error_ErrorSearchingDomain = "Error Searching Source Domain For UPN";
+        public const string Error_UserTransfomrmCannotResolveDomain = "Error Resolving Friendly Domain To Ldap Domain";
+
+        public const string Warning_MultipleMatchFound = "More than one mapping found, only the first match is used: {0}";
+        public const string Warning_UserTransformUserNotOnDomain = "Failed to detect if user is part of the domain, please use mapping instead.";
+        public const string Warning_UserTransformCannotValidateUserExists = "Cannot validate user {0} exists";
+        public const string Warning_UserTransformCannotGetDomain = "Cannot get current domain";
+        public const string Warning_UserTransformCannotUseLDAPConnection = "Cannot use the LDAP Query to connect to domain";
+
+        public const string LoadingUserMappingFile = "Loading User mapping file {0}";
+        public const string UserMappingLoaded = "User Mapping Loaded Source: {0} Target: {1}";
+        public const string UserTransformSuccess = "Mapping and user replaced: {0} to {1}";
+        public const string UserTransformMappingNotFound = "Mapping for user cannot be found: {0}";
+
+        public const string UserTransformPrincipalInput = "Principal Input:{0}";
+        public const string UserTransformDefaultMapping = "Default remapping mechanism for user {0}";
+        public const string UserTransformRemappedUser = "Remapped user {0} with {1}";
+        public const string UserTransformNotRemappedUser = "Not remapping user {0}";
+
+        #endregion
+
     }
 }

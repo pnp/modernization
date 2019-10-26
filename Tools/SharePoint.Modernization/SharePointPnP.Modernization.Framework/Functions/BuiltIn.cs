@@ -22,6 +22,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
         private ClientSidePage clientSidePage;
         private BaseTransformationInformation baseTransformationInformation;
         private UrlTransformator urlTransformator;
+        private UserTransformator userTransformator;
 
         #region Construction
         /// <summary>
@@ -46,6 +47,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             this.clientSidePage = clientSidePage;
             this.baseTransformationInformation = baseTransformationInformation;
             this.urlTransformator = new UrlTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
+            this.userTransformator = new UserTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
         }
         #endregion
 
@@ -1372,6 +1374,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
         [OutputDocumentation(Name = "PersonSip", Description = "SIP address of the user")]
         public Dictionary<string, string> LookupPerson(string person)
         {
+
+            //TODO: On-Prem User Mapping
             Dictionary<string, string> result = new Dictionary<string, string>();
 
             if (string.IsNullOrEmpty(person))
@@ -1404,8 +1408,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 var loadedUser = loadedUsers.FirstOrDefault();
                 if (loadedUser != null)
                 {
-                    result.Add("PersonName", loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "");
-                    result.Add("PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
+
+                    //TODO: "PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
                     result.Add("PersonUPN", loadedUser["UserName"] != null ? loadedUser["UserName"].ToString() : "");
                     result.Add("PersonRole", loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "");
                     result.Add("PersonDepartment", loadedUser["Department"] != null ? loadedUser["Department"].ToString() : "");
@@ -1421,6 +1425,8 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 {
                     person = personParts[2];
                 }
+
+                //TODO: User Mapping Plan - Replace the Person UPN value with the new mapping
 
                 result.Add("PersonName", "");
                 result.Add("PersonEmail", person);

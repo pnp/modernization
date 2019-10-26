@@ -17,7 +17,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private HtmlParser parser;
         private BuiltIn builtIn;
         private BaseTransformationInformation baseTransformationInformation;
-
+        private UserTransformator userTransformator;
 
         #region Construction
         /// <summary>
@@ -41,6 +41,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.baseTransformationInformation = baseTransformationInformation;
             this.parser = new HtmlParser();
             this.builtIn = new BuiltIn(this.baseTransformationInformation, targetClientContext, sourceClientContext, logObservers: logObservers);
+            this.userTransformator = new UserTransformator(baseTransformationInformation, this.sourceClientContext, this.targetClientContext, base.RegisteredLogObservers);
         }
         #endregion
 
@@ -281,10 +282,18 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             if (int.TryParse(userId, out int userIdInt))
             {
-                var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt);
+                var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt, baseTransformationInformation.SourceVersion);
 
                 if (author != null)
                 {
+                    var newUpn = this.userTransformator.RemapPrincipal(author.Upn);
+
+                    if(!author.Upn.Equals(newUpn))
+                    {
+                        author.Upn = newUpn;
+                        author.Id = $"i:0#.f|membership|{author.Upn}";
+                    }
+
                     // Don't serialize null values
                     var jsonSerializerSettings = new JsonSerializerSettings()
                     {

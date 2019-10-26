@@ -19,9 +19,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private PageLayout pageLayoutMappingModel;
         private PublishingPageTransformation publishingPageTransformation;
         private PublishingFunctionProcessor functionProcessor;
-
+        private UserTransformator userTransformator;
+        
         #region Construction
-        public PublishingMetadataTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext, ClientContext targetClientContext, ClientSidePage page, PageLayout publishingPageLayoutModel, PublishingPageTransformation publishingPageTransformation, IList<ILogObserver> logObservers = null)
+        public PublishingMetadataTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext, 
+            ClientContext targetClientContext, ClientSidePage page, PageLayout publishingPageLayoutModel, PublishingPageTransformation publishingPageTransformation,
+            UserTransformator userTransformator,IList<ILogObserver> logObservers = null)
         {
             // Register observers
             if (logObservers != null)
@@ -38,6 +41,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.pageLayoutMappingModel = publishingPageLayoutModel;
             this.publishingPageTransformation = publishingPageTransformation;
             this.functionProcessor = new PublishingFunctionProcessor(publishingPageTransformationInformation.SourcePage, sourceClientContext, targetClientContext, this.publishingPageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers);
+            this.userTransformator = userTransformator;
         }
         #endregion
 
@@ -266,74 +270,74 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         {
                                             if (targetFieldData.FieldType == "User" || targetFieldData.FieldType == "UserMulti")
                                             {
-                                                if (this.publishingPageTransformationInformation.IsCrossFarmTransformation)
+                                                if (fieldValueToSet is FieldUserValue)
                                                 {
-                                                    // we can't copy these fields in a cross farm scenario as we do not yet support user account mapping
-                                                    LogWarning($"{LogStrings.TransformCopyingUserMetaDataFieldSkipped} {fieldToProcess.Name}", LogStrings.Heading_CopyingPageMetadata);
+                                                    // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                    // Important to use a cloned context to not mess up with the pending list item updates
+                                                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
+                                                    {
+                                                        try
+                                                        {
+                                                            // Source User
+                                                            var fieldUser = (fieldValueToSet as FieldUserValue).LookupValue;
+                                                            fieldUser = this.userTransformator.RemapPrincipal(fieldUser);
+
+                                                            var user = clonedTargetContext.Web.EnsureUser(fieldUser);
+                                                            clonedTargetContext.Load(user);
+                                                            clonedTargetContext.ExecuteQueryRetry();
+
+                                                            // Prep a new FieldUserValue object instance and update the list item
+                                                            var newUser = new FieldUserValue()
+                                                            {
+                                                                LookupId = user.Id
+                                                            };
+
+                                                            this.page.PageListItem[targetFieldData.FieldName] = newUser;
+                                                        }
+                                                        catch(Exception ex)
+                                                        {
+                                                            LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                                        }
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    if (fieldValueToSet is FieldUserValue)
+                                                    List<FieldUserValue> userValues = new List<FieldUserValue>();
+                                                    using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                                                     {
-                                                        // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
-                                                        // Important to use a cloned context to not mess up with the pending list item updates
-                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
+                                                        foreach (var currentUser in (fieldValueToSet as Array))
                                                         {
                                                             try
                                                             {
-                                                                var user = clonedTargetContext.Web.EnsureUser((fieldValueToSet as FieldUserValue).LookupValue);
+                                                                var fieldUser = (currentUser as FieldUserValue).LookupValue;
+                                                                fieldUser = this.userTransformator.RemapPrincipal(fieldUser);
+
+                                                                // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
+                                                                var user = clonedTargetContext.Web.EnsureUser(fieldUser);
                                                                 clonedTargetContext.Load(user);
                                                                 clonedTargetContext.ExecuteQueryRetry();
 
-                                                                // Prep a new FieldUserValue object instance and update the list item
+                                                                // Prep a new FieldUserValue object instance
                                                                 var newUser = new FieldUserValue()
                                                                 {
                                                                     LookupId = user.Id
                                                                 };
 
-                                                                this.page.PageListItem[targetFieldData.FieldName] = newUser;
+                                                                userValues.Add(newUser);
                                                             }
-                                                            catch(Exception ex)
+                                                            catch (Exception ex)
                                                             {
                                                                 LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
                                                             }
                                                         }
                                                     }
-                                                    else
+
+                                                    if (userValues.Count > 0)
                                                     {
-                                                        List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                                        using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
-                                                        {
-                                                            foreach (var currentUser in (fieldValueToSet as Array))
-                                                            {
-                                                                try
-                                                                {
-                                                                    // Publishing page transformation always goes cross site collection, so we'll need to lookup a user again
-                                                                    var user = clonedTargetContext.Web.EnsureUser((currentUser as FieldUserValue).LookupValue);
-                                                                    clonedTargetContext.Load(user);
-                                                                    clonedTargetContext.ExecuteQueryRetry();
-
-                                                                    // Prep a new FieldUserValue object instance
-                                                                    var newUser = new FieldUserValue()
-                                                                    {
-                                                                        LookupId = user.Id
-                                                                    };
-
-                                                                    userValues.Add(newUser);
-                                                                }
-                                                                catch (Exception ex)
-                                                                {
-                                                                    LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
-                                                                }
-                                                            }
-                                                        }
-
-                                                        if (userValues.Count > 0)
-                                                        {
-                                                            this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();
-                                                        }
+                                                        this.page.PageListItem[targetFieldData.FieldName] = userValues.ToArray();
                                                     }
                                                 }
+                                                
                                             }
                                             else
                                             {
@@ -381,7 +385,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
             else
             {
-                // TODO: add logging
+                LogDebug("Page Layout mapping model not found", LogStrings.Heading_CopyingPageMetadata);
             }
         }
 

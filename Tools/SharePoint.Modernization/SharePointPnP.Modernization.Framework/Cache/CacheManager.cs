@@ -36,6 +36,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
         private BasePageTransformator lastUsedTransformator;
         private List<UrlMapping> urlMapping;
+        private List<UserMappingEntity> userMappings;
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -580,7 +581,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Users
-        public UserEntity GetUserFromUserList(ClientContext context, int userListId)
+        public UserEntity GetUserFromUserList(ClientContext context, int userListId, SPVersion version)
         {
             string key = context.Web.GetUrl();
 
@@ -611,7 +612,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 {
                     ViewXml = String.Format(CAMLQueryByName, userListId)
                 };
-                var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query));
+
+                var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query).IncludeWithDefaultProperties(c => c.ContentType.Id));
                 context.ExecuteQueryRetry();
 
                 UserEntity author = null;
@@ -621,19 +623,35 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     if (loadedUser != null)
                     {
                         // Does not work for groups
-                        if (loadedUser["UserName"] == null)
+                        // TODO: Is this same on other envs?
+                        if (loadedUser.ContentType.Id.StringValue != "0x010A00E440035D6D8D7B4388F1939D5F70A9BF") //Person
                         {
                             return null;
                         }
 
-                        author = new UserEntity()
+                        // In SharePoint On-Premise the information is different
+                        if(version == SPVersion.SPO)
                         {
-                            Upn = loadedUser["UserName"].ToString(),
-                            Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
-                            Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
-                        };
+                            author = new UserEntity()
+                            {
+                                Upn = loadedUser["UserName"].ToString(),
+                                Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
+                                Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : ""
+                            };                            
 
-                        author.Id = $"i:0#.f|membership|{author.Upn}";
+                            author.Id = $"i:0#.f|membership|{author.Upn}";
+                        }
+                        else
+                        {
+                            author = new UserEntity()
+                            {
+                                Upn = loadedUser["UserName"] != null ? loadedUser["UserName"].ToString() : loadedUser["Name"].ToString(),
+                                Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
+                                Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
+                            };
+
+                            author.Id = author.Upn;
+                        }                       
 
                         // Store in cache
                         if (userListFromCache != null)
@@ -731,6 +749,29 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             return this.urlMapping;
         }
+        #endregion
+
+        #region Get User Mapping
+
+        /// <summary>
+        /// Gets the User Mapping, if first time file will be laoded
+        /// </summary>
+        /// <param name="userMappingFile"></param>
+        /// <param name="logObservers"></param>
+        /// <returns></returns>
+        public List<UserMappingEntity> GetUserMapping(string userMappingFile, IList<ILogObserver> logObservers = null)
+        {
+            if (this.userMappings != null && this.userMappings.Count > 0)
+            {
+                return this.userMappings;
+            }
+
+            FileManager fileManager = new FileManager(logObservers);
+            this.userMappings = fileManager.LoadUserMappingFile(userMappingFile);
+
+            return this.userMappings;
+        }
+
         #endregion
 
         #region Helper methods
