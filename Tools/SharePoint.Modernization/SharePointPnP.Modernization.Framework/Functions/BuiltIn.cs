@@ -1383,58 +1383,83 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return result;
             }
 
+            person = this.userTransformator.RemapPrincipal(person);
+
             string CAMLQueryByName = @"
                 <View Scope='Recursive'>
                   <Query>
                     <Where>
-                      <Contains>
+                      <Eq>
                         <FieldRef Name='Name'/>
                         <Value Type='text'>{0}</Value>
-                      </Contains>
+                      </Eq>
                     </Where>
                   </Query>
                 </View>";
 
-            List siteUserInfoList = this.sourceClientContext.Web.SiteUserInfoList;
+            ClientContext context;
+            if (this.targetClientContext != null)
+            {
+                context = this.targetClientContext;
+            }
+            else
+            {
+                context = this.sourceClientContext;
+            }
+
+            List siteUserInfoList = context.Web.SiteUserInfoList;
             CamlQuery query = new CamlQuery
             {
                 ViewXml = String.Format(CAMLQueryByName, person)
             };
-            var loadedUsers = this.sourceClientContext.LoadQuery(siteUserInfoList.GetItems(query));
-            this.sourceClientContext.ExecuteQueryRetry();
+            var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query));
+            context.ExecuteQueryRetry();
 
             if (loadedUsers != null)
             {
                 var loadedUser = loadedUsers.FirstOrDefault();
                 if (loadedUser != null)
                 {
-
-                    //TODO: "PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
                     result.Add("PersonUPN", loadedUser["UserName"] != null ? loadedUser["UserName"].ToString() : "");
                     result.Add("PersonRole", loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "");
                     result.Add("PersonDepartment", loadedUser["Department"] != null ? loadedUser["Department"].ToString() : "");
                     result.Add("PersonPhone", loadedUser["WorkPhone"] != null ? loadedUser["WorkPhone"].ToString() : "");
                     result.Add("PersonSip", loadedUser["SipAddress"] != null ? loadedUser["SipAddress"].ToString() : "");
+                    result.Add("PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
                 }
-            }
-            else
-            {
-                // Fallback...
-                var personParts = person.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
-                if (personParts.Length == 3)
+                else
                 {
-                    person = personParts[2];
+                    // Fallback...
+                    var personParts = person.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (personParts.Length == 3)
+                    {
+                        person = personParts[2];
+                    }
+                    else if (personParts.Length == 2)
+                    {
+                        person = personParts[1];
+                    }
+
+                    if (person.Contains("\\"))
+                    {
+                        // On-premises account which was not mapped
+                        personParts = person.Split(new string[] { "\\" }, StringSplitOptions.RemoveEmptyEntries);
+                        if (personParts.Length == 2)
+                        {
+                            person = personParts[1];
+                        }
+                    }
+
+                    // Important that person does not contain any characters that can mess up json serialization 
+
+                    result.Add("PersonName", "");
+                    result.Add("PersonEmail", person);
+                    result.Add("PersonUPN", person);
+                    result.Add("PersonRole", "");
+                    result.Add("PersonDepartment", "");
+                    result.Add("PersonPhone", "");
+                    result.Add("PersonSip", "");
                 }
-
-                //TODO: User Mapping Plan - Replace the Person UPN value with the new mapping
-
-                result.Add("PersonName", "");
-                result.Add("PersonEmail", person);
-                result.Add("PersonUPN", person);
-                result.Add("PersonRole", "");
-                result.Add("PersonDepartment", "");
-                result.Add("PersonPhone", "");
-                result.Add("PersonSip", "");
             }
 
             return result;
