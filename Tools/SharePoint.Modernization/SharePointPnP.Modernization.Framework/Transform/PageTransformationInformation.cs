@@ -49,6 +49,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             KeepPageCreationModificationInformation = false;
             PostAsNews = false;
             DisablePageComments = false;
+            SPOToSPOUserMapping = false;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
             // Populate with OOB mapping properties

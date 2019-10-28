@@ -904,23 +904,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="baseTransformationInformation"></param>
         /// <param name="sourceClientContext"></param>
-        internal List<UserMappingEntity> InitializeUserMapping(BaseTransformationInformation baseTransformationInformation)
+        internal void InitializeUserMapping(BaseTransformationInformation baseTransformationInformation)
         {
             // Create an instance of the user transformation class
             this.userTransformator = new UserTransformator(baseTransformationInformation, sourceClientContext, targetClientContext, RegisteredLogObservers);
 
-            if (!string.IsNullOrEmpty(baseTransformationInformation.UserMappingFile)){
-
+            // Cache the user mapping file, if any
+            if (!string.IsNullOrEmpty(baseTransformationInformation.UserMappingFile))
+            {
                 // Caching the mapping
-                var mapping = CacheManager.Instance.GetUserMapping(baseTransformationInformation.UserMappingFile, RegisteredLogObservers);
-
-                //Don't block SPO because this could in theory be used to remap users
-                return mapping;
+                CacheManager.Instance.GetUserMapping(baseTransformationInformation.UserMappingFile, RegisteredLogObservers);
             }
-
-            return default;
         }
-
         #endregion
 
 

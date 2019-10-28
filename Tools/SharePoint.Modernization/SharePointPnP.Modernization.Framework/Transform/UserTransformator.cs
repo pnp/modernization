@@ -21,17 +21,32 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private ClientContext _sourceContext;
         private ClientContext _targetContext;
         private List<UserMappingEntity> _userMapping;
-        private bool _useOriginalValuesOnNoMatch;
         private string _ldapSpecifiedByUser;
         private SPVersion _sourceVersion;
+        private bool _SPOToSPOUserMapping;
 
         /// <summary>
         /// Determine if the user transforming according to mapped file
         /// </summary>
-        public bool IsUserMappingSpecified { get
+        public bool IsUserMappingSpecified
+        {
+            get
             {
                 return (this._userMapping != default);
-            } 
+            }
+        }
+
+        public bool ShouldMapUsers
+        {
+            get
+            {
+                if (_sourceVersion == SPVersion.SPO && !_SPOToSPOUserMapping)
+                {
+                    return false;
+                }
+
+                return true;
+            }
         }
 
         #region Construction
@@ -44,7 +59,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="targetContext">Target Context</param>
         /// <param name="logObservers">Logging</param>
         /// <param name="useOriginalValuesOnNoMatch"></param>
-        public UserTransformator(BaseTransformationInformation baseTransformationInformation, ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null, bool useOriginalValuesOnNoMatch = true)
+        public UserTransformator(BaseTransformationInformation baseTransformationInformation, ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null)
         {
             // Hookup logging
             if (logObservers != null)
@@ -79,11 +94,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this._userMapping = default; //Pass through if there is no mapping
             }
 
-            _useOriginalValuesOnNoMatch = useOriginalValuesOnNoMatch;
-
             _ldapSpecifiedByUser = baseTransformationInformation?.LDAPQuery ?? string.Empty;
-
             _sourceVersion = baseTransformationInformation?.SourceVersion ?? SPVersion.SPO; // SPO Fall Back
+            _SPOToSPOUserMapping = baseTransformationInformation.SPOToSPOUserMapping;
         }
 
         #endregion
@@ -115,6 +128,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         public string RemapPrincipal(string principalInput)
         {
+            // when transforming from SPO without explicit enabling spo to spo
+            if (!this.ShouldMapUsers)
+            {
+                return principalInput;
+            }
+
             LogDebug(string.Format(LogStrings.UserTransformPrincipalInput, principalInput), LogStrings.Heading_UserTransform);
 
             // Mapping Provided
@@ -250,6 +269,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         public string RemapPrincipal(ClientContext context, FieldUserValue userField)
         {
+            // when transforming from SPO without explicit enabling spo to spo
+            if (!this.ShouldMapUsers)
+            {
+                return userField.LookupValue;
+            }
+
             var resolvedUser = CacheManager.Instance.GetEnsuredUser(context, userField.LookupValue);
 
             return this.RemapPrincipal(resolvedUser.LoginName);

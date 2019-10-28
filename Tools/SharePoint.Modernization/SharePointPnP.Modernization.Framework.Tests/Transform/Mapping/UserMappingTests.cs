@@ -55,7 +55,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
                     };
 
-                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
 
                     var result = userTransformator.SearchSourceDomainForUPN(AccountType.User, "test.user3");
                     Console.WriteLine(result);
@@ -85,7 +85,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
                     };
 
-                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
 
                     var result = userTransformator.SearchSourceDomainForUPN(AccountType.Group, "SharePoint-Editors"); //My test rig has this setup
                     Console.WriteLine(result);
@@ -115,7 +115,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
                     };
 
-                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
 
                     // SharePoint-Readers (note specific to PBs test rig)
                     var result = userTransformator.SearchSourceDomainForUPN(AccountType.Group, "s-1-5-21-2364077317-3999105188-691961326-1129"); 
@@ -149,7 +149,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         UserMappingFile = @"..\..\Transform\Mapping\usermapping_sample.csv"
                     };
 
-                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
 
                     var result = userTransformator.ResolveFriendlyDomainToLdapDomain("ALPHADELTA");
                     Console.WriteLine(result);
@@ -169,7 +169,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                 using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
                 {
 
-                    UserTransformator userTransformator = new UserTransformator(null, sourceClientContext, targetClientContext, null, false);
+                    UserTransformator userTransformator = new UserTransformator(null, sourceClientContext, targetClientContext, null);
 
                     var result = userTransformator.GetFriendlyComputerDomain();
                     Console.WriteLine(result);
@@ -185,7 +185,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         [TestMethod]
         public void GetLDAPConnectingStringTest()
         {
-            UserTransformator userTransformator = new UserTransformator(null, null, null, null, false);
+            UserTransformator userTransformator = new UserTransformator(null, null, null, null);
 
             var result = userTransformator.GetLDAPConnectionString();
             Console.WriteLine(result);
@@ -216,7 +216,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         SourceVersion = SPVersion.SP2010 //example only
                     };
 
-                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null, false);
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
 
                     var result = userTransformator.RemapPrincipal("test.user3");
                     Console.WriteLine(result);

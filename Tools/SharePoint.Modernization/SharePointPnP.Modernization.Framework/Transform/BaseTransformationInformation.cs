@@ -101,6 +101,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         #region User Mapping Properties
 
         /// <summary>
+        /// Also apply user mapping logic when source and target are SPO
+        /// </summary>
+        public bool SPOToSPOUserMapping { get; set; }
+
+        /// <summary>
         /// User Mapping file
         /// </summary>
         public string UserMappingFile { get; set; }
@@ -122,7 +127,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string FQDNDomain { get; set; }
 
         #endregion
-
 
         #region Override properties
         /// <summary>
