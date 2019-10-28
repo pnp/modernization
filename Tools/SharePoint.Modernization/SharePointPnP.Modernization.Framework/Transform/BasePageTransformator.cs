@@ -908,13 +908,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             // Create an instance of the user transformation class
             this.userTransformator = new UserTransformator(baseTransformationInformation, sourceClientContext, targetClientContext, RegisteredLogObservers);
-
-            // Cache the user mapping file, if any
-            if (!string.IsNullOrEmpty(baseTransformationInformation.UserMappingFile))
-            {
-                // Caching the mapping
-                CacheManager.Instance.GetUserMapping(baseTransformationInformation.UserMappingFile, RegisteredLogObservers);
-            }
         }
         #endregion
 

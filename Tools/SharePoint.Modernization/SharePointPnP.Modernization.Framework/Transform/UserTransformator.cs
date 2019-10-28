@@ -36,6 +36,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
         }
 
+        /// <summary>
+        /// Determines if we should attempt to map users
+        /// </summary>
         public bool ShouldMapUsers
         {
             get
@@ -49,8 +52,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
         }
 
-        #region Construction
-        
+        #region Construction        
         /// <summary>
         /// User Transformator constructor
         /// </summary>
@@ -58,7 +60,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="sourceContext">Source Context</param>
         /// <param name="targetContext">Target Context</param>
         /// <param name="logObservers">Logging</param>
-        /// <param name="useOriginalValuesOnNoMatch"></param>
         public UserTransformator(BaseTransformationInformation baseTransformationInformation, ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null)
         {
             // Hookup logging
