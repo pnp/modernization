@@ -521,21 +521,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal string ResolveFriendlyDomainToLdapDomain(string friendlyDomainName)
         {
             //Reference and credit: https://www.codeproject.com/Articles/18102/Howto-Almost-Everything-In-Active-Directory-via-C#13 
-
-            string ldapPath = string.Empty;
-
             try
             {
-                DirectoryContext objContext = new DirectoryContext(
-                    DirectoryContextType.Domain, friendlyDomainName);
+                DirectoryContext objContext = new DirectoryContext(DirectoryContextType.Domain, friendlyDomainName);
                 Domain objDomain = Domain.GetDomain(objContext);
-                ldapPath = objDomain.Name;
-                return ldapPath;
+                return objDomain.Name;
             }
             catch (Exception ex)
             {
                 LogError(LogStrings.Error_UserTransfomrmCannotResolveDomain, LogStrings.Heading_UserTransform, ex);
             }
+
             return string.Empty;
         }
 
@@ -565,7 +561,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Simple class for value for account type
     /// </summary>
-    public enum AccountType
+    internal enum AccountType
     {
         User,
         Group
