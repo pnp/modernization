@@ -258,6 +258,7 @@
     <None Include="Provision\Readme.md" />
     <None Include="Transform\Mapping\usermapping_sample.csv" />
     <None Include="Transform\Mapping\urlmapping_sample.csv" />
+    <None Include="Transform\Mapping\usermapping_sample2.csv" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Provision\ClassicTeamSite-SampleData.xml" />
