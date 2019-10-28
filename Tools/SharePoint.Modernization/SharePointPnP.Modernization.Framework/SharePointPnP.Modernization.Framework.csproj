@@ -189,6 +189,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\AssetTransferredEntity.cs" />
+    <Compile Include="Entities\ResolvedUser.cs" />
     <Compile Include="Entities\TransformationLogAnalysis.cs" />
     <Compile Include="Entities\UrlMapping.cs" />
     <Compile Include="Entities\UserEntity.cs" />
