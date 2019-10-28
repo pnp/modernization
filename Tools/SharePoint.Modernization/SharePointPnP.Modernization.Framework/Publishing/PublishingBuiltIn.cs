@@ -273,7 +273,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         #endregion
 
         #region Person functions
-        [FunctionDocumentation(Description = "Looksup user information for passed user id",
+        [FunctionDocumentation(Description = "Looks up user information for passed user id",
                                    Example = "ToAuthors({PublishingContact})")]
         [InputDocumentation(Name = "{userId}", Description = "The id (int) of a user")]
         [OutputDocumentation(Name = "return value", Description = "A formatted json blob describing the user's details")]
@@ -282,16 +282,24 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             if (int.TryParse(userId, out int userIdInt))
             {
-                var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt, baseTransformationInformation.SourceVersion);
+                // Get the user information from the source site
+                var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt);
 
                 if (author != null)
                 {
-                    var newUpn = this.userTransformator.RemapPrincipal(author.Upn);
+                    // Will this user be mapped to another user?
+                    var newUpn = this.userTransformator.RemapPrincipal(author.LoginName);
 
-                    if(!author.Upn.Equals(newUpn))
+                    if (!string.IsNullOrEmpty(newUpn) && !newUpn.Equals(author.Upn, System.StringComparison.InvariantCultureIgnoreCase))
                     {
-                        author.Upn = newUpn;
-                        author.Id = $"i:0#.f|membership|{author.Upn}";
+                        // We'll need to retrieve the info from this user again as we've mapped to another user account in the target site
+                        author = Cache.CacheManager.Instance.GetUserFromUserList(this.targetClientContext, newUpn);
+
+                        if (author == null)
+                        {
+                            // The principal returned from the user mapping is not available on the target site, so return empty
+                            return "";
+                        }
                     }
 
                     // Don't serialize null values

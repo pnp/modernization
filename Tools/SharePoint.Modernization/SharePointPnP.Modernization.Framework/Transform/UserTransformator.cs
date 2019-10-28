@@ -4,16 +4,17 @@ using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
+    /// <summary>
+    /// Class that handles the transformation of users 
+    /// </summary>
     public class UserTransformator: BaseTransform
     {
 
@@ -147,14 +148,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             }
                             else
                             {
-                                LogInfo(string.Format(LogStrings.UserTransformSuccess, principalInput, result), 
+                                LogInfo(string.Format(LogStrings.UserTransformSuccess, tokenSplit[1], result), 
                                     LogStrings.Heading_UserTransform);
                             }   
                         }
                         else
                         {
                             //Not Found Logging, let method pass-through with original value
-                            LogDebug(string.Format(LogStrings.UserTransformMappingNotFound, principalInput),
+                            LogInfo(string.Format(LogStrings.UserTransformMappingNotFound, tokenSplit[1]),
                                 LogStrings.Heading_UserTransform);
                         }
                     }
@@ -187,28 +188,55 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     LogDebug(string.Format(LogStrings.UserTransformDefaultMapping, principalInput), LogStrings.Heading_UserTransform);
 
+                    var result = principalInput;
+
                     // If a group, remove the domain element if specified
                     // this assumes that groups are named the same in SharePoint Online
                     var basicPrincipal = StripUserPrefixTokenAndDomain(principalInput);
-                    var principalResult = SearchSourceDomainForUPN(AccountType.User, basicPrincipal);
 
-                    if (string.IsNullOrEmpty(principalResult))
+                    bool resultCameFromCache = false;
+                    if (CacheManager.Instance.MappedUsers.TryGetValue(principalInput, out string mappedUser))
                     {
-                        // If a user, replace with the UPN
-                        principalResult = SearchSourceDomainForUPN(AccountType.Group, basicPrincipal);
+                        result = mappedUser;
+                        resultCameFromCache = true;
+                    }
+                    else
+                    {
+                        var principalResult = SearchSourceDomainForUPN(AccountType.User, basicPrincipal);
+
+                        if (string.IsNullOrEmpty(principalResult))
+                        {
+                            // If a user, replace with the UPN
+                            principalResult = SearchSourceDomainForUPN(AccountType.Group, basicPrincipal);
+                        }
+
+                        if (!string.IsNullOrEmpty(principalResult))
+                        {
+                            // Check the user exists on the target application, fall back to transforming user
+                            var validatedUser = EnsureValidUserExists(principalResult);
+
+                            if (!string.IsNullOrEmpty(validatedUser))
+                            {
+                                result = validatedUser;
+                            }
+                        }
                     }
 
-                    if (!string.IsNullOrEmpty(principalResult))
+                    if (result.Equals(principalInput, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        // Check the user exists on the target application, fall back to transforming user
-                        var validatedUser = EnsureValidUserExists(principalResult);
-
-                        LogInfo(string.Format(LogStrings.UserTransformRemappedUser, principalInput, validatedUser), LogStrings.Heading_UserTransform);
-                        
-                        // Resolve group SID or name
-                        principalInput = validatedUser;
-                        return principalInput;
+                        LogInfo(string.Format(LogStrings.UserTransformNotRemappedUser, principalInput), LogStrings.Heading_UserTransform);
                     }
+                    else
+                    {
+                        LogInfo(string.Format(LogStrings.UserTransformRemappedUser, principalInput, result), LogStrings.Heading_UserTransform);
+                    }
+
+                    if (!resultCameFromCache)
+                    {
+                        CacheManager.Instance.MappedUsers.Add(principalInput, result);
+                    }
+
+                    return result;
                 }
                 else
                 {
@@ -219,7 +247,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //Returns original input to pass through where re-mapping is not required
             return principalInput;
         }
-        
+
+        public string RemapPrincipal(ClientContext context, FieldUserValue userField)
+        {
+            var resolvedUser = CacheManager.Instance.GetEnsuredUser(context, userField.LookupValue);
+
+            return this.RemapPrincipal(resolvedUser.LoginName);
+        }
+
         /// <summary>
         /// Determine if the transform is running on a computer on the domain
         /// </summary>
@@ -232,7 +267,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     //Assumes the connection domain to SP is the same domain as the user
                     var credential = _sourceContext.Credentials as NetworkCredential;
-                    return (credential.Domain == System.Environment.UserDomainName);
+                    return credential.Domain.Equals(Environment.UserDomainName, StringComparison.InvariantCultureIgnoreCase);
                 }
             }
             catch
@@ -244,6 +279,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return false;
         }
 
+        /**
         /// <summary>
         /// Gets a default UPN in the event that destination does not find user
         /// </summary>
@@ -261,6 +297,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 return StripUserPrefixTokenAndDomain(user.LoginName);
             }
         }
+        */
 
         /// <summary>
         /// Ensures the current user exists on the target site
@@ -269,31 +306,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns></returns>
         internal string EnsureValidUserExists(string principal)
         {
-            try
+            // Check if this is a valid user
+            var resolvedUser = CacheManager.Instance.GetEnsuredUser(_targetContext, principal);
+
+            if (resolvedUser != null)
             {
-                using (var clonedTargetContext = _targetContext.Clone(_targetContext.Web.GetUrl()))
-                {
-
-                    // This might be inefficient way of doing this...
-                    var user = clonedTargetContext.Web.EnsureUser(principal);
-                    clonedTargetContext.Load(user);
-                    clonedTargetContext.ExecuteQueryRetry();
-
-                    return principal; //return the principal, as it is all ok.
-
-                }
-            }
-            catch(Exception ex)
-            {
-                LogDebug(string.Format(LogStrings.Error_UserMappingValidateExists, ex.Message), LogStrings.Heading_UserTransform);
-                LogWarning(string.Format(
-                    LogStrings.Warning_UserTransformCannotValidateUserExists, principal), LogStrings.Heading_UserTransform);
+                return principal;
             }
 
-            return DefaultUPN();
-
+            return null;
         }
-
 
         /// <summary>
         /// Gets the transform executing domain
@@ -315,7 +337,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
                 else
                 {
-                    return System.Environment.UserDomainName;
+                    return Environment.UserDomainName;
                 }
  
             }

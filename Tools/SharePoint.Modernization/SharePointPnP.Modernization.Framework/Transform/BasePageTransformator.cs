@@ -189,8 +189,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 item.Context.ExecuteQueryRetry();
             }
 
-            
-
+            // Cross site collection flow (can be from SPO to SPO, but also from SP On-Premises to SPO)
             if (hasTargetContext)
             {
                 // Ensure principals are available in the target site
@@ -230,6 +229,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             else
             {
+                // In-place transformation
+
                 // Assign item level permissions
                 foreach (var roleAssignment in lip.RoleAssignments)
                 {
@@ -300,7 +301,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // Apply new permissions
                         foreach (var roleAssignment in source.RoleAssignments)
                         {
-                            var principal = GetPrincipal(this.sourceClientContext.Web, roleAssignment.Member.LoginName);
+                            var principal = GetPrincipal(this.sourceClientContext.Web, roleAssignment.Member.LoginName, hasTargetContext, true);
                             if (principal != null)
                             {
                                 if (!lip.Principals.ContainsKey(roleAssignment.Member.LoginName))
@@ -318,11 +319,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return lip;
         }
 
-        internal Principal GetPrincipal(Web web, string principalInput, bool hasTargetContext = false)
+        internal Principal GetPrincipal(Web web, string principalInput, bool hasTargetContext, bool reading = false)
         {
-            
+
             //On-Prem User Mapping - Dont replace the source
-            if (hasTargetContext)
+            if (hasTargetContext && !reading)
             {
                 principalInput = this.userTransformator.RemapPrincipal(principalInput);
             }
@@ -506,69 +507,82 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             object fieldValueToSet = pageTransformationInformation.SourcePage[fieldToCopy.FieldName];
                             if (fieldValueToSet is FieldUserValue)
                             {
-                                using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
+                                try
                                 {
-                                    try
+                                    // Source User
+                                    var fieldUser = (fieldValueToSet as FieldUserValue).LookupValue;
+                                    // Mapped target user
+                                    fieldUser = this.userTransformator.RemapPrincipal(this.sourceClientContext, (fieldValueToSet as FieldUserValue));
+
+                                    // Ensure user exists on target site
+                                    var ensuredUserOnTarget = CacheManager.Instance.GetEnsuredUser(targetPage.Context, fieldUser);
+                                    if (ensuredUserOnTarget != null)
                                     {
-                                        // Source User
-                                        var fieldUser = (fieldValueToSet as FieldUserValue).LookupValue;
-                                        fieldUser = this.userTransformator.RemapPrincipal(fieldUser);
-
-                                        var user = clonedTargetContext.Web.EnsureUser(fieldUser);
-                                        clonedTargetContext.Load(user);
-                                        clonedTargetContext.ExecuteQueryRetry();
-
                                         // Prep a new FieldUserValue object instance and update the list item
                                         var newUser = new FieldUserValue()
                                         {
-                                            LookupId = user.Id
+                                            LookupId = ensuredUserOnTarget.Id
                                         };
                                         targetPage.PageListItem[fieldToCopy.FieldName] = newUser;
                                     }
-                                    catch (Exception ex)
+                                    else
                                     {
-                                        LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                        // Clear target field - needed in overwrite scenarios
+                                        targetPage.PageListItem[fieldToCopy.FieldName] = null;
+                                        LogWarning(string.Format(LogStrings.Warning_UserIsNotMappedOrResolving, (fieldValueToSet as FieldUserValue).LookupValue, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                     }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
                                 }
                             }
                             else
                             {
                                 List<FieldUserValue> userValues = new List<FieldUserValue>();
-                                using (var clonedTargetContext = targetPage.Context.Clone(targetPage.Context.Web.GetUrl()))
+                                foreach (var currentUser in (fieldValueToSet as Array))
                                 {
-                                    foreach (var currentUser in (fieldValueToSet as Array))
+                                    try
                                     {
-                                        try
+                                        // Source User
+                                        var fieldUser = (currentUser as FieldUserValue).LookupValue;
+                                        // Mapped target user
+                                        fieldUser = this.userTransformator.RemapPrincipal(this.sourceClientContext, (currentUser as FieldUserValue));
+
+                                        // Ensure user exists on target site
+                                        var ensuredUserOnTarget = CacheManager.Instance.GetEnsuredUser(targetPage.Context, fieldUser);
+                                        if (ensuredUserOnTarget != null)
                                         {
-                                            // Source User
-                                            var fieldUser = (currentUser as FieldUserValue).LookupValue;
-                                            fieldUser = this.userTransformator.RemapPrincipal(fieldUser);
-
-                                            var user = clonedTargetContext.Web.EnsureUser(fieldUser);
-                                            clonedTargetContext.Load(user);
-                                            clonedTargetContext.ExecuteQueryRetry();
-
                                             // Prep a new FieldUserValue object instance
                                             var newUser = new FieldUserValue()
                                             {
-                                                LookupId = user.Id
+                                                LookupId = ensuredUserOnTarget.Id
                                             };
 
                                             userValues.Add(newUser);
                                         }
-                                        catch (Exception ex)
+                                        else
                                         {
-                                            LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (fieldValueToSet as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
+                                            LogWarning(string.Format(LogStrings.Warning_UserIsNotMappedOrResolving, (currentUser as FieldUserValue).LookupValue, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                         }
-                                    }
 
-                                    if (userValues.Count > 0)
+                                    }
+                                    catch (Exception ex)
                                     {
-                                        targetPage.PageListItem[fieldToCopy.FieldName] = userValues.ToArray();
+                                        LogWarning(string.Format(LogStrings.Warning_UserIsNotResolving, (currentUser as FieldUserValue).LookupValue, ex.Message), LogStrings.Heading_CopyingPageMetadata);
                                     }
                                 }
+
+                                if (userValues.Count > 0)
+                                {
+                                    targetPage.PageListItem[fieldToCopy.FieldName] = userValues.ToArray();
+                                }
+                                else
+                                {
+                                    // Clear target field - needed in overwrite scenarios
+                                    targetPage.PageListItem[fieldToCopy.FieldName] = null;
+                                }
                             }
-                            
                         }
                         else
                         {
@@ -815,8 +829,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     // Using a cloned context to not mess up with the pending list item updates
                     using (var clonedTargetContext = targetClientContext.Clone(targetClientContext.Web.GetUrl()))
                     {
-                        var srcPageAuthor = this.userTransformator.RemapPrincipal(this.SourcePageAuthor.LookupValue);
-                        var srcPageEditor = this.userTransformator.RemapPrincipal(this.SourcePageEditor.LookupValue);
+                        var srcPageAuthor = this.userTransformator.RemapPrincipal(this.sourceClientContext, this.SourcePageAuthor);
+                        var srcPageEditor = this.userTransformator.RemapPrincipal(this.sourceClientContext, this.SourcePageEditor);
 
                         var pageAuthorUser = clonedTargetContext.Web.EnsureUser(srcPageAuthor);
                         var pageEditorUser = clonedTargetContext.Web.EnsureUser(srcPageEditor);

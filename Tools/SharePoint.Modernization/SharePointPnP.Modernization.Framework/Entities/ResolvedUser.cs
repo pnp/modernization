@@ -1,0 +1,17 @@
+﻿namespace SharePointPnP.Modernization.Framework.Entities
+{
+    /// <summary>
+    /// Class used to cache a user that was resolved via EnsureUser
+    /// </summary>
+    public class ResolvedUser
+    {
+        /// <summary>
+        /// Loginname of the user
+        /// </summary>
+        public string LoginName { get; set; }
+        /// <summary>
+        /// Id of the user
+        /// </summary>
+        public int Id { get; set; }
+    }
+}

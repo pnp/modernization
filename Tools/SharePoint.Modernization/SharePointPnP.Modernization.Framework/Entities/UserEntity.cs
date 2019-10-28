@@ -15,5 +15,8 @@ namespace SharePointPnP.Modernization.Framework.Entities
 
         [JsonProperty(PropertyName = "role")]
         public string Role { get; set; }
+
+        [JsonIgnore]
+        public string LoginName { get; set; }
     }
 }

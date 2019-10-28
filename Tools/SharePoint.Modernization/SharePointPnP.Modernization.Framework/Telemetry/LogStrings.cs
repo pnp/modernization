@@ -108,6 +108,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Warning_PageLayoutsCannotBeDetermined = "Page layout could not be determined by the publishing page.";
         public const string Warning_PageHeaderAuthorNotSet = "The page author header could not be set. Error = {0}.";
         public const string Warning_UserIsNotResolving = "User {0} can't be found, skipped assigning this user. Error: {1}";
+        public const string Warning_UserIsNotMappedOrResolving = "User {0} can't be found, skipped assigning this user to field {1}";
         #endregion
 
         #region Status Messages
@@ -135,6 +136,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string PreparingContentTransformation = "Preparing content transformation";
         public const string TransformSourcePageAsArticlePage = "Transforming source page as Article page";
         public const string TransformArticleSetHeaderToNone = "Page Header Set to None. Removing the page header";
+        public const string TransformArticleSetHeaderToNoneWithAuthor = "Setting page author in page header";
         public const string TransformArticleSetHeaderToDefault = "Page Header Set to Default. Using page header default settings.";
         public const string TransformArticleSetHeaderToCustom = "Page Header Set to Custom. Using page header settings:";
         public const string TransformArticleHeaderImageUrl = "Image Url: ";

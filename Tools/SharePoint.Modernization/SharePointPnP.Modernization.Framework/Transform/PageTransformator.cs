@@ -141,7 +141,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             logsForSettings?.ForEach(o => Log(o, LogLevel.Information));
 
             #region Check for Target Site Context
-            var hasTargetContext = targetClientContext != null;
+            var hasTargetContext = this.targetClientContext != null;
             #endregion
 
             #region Input validation
@@ -216,10 +216,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogError(LogStrings.Error_CannotUsePageAcceptBannerCrossSite, LogStrings.Heading_InputValidation);
                     throw new ArgumentException(LogStrings.Error_CannotUsePageAcceptBannerCrossSite);
                 }
-
-
-                //Load User Mapping File
-                InitializeUserMapping(pageTransformationInformation);
             }
 
             if (IsBlogPage(pageType) && !hasTargetContext)
@@ -313,6 +309,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var exactSpVersion = pageTransformationInformation.SourceVersionNumber;
                 LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
 
+                if (hasTargetContext)
+                {
+                    //Load User Mapping File
+                    InitializeUserMapping(pageTransformationInformation);
+                }
 
 #if DEBUG && MEASURE
             Stop("Telemetry");
@@ -535,6 +536,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         {
                             targetPage.SetDefaultPageHeader();
                             targetPage.PageHeader.LayoutType = ClientSidePageHeaderLayoutType.NoImage;
+
+                            LogInfo(LogStrings.TransformArticleSetHeaderToNoneWithAuthor, LogStrings.Heading_ArticlePageHandling);
                             SetAuthorInPageHeader(targetPage);
                         }
                         else
@@ -1391,23 +1394,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             try
             {
-                var sourcePlatformVersion = GetVersion(this.sourceClientContext);
-                                                    
-                using (var clonedTargetContext = targetClientSidePage.Context.Clone(targetClientSidePage.Context.Web.GetUrl()))
+                string userToResolve = this.userTransformator.RemapPrincipal(this.sourceClientContext, this.SourcePageAuthor);
+
+                var ensuredPageAuthorUser = CacheManager.Instance.GetEnsuredUser(targetClientSidePage.Context, userToResolve);
+                if (ensuredPageAuthorUser != null)
                 {
-                    var pageAuthorUser = clonedTargetContext.Web.EnsureUser(this.SourcePageAuthor.LookupValue);
-                    clonedTargetContext.Load(pageAuthorUser);
-                    clonedTargetContext.ExecuteQueryRetry();
-
-                    var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, pageAuthorUser.Id, sourcePlatformVersion);
-
-                    var newUpn = this.userTransformator.RemapPrincipal(author.Upn);
-
-                    if (!author.Upn.Equals(newUpn))
-                    {
-                        author.Upn = newUpn;
-                        author.Id = $"i:0#.f|membership|{author.Upn}";
-                    }
+                    var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, ensuredPageAuthorUser.Id);
 
                     if (author != null)
                     {
@@ -1430,7 +1422,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, $"Author {this.SourcePageAuthor.LookupValue} could not be resolved."), LogStrings.Heading_ArticlePageHandling);
                     }
                 }
-                
+                else
+                {
+                    this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, $"Author {this.SourcePageAuthor.LookupValue} could not be resolved."), LogStrings.Heading_ArticlePageHandling);
+                }
             }
             catch (Exception ex)
             {

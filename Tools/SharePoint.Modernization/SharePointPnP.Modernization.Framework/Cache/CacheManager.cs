@@ -32,6 +32,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
         private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;
         private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
+        private ConcurrentDictionary<string, Dictionary<string, UserEntity>> userJsonStringsViaUpn;
+        private ConcurrentDictionary<string, Dictionary<string, ResolvedUser>> ensuredUsers;
         private ConcurrentDictionary<string, string> contentTypes;
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
         private BasePageTransformator lastUsedTransformator;
@@ -63,6 +65,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
             generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
             userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
+            userJsonStringsViaUpn = new ConcurrentDictionary<string, Dictionary<string, UserEntity>>();
+            ensuredUsers = new ConcurrentDictionary<string, Dictionary<string, ResolvedUser>>();
+            MappedUsers = new Dictionary<string, string>();
             contentTypes = new ConcurrentDictionary<string, string>();
             publishingContentTypeFields = new ConcurrentDictionary<string, List<FieldData>>();
             SharepointVersions = new ConcurrentDictionary<Uri, SPVersion>();
@@ -92,8 +97,6 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// </summary>
         public List<AssetTransferredEntity> AssetsTransfered { get; set; }
         #endregion
-
-
 
         #region Client Side Components
         /// <summary>
@@ -566,6 +569,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
             ClearBaseTemplate();
 
             this.urlMapping = null;
+            this.userMappings = null;
+            this.ensuredUsers = null;
+
             ClearFieldsToCopy();
             ClearSharePointVersions();
         }
@@ -581,7 +587,175 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Users
-        public UserEntity GetUserFromUserList(ClientContext context, int userListId, SPVersion version)
+        public Dictionary<string, string> MappedUsers { get; }
+
+        public ResolvedUser GetEnsuredUser(ClientContext context, string userValue)
+        {
+            if (string.IsNullOrEmpty(userValue))
+            {
+                return null;
+            }
+
+            string key = context.Web.GetUrl();
+
+            if (this.ensuredUsers.TryGetValue(key, out Dictionary<string, ResolvedUser> ensuredUsersFromCache))
+            {
+                if (ensuredUsersFromCache.TryGetValue(userValue, out ResolvedUser userLoginName))
+                {
+                    return userLoginName;
+                }
+            }
+
+            try
+            {
+                using (var clonedContext = context.Clone(context.Web.GetUrl()))
+                {
+                    var userToResolve = clonedContext.Web.EnsureUser(userValue);
+                    clonedContext.Load(userToResolve);
+                    clonedContext.ExecuteQueryRetry();
+
+                    ResolvedUser resolvedUser = new ResolvedUser()
+                    {
+                        LoginName = userToResolve.LoginName,
+                        Id = userToResolve.Id,
+                    };
+
+                    // Store in cache
+                    if (ensuredUsersFromCache != null)
+                    {
+                        // We already has a user list, simply add this one
+                        Dictionary<string, ResolvedUser> newEnsuredUsersFromCache = new Dictionary<string, ResolvedUser>(ensuredUsersFromCache)
+                            {
+                                { userValue, resolvedUser }
+                            };
+
+                        this.ensuredUsers.TryUpdate(key, newEnsuredUsersFromCache, ensuredUsersFromCache);
+                    }
+                    else
+                    {
+                        // First user for this key (= web)
+                        Dictionary<string, ResolvedUser> newEnsuredUsersFromCache = new Dictionary<string, ResolvedUser>()
+                            {
+                                { userValue, resolvedUser }
+                            };
+
+                        this.ensuredUsers.TryAdd(key, newEnsuredUsersFromCache);
+                    }
+
+                    return resolvedUser;
+                }
+            }
+            catch (Exception ex)
+            {
+                // ToDo: logging
+            }
+
+            return null;
+        }
+
+        public UserEntity GetUserFromUserList(ClientContext context, string userUpn)
+        {
+            if (string.IsNullOrEmpty(userUpn))
+            {
+                return null;
+            }
+
+            string key = context.Web.GetUrl();
+
+            if (!userUpn.StartsWith("i:0#.f|membership|"))
+            {
+                userUpn = $"i:0#.f|membership|{userUpn}";
+            }
+
+            if (this.userJsonStringsViaUpn.TryGetValue(key, out Dictionary<string, UserEntity> userListFromCache))
+            {
+                if (userListFromCache.TryGetValue(userUpn, out UserEntity userJsonFromCache))
+                {
+                    return userJsonFromCache;
+                }
+            }
+
+            try
+            {
+                string CAMLQueryByName = @"
+                <View Scope='Recursive'>
+                  <Query>
+                    <Where>
+                      <Eq>
+                        <FieldRef Name='Name'/>
+                        <Value Type='Text'>{0}</Value>
+                      </Eq>
+                    </Where>
+                  </Query>
+                </View>";
+
+                List siteUserInfoList = context.Web.SiteUserInfoList;
+                CamlQuery query = new CamlQuery
+                {
+                    ViewXml = string.Format(CAMLQueryByName, userUpn)
+                };
+                var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query));
+                context.ExecuteQueryRetry();
+
+                UserEntity author = null;
+                if (loadedUsers != null)
+                {
+                    var loadedUser = loadedUsers.FirstOrDefault();
+                    if (loadedUser != null)
+                    {
+                        // Does not work for groups
+                        if (loadedUser["UserName"] == null)
+                        {
+                            return null;
+                        }
+
+                        author = new UserEntity()
+                        {
+                            Upn = loadedUser["UserName"].ToString(),
+                            Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
+                            Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
+                            LoginName = loadedUser["Name"] != null ? loadedUser["Name"].ToString() : "",
+                        };
+
+                        author.Id = $"i:0#.f|membership|{author.Upn}";
+
+                        // Store in cache
+                        if (userListFromCache != null)
+                        {
+                            // We already has a user list, simply add this one
+                            Dictionary<string, UserEntity> newUserListToCache = new Dictionary<string, UserEntity>(userListFromCache)
+                            {
+                                { userUpn, author }
+                            };
+
+                            this.userJsonStringsViaUpn.TryUpdate(key, newUserListToCache, userListFromCache);
+                        }
+                        else
+                        {
+                            // First user for this key (= web)
+                            Dictionary<string, UserEntity> newUserListToCache = new Dictionary<string, UserEntity>()
+                            {
+                                { userUpn, author }
+                            };
+
+                            this.userJsonStringsViaUpn.TryAdd(key, newUserListToCache);
+                        }
+
+                        // return 
+                        return author;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // TODO logging
+            }
+
+            return null;
+        }
+
+
+        public UserEntity GetUserFromUserList(ClientContext context, int userListId)
         {
             string key = context.Web.GetUrl();
 
@@ -610,10 +784,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 List siteUserInfoList = context.Web.SiteUserInfoList;
                 CamlQuery query = new CamlQuery
                 {
-                    ViewXml = String.Format(CAMLQueryByName, userListId)
+                    ViewXml = string.Format(CAMLQueryByName, userListId)
                 };
-
-                var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query).IncludeWithDefaultProperties(c => c.ContentType.Id));
+                var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query));
                 context.ExecuteQueryRetry();
 
                 UserEntity author = null;
@@ -623,35 +796,20 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     if (loadedUser != null)
                     {
                         // Does not work for groups
-                        // TODO: Is this same on other envs?
-                        if (loadedUser.ContentType.Id.StringValue != "0x010A00E440035D6D8D7B4388F1939D5F70A9BF") //Person
+                        if (loadedUser["UserName"] == null)
                         {
                             return null;
                         }
 
-                        // In SharePoint On-Premise the information is different
-                        if(version == SPVersion.SPO)
+                        author = new UserEntity()
                         {
-                            author = new UserEntity()
-                            {
-                                Upn = loadedUser["UserName"].ToString(),
-                                Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
-                                Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : ""
-                            };                            
+                            Upn = loadedUser["UserName"].ToString(),
+                            Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
+                            Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
+                            LoginName = loadedUser["Name"] != null ? loadedUser["Name"].ToString() : "",
+                        };
 
-                            author.Id = $"i:0#.f|membership|{author.Upn}";
-                        }
-                        else
-                        {
-                            author = new UserEntity()
-                            {
-                                Upn = loadedUser["UserName"] != null ? loadedUser["UserName"].ToString() : loadedUser["Name"].ToString(),
-                                Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
-                                Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
-                            };
-
-                            author.Id = author.Upn;
-                        }                       
+                        author.Id = $"i:0#.f|membership|{author.Upn}";
 
                         // Store in cache
                         if (userListFromCache != null)
