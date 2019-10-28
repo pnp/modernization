@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using SharePointPnP.Modernization.Framework.Functions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -290,7 +291,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // Will this user be mapped to another user?
                     var newUpn = this.userTransformator.RemapPrincipal(author.LoginName);
 
-                    if (!string.IsNullOrEmpty(newUpn) && !newUpn.Equals(author.Upn, System.StringComparison.InvariantCultureIgnoreCase))
+                    // Drop online prefix to avoid second unneeded lookup via upn later on
+                    if (newUpn.StartsWith("i:0#.f|membership|"))
+                    {
+                        newUpn = newUpn.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries)[2];
+                    }
+
+                    if (!string.IsNullOrEmpty(newUpn) && !newUpn.Equals(author.Upn, StringComparison.InvariantCultureIgnoreCase))
                     {
                         // We'll need to retrieve the info from this user again as we've mapped to another user account in the target site
                         author = Cache.CacheManager.Instance.GetUserFromUserList(this.targetClientContext, newUpn);
