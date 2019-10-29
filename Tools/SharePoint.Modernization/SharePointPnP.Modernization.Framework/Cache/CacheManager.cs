@@ -568,9 +568,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
             ClearClientSideComponents();
             ClearBaseTemplate();
 
-            this.urlMapping = null;
-            this.userMappings = null;
-            this.ensuredUsers = null;
+            this.urlMapping?.Clear();
+            this.userMappings?.Clear();
+            this.ensuredUsers?.Clear();
 
             ClearFieldsToCopy();
             ClearSharePointVersions();
