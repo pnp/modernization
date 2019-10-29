@@ -36,7 +36,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         {
             if (_includeDebugEntries)
             {
-                Write($"Debug: [{entry.Heading}] {entry.Message} \n\t Source: {entry.Source} ");
+                Write($"Debug: [{entry.Heading}] {entry.Message} \n\t Source: {entry.Source} ", ConsoleColor.Magenta);
             }
         }
 
@@ -47,7 +47,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         public void Error(LogEntry entry)
         {
             var error = entry.Exception != null ? entry.Exception.Message : "No error logged";
-            Write($"Error: [{entry.Heading}] {entry.Message} Error: { error }");
+            
+            if (!_includeDebugEntries) { 
+                Write($"Error: [{entry.Heading}] {entry.Message} Error: { error }", ConsoleColor.Red);
+            }
+            else
+            {
+                var stackTrace = entry.Exception != null ? entry.Exception.StackTrace : "No trace logged";
+                Write($"Error: [{entry.Heading}] {entry.Message} Error: { error } StackTrace: { stackTrace }", ConsoleColor.Red);
+            }
         }
 
         /// <summary>
@@ -60,7 +68,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             Logs.ForEach(o =>
             {
-                Write($"-  {o.Item2.Message}");
+                Write($"-  {o.Item2.Message}", ConsoleColor.Cyan);
             });
 
             Console.WriteLine("-----------------------------------------------");
@@ -94,7 +102,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         public void Warning(LogEntry entry)
         {
             
-            Write($"Warning: [{entry.Heading}] {entry.Message}");
+            Write($"Warning: [{entry.Heading}] {entry.Message}", ConsoleColor.Yellow);
         }
 
         /// <summary>
@@ -110,10 +118,14 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// Cental method to output to console
         /// </summary>
         /// <param name="message"></param>
-        public void Write(string message)
+        public void Write(string message, ConsoleColor color = ConsoleColor.White)
         {
             message = message.Replace(LogStrings.KeyValueSeperatorToken, "=");
+            
+            var originalColour = Console.ForegroundColor;
+            Console.ForegroundColor = color;
             Console.WriteLine(message);
+            Console.ForegroundColor = originalColour;
         }
     }
 }
