@@ -168,8 +168,15 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
             {
                 using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
                 {
+                    //Doesnt matter what the settings are.
+                    PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+                    {
+                        // Don't log test runs
+                        SkipTelemetry = true,
+                    };
 
-                    UserTransformator userTransformator = new UserTransformator(null, sourceClientContext, targetClientContext, null);
+
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
 
                     var result = userTransformator.GetFriendlyComputerDomain();
                     Console.WriteLine(result);
@@ -185,7 +192,14 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         [TestMethod]
         public void GetLDAPConnectingStringTest()
         {
-            UserTransformator userTransformator = new UserTransformator(null, null, null, null);
+            //Doesnt matter what the settings are.
+            PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+            {
+                // Don't log test runs
+                SkipTelemetry = true,
+            };
+
+            UserTransformator userTransformator = new UserTransformator(pti, null, null, null);
 
             var result = userTransformator.GetLDAPConnectionString();
             Console.WriteLine(result);
