@@ -95,7 +95,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this._userMapping = default; //Pass through if there is no mapping
             }
 
-            _ldapSpecifiedByUser = baseTransformationInformation?.LDAPQuery ?? string.Empty;
+            _ldapSpecifiedByUser = baseTransformationInformation?.LDAPConnectionString ?? string.Empty;
             _sourceVersion = baseTransformationInformation?.SourceVersion ?? SPVersion.SPO; // SPO Fall Back
             _SPOToSPOUserMapping = baseTransformationInformation.SPOToSPOUserMapping;
         }

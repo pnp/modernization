@@ -111,21 +111,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string UserMappingFile { get; set; }
 
         /// <summary>
-        /// Searches for users within a specific LDAP Query, if not specified domain LDAP will be calculated
+        /// Searches for users within a specific LDAP Connection String, if not specified domain LDAP will be calculated
         /// </summary>
         /// <example>
         /// LDAP://OU=Test,DC=ALPHADELTA,DC=LOCAL
         /// </example>
-        public string LDAPQuery { get; set; }
-
-        /// <summary>
-        /// Provide fully qualified domain name
-        /// </summary>
-        /// <example>
-        /// AlphaDelta.local
-        /// </example>
-        public string FQDNDomain { get; set; }
-
+        public string LDAPConnectionString { get; set; }
+        
         #endregion
 
         #region Override properties
