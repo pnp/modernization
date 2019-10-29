@@ -192,64 +192,87 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Cross site collection flow (can be from SPO to SPO, but also from SP On-Premises to SPO)
             if (hasTargetContext)
             {
-                // Ensure principals are available in the target site
-                Dictionary<string, Principal> targetPrincipals = new Dictionary<string, Principal>(lip.Principals.Count);
-
-                foreach (var principal in lip.Principals)
+                try
                 {
-                    var targetPrincipal = GetPrincipal(this.targetClientContext.Web, principal.Key, hasTargetContext);
-                    if (targetPrincipal != null)
-                    {
-                        if (!targetPrincipals.ContainsKey(principal.Key))
-                        {
-                            targetPrincipals.Add(principal.Key, targetPrincipal);
-                        }
-                    }
-                }
 
-                // Assign item level permissions          
-                foreach (var roleAssignment in lip.RoleAssignments)
-                {
-                    if (targetPrincipals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
+                    // Ensure principals are available in the target site
+                    Dictionary<string, Principal> targetPrincipals = new Dictionary<string, Principal>(lip.Principals.Count);
+
+                    foreach (var principal in lip.Principals)
                     {
-                        var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.targetClientContext);
-                        foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                        var targetPrincipal = GetPrincipal(this.targetClientContext.Web, principal.Key, hasTargetContext);
+                        if (targetPrincipal != null)
                         {
-                            if(roleDef.Id != 1073741825) // Limited Access permission
+                            if (!targetPrincipals.ContainsKey(principal.Key))
                             {
-                                var targetRoleDef = this.targetClientContext.Web.RoleDefinitions.GetByName(roleDef.Name);
-                                if (targetRoleDef != null)
-                                {
-                                    roleDefinitionBindingCollection.Add(targetRoleDef);
-                                }
+                                targetPrincipals.Add(principal.Key, targetPrincipal);
                             }
                         }
-                        item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
                     }
-                }
 
-                this.targetClientContext.ExecuteQueryRetry();
+                    // Assign item level permissions          
+                    foreach (var roleAssignment in lip.RoleAssignments)
+                    {
+                        if (targetPrincipals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
+                        {
+                            var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.targetClientContext);
+                            bool hasRoleAdded = false;
+                            foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                            {
+                                if (roleDef.Id != 1073741825) // Limited Access permission
+                                {
+                                    var targetRoleDef = this.targetClientContext.Web.RoleDefinitions.GetByName(roleDef.Name);
+                                    if (targetRoleDef != null)
+                                    {
+                                        roleDefinitionBindingCollection.Add(targetRoleDef);
+                                        hasRoleAdded = true;
+                                    }
+                                }
+                            }
+
+                            // Prevent referencing empty collections
+                            if (hasRoleAdded)
+                            {
+                                item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
+                            }
+                            
+                        }
+                    }
+
+                    this.targetClientContext.ExecuteQueryRetry();
+
+                }catch(Exception ex)
+                {
+                    LogError(string.Format(LogStrings.Error_ApplyPermissionFailedToApplyPermissions, ex.Message), LogStrings.Heading_ApplyItemLevelPermissions, ex);
+                }
             }
             else
             {
-                // In-place transformation
-
-                // Assign item level permissions
-                foreach (var roleAssignment in lip.RoleAssignments)
+                try
                 {
-                    if (lip.Principals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
+                    // In-place transformation
+
+                    // Assign item level permissions
+                    foreach (var roleAssignment in lip.RoleAssignments)
                     {
-                        var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.sourceClientContext);
-                        foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                        if (lip.Principals.TryGetValue(roleAssignment.Member.LoginName, out Principal principal))
                         {
-                            roleDefinitionBindingCollection.Add(roleDef);
+                            var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.sourceClientContext);
+                            foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
+                            {
+                                roleDefinitionBindingCollection.Add(roleDef);
+                            }
+
+                            item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
                         }
-
-                        item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
                     }
-                }
 
-                this.sourceClientContext.ExecuteQueryRetry();
+                    this.sourceClientContext.ExecuteQueryRetry();
+
+                }catch(Exception ex)
+                {
+                    LogError(string.Format(LogStrings.Error_ApplyPermissionFailedToApplyPermissions, ex.Message), LogStrings.Heading_ApplyItemLevelPermissions, ex);
+                }
             }
 
             LogInfo(LogStrings.TransformCopiedItemPermissions, LogStrings.Heading_ApplyItemLevelPermissions);
