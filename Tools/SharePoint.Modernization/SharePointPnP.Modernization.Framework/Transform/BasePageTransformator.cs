@@ -215,10 +215,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         var roleDefinitionBindingCollection = new RoleDefinitionBindingCollection(this.targetClientContext);
                         foreach (var roleDef in roleAssignment.RoleDefinitionBindings)
                         {
-                            var targetRoleDef = this.targetClientContext.Web.RoleDefinitions.GetByName(roleDef.Name);
-                            if (targetRoleDef != null)
+                            if(roleDef.Id != 1073741825) // Limited Access permission
                             {
-                                roleDefinitionBindingCollection.Add(targetRoleDef);
+                                var targetRoleDef = this.targetClientContext.Web.RoleDefinitions.GetByName(roleDef.Name);
+                                if (targetRoleDef != null)
+                                {
+                                    roleDefinitionBindingCollection.Add(targetRoleDef);
+                                }
                             }
                         }
                         item.RoleAssignments.Add(principal, roleDefinitionBindingCollection);
@@ -264,7 +267,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     // Copy the unique permissions from source to target
                     // Get the unique permissions
                     this.sourceClientContext.Load(source, a => a.EffectiveBasePermissions, a => a.RoleAssignments.Include(roleAsg => roleAsg.Member.LoginName,
-                        roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Name, roleDef => roleDef.Description)));
+                        roleAsg => roleAsg.RoleDefinitionBindings.Include(roleDef => roleDef.Id, roleDef => roleDef.Name, roleDef => roleDef.Description)));
                     this.sourceClientContext.ExecuteQueryRetry();
 
                     if (source.EffectiveBasePermissions.Has(PermissionKind.ManagePermissions))
