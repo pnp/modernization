@@ -342,6 +342,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Error_UserMappingValidateExists = "Error occurred ensuring valid user exists: {0}";
         public const string Error_ErrorSearchingDomain = "Error Searching Source Domain For UPN";
         public const string Error_UserTransfomrmCannotResolveDomain = "Error Resolving Friendly Domain To Ldap Domain";
+        public const string Error_ApplyPermissionFailedToApplyPermissions = "Error occurred applying permissions to item {0}";
 
         public const string Warning_MultipleMatchFound = "More than one mapping found, only the first match is used: {0}";
         public const string Warning_UserTransformUserNotOnDomain = "Failed to detect if user is part of the domain, please use mapping instead.";
