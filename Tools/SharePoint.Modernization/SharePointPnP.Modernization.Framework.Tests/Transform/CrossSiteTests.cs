@@ -90,6 +90,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
                             //TargetPageFolder = "Blogs",
 
+                            //SkipUserMapping = true,
+
                             //AddTableListImageAsImageWebPart = true,
 
                             // ModernizationCenter options

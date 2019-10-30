@@ -24,7 +24,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private List<UserMappingEntity> _userMapping;
         private string _ldapSpecifiedByUser;
         private SPVersion _sourceVersion;
-        private bool _SPOToSPOUserMapping;
+        private bool _skipUserMapping;
 
         /// <summary>
         /// Determine if the user transforming according to mapped file
@@ -44,12 +44,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             get
             {
-                if (_sourceVersion == SPVersion.SPO && !_SPOToSPOUserMapping)
-                {
-                    return false;
-                }
-
-                return true;
+                return !_skipUserMapping;
             }
         }
 
@@ -106,7 +101,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             
             _sourceVersion = baseTransformationInformation?.SourceVersion ?? SPVersion.SPO; // SPO Fall Back
-            _SPOToSPOUserMapping = baseTransformationInformation.SPOToSPOUserMapping;
+            _skipUserMapping = baseTransformationInformation.SkipUserMapping;
         }
 
         #endregion

@@ -104,11 +104,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         #endregion
 
         #region User Mapping Properties
-
         /// <summary>
-        /// Also apply user mapping logic when source and target are SPO
+        /// Don't perform user mapping
         /// </summary>
-        public bool SPOToSPOUserMapping { get; set; }
+        public bool SkipUserMapping { get; set; }
 
         /// <summary>
         /// User Mapping file
@@ -121,8 +120,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <example>
         /// LDAP://OU=Test,DC=ALPHADELTA,DC=LOCAL
         /// </example>
-        public string LDAPConnectionString { get; set; }
-        
+        public string LDAPConnectionString { get; set; }        
         #endregion
 
         #region Override properties

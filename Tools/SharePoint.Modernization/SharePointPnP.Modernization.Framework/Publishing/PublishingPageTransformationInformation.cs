@@ -47,7 +47,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             KeepPageCreationModificationInformation = false;
             PostAsNews = false;
             DisablePageComments = false;
-            SPOToSPOUserMapping = false;
+            SkipUserMapping = false;
             // Populate with OOB mapping properties
             MappingProperties = new Dictionary<string, string>(5)
             {
