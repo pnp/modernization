@@ -241,7 +241,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     this.targetClientContext.ExecuteQueryRetry();
 
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     LogError(string.Format(LogStrings.Error_ApplyPermissionFailedToApplyPermissions, ex.Message), LogStrings.Heading_ApplyItemLevelPermissions, ex);
                 }
@@ -269,7 +270,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     this.sourceClientContext.ExecuteQueryRetry();
 
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     LogError(string.Format(LogStrings.Error_ApplyPermissionFailedToApplyPermissions, ex.Message), LogStrings.Heading_ApplyItemLevelPermissions, ex);
                 }

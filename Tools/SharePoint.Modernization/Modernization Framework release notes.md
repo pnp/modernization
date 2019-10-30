@@ -24,6 +24,7 @@
 
 ### Changed
 
+- Fix: Cannot assign limited access permission #338 [pkbullock]
 
 ## [October intermediate release - version 1.0.1910.1]
 
