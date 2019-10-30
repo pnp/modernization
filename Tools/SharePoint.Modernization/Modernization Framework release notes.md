@@ -25,6 +25,7 @@
 ### Changed
 
 - Fix: Cannot assign limited access permission #338 [pkbullock]
+- Fix: Web Part page layout is now correctly detected for non English sites #342
 
 ## [October intermediate release - version 1.0.1910.1]
 

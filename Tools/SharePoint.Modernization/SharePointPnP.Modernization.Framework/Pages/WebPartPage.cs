@@ -496,35 +496,35 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 var setupPath = pageProperties["vti_setuppath"].ToString();
                 if (!string.IsNullOrEmpty(setupPath))
                 {
-                    if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd1.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd1.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_FullPageVertical;
                     }
-                    else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd2.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    else if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd2.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_HeaderFooterThreeColumns; 
                     }
-                    else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd3.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    else if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd3.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_HeaderLeftColumnBody;
                     }
-                    else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd4.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    else if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd4.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_HeaderRightColumnBody;
                     }
-                    else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd5.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    else if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd5.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_HeaderFooter2Columns4Rows;
                     }
-                    else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd6.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    else if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd6.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_HeaderFooter4ColumnsTopRow;
                     }
-                    else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd7.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    else if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd7.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_LeftColumnHeaderFooterTopRow3Columns;
                     }
-                    else if (setupPath.Equals(@"1033\STS\doctemp\smartpgs\spstd8.aspx", StringComparison.InvariantCultureIgnoreCase))
+                    else if (setupPath.IndexOf(@"\STS\doctemp\smartpgs\spstd8.aspx", StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
                         return PageLayout.WebPart_RightColumnHeaderFooterTopRow3Columns;
                     }
