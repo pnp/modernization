@@ -1415,6 +1415,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
             var loadedUsers = context.LoadQuery(siteUserInfoList.GetItems(query));
             context.ExecuteQueryRetry();
 
+            bool handled = false;
             if (loadedUsers != null)
             {
                 var loadedUser = loadedUsers.FirstOrDefault();
@@ -1426,41 +1427,43 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     result.Add("PersonPhone", loadedUser["WorkPhone"] != null ? loadedUser["WorkPhone"].ToString() : "");
                     result.Add("PersonSip", loadedUser["SipAddress"] != null ? loadedUser["SipAddress"].ToString() : "");
                     result.Add("PersonEmail", loadedUser["EMail"] != null ? loadedUser["EMail"].ToString() : "");
+                    handled = true;
                 }
-                else
+            }
+            
+            if (!handled)
+            {
+                // Fallback...
+                var personParts = person.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                if (personParts.Length == 3)
                 {
-                    // Fallback...
-                    var personParts = person.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
-                    if (personParts.Length == 3)
-                    {
-                        person = personParts[2];
-                    }
-                    else if (personParts.Length == 2)
+                    person = personParts[2];
+                }
+                else if (personParts.Length == 2)
+                {
+                    person = personParts[1];
+                }
+
+                if (person.Contains("\\"))
+                {
+                    // On-premises account which was not mapped
+                    personParts = person.Split(new string[] { "\\" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (personParts.Length == 2)
                     {
                         person = personParts[1];
                     }
-
-                    if (person.Contains("\\"))
-                    {
-                        // On-premises account which was not mapped
-                        personParts = person.Split(new string[] { "\\" }, StringSplitOptions.RemoveEmptyEntries);
-                        if (personParts.Length == 2)
-                        {
-                            person = personParts[1];
-                        }
-                    }
-
-                    // Important that person does not contain any characters that can mess up json serialization 
-
-                    result.Add("PersonName", "");
-                    result.Add("PersonEmail", person);
-                    result.Add("PersonUPN", person);
-                    result.Add("PersonRole", "");
-                    result.Add("PersonDepartment", "");
-                    result.Add("PersonPhone", "");
-                    result.Add("PersonSip", "");
                 }
-            }
+
+                // Important that person does not contain any characters that can mess up json serialization 
+
+                result.Add("PersonName", "");
+                result.Add("PersonEmail", person);
+                result.Add("PersonUPN", person);
+                result.Add("PersonRole", "");
+                result.Add("PersonDepartment", "");
+                result.Add("PersonPhone", "");
+                result.Add("PersonSip", "");
+            }            
 
             return result;
         }
