@@ -231,9 +231,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                         pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl}", "").Trim();
                     }
 
-                    if (pageFolder.Length > 0)
+                    if (pageFolder.Length > 0 || !string.IsNullOrEmpty(publishingPageTransformationInformation.TargetPageFolder))
                     {
-                        if (pageFolder.Contains("/"))
+                        if (pageFolder.StartsWith("/"))
                         {
                             if (pageFolder == "/")
                             {
@@ -247,6 +247,17 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                         // Add a trailing slash
                         pageFolder = pageFolder + "/";
+
+                        if (!string.IsNullOrEmpty(publishingPageTransformationInformation.TargetPageFolder))
+                        {
+                            pageFolder = Path.Combine(pageFolder, publishingPageTransformationInformation.TargetPageFolder);
+
+                            if (!pageFolder.EndsWith("/"))
+                            {
+                                // Add a trailing slash
+                                pageFolder = pageFolder + "/";
+                            }
+                        }
 
                         LogInfo(LogStrings.PageIsLocatedInFolder, LogStrings.Heading_PageCreation);
                     }
@@ -495,7 +506,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 #region Page Publishing
                 // Tag the file with a page modernization version stamp
-                string serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(publishingPageTransformationInformation);
+                string serverRelativePathForModernPage = targetPage.PageListItem[Constants.FileRefField].ToString();
                 bool pageListItemWasReloaded = false;
                 try
                 {
@@ -605,33 +616,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
 
         #region Helper methods
-
-        private string ReturnModernPageServerRelativeUrl(PublishingPageTransformationInformation publishingPageTransformationInformation)
-        {
-            string originalSourcePageName = publishingPageTransformationInformation.TargetPageName.ToLower();
-            string sourcePath = publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower().Replace(publishingPageTransformationInformation.SourcePage[Constants.FileLeafRefField].ToString().ToLower(), "");
-            string targetPath;
-
-            // Cross site collection transfer, new page always takes the name of the old page
-            if (!sourcePath.Contains($"/{this.publishingPagesLibraryName}"))
-            {
-                // Source file was living outside of the publishing pages library
-                targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower().TrimEnd(new[] { '/' })}/sitepages{targetPath}";
-            }
-            else
-            {
-                // Page was living inside the publishing pages library
-                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibraryName}".ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.ToLower().TrimEnd(new[] { '/' })}/sitepages{targetPath}";
-            }
-
-            string returnUrl = $"{targetPath}{originalSourcePageName}";
-          
-            LogInfo($"{returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
-            return returnUrl;
-        }
-
         private void SetPageTitle(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientSidePage targetPage)
         {
             string titleValue = "";

@@ -109,6 +109,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         public const string Warning_PageHeaderAuthorNotSet = "The page author header could not be set. Error = {0}.";
         public const string Warning_UserIsNotResolving = "User {0} can't be found, skipped assigning this user. Error: {1}";
         public const string Warning_UserIsNotMappedOrResolving = "User {0} can't be found, skipped assigning this user to field {1}";
+        public const string Warning_TransformGetItemPermissionsAccessDenied = "You don't have needed the needed permission level (ManagePermissions) to read/set item level permissions on the target site.";
         #endregion
 
         #region Status Messages

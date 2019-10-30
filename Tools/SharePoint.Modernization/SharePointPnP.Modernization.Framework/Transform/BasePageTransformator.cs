@@ -288,7 +288,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         if (hasTargetContext)
                         {
-                            this.targetClientContext.ExecuteQueryRetry();
+                            try
+                            {
+                                this.targetClientContext.ExecuteQueryRetry();
+                            }
+                            catch(Exception ex)
+                            {
+                                LogWarning(LogStrings.Warning_TransformGetItemPermissionsAccessDenied, LogStrings.Heading_ApplyItemLevelPermissions);
+                                return lip;
+                            }
                         }
 
                         Dictionary<string, Principal> principals = new Dictionary<string, Principal>(10);
@@ -311,6 +319,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             }
                         }
                     }
+                }
+                else
+                {
+                    LogWarning(LogStrings.Warning_TransformGetItemPermissionsAccessDenied, LogStrings.Heading_ApplyItemLevelPermissions);
+                    return lip;
                 }
             }
 

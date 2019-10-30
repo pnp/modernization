@@ -358,7 +358,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (pageFolder.Length > 0)
                     {
-                        if (pageFolder.Contains("/"))
+                        if (pageFolder.StartsWith("/"))
                         {
                             if (pageFolder == "/")
                             {
@@ -382,6 +382,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         if (string.IsNullOrEmpty(pageTransformationInformation.TargetPageName))
                         {
                             pageTransformationInformation.TargetPageName = $"{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(pageTransformationInformation.TargetPageFolder))
+                        {
+                            pageFolder = Path.Combine(pageFolder, pageTransformationInformation.TargetPageFolder);
+
+                            if (!pageFolder.EndsWith("/"))
+                            {
+                                // Add a trailing slash
+                                pageFolder = pageFolder + "/";
+                            }
                         }
                     }
                 }
@@ -839,18 +852,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 #region Page Publishing
                 // Tag the file with a page modernization version stamp
-
-                string serverRelativePathForModernPage = "";
-
-                if (IsBlogPage(pageType))
-                {
-                    serverRelativePathForModernPage = ReturnModernBlogPageServerRelativeUrl(pageTransformationInformation);
-                }
-                else
-                {
-                    serverRelativePathForModernPage = ReturnModernPageServerRelativeUrl(pageTransformationInformation, hasTargetContext);
-                }
-
+                string serverRelativePathForModernPage = targetPage.PageListItem[Constants.FileRefField].ToString();
                 bool pageListItemWasReloaded = false;
                 try
                 {
@@ -929,7 +931,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 #if DEBUG && MEASURE
                 Start();
 #endif
-                    SwapPages(pageTransformationInformation);
+                    serverRelativePathForModernPage = SwapPages(pageTransformationInformation, targetPage.PageListItem[Constants.FileRefField].ToString());
 
                     // Reload the target page list item for future updates because the existing reference is invalid due to the moveto operations from swappages
                     var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
@@ -952,7 +954,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if ((pageTransformationInformation.SourcePage != null && pageTransformationInformation.KeepPageCreationModificationInformation && this.SourcePageAuthor != null && this.SourcePageEditor != null) ||
                     pageTransformationInformation.PostAsNews)
                 {
-                    UpdateTargetPageWithSourcePageInformation(finalListItemToUpdate, pageTransformationInformation, serverRelativePathForModernPage, hasTargetContext);
+                    UpdateTargetPageWithSourcePageInformation(finalListItemToUpdate, pageTransformationInformation, finalListItemToUpdate[Constants.FileRefField].ToString(), hasTargetContext);
                 }
                 #endregion
 
@@ -971,7 +973,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 #region Closing
                 CacheManager.Instance.SetLastUsedTransformator(this);
-                return serverRelativePathForModernPage;
+                return finalListItemToUpdate[Constants.FileRefField].ToString();
                 #endregion
 
                 #endregion
@@ -990,14 +992,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return string.Empty;
         }
 
+        public string SwapPages(PageTransformationInformation pageTransformationInformation)
+        {
+            return SwapPages(pageTransformationInformation, null);
+        }
+
         /// <summary>
         /// Performs the logic needed to swap a genered Migrated_Page.aspx to Page.aspx and then Page.aspx to Old_Page.aspx
         /// </summary>
         /// <param name="pageTransformationInformation">Information about the page to transform</param>
-        public void SwapPages(PageTransformationInformation pageTransformationInformation)
+        internal string SwapPages(PageTransformationInformation pageTransformationInformation, string targetPageServerRelativeUrl)
         {
             LogInfo("Swapping pages", LogStrings.Heading_SwappingPages);
-            
+
             // Prep url's
             var sourcePageUrl = GetFieldValue(pageTransformationInformation, Constants.FileRefField);
             var orginalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField);
@@ -1054,7 +1061,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
             sourceClientContext.ExecuteQueryRetry();
 
             //Load the created target page
-            var targetPageUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}";
+            string targetPageUrl;
+            if (!string.IsNullOrEmpty(targetPageServerRelativeUrl))
+            {
+                targetPageUrl = targetPageServerRelativeUrl;
+            }
+            else
+            {
+                targetPageUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}";
+            }
+            
             var targetPageFile = this.sourceClientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
             this.sourceClientContext.Load(targetPageFile);
             this.sourceClientContext.ExecuteQueryRetry();
@@ -1075,7 +1091,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 IQueryable<NavigationNode> currentNavNodesAfter = this.sourceClientContext.Web.Navigation.QuickLaunch;
                 IQueryable<NavigationNode> globalNavNodesAfter = this.sourceClientContext.Web.Navigation.TopNavigationBar;
                 this.sourceClientContext.ExecuteQueryRetry();
-                
+
                 // Check for nav nodes
                 currentNavNodes = currentNavNodesAfter.Where(n => n.Url.Equals(step1Path, StringComparison.InvariantCultureIgnoreCase));
                 globalNavNodes = globalNavNodesAfter.Where(n => n.Url.Equals(step1Path, StringComparison.InvariantCultureIgnoreCase));
@@ -1096,175 +1112,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogInfo(LogStrings.TransformSwappingPageUpdateNavigation, LogStrings.Heading_SwappingPages);
                 }
             }
+
+            return step2Path;
         }
-
-        #region Original SwapPages implementation (based up on the copyto approach)
-        /* 
-        /// <summary>
-        /// Performs the logic needed to swap a genered Migrated_Page.aspx to Page.aspx and then Page.aspx to Old_Page.aspx
-        /// </summary>
-        /// <param name="pageTransformationInformation">Information about the page to transform</param>
-        public void SwapPages(PageTransformationInformation pageTransformationInformation, ListItemPermission listItemPermissionsToKeep)
-        {
-            LogInfo("Swapping pages", LogStrings.Heading_SwappingPages);
-            var sourcePageUrl = GetFieldValue(pageTransformationInformation, Constants.FileRefField);
-            var orginalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField);
-
-            string sourcePath = sourcePageUrl.Replace(GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField), "");
-            string targetPath = sourcePath;
-
-            if (!sourcePath.ToLower().Contains("/sitepages"))
-            {
-                // Source file was living outside of the site pages library
-                targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl, "");
-                targetPath = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/SitePages{targetPath}";
-            }
-
-            var sourcePage = this.sourceClientContext.Web.GetFileByServerRelativeUrl(sourcePageUrl);
-            this.sourceClientContext.Load(sourcePage);
-            this.sourceClientContext.ExecuteQueryRetry();
-
-            if (string.IsNullOrEmpty(pageTransformationInformation.SourcePagePrefix))
-            {
-                LogInfo("Using default source page prefix", LogStrings.Heading_SwappingPages);
-                pageTransformationInformation.SetDefaultSourcePagePrefix();
-            }
-            var newSourcePageUrl = $"{pageTransformationInformation.SourcePagePrefix}{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}";
-
-
-            // Rename source page using the sourcepageprefix
-            // STEP1: First copy the source page to a new name. We on purpose use CopyTo as we want to avoid that "linked" url's get 
-            //        patched up during a MoveTo operation as that would also patch the url's in our new modern page
-            var step1Path = $"{sourcePath}{newSourcePageUrl}";
-            sourcePage.CopyTo(step1Path, true);
-            this.sourceClientContext.ExecuteQueryRetry();
-            LogInfo($"{LogStrings.TransformSwappingPageStep1}: {step1Path}", LogStrings.Heading_SwappingPages);
-
-            // Restore the item level permissions on the copied page (if any)
-            if (pageTransformationInformation.KeepPageSpecificPermissions && listItemPermissionsToKeep != null)
-            {
-                LogInfo(LogStrings.TransformSwappingPageRestorePermissions, LogStrings.Heading_SwappingPages);
-
-                // load the copied target file
-                var newSource = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{sourcePath}{newSourcePageUrl}");
-                this.sourceClientContext.Load(newSource);
-                this.sourceClientContext.Load(newSource.ListItemAllFields, p => p.RoleAssignments);
-                this.sourceClientContext.ExecuteQueryRetry();
-
-                // Reload source page
-                ApplyItemLevelPermissions(false, newSource.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
-            }
-
-            //Load the created target page
-            var targetPageUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}";
-            var targetPageFile = this.sourceClientContext.Web.GetFileByServerRelativeUrl(targetPageUrl);
-            this.sourceClientContext.Load(targetPageFile);
-            this.sourceClientContext.ExecuteQueryRetry();
-
-            LogInfo(LogStrings.TransformSwappingPageStep2, LogStrings.Heading_SwappingPages);
-
-            // STEP2: Fix possible navigation entries to point to the "copied" source page first
-            // Rename the target page to the original source page name
-            // CopyTo and MoveTo with option to overwrite first internally delete the file to overwrite, which
-            // results in all page navigation nodes pointing to this file to be deleted. Hence let's point these
-            // navigation entries first to the copied version of the page we just created
-            this.sourceClientContext.Web.Context.Load(this.sourceClientContext.Web, w => w.Navigation.QuickLaunch, w => w.Navigation.TopNavigationBar);
-            this.sourceClientContext.Web.Context.ExecuteQueryRetry();
-
-            bool navWasFixed = false;
-            IQueryable<NavigationNode> currentNavNodes = null;
-            IQueryable<NavigationNode> globalNavNodes = null;
-            var currentNavigation = this.sourceClientContext.Web.Navigation.QuickLaunch;
-            var globalNavigation = this.sourceClientContext.Web.Navigation.TopNavigationBar;
-            // Check for nav nodes
-            currentNavNodes = currentNavigation.Where(n => n.Url.Equals(sourcePageUrl, StringComparison.InvariantCultureIgnoreCase));
-            globalNavNodes = globalNavigation.Where(n => n.Url.Equals(sourcePageUrl, StringComparison.InvariantCultureIgnoreCase));
-
-            if (currentNavNodes.Count() > 0 || globalNavNodes.Count() > 0)
-            {
-                navWasFixed = true;
-                foreach (var node in currentNavNodes)
-                {
-                    node.Url = $"{sourcePath}{newSourcePageUrl}";
-                    node.Update();
-                }
-                foreach (var node in globalNavNodes)
-                {
-                    node.Url = $"{sourcePath}{newSourcePageUrl}";
-                    node.Update();
-                }
-                this.sourceClientContext.ExecuteQueryRetry();
-                LogInfo(LogStrings.TransformSwappingPageUpdateNavigation, LogStrings.Heading_SwappingPages);
-            }
-
-            LogInfo(LogStrings.TransformSwappingPageStep3, LogStrings.Heading_SwappingPages);
-
-            // STEP3: Now copy the created modern page over the original source page, at this point the new page has the same name as the original page had before transformation
-            var step3Path = $"{targetPath}{orginalSourcePageName}";
-            targetPageFile.CopyTo(step3Path, true);
-            this.sourceClientContext.ExecuteQueryRetry();
-            LogInfo($"{LogStrings.TransformSwappingPageStep3Path} :{step3Path}", LogStrings.Heading_SwappingPages);
-
-            // Apply the item level permissions on the final page (if any)
-            if (pageTransformationInformation.KeepPageSpecificPermissions && listItemPermissionsToKeep != null)
-            {
-                LogInfo(LogStrings.TransformSwappingPagesApplyItemPermissions, LogStrings.Heading_SwappingPages);
-
-                // load the copied target file
-                var newTarget = this.sourceClientContext.Web.GetFileByServerRelativeUrl($"{targetPath}{orginalSourcePageName}");
-                this.sourceClientContext.Load(newTarget);
-                this.sourceClientContext.Load(newTarget.ListItemAllFields, p => p.RoleAssignments);
-                this.sourceClientContext.ExecuteQueryRetry();
-
-                ApplyItemLevelPermissions(false, newTarget.ListItemAllFields, listItemPermissionsToKeep, alwaysBreakItemLevelPermissions: true);
-            }
-
-            // STEP4: Finish with restoring the page navigation: update the navlinks to point back the original page name
-            LogInfo(LogStrings.TransformSwappingPagesStep4, LogStrings.Heading_SwappingPages);
-
-            if (navWasFixed)
-            {
-
-                // Reload the navigation entries as did update them
-                this.sourceClientContext.Web.Context.Load(this.sourceClientContext.Web, w => w.Navigation.QuickLaunch, w => w.Navigation.TopNavigationBar);
-                this.sourceClientContext.Web.Context.ExecuteQueryRetry();
-
-                currentNavigation = this.sourceClientContext.Web.Navigation.QuickLaunch;
-                globalNavigation = this.sourceClientContext.Web.Navigation.TopNavigationBar;
-                if (!string.IsNullOrEmpty($"{sourcePath}{newSourcePageUrl}"))
-                {
-                    currentNavNodes = currentNavigation.Where(n => n.Url.Equals($"{sourcePath}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
-                    globalNavNodes = globalNavigation.Where(n => n.Url.Equals($"{sourcePath}{newSourcePageUrl}", StringComparison.InvariantCultureIgnoreCase));
-                }
-
-                foreach (var node in currentNavNodes)
-                {
-                    node.Url = sourcePageUrl;
-                    node.Update();
-                }
-                foreach (var node in globalNavNodes)
-                {
-                    node.Url = sourcePageUrl;
-                    node.Update();
-                }
-                this.sourceClientContext.ExecuteQueryRetry();
-            }
-
-            //STEP5: Conclude with deleting the originally created modern page as we did copy that already in step 3
-            LogInfo(LogStrings.TransformSwappingPagesStep5, LogStrings.Heading_SwappingPages);
-            targetPageFile.DeleteObject();
-            this.sourceClientContext.ExecuteQueryRetry();
-
-            //STEP6: if the source page lived outside of the site pages library then we also need to delete the original page from that spot
-            if (sourcePath != targetPath)
-            {
-                LogInfo(LogStrings.TransformSwappingPagesStep6, LogStrings.Heading_SwappingPages);
-                sourcePage.DeleteObject();
-                this.sourceClientContext.ExecuteQueryRetry();
-            }
-        }
-        */
-        #endregion
 
         /// <summary>
         /// Loads a page transformation model from file
@@ -1282,100 +1132,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
 
         #region Helper methods
-        private string ReturnModernBlogPageServerRelativeUrl(PageTransformationInformation pageTransformationInformation)
-        {
-            string returnUrl = null;
-
-            string originalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField).ToLower();
-            string sourcePath = GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower().Replace(originalSourcePageName, "");
-            string targetPath = sourcePath;
-
-
-            // Cross site collection transfer, new page always takes the name of the old page
-            if (!sourcePath.Contains($"/lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}"))
-            {
-                // Source file was living outside of the site pages library
-                targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' }).ToLower()}/sitepages{targetPath}";
-            }
-            else
-            {
-                // Page was living inside the sitepages library
-                targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}".ToLower(), "");
-                targetPath = $"{targetClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' }).ToLower()}/sitepages{targetPath}";
-            }
-
-            //{pageTransformationInformation.TargetPageName}
-            returnUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}".ToLower();
-
-            LogInfo($"{returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
-            return returnUrl;
-        }
-
-        private string ReturnModernPageServerRelativeUrl(PageTransformationInformation pageTransformationInformation, bool hasTargetContext)
-        {
-            string returnUrl = null;
-
-            string originalSourcePageName = GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField).ToLower();
-            string sourcePath = GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower().Replace(originalSourcePageName, "");
-            string targetPath = sourcePath;
-
-            if (hasTargetContext)
-            {
-                // Cross site collection transfer, new page always takes the name of the old page
-                if (!sourcePath.Contains("/sitepages"))
-                {
-                    // Source file was living outside of the site pages library
-                    targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
-
-                    if (pageTransformationInformation.SourceFile != null && pageTransformationInformation.SourcePage == null)
-                    {
-                        targetPath = targetPath + "root/";
-                    }
-
-                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' }).ToLower()}/sitepages{targetPath}";
-                }
-                else
-                {
-                    // Page was living inside the sitepages library
-                    targetPath = sourcePath.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/sitepages".ToLower(), "");
-                    targetPath = $"{targetClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' }).ToLower()}/sitepages{targetPath}";
-                }
-
-                returnUrl = $"{targetPath}{originalSourcePageName}";
-            }
-            else
-            {
-                // In-place modernization
-                if (!sourcePath.Contains("/sitepages"))
-                {
-                    // Source file was living outside of the site pages library
-                    targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl.ToLower(), "");
-
-                    if (pageTransformationInformation.SourceFile != null && pageTransformationInformation.SourcePage == null)
-                    {
-                        targetPath = targetPath + "root/";
-                    }
-
-                    targetPath = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/sitepages{targetPath}".ToLower();
-                }
-
-                if (!pageTransformationInformation.TargetPageTakesSourcePageName)
-                {
-                    // New page uses a different name (e.g. Migrated_xxx.aspx)
-                    returnUrl = $"{targetPath}{pageTransformationInformation.TargetPageName}".ToLower();
-                }
-                else
-                {
-                    // New page takes the name of the old page
-                    returnUrl = $"{targetPath}{GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField)}".ToLower();
-                }
-            }
-
-            LogInfo($"{returnUrl}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
-            return returnUrl;
-        }
-
         private void SetPageTitle(PageTransformationInformation pageTransformationInformation, ClientSidePage targetPage)
         {
             if (FieldExistsAndIsUsed(pageTransformationInformation, Constants.FileLeafRefField))

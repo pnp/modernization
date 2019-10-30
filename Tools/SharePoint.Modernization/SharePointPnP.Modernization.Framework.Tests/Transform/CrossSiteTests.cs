@@ -88,6 +88,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
                             SetAuthorInPageHeader = true,
 
+                            //TargetPageFolder = "Blogs",
+
                             //AddTableListImageAsImageWebPart = true,
 
                             // ModernizationCenter options
