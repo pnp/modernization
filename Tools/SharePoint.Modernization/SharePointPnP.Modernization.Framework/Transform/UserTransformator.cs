@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
@@ -95,7 +96,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this._userMapping = default; //Pass through if there is no mapping
             }
 
-            _ldapSpecifiedByUser = baseTransformationInformation?.LDAPQuery ?? string.Empty;
+            if (!string.IsNullOrEmpty(baseTransformationInformation.LDAPConnectionString))
+            {
+                _ldapSpecifiedByUser = baseTransformationInformation?.LDAPConnectionString;
+            }
+            else
+            {
+                _ldapSpecifiedByUser = default;
+            }
+            
             _sourceVersion = baseTransformationInformation?.SourceVersion ?? SPVersion.SPO; // SPO Fall Back
             _SPOToSPOUserMapping = baseTransformationInformation.SPOToSPOUserMapping;
         }
@@ -141,6 +150,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Allow all types of platforms
             if(this.IsUserMappingSpecified)
             {
+                LogInfo(string.Format(LogStrings.UserTransformDefaultMapping, principalInput), LogStrings.Heading_UserTransform);
+
                 // Find Mapping
                 // We dont like mulitple matches
                 // There are token added to the source address that may need to be replaced
@@ -206,7 +217,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // If not then default user transformation from on-premises only.
                 if(_sourceVersion != SPVersion.SPO && IsExecutingTransformOnDomain())
                 {
-                    LogDebug(string.Format(LogStrings.UserTransformDefaultMapping, principalInput), LogStrings.Heading_UserTransform);
+                    LogInfo(string.Format(LogStrings.UserTransformDefaultMapping, principalInput), LogStrings.Heading_UserTransform);
 
                     var result = principalInput;
 
@@ -293,7 +304,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     //Assumes the connection domain to SP is the same domain as the user
                     var credential = _sourceContext.Credentials as NetworkCredential;
-                    return credential.Domain.Equals(Environment.UserDomainName, StringComparison.InvariantCultureIgnoreCase);
+
+                    if (!string.IsNullOrEmpty(credential.Domain))
+                    {
+                        return credential.Domain.Equals(Environment.UserDomainName, StringComparison.InvariantCultureIgnoreCase);
+                    }
+                    else
+                    {
+                        return credential.UserName.ContainsIgnoringCasing(Environment.UserDomainName);
+                    }                    
                 }
             }
             catch
@@ -354,18 +373,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 //System.DirectoryServices.ActiveDirectory.Domain.GetComputerDomain() - can fail if AD system unstable
                 //System.Environment.UserDomainName
                 //System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
-
-                if(_sourceContext != null && _sourceContext.Credentials is NetworkCredential)
-                {
-                    //Assumes the connection domain to SP is the same domain as the user
-                    var credential = _sourceContext.Credentials as NetworkCredential; 
-                    return credential.Domain;
-                }
-                else
-                {
-                    return Environment.UserDomainName;
-                }
- 
+                return Environment.UserDomainName;
             }
             catch
             {
