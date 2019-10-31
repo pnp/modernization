@@ -26,6 +26,7 @@
 
 - Fix: Cannot assign limited access permission #338 [pkbullock]
 - Fix: Web Part page layout is now correctly detected for non English sites #342
+- Fix: Keep casing of original folder and file names during transformation #343
 
 ## [October intermediate release - version 1.0.1910.1]
 

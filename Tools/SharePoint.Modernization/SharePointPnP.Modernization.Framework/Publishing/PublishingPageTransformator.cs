@@ -3,6 +3,7 @@ using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
@@ -192,7 +193,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     StoreSourcePageInformationToKeep(publishingPageTransformationInformation.SourcePage);
                 }
 
-                LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString().ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
+                LogInfo($"{publishingPageTransformationInformation.SourcePage[Constants.FileRefField].ToString()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
                 var spVersion = publishingPageTransformationInformation.SourceVersion;
                 var exactSpVersion = publishingPageTransformationInformation.SourceVersionNumber;
@@ -217,12 +218,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 if (publishingPageTransformationInformation.SourcePage.FieldExistsAndUsed(Constants.FileDirRefField))
                 {
-                    var fileRefFieldValue = publishingPageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString().ToLower();
+                    var fileRefFieldValue = publishingPageTransformationInformation.SourcePage[Constants.FileDirRefField].ToString();
 
-                    if (fileRefFieldValue.Contains($"/{this.publishingPagesLibraryName}"))
+                    if (fileRefFieldValue.ContainsIgnoringCasing($"/{this.publishingPagesLibraryName}"))
                     {
                         string pagesLibraryRelativeUrl = $"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/{this.publishingPagesLibraryName}";
-                        pageFolder = fileRefFieldValue.Replace(pagesLibraryRelativeUrl.ToLower(), "").Trim();
+                        pageFolder = fileRefFieldValue.Replace(pagesLibraryRelativeUrl, "", StringComparison.InvariantCultureIgnoreCase).Trim();
                     }
                     else
                     {

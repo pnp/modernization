@@ -4,6 +4,7 @@ using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Pages;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
@@ -303,7 +304,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     StoreSourcePageInformationToKeep(pageTransformationInformation.SourcePage);
                 }
 
-                LogInfo($"{GetFieldValue(pageTransformationInformation, Constants.FileRefField).ToLower()}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
+                LogInfo($"{GetFieldValue(pageTransformationInformation, Constants.FileRefField)}", LogStrings.Heading_Summary, LogEntrySignificance.SourcePage);
 
                 var spVersion = pageTransformationInformation.SourceVersion;
                 var exactSpVersion = pageTransformationInformation.SourceVersionNumber;
@@ -331,9 +332,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (IsBlogPage(pageType))
                     {
-                        if (fileRefFieldValue.ToLower().Contains($"/lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}"))
+                        if (fileRefFieldValue.ContainsIgnoringCasing($"/lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}"))
                         {
-                            pageFolder = fileRefFieldValue.ToLower().Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/Lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}".ToLower(), "").Trim();
+                            pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/Lists/{CacheManager.Instance.GetBlogListName(sourceClientContext)}", "", StringComparison.InvariantCultureIgnoreCase).Trim();
                         }
                         else
                         {
@@ -344,7 +345,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                     else
                     {
-                        if (fileRefFieldValue.ToLower().Contains("/sitepages"))
+                        if (fileRefFieldValue.ContainsIgnoringCasing("/sitepages"))
                         {
                             pageFolder = fileRefFieldValue.Replace($"{sourceClientContext.Web.ServerRelativeUrl.TrimEnd(new[] { '/' })}/SitePages", "").Trim();
                         }
@@ -1012,7 +1013,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             string sourcePath = sourcePageUrl.Replace(GetFieldValue(pageTransformationInformation, Constants.FileLeafRefField), "");
             string targetPath = sourcePath;
 
-            if (!sourcePath.ToLower().Contains("/sitepages"))
+            if (!sourcePath.ContainsIgnoringCasing("/sitepages"))
             {
                 // Source file was living outside of the site pages library
                 targetPath = sourcePath.Replace(sourceClientContext.Web.ServerRelativeUrl, "");
