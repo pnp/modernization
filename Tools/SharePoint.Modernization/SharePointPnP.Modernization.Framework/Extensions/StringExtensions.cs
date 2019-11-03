@@ -4,6 +4,9 @@ using System.Text;
 
 namespace SharePointPnP.Modernization.Framework.Extensions
 {
+    /// <summary>
+    /// Class holding extension methods on the System.string class
+    /// </summary>
     public static class StringExtensions
     {
         /// <summary>
@@ -33,7 +36,6 @@ namespace SharePointPnP.Modernization.Framework.Extensions
 
             return value; // Fall back
         }
-
 
         /// <summary>
         /// Removes a relative section of by string where context not available

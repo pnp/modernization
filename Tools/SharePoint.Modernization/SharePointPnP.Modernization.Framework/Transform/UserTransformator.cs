@@ -55,7 +55,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="baseTransformationInformation">Transformation configuration settings</param>
         /// <param name="sourceContext">Source Context</param>
         /// <param name="targetContext">Target Context</param>
-        /// <param name="logObservers">Logging</param>
+        /// <param name="logObservers">Connected loggers</param>
         public UserTransformator(BaseTransformationInformation baseTransformationInformation, ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null)
         {
             // Hookup logging
@@ -127,10 +127,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
          */
 
         /// <summary>
-        /// Remap principal to alternative mapping
+        /// Remap principal to target principal
         /// </summary>
         /// <param name="principal"></param>
-        /// <returns></returns>
+        /// <returns>Principal for the target site</returns>
         public string RemapPrincipal(string principalInput)
         {
             // when transforming from SPO without explicit enabling spo to spo
@@ -274,6 +274,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return principalInput;
         }
 
+        /// <summary>
+        /// Remap principal to target principal
+        /// </summary>
+        /// <param name="context">ClientContext of the source web</param>
+        /// <param name="userField">User field value object</param>
+        /// <returns>Mapped principal that works on the target site</returns>
         public string RemapPrincipal(ClientContext context, FieldUserValue userField)
         {
             // when transforming from SPO without explicit enabling spo to spo
@@ -290,7 +296,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Determine if the transform is running on a computer on the domain
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the executing machine is domain joined</returns>
         internal bool IsExecutingTransformOnDomain()
         {
             try

@@ -37,7 +37,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
         #endregion
 
-
+        /// <summary>
+        /// Builds the layout (sections) of the modern page
+        /// </summary>
+        /// <param name="pageData">Information about the source page</param>
         public void Transform(Tuple<Pages.PageLayout, List<WebPartEntity>> pageData)
         {
 
@@ -275,6 +278,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
         }
 
+        #region Helper methods
         private int GetBackgroundEmphasis(int row)
         {
             BackgroundEmphasis emphasis = BackgroundEmphasis.None;
@@ -321,5 +325,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             return 0;
         }
+        #endregion
     }
 }

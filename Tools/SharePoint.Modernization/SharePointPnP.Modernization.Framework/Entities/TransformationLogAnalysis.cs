@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Entities
 {
+    /// <summary>
+    /// Transformation analysis report
+    /// </summary>
     public class TransformationLogAnalysis
     {
         /// <summary>
@@ -27,15 +30,23 @@ namespace SharePointPnP.Modernization.Framework.Entities
         }
 
         /// <summary>
-        /// Source Page
+        /// Source page name
         /// </summary>
         public string SourcePage { get; set; }
 
+        /// <summary>
+        /// Source site
+        /// </summary>
         public string SourceSite { get; set; }
 
-
+        /// <summary>
+        /// Target page name
+        /// </summary>
         public string TargetPage { get; set; }
 
+        /// <summary>
+        /// Target site
+        /// </summary>
         public string TargetSite { get; set; }
 
         /// <summary>
@@ -43,20 +54,35 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// </summary>
         public DateTime ReportDate { get; set; }
 
+        /// <summary>
+        /// Base source url
+        /// </summary>
         public string BaseSourceUrl { get; set; }
+
+        /// <summary>
+        /// Base target url
+        /// </summary>
         public string BaseTargetUrl { get; set; }
 
+        /// <summary>
+        /// Duration of the page tranformation
+        /// </summary>
         public TimeSpan TransformationDuration { get; set; }
 
+        /// <summary>
+        /// Indication if this was the first transformation report added
+        /// </summary>
         public bool IsFirstAnalysis { get; set; }
 
-
+        /// <summary>
+        /// ID used to group entries by transformed page
+        /// </summary>
         public string PageId { get; set; }
 
-
+        /// <summary>
+        /// Log entries for the transferred assets
+        /// </summary>
         public List<Tuple<LogLevel, LogEntry>> AssetsTransferred { get; set; }
-
-
 
         /// <summary>
         /// List of warnings raised
@@ -73,8 +99,6 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// </summary>
         public List<Tuple<LogLevel, LogEntry>> CriticalErrors { get; set; }
 
-
-
         /// <summary>
         /// Page Logs ordered
         /// </summary>
@@ -85,8 +109,14 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// </summary>
         public List<Tuple<LogLevel, LogEntry>> TransformationVerboseSummary { get; set; }
 
+        /// <summary>
+        /// Logs that contain verbose details of this transformation
+        /// </summary>
         public List<Tuple<LogLevel, LogEntry>> TransformationVerboseDetails { get; set; }
 
+        /// <summary>
+        /// List containting the applied transformation settings
+        /// </summary>
         public List<Tuple<string, string>> TransformationSettings { get; set; }
     }
 }

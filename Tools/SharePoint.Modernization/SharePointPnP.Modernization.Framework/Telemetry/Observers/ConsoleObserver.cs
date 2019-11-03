@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 {
+    /// <summary>
+    /// Logger that logs to the console output
+    /// </summary>
     public class ConsoleObserver : ILogObserver
     {
         private static readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());

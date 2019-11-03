@@ -106,11 +106,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
         #endregion
 
         #region Functionality
+        /// <summary>
+        /// Set's default target page prefix
+        /// </summary>
         public void SetDefaultTargetPagePrefix()
         {
             this.TargetPagePrefix = "Migrated_";
         }
 
+        /// <summary>
+        /// Set's default source page prefix
+        /// </summary>
         public void SetDefaultSourcePagePrefix()
         {
             this.SourcePagePrefix = "Previous_";

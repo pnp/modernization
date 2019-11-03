@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.SharePoint.Client
 {
+    /// <summary>
+    /// Class holding extension methods for the Microsoft.SharePoint.Client.Site object
+    /// </summary>
     public static class SiteExtensions
     {
         /// <summary>

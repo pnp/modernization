@@ -11,8 +11,14 @@ using System.Text.RegularExpressions;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
+    /// <summary>
+    /// Function processor for publishing page transformation
+    /// </summary>
     public class PublishingFunctionProcessor: BaseFunctionProcessor
     {
+        /// <summary>
+        /// Field types
+        /// </summary>
         public enum FieldType
         {
             String = 0,
@@ -23,6 +29,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             User = 5,
         }
 
+        /// <summary>
+        /// Name token
+        /// </summary>
         public string NameAttributeToken
         {
             get { return "{@Name}"; }
@@ -37,6 +46,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private BaseTransformationInformation baseTransformationInformation;
 
         #region Construction
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="page">Page to operate on</param>
+        /// <param name="sourceClientContext">Clientcontext of the source site</param>
+        /// <param name="targetClientContext">Clientcontext of the target site</param>
+        /// <param name="publishingPageTransformation">Publishing page layout mapping</param>
+        /// <param name="baseTransformationInformation">Page transformation information</param>
+        /// <param name="logObservers">Connected loggers</param>
         public PublishingFunctionProcessor(ListItem page, ClientContext sourceClientContext, ClientContext targetClientContext, PublishingPageTransformation publishingPageTransformation, BaseTransformationInformation baseTransformationInformation,  IList<ILogObserver> logObservers = null)
         {
             //Register any existing observers
@@ -75,6 +93,13 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return Regex.Replace(functions, NameAttributeToken, propertyName, RegexOptions.IgnoreCase);
         }
 
+        /// <summary>
+        /// Executes a function and returns results
+        /// </summary>
+        /// <param name="functions">Function to process</param>
+        /// <param name="propertyName">Field/property the function runs on</param>
+        /// <param name="propertyType">Type of the field/property the function will run on</param>
+        /// <returns>Function output</returns>
         public Tuple<string, string> Process(string functions, string propertyName, FieldType propertyType)
         {
             string propertyKey = "";
@@ -127,7 +152,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         #endregion
 
         #region Helper methods
-        //private static FunctionDefinition ParseFunctionDefinition(string function, WebPartProperty webPartProperty, ListItem page)
         private static FunctionDefinition ParseFunctionDefinition(string function, string propertyName, FieldType propertyType, ListItem page)
         {
             // Supported function syntax: 
@@ -259,8 +283,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             return def;
         }
-
-
 
         private void RegisterAddons()
         {

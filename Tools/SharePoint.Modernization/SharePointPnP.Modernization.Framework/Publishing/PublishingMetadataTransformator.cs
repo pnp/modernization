@@ -11,6 +11,9 @@ using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
+    /// <summary>
+    /// Class responsible for handling the metadata copying of publishing pages
+    /// </summary>
     public class PublishingMetadataTransformator : BaseTransform
     {
         private PublishingPageTransformationInformation publishingPageTransformationInformation;
@@ -47,6 +50,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
         #endregion
 
+        /// <summary>
+        /// Process the metadata copying (as defined in the used page layout mapping)
+        /// </summary>
         public void Transform()
         {
             if (this.pageLayoutMappingModel != null)

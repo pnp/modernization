@@ -194,8 +194,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     webparts.Add(wpEntity);
                 }
+                #endregion
             }
-            #endregion
             #endregion
 
             #region Process fields that become metadata as they might result in the creation of page properties web part

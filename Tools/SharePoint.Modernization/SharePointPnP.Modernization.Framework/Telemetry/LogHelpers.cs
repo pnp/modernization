@@ -5,13 +5,16 @@ using System.Text;
 
 namespace SharePointPnP.Modernization.Framework.Telemetry
 {
+    /// <summary>
+    /// Class with extension methods that are used to help with logging
+    /// </summary>
     public static class LogHelpers
     {
         /// <summary>
         /// Converts boolean value to Yes/No string
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">Boolean value</param>
+        /// <returns>Yes or No</returns>
         public static string ToYesNoString(this bool value)
         {
             return value ? "Yes" : "No";
@@ -20,8 +23,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// <summary>
         /// Formats a string that has the format ThisIsAClassName and formats in a friendly way
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">string value</param>
+        /// <returns>Friendly string value</returns>
         public static string FormatAsFriendlyTitle(this string value)
         {
             var charArr = value.ToCharArray();
@@ -46,7 +49,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// Use reflection to read the object properties and detail the values
         /// </summary>
         /// <param name="pti">PageTransformationInformation object</param>
-        /// <returns></returns>
+        /// <returns>List of log records</returns>
         public static List<LogEntry> DetailSettingsAsLogEntries(this PageTransformationInformation pti)
         {
             List<LogEntry> logs = new List<LogEntry>();
@@ -78,8 +81,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// <summary>
         /// Display version for SharePoint
         /// </summary>
-        /// <param name="version"></param>
-        /// <returns></returns>
+        /// <param name="version">SharePoint version</param>
+        /// <returns>SharePoint version in string format</returns>
         public static string DisplaySharePointVersion(this SPVersion version)
         {
             switch (version)

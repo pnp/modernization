@@ -1,7 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
-using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Transform;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 

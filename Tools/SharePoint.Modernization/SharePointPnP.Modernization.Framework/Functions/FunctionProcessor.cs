@@ -16,7 +16,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
     /// </summary>
     public class FunctionProcessor : BaseFunctionProcessor
     {
-
         private ClientSidePage page;
         private PageTransformation pageTransformation;
         private List<AddOnType> addOnTypes;

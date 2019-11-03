@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharePointPnP.Modernization.Framework.Transform
+﻿namespace SharePointPnP.Modernization.Framework.Transform
 {
+    /// <summary>
+    /// Enum listing the SharePoint versions as used by the transformation engine
+    /// </summary>
     public enum SPVersion
     {
         SPO = 0,

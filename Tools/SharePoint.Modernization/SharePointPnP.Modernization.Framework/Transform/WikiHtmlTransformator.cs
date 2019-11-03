@@ -434,6 +434,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return updatedWebParts;
         }
 
+        #region Helper methods
         private string IncludeWebPartTitle(string htmlContent, Dictionary<string,string> webPartProperties)
         {
             if (webPartProperties.ContainsKey("ChromeType") && webPartProperties["ChromeType"] != null)
@@ -508,5 +509,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             return false;
         }
+        #endregion
     }
 }

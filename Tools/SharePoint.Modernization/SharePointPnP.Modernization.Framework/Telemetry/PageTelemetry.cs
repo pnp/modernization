@@ -1,6 +1,5 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Graph;
 using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Transform;
@@ -10,6 +9,9 @@ using System.Net;
 
 namespace SharePointPnP.Modernization.Framework.Telemetry
 {
+    /// <summary>
+    /// Class handling telemetry
+    /// </summary>
     public class PageTelemetry
     {
         private readonly TelemetryClient telemetryClient;
@@ -57,6 +59,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         }
         #endregion
 
+        /// <summary>
+        /// Sends a transformation done event
+        /// </summary>
+        /// <param name="duration">Duration of the page transformation</param>
+        /// <param name="pageType">Type of page that was transformed</param>
+        /// <param name="baseTransformationInformation">Information about the transformation</param>
         public void LogTransformationDone(TimeSpan duration, string pageType, BaseTransformationInformation baseTransformationInformation)
         {
             if (this.telemetryClient == null)
@@ -104,6 +112,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
             }
         }
 
+        /// <summary>
+        /// Logs a page transformation error
+        /// </summary>
+        /// <param name="ex">Exception object</param>
+        /// <param name="location">Location that generated this error</param>
         public void LogError(Exception ex, string location)
         {
             if (this.telemetryClient == null || ex == null)

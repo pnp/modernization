@@ -1,6 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
-using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -9,6 +8,9 @@ using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
+    /// <summary>
+    /// Class that will handle the configuration of the modern page header when transforming publishing pages
+    /// </summary>
     public class PublishingPageHeaderTransformator: BaseTransform
     {
         private PublishingPageTransformationInformation publishingPageTransformationInformation;
@@ -37,8 +39,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         }
         #endregion
 
-
         #region Header transformation
+        /// <summary>
+        /// Builds the header for the modern page
+        /// </summary>
+        /// <param name="targetPage">Modern page instance</param>
         public void TransformHeader(ref ClientSidePage targetPage)
         {
             // Get the mapping model to use as it describes how the page header needs to be generated
@@ -151,6 +156,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
         }
 
+        #region Helper methods
         private string GetFieldValue(HeaderField headerField, PublishingFunctionProcessor.FieldType fieldType = PublishingFunctionProcessor.FieldType.String)
         {
             // check if the target field name contains a delimiter value
@@ -193,8 +199,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return publishingPageTransformationModel.Header.Field.Where(p => p.HeaderProperty == fieldName).FirstOrDefault();
         }
         #endregion
-
-
+        #endregion
 
     }
 }

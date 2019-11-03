@@ -10,21 +10,28 @@ using System.Text.RegularExpressions;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
+    /// <summary>
+    /// Class responsible for transforming source page urls to target page urls via url rewriting
+    /// </summary>
     public class UrlTransformator : BaseTransform
     {
         private ClientContext sourceContext;
         private ClientContext targetContext;
-
         private string sourceSiteUrl;
         private string sourceWebUrl;
         private string targetWebUrl;
         private string pagesLibrary;
-
         private bool skipDefaultUrlRewrite;
-
         private List<UrlMapping> urlMapping;
 
         #region Construction
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="baseTransformationInformation">Page transformation information object</param>
+        /// <param name="sourceContext">ClientContext of the source page</param>
+        /// <param name="targetContext">ClientContext of the target page</param>
+        /// <param name="logObservers">Connected loggers</param>
         public UrlTransformator(BaseTransformationInformation baseTransformationInformation, ClientContext sourceContext, ClientContext targetContext, IList<ILogObserver> logObservers = null)
         {
             // Hookup logging
@@ -77,6 +84,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         }
         #endregion
 
+        /// <summary>
+        /// Rewrites the url inside the passed input string
+        /// </summary>
+        /// <param name="input">String to url rewrite</param>
+        /// <returns>Url rewritten string</returns>
         public string Transform(string input)
         {
             // Do we need to rewrite?

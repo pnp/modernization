@@ -41,6 +41,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         }
 
         internal HtmlParser parser;
+
         private const string webPartMarkerString = "[[WebPartMarker]]";
 
         public ListItem page;
@@ -987,7 +988,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="pageUrl"></param>
         /// <param name="webPartGuid"></param>
         /// <returns></returns>
-        public string ExportWebPartXmlWorkaround(string pageUrl, string webPartGuid)
+        internal string ExportWebPartXmlWorkaround(string pageUrl, string webPartGuid)
         {
             // Issue hints and Credit: 
             //      https://blog.mastykarz.nl/export-web-parts-csom/ 
@@ -1047,7 +1048,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// Loads and Parses Web Part Page from Web Services
         /// </summary>
         /// <param name="fullUrl"></param>
-        public List<WebServiceWebPartEntity> LoadPublishingPageFromWebServices(string fullUrl)
+        internal List<WebServiceWebPartEntity> LoadPublishingPageFromWebServices(string fullUrl)
         {
             var webParts = new List<WebServiceWebPartEntity>();
             var wsWebParts = ExtractWebPartDocumentViaWebServicesFromPage(fullUrl);
@@ -1185,7 +1186,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="pageUrl">Server Relative Page Url</param>
         /// <returns></returns>
-        public List<WebServiceWebPartProperties> LoadWebPartPropertiesFromWebServices(string pageUrl)
+        internal List<WebServiceWebPartProperties> LoadWebPartPropertiesFromWebServices(string pageUrl)
 
         {
             // This may contain references to multiple web part

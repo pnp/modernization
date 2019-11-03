@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace SharePointPnP.Modernization.Framework.Entities
 {
     /// <summary>
-    /// Holds information about the defined audiences
+    /// Holds information about the defined audiences (used by modernization scanner)
     /// </summary>
     public class AudienceEntity
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public AudienceEntity()
         {
             this.GlobalAudiences = new List<string>();
@@ -18,8 +17,17 @@ namespace SharePointPnP.Modernization.Framework.Entities
             this.SharePointGroups = new List<string>();
         }
 
+        /// <summary>
+        /// List of defined global audiences
+        /// </summary>
         public List<string> GlobalAudiences { get; set; }
+        /// <summary>
+        /// List of security group based audiences
+        /// </summary>
         public List<string> SecurityGroups { get; set; }
+        /// <summary>
+        /// List of SharePoint group based audiences
+        /// </summary>
         public List<string> SharePointGroups { get; set; }
     }
 }

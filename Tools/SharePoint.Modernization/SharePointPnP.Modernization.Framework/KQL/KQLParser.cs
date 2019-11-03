@@ -120,6 +120,7 @@ namespace SharePointPnP.Modernization.Framework.KQL
             return parsedQuery;
         }
 
+        #region Helper methods
         private string OperatorToString(KQLPropertyOperator ops)
         {
             switch (ops)
@@ -176,5 +177,6 @@ namespace SharePointPnP.Modernization.Framework.KQL
                 return KQLPropertyOperator.Undefined;
             }
         }
+        #endregion
     }
 }

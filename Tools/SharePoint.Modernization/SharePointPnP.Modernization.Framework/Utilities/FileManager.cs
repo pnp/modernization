@@ -14,6 +14,10 @@ namespace SharePointPnP.Modernization.Framework.Utilities
     {
 
         #region Construction
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="logObservers">Connected loggers</param>
         public FileManager(IList<ILogObserver> logObservers = null): base()
         {
             //Register any existing observers

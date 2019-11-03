@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Pages
 {
+    /// <summary>
+    /// Analyzes a web part page for SP2010 to SP2016 on-premises SharePoint
+    /// </summary>
     public class WebPartPageOnPremises : WebPartPage
     {
 
@@ -23,7 +26,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
         {
         }
         #endregion
-
 
         /// <summary>
         /// Analyses a webpart page from on-premises environment
@@ -227,35 +229,35 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                 if (!string.IsNullOrEmpty(fullDocument))
                 {
-                    if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd1.aspx"))
+                    if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd1.aspx"))
                     {
                         return PageLayout.WebPart_FullPageVertical;
                     }
-                    else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd2.aspx"))
+                    else if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd2.aspx"))
                     {
                         return PageLayout.WebPart_HeaderFooterThreeColumns;
                     }
-                    else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd3.aspx"))
+                    else if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd3.aspx"))
                     {
                         return PageLayout.WebPart_HeaderLeftColumnBody;
                     }
-                    else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd4.aspx"))
+                    else if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd4.aspx"))
                     {
                         return PageLayout.WebPart_HeaderRightColumnBody;
                     }
-                    else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd5.aspx"))
+                    else if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd5.aspx"))
                     {
                         return PageLayout.WebPart_HeaderFooter2Columns4Rows;
                     }
-                    else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd6.aspx"))
+                    else if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd6.aspx"))
                     {
                         return PageLayout.WebPart_HeaderFooter4ColumnsTopRow;
                     }
-                    else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd7.aspx"))
+                    else if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd7.aspx"))
                     {
                         return PageLayout.WebPart_LeftColumnHeaderFooterTopRow3Columns;
                     }
-                    else if (fullDocument.ContainsIgnoringCasing(@"1033&#92;STS&#92;doctemp&#92;smartpgs&#92;spstd8.aspx"))
+                    else if (fullDocument.ContainsIgnoringCasing(@"STS&#92;doctemp&#92;smartpgs&#92;spstd8.aspx"))
                     {
                         return PageLayout.WebPart_RightColumnHeaderFooterTopRow3Columns;
                     }

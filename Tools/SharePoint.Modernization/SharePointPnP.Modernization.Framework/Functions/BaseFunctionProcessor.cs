@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace SharePointPnP.Modernization.Framework.Functions
 {
+    /// <summary>
+    /// Base class for function processors
+    /// </summary>
     public abstract class BaseFunctionProcessor: BaseTransform
     {
         /// <summary>

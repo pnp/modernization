@@ -63,6 +63,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         /// <summary>
         /// Returns an the (static) string provided as input
         /// </summary>
+        /// <param name="staticString">Static string that will be returned</param>
         /// <returns>String provided as input</returns>
         [FunctionDocumentation(Description = "Returns an the (static) string provided as input",
                                Example = "StaticString('static string')")]
@@ -274,6 +275,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         #endregion
 
         #region Person functions
+        /// <summary>
+        /// Looks up user information for passed user id
+        /// </summary>
+        /// <param name="userId">The id (int) of a user</param>
+        /// <returns>A formatted json blob describing the user's details</returns>
         [FunctionDocumentation(Description = "Looks up user information for passed user id",
                                    Example = "ToAuthors({PublishingContact})")]
         [InputDocumentation(Name = "{userId}", Description = "The id (int) of a user")]

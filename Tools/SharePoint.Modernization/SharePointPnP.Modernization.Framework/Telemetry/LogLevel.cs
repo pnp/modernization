@@ -1,5 +1,8 @@
 ﻿namespace SharePointPnP.Modernization.Framework.Telemetry
 {
+    /// <summary>
+    /// Availabe logging levels
+    /// </summary>
     public enum LogLevel
     {
         /// <summary>

@@ -16,18 +16,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// </summary>
     public class AssetTransfer : BaseTransform
     {
-        //Plan:
-        //  Detect for referenced assets within the web parts
-        //  Referenced assets should only be files e.g. not aspx pages and located in the pages, site pages libraries
-        //  Ensure the referenced assets exist within the same site collection/web according to the level of transformation
-        //  With the modern destination, locate assets in the site assets library with in a folder using the same naming convention as SharePoint Comm Sites
-        //  Add copy assets method to transfer the files to target site collection
-        //  Store a dictionary of copied assets to update the URLs of the transferred web parts
-        //  Phased approach for this: 
-        //      Image Web Parts
-        //      Text Web Parts with inline images (need to determine how they are handled)
-        //      TBC - expanded as testing progresses
-
         private ClientContext _sourceClientContext;
         private ClientContext _targetClientContext;
         private bool inSameSite;
@@ -198,7 +186,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var pageFolder = sitePagesFolder.EnsureFolder(friendlyFolder);
 
             return pageFolder.EnsureProperty(o => o.ServerRelativeUrl);
-
         }
 
         /// <summary>
@@ -406,177 +393,180 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
             }
+
             LogWarning("Asset was not transferred as it was not found in the source web. Asset: " + sourceFileUrl, LogStrings.Heading_AssetTransfer);
             return null;
+        }
+
+        /// <summary>
+        /// Stores an asset transfer reference
+        /// </summary>
+        /// <param name="assetTransferReferenceEntity"></param>
+        /// <param name="update"></param>
+        public void StoreAssetTransferred(AssetTransferredEntity assetTransferredEntity)
+        {
+            // Using the Cache Manager store the asset transfer references
+            // If update - treat the source URL as unique, if multiple web parts reference to this, then it will still refer to the single resource
+            var cache = Cache.CacheManager.Instance;
+            if (!cache.AssetsTransfered.Any(asset =>
+                 string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                cache.AssetsTransfered.Add(assetTransferredEntity);
             }
 
-            /// <summary>
-            /// Stores an asset transfer reference
-            /// </summary>
-            /// <param name="assetTransferReferenceEntity"></param>
-            /// <param name="update"></param>
-            public void StoreAssetTransferred(AssetTransferredEntity assetTransferredEntity)
+        }
+
+        /// <summary>
+        /// Get asset transfer details if they already exist
+        /// </summary>
+        public AssetTransferredEntity GetAssetTransferredIfExists(AssetTransferredEntity assetTransferredEntity)
+        {
+            try
             {
-                // Using the Cache Manager store the asset transfer references
-                // If update - treat the source URL as unique, if multiple web parts reference to this, then it will still refer to the single resource
+                // Using the Cache Manager retrieve asset transfer references (all)
                 var cache = Cache.CacheManager.Instance;
-                if (!cache.AssetsTransfered.Any(asset =>
-                     string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    cache.AssetsTransfered.Add(assetTransferredEntity);
-                }
 
+                var result = cache.AssetsTransfered.SingleOrDefault(
+                    asset => string.Equals(asset.TargetAssetFolderUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
+                    string.Equals(asset.SourceAssetUrl, assetTransferredEntity.SourceAssetUrl, StringComparison.InvariantCultureIgnoreCase));
+
+                // Return the cached details if found, if not return original search 
+                return result != default(AssetTransferredEntity) ? result : assetTransferredEntity;
+            }
+            catch (Exception ex)
+            {
+                LogError(LogStrings.Error_AssetTransferCheckingIfAssetExists, LogStrings.Heading_AssetTransfer, ex);
             }
 
-            /// <summary>
-            /// Get asset transfer details if they already exist
-            /// </summary>
-            public AssetTransferredEntity GetAssetTransferredIfExists(AssetTransferredEntity assetTransferredEntity)
+            // Fallback in case of error - this will trigger a transfer of the asset
+            return assetTransferredEntity;
+
+        }
+
+        /// <summary>
+        /// Converts the file name into a friendly format
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public string ConvertFileToFolderFriendlyName(string fileName)
+        {
+            // This is going to need some heavy testing
+            var justFileName = Path.GetFileNameWithoutExtension(fileName);
+            var friendlyName = justFileName.Replace(" ", "-");
+            return friendlyName;
+        }
+
+
+        /// <summary>
+        /// Ensures that we have context of the source site collection
+        /// </summary>
+        internal void EnsureAssetContextIfRequired(string sourceUrl)
+        {
+            EnsureAssetContextIfRequired(_sourceClientContext, sourceUrl);
+        }
+
+
+        /// <summary>
+        /// Ensures that we have context of the source site collection
+        /// </summary>
+        /// <param name="context">Source site context</param>
+        internal void EnsureAssetContextIfRequired(ClientContext context, string sourceUrl)
+        {
+            // There is two scenarios to check
+            //  - If the asset resides on the root site collection
+            //  - If the asset resides on another subsite
+            //  - If the asset resides on a subsite below this context
+
+            try
             {
-                try
+                context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url, o => o.RootWeb.Id);
+                context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Id);
+
+                string match = string.Empty;
+
+                // Break the URL into segments and deteremine which URL detects the file in the structure.
+                // Use Web IDs to validate content isnt the same on the root
+
+                var fullSiteCollectionUrl = context.Site.Url;
+                var relativeSiteCollUrl = context.Site.ServerRelativeUrl;
+                var sourceCtxUrl = context.Web.GetUrl();
+
+                // Lets break into segments
+                var fileName = Path.GetFileName(sourceUrl);
+
+                // Could already be relative
+                //var sourceUrlWithOutBaseAddr = sourceUrl.Replace(fullSiteCollectionUrl, "").Replace(relativeSiteCollUrl,"");
+                var urlSegments = sourceUrl.Split('/');
+
+                // Need null tests
+                var filteredUrlSegments = urlSegments.Where(o => !string.IsNullOrEmpty(o) && o != fileName).Reverse();
+
+                //Assume the last segment is the filename
+                //Assume the segment before the last is either a folder or library
+
+                //Url to strip back until detected as subweb
+                var remainingUrl = sourceUrl.Replace(fileName, ""); //remove file name
+
+                //Urls to try to determine web
+                foreach (var segment in filteredUrlSegments) //Assume the segment before the last is either a folder or library
                 {
-                    // Using the Cache Manager retrieve asset transfer references (all)
-                    var cache = Cache.CacheManager.Instance;
-
-                    var result = cache.AssetsTransfered.SingleOrDefault(
-                        asset => string.Equals(asset.TargetAssetFolderUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
-                        string.Equals(asset.SourceAssetUrl, assetTransferredEntity.SourceAssetUrl, StringComparison.InvariantCultureIgnoreCase));
-
-                    // Return the cached details if found, if not return original search 
-                    return result != default(AssetTransferredEntity) ? result : assetTransferredEntity;
-                }
-                catch (Exception ex)
-                {
-                    LogError(LogStrings.Error_AssetTransferCheckingIfAssetExists, LogStrings.Heading_AssetTransfer, ex);
-                }
-
-                // Fallback in case of error - this will trigger a transfer of the asset
-                return assetTransferredEntity;
-
-            }
-
-            /// <summary>
-            /// Converts the file name into a friendly format
-            /// </summary>
-            /// <param name="fileName"></param>
-            /// <returns></returns>
-            public string ConvertFileToFolderFriendlyName(string fileName)
-            {
-                // This is going to need some heavy testing
-                var justFileName = Path.GetFileNameWithoutExtension(fileName);
-                var friendlyName = justFileName.Replace(" ", "-");
-                return friendlyName;
-            }
-
-
-            /// <summary>
-            /// Ensures that we have context of the source site collection
-            /// </summary>
-            internal void EnsureAssetContextIfRequired(string sourceUrl)
-            {
-                EnsureAssetContextIfRequired(_sourceClientContext, sourceUrl);
-            }
-
-
-            /// <summary>
-            /// Ensures that we have context of the source site collection
-            /// </summary>
-            /// <param name="context">Source site context</param>
-            internal void EnsureAssetContextIfRequired(ClientContext context, string sourceUrl)
-            {
-                // There is two scenarios to check
-                //  - If the asset resides on the root site collection
-                //  - If the asset resides on another subsite
-                //  - If the asset resides on a subsite below this context
-
-                try
-                {
-                    context.Site.EnsureProperties(o => o.ServerRelativeUrl, o => o.Url, o => o.RootWeb.Id);
-                    context.Web.EnsureProperties(o => o.ServerRelativeUrl, o => o.Id);
-
-                    string match = string.Empty;
-
-                    // Break the URL into segments and deteremine which URL detects the file in the structure.
-                    // Use Web IDs to validate content isnt the same on the root
-
-                    var fullSiteCollectionUrl = context.Site.Url;
-                    var relativeSiteCollUrl = context.Site.ServerRelativeUrl;
-                    var sourceCtxUrl = context.Web.GetUrl();
-
-                    // Lets break into segments
-                    var fileName = Path.GetFileName(sourceUrl);
-
-                    // Could already be relative
-                    //var sourceUrlWithOutBaseAddr = sourceUrl.Replace(fullSiteCollectionUrl, "").Replace(relativeSiteCollUrl,"");
-                    var urlSegments = sourceUrl.Split('/');
-
-                    // Need null tests
-                    var filteredUrlSegments = urlSegments.Where(o => !string.IsNullOrEmpty(o) && o != fileName).Reverse();
-
-                    //Assume the last segment is the filename
-                    //Assume the segment before the last is either a folder or library
-
-                    //Url to strip back until detected as subweb
-                    var remainingUrl = sourceUrl.Replace(fileName, ""); //remove file name
-
-                    //Urls to try to determine web
-                    foreach (var segment in filteredUrlSegments) //Assume the segment before the last is either a folder or library
+                    try
                     {
-                        try
+                        var testUrl = UrlUtility.Combine(fullSiteCollectionUrl.ToLower(), remainingUrl.ToLower().Replace(relativeSiteCollUrl.ToLower(), ""));
+
+                        //No need to recurse this
+                        var exists = context.WebExistsFullUrl(testUrl);
+
+                        if (exists)
                         {
-                            var testUrl = UrlUtility.Combine(fullSiteCollectionUrl.ToLower(), remainingUrl.ToLower().Replace(relativeSiteCollUrl.ToLower(), ""));
-
-                            //No need to recurse this
-                            var exists = context.WebExistsFullUrl(testUrl);
-
-                            if (exists)
-                            {
-                                //winner
-                                match = testUrl;
-                                break;
-                            }
-                            else
-                            {
-                                remainingUrl = remainingUrl.TrimEnd('/').TrimEnd($"{segment}".ToCharArray());
-                            }
+                            //winner
+                            match = testUrl;
+                            break;
                         }
-                        catch
+                        else
                         {
-                            // Nope not the right web - Swallow
+                            remainingUrl = remainingUrl.TrimEnd('/').TrimEnd($"{segment}".ToCharArray());
                         }
                     }
-
-                    // Check if the asset is on the root site collection
-                    if(match == string.Empty)
+                    catch
                     {
-                        // Does it contain a relative reference
-                        if (sourceUrl.StartsWith("/") && !sourceUrl.ContainsIgnoringCasing(context.Web.GetUrl()))
-                        {
-                            match = fullSiteCollectionUrl.ToLower();
-                        }
-                    }
-
-                    if (match != string.Empty && !match.Equals(context.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-
-                        _sourceClientContext = context.Clone(match);
-                        LogDebug("Source Context Switched", "EsureAssetContextIfRequired");
+                        // Nope not the right web - Swallow
                     }
                 }
-                catch (Exception ex)
+
+                // Check if the asset is on the root site collection
+                if (match == string.Empty)
                 {
-                    LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_AssetTransfer, ex);
+                    // Does it contain a relative reference
+                    if (sourceUrl.StartsWith("/") && !sourceUrl.ContainsIgnoringCasing(context.Web.GetUrl()))
+                    {
+                        match = fullSiteCollectionUrl.ToLower();
+                    }
+                }
+
+                if (match != string.Empty && !match.Equals(context.Web.GetUrl(), StringComparison.InvariantCultureIgnoreCase))
+                {
+
+                    _sourceClientContext = context.Clone(match);
+                    LogDebug("Source Context Switched", "EsureAssetContextIfRequired");
                 }
             }
-
-            public static void CopyStream(Stream input, Stream output)
+            catch (Exception ex)
             {
-                byte[] buffer = new byte[16 * 1024];
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    output.Write(buffer, 0, read);
-                }
+                LogError(LogStrings.Error_CannotGetSiteCollContext, LogStrings.Heading_AssetTransfer, ex);
             }
         }
+
+        #region Helper methods
+        private static void CopyStream(Stream input, Stream output)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            int read;
+            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, read);
+            }
+        }
+        #endregion
     }
+}

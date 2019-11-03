@@ -252,6 +252,13 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return null;
         }
 
+        /// <summary>
+        /// Get field information of a content type field
+        /// </summary>
+        /// <param name="pagesLibrary">Pages library list</param>
+        /// <param name="contentTypeId">ID of the content type</param>
+        /// <param name="fieldName">Name of the field to get information from</param>
+        /// <returns>FieldData object holding field information</returns>
         public FieldData GetPublishingContentTypeField(List pagesLibrary, string contentTypeId, string fieldName)
         {
             // Try to get from cache
@@ -536,9 +543,13 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region PageLayout mappings
+        /// <summary>
+        /// Generate pagelayout mapping file for given publishing page
+        /// </summary>
+        /// <param name="page">Publishing page</param>
+        /// <returns>Page layout mapping model</returns>
         public PageLayout GetPageLayoutMapping(ListItem page)
         {
-            //string key = page[Constants.FileRefField].ToString();
             string key = page.PageLayoutFile();
 
             // Try get the page layout from cache
@@ -562,6 +573,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Generic methods
+        /// <summary>
+        /// Clear all the caches
+        /// </summary>
         public void ClearAllCaches()
         {
             this.AssetsTransfered.Clear();
@@ -587,8 +601,17 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Users
+        /// <summary>
+        /// Mapped users
+        /// </summary>
         public Dictionary<string, string> MappedUsers { get; }
 
+        /// <summary>
+        /// Run and cache the output value of EnsureUser for a given user
+        /// </summary>
+        /// <param name="context">ClientContext to operate on</param>
+        /// <param name="userValue">User name of user to ensure</param>
+        /// <returns>ResolvedUser instance holding information about the ensured user</returns>
         public ResolvedUser GetEnsuredUser(ClientContext context, string userValue)
         {
             if (string.IsNullOrEmpty(userValue))
@@ -645,14 +668,20 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     return resolvedUser;
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                // ToDo: logging
+                // Logging is not needed as an "empty" ensured user is handled by the callers of this method
             }
 
             return null;
         }
 
+        /// <summary>
+        /// Lookup a user from the site's user list based upon the user's upn
+        /// </summary>
+        /// <param name="context">Context of the web holding the user list</param>
+        /// <param name="userUpn">Upn of the user to fetch</param>
+        /// <returns>A UserEntity instance holding information about the user</returns>
         public UserEntity GetUserFromUserList(ClientContext context, string userUpn)
         {
             if (string.IsNullOrEmpty(userUpn))
@@ -746,15 +775,20 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                // TODO logging
+                // Logging is not needed as an "empty" ensured user is handled by the callers of this method
             }
 
             return null;
         }
 
-
+        /// <summary>
+        /// Lookup a user from the site's user list based upon the user's id
+        /// </summary>
+        /// <param name="context">Context of the web holding the user list</param>
+        /// <param name="userListId">Id of the user to fetch</param>
+        /// <returns>A UserEntity instance holding information about the user</returns>
         public UserEntity GetUserFromUserList(ClientContext context, int userListId)
         {
             string key = context.Web.GetUrl();
@@ -838,9 +872,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                // TODO logging
+                // Logging is not needed as an "empty" ensured user is handled by the callers of this method
             }
 
             return null;
@@ -848,6 +882,12 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Content types
+        /// <summary>
+        /// Get's the ID of a contenttype
+        /// </summary>
+        /// <param name="pagesLibrary">Pages library holding the content type</param>
+        /// <param name="contentTypeName">Name of the content type</param>
+        /// <returns>ID of the content type</returns>
         public string GetContentTypeId(List pagesLibrary, string contentTypeName)
         {
             string contentTypeId = null;
@@ -883,11 +923,19 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Last used transformator
+        /// <summary>
+        /// Caches the last used page transformator instance, needed to postpone log writing when transforming multiple pages
+        /// </summary>
+        /// <param name="transformator"></param>
         public void SetLastUsedTransformator(BasePageTransformator transformator)
         {
             this.lastUsedTransformator = transformator;
         }
 
+        /// <summary>
+        /// Gets the last used page transformator instance
+        /// </summary>
+        /// <returns></returns>
         public BasePageTransformator GetLastUsedTransformator()
         {
             return this.lastUsedTransformator;
@@ -895,6 +943,12 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region URL rewriting
+        /// <summary>
+        /// Returns a list of url mappings
+        /// </summary>
+        /// <param name="urlMappingFile">File with url mappings</param>
+        /// <param name="logObservers">Attached list of log observers</param>
+        /// <returns>List of url mappings</returns>
         public List<UrlMapping> GetUrlMapping(string urlMappingFile, IList<ILogObserver> logObservers = null)
         {
             if (this.urlMapping != null && this.urlMapping.Count > 0)
@@ -910,13 +964,12 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Get User Mapping
-
         /// <summary>
-        /// Gets the User Mapping, if first time file will be laoded
+        /// Gets the list of user mappings, if first time file will be laoded
         /// </summary>
-        /// <param name="userMappingFile"></param>
-        /// <param name="logObservers"></param>
-        /// <returns></returns>
+        /// <param name="userMappingFile">File with the user mappings</param>
+        /// <param name="logObservers">Attached list of log observers</param>
+        /// <returns>List of user mappings</returns>
         public List<UserMappingEntity> GetUserMapping(string userMappingFile, IList<ILogObserver> logObservers = null)
         {
             if (this.userMappings != null && this.userMappings.Count > 0)
@@ -929,7 +982,6 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             return this.userMappings;
         }
-
         #endregion
 
         #region Helper methods
@@ -968,7 +1020,6 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 default: return "Posts";
             }
         }
-
 
         private static string Sha256(string randomString)
         {

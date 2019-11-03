@@ -1,7 +1,8 @@
-﻿using System.Data;
-
-namespace SharePointPnP.Modernization.Framework.Telemetry
+﻿namespace SharePointPnP.Modernization.Framework.Telemetry
 {
+    /// <summary>
+    /// Class holding strings used in log messages
+    /// </summary>
     public static class LogStrings
     {
         // Ensure the string variables are meaningful and readable from a developer point of view.

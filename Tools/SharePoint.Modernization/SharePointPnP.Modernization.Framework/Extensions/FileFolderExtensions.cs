@@ -1,11 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Transform;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using File = Microsoft.SharePoint.Client.File;
 
 namespace SharePointPnP.Modernization.Framework.Extensions
@@ -35,8 +30,7 @@ namespace SharePointPnP.Modernization.Framework.Extensions
 
             var spVersion = BaseTransform.GetVersion(context);
 
-            Stream sourceStream = null;
-
+            Stream sourceStream;
             if (spVersion == SPVersion.SP2010)
             {
                 sourceStream = new MemoryStream();
@@ -51,7 +45,6 @@ namespace SharePointPnP.Modernization.Framework.Extensions
 
                 CopyStream(tempSourceStream, sourceStream);
                 sourceStream.Seek(0, SeekOrigin.Begin);
-
             }
             else
             {
@@ -73,6 +66,7 @@ namespace SharePointPnP.Modernization.Framework.Extensions
             return returnString;
         }
 
+        #region Helper methods
         private static void CopyStream(Stream source, Stream destination)
         {
             byte[] buffer = new byte[32768];
@@ -84,7 +78,7 @@ namespace SharePointPnP.Modernization.Framework.Extensions
                 destination.Write(buffer, 0, bytesRead);
 
             } while (bytesRead != 0);
-
         }
+        #endregion
     }
 }

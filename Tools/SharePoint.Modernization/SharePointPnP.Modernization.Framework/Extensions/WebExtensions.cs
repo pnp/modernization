@@ -9,7 +9,7 @@ using SharePointPnP.Modernization.Framework.Transform;
 namespace Microsoft.SharePoint.Client
 {
     /// <summary>
-    /// Class that deals with site (both site collection and web site) creation, status, retrieval and settings
+    /// Class holding extension methods for the Microsoft.SharePoint.Client.Web object
     /// </summary>
     public static partial class WebExtensions
     {
@@ -511,9 +511,9 @@ namespace Microsoft.SharePoint.Client
         /// <summary>
         /// Method to bypass missing property in SharePoint 2010
         /// </summary>
-        /// <param name="web"></param>
+        /// <param name="web">Web to operate on</param>
         /// <remarks>Only required on source contexts</remarks>
-        /// <returns>Url</returns>
+        /// <returns>web url</returns>
         public static string GetUrl(this Web web)
         {
             if (BaseTransform.GetVersion(web.Context) == SPVersion.SP2010)
@@ -538,8 +538,8 @@ namespace Microsoft.SharePoint.Client
         /// <summary>
         /// Get Pages Library ID for the Web
         /// </summary>
-        /// <param name="web"></param>
-        /// <returns></returns>
+        /// <param name="web">Web to operate on</param>
+        /// <returns>ID of the pages library</returns>
         public static string GetPagesLibraryId(this Web web)
         {
             if (web.PropertyBagContainsKey(Constants.WebPropertyKeyPagesListId))
@@ -557,8 +557,8 @@ namespace Microsoft.SharePoint.Client
         /// <summary>
         /// Gets site pages library from web
         /// </summary>
-        /// <param name="web"></param>
-        /// <returns></returns>
+        /// <param name="web">Web to operate on</param>
+        /// <returns>Site pages library instance</returns>
         public static List GetSitePagesLibrary(this Web web)
         {
             //TemplateFeatureId - 00bfea71-c796-4402-9f2f-0eb9a6e71b18
@@ -572,8 +572,8 @@ namespace Microsoft.SharePoint.Client
         /// <summary>
         /// Gets blog post library in an SP2010 compatible fashion
         /// </summary>
-        /// <param name="web"></param>
-        /// <returns></returns>
+        /// <param name="web">Web to operate on</param>
+        /// <returns>Blog post library</returns>
         public static List GetPostsLibrary(this Web web)
         {
             var lists = web.Lists;
@@ -586,8 +586,9 @@ namespace Microsoft.SharePoint.Client
         /// <summary>
         /// Gets list from web in an SP2010 compatible fashion
         /// </summary>
-        /// <param name="web"></param>
-        /// <returns></returns>
+        /// <param name="web">Web to operate on</param>
+        /// <param name="listName">List to lookup</param>
+        /// <returns>List instance</returns>
         public static List GetListByName(this Web web, string listName)
         {
             var lists = web.Lists;

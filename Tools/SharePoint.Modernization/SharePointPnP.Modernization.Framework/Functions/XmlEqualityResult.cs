@@ -11,6 +11,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
     {
         private const string DefaultError = "Can't find match for subtree.";
         private const string SuccessMessage = "Success";
+        private string errorMessage;
 
         /// <summary>
         /// Gets whether the match was successful
@@ -25,9 +26,6 @@ namespace SharePointPnP.Modernization.Framework.Functions
         /// </summary>
         public XObject FailObject { get; set; }
 
-
-        private string _errorMessage;
-
         /// <summary>
         /// Gets or sets a descriptive error message if the match failed.
         /// </summary>
@@ -38,12 +36,12 @@ namespace SharePointPnP.Modernization.Framework.Functions
         {
             get
             {
-                return _errorMessage ?? (Success ? SuccessMessage : DefaultError);
+                return errorMessage ?? (Success ? SuccessMessage : DefaultError);
             }
 
             set
             {
-                _errorMessage = value;
+                errorMessage = value;
             }
         }
     }

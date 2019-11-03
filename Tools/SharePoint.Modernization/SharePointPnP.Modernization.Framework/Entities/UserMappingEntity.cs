@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharePointPnP.Modernization.Framework.Entities
+﻿namespace SharePointPnP.Modernization.Framework.Entities
 {
+    /// <summary>
+    /// Class to hold a mapping between a user in the source site and a user in the target site
+    /// </summary>
     public class UserMappingEntity
     {
         /// <summary>

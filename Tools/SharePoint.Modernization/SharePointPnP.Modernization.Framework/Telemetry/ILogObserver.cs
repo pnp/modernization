@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharePointPnP.Modernization.Framework.Telemetry
+﻿namespace SharePointPnP.Modernization.Framework.Telemetry
 {
+    /// <summary>
+    /// Interface that needs to be implemented by any logger
+    /// </summary>
     public interface ILogObserver
     {
         /// <summary>

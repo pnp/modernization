@@ -1,4 +1,8 @@
-﻿using Microsoft.SharePoint.Client;
+﻿using AngleSharp.Dom;
+using AngleSharp.Parser.Html;
+using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Extensions;
+using SharePointPnP.Modernization.Framework.Publishing.Layouts;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -6,14 +10,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Serialization;
-using AngleSharp;
-using AngleSharp.Dom;
-using AngleSharp.Parser.Html;
-using File = Microsoft.SharePoint.Client.File;
-using SharePointPnP.Modernization.Framework.Publishing.Layouts;
 using System.Text.RegularExpressions;
-using SharePointPnP.Modernization.Framework.Extensions;
+using System.Xml.Serialization;
 
 namespace SharePointPnP.Modernization.Framework.Publishing
 {
@@ -36,25 +34,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             internal List<FixedWebPart> FixedWebParts { get; set; }
         }
 
-        /*
-         * Plan
-         *  Read a publishing page or read all the publishing page layouts - need to consider both options
-         *  Validate that the client context is a publishing site
-         *  Determine page layouts and the associated content type
-         *  - Using web part manager scan for web part zones and pre-populated web parts
-         *  - Detect for field controls - only the metadata behind these can be transformed without an SPFX web part
-         *      - Metadata mapping to web part - only some types will be supported
-         *  - Using HTML parser deep analysis of the file to map out detected web parts. These are fixed point in the publishing layout.
-         *      - This same method could be used to parse HTML fields for inline web parts
-         *  - Generate a layout mapping based on analysis
-         *  - Validate the Xml prior to output
-         *  - Split into molecules of operation for unit testing
-         *  - Detect grid system, table or fabric for layout options, needs to be extensible - consider...
-         *  
-         */
-
         private ClientContext _siteCollContext;
-
         private PublishingPageTransformation _mapping;
         private string _defaultFileName = "PageLayoutMapping.xml";
         private HtmlParser parser;
@@ -212,7 +192,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 return layoutMapping;
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 LogError(LogStrings.Error_CannotProcessPageLayoutAnalyse, LogStrings.Heading_PageLayoutAnalyser, ex);
             }
