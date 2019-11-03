@@ -21,6 +21,7 @@
 - Publishing pages can be transformed to a target page that uses a vertical column. Add IncludeVerticalColumn="true" to the PageLayout element in your page layout mapping file
 - Blog page transformation now also works for SharePoint 2010 blog pages
 - Use the TargetPageFolder setting to specify the target folder in which the modern page will be created #260
+- Url rewriting now is applied to anchor tags of transformed images. If the original anchor and image are the same then they're kept the same after transformation
 
 ### Changed
 

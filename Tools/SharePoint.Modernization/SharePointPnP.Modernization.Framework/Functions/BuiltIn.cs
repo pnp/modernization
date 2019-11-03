@@ -681,6 +681,42 @@ namespace SharePointPnP.Modernization.Framework.Functions
                        
             return serverRelativeAssetFileName;
         }
+
+        /// <summary>
+        /// Rewrite the image anchor tag url
+        /// </summary>
+        /// <param name="anchor">Original anchor tag fetched from the source image</param>
+        /// <param name="originalImageUrl">Original image url</param>
+        /// <param name="newImageUrl">New image url</param>
+        /// <returns>The url after url rewrite. If the anchor and original image url were the same then the anchor will be set to the new image url</returns>
+        [FunctionDocumentation(Description = "Rewrite the image anchor tag url.",
+                               Example = "ImageAnchorUrlRewrite({Anchor},{ImageUrl},{ServerRelativeFileName})")]
+        [InputDocumentation(Name = "{Anchor}", Description = "Original anchor tag fetched from the source image")]
+        [InputDocumentation(Name = "{ImageUrl}", Description = "Original image url")]
+        [InputDocumentation(Name = "{ServerRelativeFileName}", Description = "New image url")]
+        [OutputDocumentation(Name = "{Anchor}", Description = "The url after url rewrite. If the anchor and original image url were the same then the anchor will be set to the new image url")]
+        public string ImageAnchorUrlRewrite(string anchor, string originalImageUrl, string newImageUrl)
+        {
+            string anchorRewritten;
+
+            if (string.IsNullOrEmpty(anchor))
+            {
+                return anchor;
+            }
+
+            // if the original image url and the anchor are the same then keep them the same
+            if (anchor.Equals(originalImageUrl, StringComparison.InvariantCultureIgnoreCase))
+            {
+                // Image web part does know how to correctly encode a url
+                return newImageUrl;
+            }
+            else
+            {
+                anchorRewritten = this.urlTransformator.Transform(anchor);
+            }
+
+            return anchorRewritten;
+        }
         #endregion
 
         #region First party web parts hosted on classic pages
