@@ -235,6 +235,8 @@
         public const string AssetTransferFailedFallback = "Asset was not transfered. Asset: ";
 
         public const string Error_AssetTransferCheckingIfAssetExists = "An error occurred checking if a referenced asset exists";
+        public const string AssetTransferUploading = "Uploading {0}";
+        public const string AssetTransferUploadComplete = "Upload {0} complete";
 
         #endregion
 
