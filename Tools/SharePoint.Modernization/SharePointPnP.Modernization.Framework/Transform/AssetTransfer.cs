@@ -272,6 +272,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     string fileName = sourceAssetFile.EnsureProperty(p => p.Name);
 
+                    LogInfo(string.Format(LogStrings.AssetTransferUploading, fileName), LogStrings.Heading_AssetTransfer);
+
                     // New File object.
                     Microsoft.SharePoint.Client.File uploadFile;
 
@@ -299,6 +301,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         _targetClientContext.Load(uploadFile);
                         _targetClientContext.ExecuteQueryRetry();
 
+                        LogInfo(string.Format(LogStrings.AssetTransferUploadComplete, fileName), LogStrings.Heading_AssetTransfer);
                         // Return the file object for the uploaded file.
                         return uploadFile.EnsureProperty(o => o.ServerRelativeUrl);
 
@@ -372,6 +375,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                             uploadFile = uploadFile.FinishUpload(uploadId, fileoffset, s);
                                             _targetClientContext.ExecuteQueryRetry();
 
+                                            LogInfo(string.Format(LogStrings.AssetTransferUploadComplete, fileName), LogStrings.Heading_AssetTransfer);
                                             // Return the file object for the uploaded file.
                                             return fileUrl;
                                         }
