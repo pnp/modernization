@@ -108,7 +108,7 @@ namespace SharePointPnP.Modernization.Framework.Utilities
                             if (!string.IsNullOrEmpty(sourceUser) && !string.IsNullOrEmpty(targetUser))
                             {
                                 userMappings.Add(new UserMappingEntity() { SourceUser = sourceUser, TargetUser = targetUser });
-                                LogDebug(string.Format(LogStrings.UserMappingLoaded, sourceUser, targetUser), LogStrings.Heading_UserMapping);
+                                //LogDebug(string.Format(LogStrings.UserMappingLoaded, sourceUser, targetUser), LogStrings.Heading_UserMapping);
                             }
                         }
                     }
