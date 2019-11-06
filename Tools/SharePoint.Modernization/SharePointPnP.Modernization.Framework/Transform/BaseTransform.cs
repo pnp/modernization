@@ -244,6 +244,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             //      http://www.toddklindt.com/sp2010builds
                             //      http://www.toddklindt.com/sp2013builds
                             //      http://www.toddklindt.com/sp2016builds
+                            //      http://www.toddklindt.com/sp2019builds
 
 
                             string version = reader.ReadToEnd().Split('|')[2].Trim();
