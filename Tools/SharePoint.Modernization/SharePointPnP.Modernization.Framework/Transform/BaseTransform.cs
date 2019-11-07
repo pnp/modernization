@@ -278,7 +278,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016Legacy);
                                         return SPVersion.SP2016Legacy;
                                     }
-                                    else if (v.MinorRevision > 10300 && v.MinorRevision < 19000)
+                                    // Set to 12000 because some SPO reports as 12012 and SP2019 build numbers are increasing very slowly
+                                    else if (v.MinorRevision > 10300 && v.MinorRevision < 12000)
                                     {
                                         CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2019);
                                         return SPVersion.SP2019;
