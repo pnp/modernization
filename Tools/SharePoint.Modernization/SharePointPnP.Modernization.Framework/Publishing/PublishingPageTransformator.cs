@@ -187,6 +187,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     LogWarning(LogStrings.Warning_PostingAPageAsNewsRequiresPagePublishing, LogStrings.Heading_Summary);
                 }
 
+                // Mark this web as publishing web
+                CacheManager.Instance.SetPublishingWeb(this.sourceClientContext.Web.GetUrl());
+
                 // Store the information of the source page we do want to retain
                 if (publishingPageTransformationInformation.KeepPageCreationModificationInformation)
                 {

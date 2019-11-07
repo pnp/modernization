@@ -292,7 +292,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 // Get the user information from the source site
                 var author = Cache.CacheManager.Instance.GetUserFromUserList(this.sourceClientContext, userIdInt);
 
-                if (author != null)
+                // If the provided ID is a group then no point in continuing...
+                if (author != null && !author.IsGroup)
                 {
                     // Will this user be mapped to another user?
                     var newUpn = this.userTransformator.RemapPrincipal(author.LoginName);

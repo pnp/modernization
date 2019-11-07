@@ -63,15 +63,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             this.sourceSiteUrl = sourceContext.Site.Url;
             this.sourceWebUrl = sourceContext.Web.GetUrl();
 
-            //TODO: Check Is this always pages and sitePages part of the URL NOT title?
-            if (sourceContext.Web.IsPublishingWeb()) {
+            if (CacheManager.Instance.IsPublishingWeb(this.sourceWebUrl))
+            {
                 this.pagesLibrary = CacheManager.Instance.GetPublishingPagesLibraryName(this.sourceContext);
             }
             else
             {
                 this.pagesLibrary = "sitepages";
-            }
-            
+            }            
 
             this.targetWebUrl = targetContext.Web.GetUrl();
             // Load the URL mapping file

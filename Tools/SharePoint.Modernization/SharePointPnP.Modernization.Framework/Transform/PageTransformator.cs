@@ -259,6 +259,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             LogError(LogStrings.Error_SameSiteTransferNoAllowedForBlogPages, LogStrings.Heading_SharePointConnection);
                             throw new ArgumentNullException(LogStrings.Error_SameSiteTransferNoAllowedForBlogPages);
                         }
+
+                        // Mark this web as blog web
+                        CacheManager.Instance.SetBlogWeb(this.sourceClientContext.Web.GetUrl());
+
                     }
                     else
                     {
@@ -1160,18 +1164,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (author != null)
                     {
-                        // Don't serialize null values
-                        var jsonSerializerSettings = new JsonSerializerSettings()
+                        if (!author.IsGroup)
                         {
-                            MissingMemberHandling = MissingMemberHandling.Ignore,
-                            NullValueHandling = NullValueHandling.Ignore
-                        };
+                            // Don't serialize null values
+                            var jsonSerializerSettings = new JsonSerializerSettings()
+                            {
+                                MissingMemberHandling = MissingMemberHandling.Ignore,
+                                NullValueHandling = NullValueHandling.Ignore
+                            };
 
-                        var json = JsonConvert.SerializeObject(author, jsonSerializerSettings);
+                            var json = JsonConvert.SerializeObject(author, jsonSerializerSettings);
 
-                        if (!string.IsNullOrEmpty(json))
-                        {
-                            targetClientSidePage.PageHeader.Authors = json;
+                            if (!string.IsNullOrEmpty(json))
+                            {
+                                targetClientSidePage.PageHeader.Authors = json;
+                            }
                         }
                     }
                     else

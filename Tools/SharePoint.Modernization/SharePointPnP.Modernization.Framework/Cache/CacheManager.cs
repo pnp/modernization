@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Publishing;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
@@ -29,6 +30,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, List<FieldData>> fieldsToCopy;
         private ConcurrentDictionary<uint, string> publishingPagesLibraryNames;
         private ConcurrentDictionary<uint, string> blogListNames;
+        private ConcurrentDictionary<string, string> webType;
         private ConcurrentDictionary<string, Dictionary<uint, string>> resourceStrings;
         private ConcurrentDictionary<string, PageLayout> generatedPageLayoutMappings;
         private ConcurrentDictionary<string, Dictionary<int, UserEntity>> userJsonStrings;
@@ -39,6 +41,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private BasePageTransformator lastUsedTransformator;
         private List<UrlMapping> urlMapping;
         private List<UserMappingEntity> userMappings;
+
+        private static readonly string Publishing = "publishing";
+        private static readonly string Blog = "blog";
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -55,13 +60,14 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private CacheManager()
         {
             // place for instance initialization code
-            clientSideComponents = new ConcurrentDictionary<string, List<ClientSideComponent>>(10, 10);
-            siteToComponentMapping = new ConcurrentDictionary<Guid, string>(10, 100);
+            clientSideComponents = new ConcurrentDictionary<string, List<ClientSideComponent>>();
+            siteToComponentMapping = new ConcurrentDictionary<Guid, string>();
             baseTemplate = null;
-            fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>(10, 10);
+            fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>();
             AssetsTransfered = new List<AssetTransferredEntity>();
-            publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>(10, 10);
-            blogListNames = new ConcurrentDictionary<uint, string>(10, 10);
+            publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>();
+            blogListNames = new ConcurrentDictionary<uint, string>();
+            webType = new ConcurrentDictionary<string, string>();
             resourceStrings = new ConcurrentDictionary<string, Dictionary<uint, string>>();
             generatedPageLayoutMappings = new ConcurrentDictionary<string, PageLayout>();
             userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
@@ -326,6 +332,74 @@ namespace SharePointPnP.Modernization.Framework.Cache
             this.publishingContentTypeFields.Clear();
         }
 
+        #endregion
+
+        #region Web type handling
+        /// <summary>
+        /// Marks this web as a publishing web
+        /// </summary>
+        /// <param name="webUrl">Url of the web</param>
+        public void SetPublishingWeb(string webUrl)
+        {
+            if (!this.webType.ContainsKey(webUrl))
+            {
+                this.webType.TryAdd(webUrl, CacheManager.Publishing);
+            }
+        }
+
+        /// <summary>
+        /// Marks this web as a blog web
+        /// </summary>
+        /// <param name="webUrl">Url of the web</param>
+        public void SetBlogWeb(string webUrl)
+        {
+            if (!this.webType.ContainsKey(webUrl))
+            {
+                this.webType.TryAdd(webUrl, CacheManager.Blog);
+            }
+        }
+
+        /// <summary>
+        /// Checks if this is publishing web
+        /// </summary>
+        /// <param name="webUrl">Web url to check</param>
+        /// <returns>True if publishing, false otherwise</returns>
+        public bool IsPublishingWeb(string webUrl)
+        {
+            if (this.webType.ContainsKey(webUrl))
+            {
+                if (this.webType.TryGetValue(webUrl, out string type))
+                {
+                    if (type.Equals(CacheManager.Publishing))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if this is blog web
+        /// </summary>
+        /// <param name="webUrl">Web url to check</param>
+        /// <returns>True if blog, false otherwise</returns>
+        public bool IsBlogWeb(string webUrl)
+        {
+            if (this.webType.ContainsKey(webUrl))
+            {
+                if (this.webType.TryGetValue(webUrl, out string type))
+                {
+                    if (type.Equals(CacheManager.Blog))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
         #endregion
 
         #region Publishing Pages Library
@@ -733,17 +807,21 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     if (loadedUser != null)
                     {
                         // Does not work for groups
-                        if (loadedUser["UserName"] == null)
+                        if (loadedUser["Name"] == null)
                         {
                             return null;
                         }
 
+                        bool isGroup = loadedUser["Name"].ToString().StartsWith("c:0t.c|tenant|");
+                        string userUpnValue = loadedUser["Name"].ToString().GetUserName();
+
                         author = new UserEntity()
                         {
-                            Upn = loadedUser["UserName"].ToString(),
+                            Upn = userUpnValue,
                             Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
                             Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
                             LoginName = loadedUser["Name"] != null ? loadedUser["Name"].ToString() : "",
+                            IsGroup = isGroup || IsGroup(userUpnValue),
                         };
 
                         author.Id = $"i:0#.f|membership|{author.Upn}";
@@ -829,18 +907,21 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     var loadedUser = loadedUsers.FirstOrDefault();
                     if (loadedUser != null)
                     {
-                        // Does not work for groups
-                        if (loadedUser["UserName"] == null)
+                        if (loadedUser["Name"] == null)
                         {
                             return null;
                         }
 
+                        bool isGroup = loadedUser["Name"].ToString().StartsWith("c:0t.c|tenant|");
+                        string userUpnValue = loadedUser["Name"].ToString().GetUserName();
+
                         author = new UserEntity()
                         {
-                            Upn = loadedUser["UserName"].ToString(),
+                            Upn = userUpnValue,
                             Name = loadedUser["Title"] != null ? loadedUser["Title"].ToString() : "",
                             Role = loadedUser["JobTitle"] != null ? loadedUser["JobTitle"].ToString() : "",
                             LoginName = loadedUser["Name"] != null ? loadedUser["Name"].ToString() : "",
+                            IsGroup = isGroup || IsGroup(userUpnValue),
                         };
 
                         author.Id = $"i:0#.f|membership|{author.Upn}";
@@ -985,6 +1066,28 @@ namespace SharePointPnP.Modernization.Framework.Cache
         #endregion
 
         #region Helper methods
+
+        private static bool IsGroup(string loginName)
+        {
+            // Possible input
+            // c:0t.c|tenant|b0f984d9-e9d5-432a-bec9-896f910254ba (group in SPO)
+            // S-5-1-76-1812374880-3438888550-261701130-6117 (group in SPO on-premises)
+
+            if (loginName.StartsWith("c:0t.c|tenant|") || IsSID(loginName))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static bool IsSID(string loginName)
+        {
+            return Regex.IsMatch(loginName.ToUpper(), @"^S-\d-\d+-(\d+-){1,14}\d+$");
+        }
+
         private static string PostsTranslation(uint lcid)
         {
             // See https://capacreative.co.uk/resources/reference-sharepoint-online-languages-ids/ for list of language id's

@@ -165,24 +165,28 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         {
                             result = secondCheck.First().TargetUser;
 
+                            // Ensure user in the target site collection if not yet done
+                            var validatedUser = EnsureValidUserExists(result);
+                            if (!string.IsNullOrEmpty(validatedUser))
+                            {
+                                result = validatedUser;
+                            }
+
                             // Log Result
                             if (secondCheck.Count() > 1)
                             {
                                 // Log Warning, only first user replaced
-                                LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result), 
-                                    LogStrings.Heading_UserTransform);
+                                LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result), LogStrings.Heading_UserTransform);
                             }
                             else
                             {
-                                LogInfo(string.Format(LogStrings.UserTransformSuccess, tokenSplit[1], result), 
-                                    LogStrings.Heading_UserTransform);
+                                LogInfo(string.Format(LogStrings.UserTransformSuccess, tokenSplit[1], result), LogStrings.Heading_UserTransform);
                             }   
                         }
                         else
                         {
                             //Not Found Logging, let method pass-through with original value
-                            LogInfo(string.Format(LogStrings.UserTransformMappingNotFound, tokenSplit[1]),
-                                LogStrings.Heading_UserTransform);
+                            LogInfo(string.Format(LogStrings.UserTransformMappingNotFound, tokenSplit[1]), LogStrings.Heading_UserTransform);
                         }
                     }
                 }
@@ -191,16 +195,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     //Found Match
                     result = firstCheck.First().TargetUser;
 
+                    // Ensure user in the target site collection if not yet done
+                    var validatedUser = EnsureValidUserExists(result);
+                    if (!string.IsNullOrEmpty(validatedUser))
+                    {
+                        result = validatedUser;
+                    }
+
                     if (firstCheck.Count() > 1)
                     {
                         // Log Warning, only first user replaced
-                        LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result),
-                            LogStrings.Heading_UserTransform);
+                        LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result), LogStrings.Heading_UserTransform);
                     }
                     else
                     {
-                        LogInfo(string.Format(LogStrings.UserTransformSuccess, principalInput, result),
-                            LogStrings.Heading_UserTransform);
+                        LogInfo(string.Format(LogStrings.UserTransformSuccess, principalInput, result), LogStrings.Heading_UserTransform);
                     }
                 }
 
@@ -324,26 +333,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             return false;
         }
-
-        /**
-        /// <summary>
-        /// Gets a default UPN in the event that destination does not find user
-        /// </summary>
-        /// <returns></returns>
-        internal string DefaultUPN()
-        {
-            // The current transforming user is the default user for the target
-            using (var clonedTargetContext = _targetContext.Clone(_targetContext.Web.GetUrl()))
-            {
-                var user = clonedTargetContext.Web.CurrentUser;
-                clonedTargetContext.Load(user);
-                clonedTargetContext.ExecuteQueryRetry();
-                
-                // TODO: Consider caching
-                return StripUserPrefixTokenAndDomain(user.LoginName);
-            }
-        }
-        */
 
         /// <summary>
         /// Ensures the current user exists on the target site

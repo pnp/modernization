@@ -118,6 +118,27 @@ namespace SharePointPnP.Modernization.Framework.Extensions
         }
 
         /// <summary>
+        /// Gets the user name from a provided login name
+        /// </summary>
+        /// <param name="loginName">Login name</param>
+        /// <returns>User name</returns>
+        public static string GetUserName(this string loginName)
+        {
+            // Possible inputs
+            // joe@contoso.com
+            // i:0#.w|contoso\joe
+            // i:0#.f|membership|joe@contoso.com
+
+            if (!loginName.Contains("|"))
+            {
+                return loginName;
+            }
+
+            var parts = loginName.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+            return parts[parts.Length - 1];
+        }
+
+        /// <summary>
         /// Gets classname from type
         /// </summary>
         /// <param name="typeName"></param>

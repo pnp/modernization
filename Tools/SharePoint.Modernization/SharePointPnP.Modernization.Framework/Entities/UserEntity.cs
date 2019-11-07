@@ -36,5 +36,11 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// </summary>
         [JsonIgnore]
         public string LoginName { get; set; }
+
+        /// <summary>
+        /// Is this a group?
+        /// </summary>
+        [JsonIgnore]
+        public bool IsGroup { get; set; }
     }
 }
