@@ -1137,7 +1137,7 @@
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_SkipDocumentTemplate">
             <summary>
-              Looks up a localized string similar to Skipping adding DocumentTemplate to ContentType &apos;{0}&apos; because we can&apos;t upload them on &apos;noscript&apos; sites..
+              Looks up a localized string similar to Skipping uploading template as set in DocumentTemplate for ContentType &apos;{0}&apos; because we can&apos;t upload them on &apos;noscript&apos; sites..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_Updating_existing_Content_Type___0_____1_">
@@ -1768,6 +1768,11 @@
         <member name="P:OfficeDevPnP.Core.CoreResources.Services_TokenRefreshed">
             <summary>
               Looks up a localized string similar to Token for cachekey {0} and hostweburl {1} has been refreshed..
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.SiteCollection_WaitForIsProvisioningComplete">
+            <summary>
+              Looks up a localized string similar to Server side provisioning of this web did not finish after waiting for {0} milliseconds..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.SiteToTemplateConversion_ApplyRemoteTemplate_OverwriteSystemPropertyBagValues_is_to_true">
@@ -6733,6 +6738,33 @@
             <param name="match">The matching predicate to use for removing target item</param>
             <returns>Returns count of the matches after removing</returns>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.ApplyConfiguration.Tenant">
+            <summary>
+            Defines Tenant Extraction Settings
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.Tenant.ExtractTenantConfiguration.Sequence">
+            <summary>
+            If defined will extract site collections as defined in the SiteUrls array
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.Tenant.ExtractTenantConfiguration.Teams">
+            <summary>
+            If defined will extract teams as defined
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.ExtractConfiguration.Tenant">
+            <summary>
+            Defines Tenant Extraction Settings
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.ExtractConfiguration.ToCreationInformation(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Converts the Configuration to a ProvisioningTemplateCreationInformation object for backwards compatibility
+            </summary>
+            <param name="web"></param>
+            <returns></returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.Model.Drive.DriveRootFolder">
             <summary>
             Defines a DriveFolder object
@@ -10840,6 +10872,11 @@
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.SiteSettings.SocialBarOnSitePagesDisabled">
             <summary>
             Defines whether social bar is disabled on Site Pages in this site collection
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.SiteSettings.SearchBoxInNavBar">
+            <summary>
+            Define if the suitebar search box should show or not 
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.SiteSettings.#ctor">
@@ -15125,6 +15162,11 @@
             Defines the SearchScope for the site
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.WebSettings.SearchBoxInNavBar">
+            <summary>
+            Define if the suitebar search box should show or not 
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.WebSettings.#ctor">
             <summary>
             Default Constructor
@@ -15624,6 +15666,51 @@
             <param name="teamId">The ID of the target Team</param>
             <param name="accessToken">The OAuth 2.0 Access Token</param>
             <returns>Whether the Security settings have been provisioned or not</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetAllowToAddGuestsSetting(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.Boolean,System.String)">
+            <summary>
+            Checks if the AllowToAddGuest setting already exists for the team connected unified group, and based on the outcome either creates or updates the setting.
+            </summary>
+            <param name="scope">The PnP Provisioning Scope</param>
+            <param name="teamId">The ID of the target Team</param>
+            <param name="allowToAddGuests">Boolean value indicating whether external sharing should be allowed or not.</param>
+            <param name="accessToken">The OAuth 2.0 Access Token</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.GetAllowToAddGuestsSetting(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.String)">
+            <summary>
+            Gets the AllowToAddGuests setting JSON (name and value) of the team connected unified group.
+            </summary>
+            <param name="scope">The PnP Provisioning Scope</param>
+            <param name="teamId">The ID of the target Team</param>
+            <param name="accessToken">The OAuth 2.0 Access Token</param>
+            <returns>JSON object with name and value properties</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.GetGroupUnifiedGuestSettings(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.String)">
+            <summary>
+            Gets the Group.Unified.Guest settings for the unified group that is connected to the team.
+            </summary>
+            <param name="scope">The PnP Provisioning Scope</param>
+            <param name="teamId">The ID of the target Team</param>
+            <param name="accessToken">The OAuth 2.0 Access Token</param>
+            <returns>All guest related settings for the team connected unified group (not just external sharing)</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.CreateAllowToAddGuestsSetting(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.Boolean,System.String)">
+            <summary>
+            Creates the AllowToAddGuests setting for the team connected unified group, and sets its value.
+            </summary>
+            <param name="scope">The PnP Provisioning Scope</param>
+            <param name="teamId">The ID of the target Team</param>
+            <param name="allowToAddGuests">Boolean value indicating whether external sharing should be allowed or not.</param>
+            <param name="accessToken">The OAuth 2.0 Access Token</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.UpdateAllowToAddGuestsSetting(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.Boolean,System.String)">
+            <summary>
+            Updates an existing AllowToAddGuests setting for the team connected unified group.
+            </summary>
+            <param name="scope">The PnP Provisioning Scope</param>
+            <param name="teamId">The ID of the target Team</param>
+            <param name="allowToAddGuests">Boolean value indicating whether external sharing should be allowed or not.</param>
+            <param name="accessToken">The OAuth 2.0 Access Token</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetTeamChannels(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.Team,System.String,System.String)">
             <summary>
@@ -16412,6 +16499,13 @@
             <param name="web">The current Web</param>
             <param name="name">The title of the list in the current user's language</param>
             <returns>The title of the list in the main language of the site</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.ITemplateFormatterWithValidation.GetValidationResults(System.IO.Stream)">
+            <summary>
+            Method to validate the content of a formatted template instance
+            </summary>
+            <param name="template">The formatted template instance as a Stream</param>
+            <returns>A validation result of the validation</returns>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.V201909.Provisioning">
             <remarks/>
@@ -41600,6 +41694,13 @@
             <param name="template">The source Stream (the XML)</param>
             <returns>Whether the XML template is valid or not</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.XmlPnPSchemaBaseSerializer`1.GetValidationResults(System.IO.Stream)">
+            <summary>
+            Checks if the provided source Stream (the XML) is valid against the current XSD schema
+            </summary>
+            <param name="template">The source Stream (the XML)</param>
+            <returns>Whether the XML template is valid or not</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.XmlPnPSchemaBaseSerializer`1.ProcessInputStream(System.IO.Stream,System.String,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate)">
             <summary>
             Converts a Stream of bytes (the XML) into a XML-based object created using XmlSerializer
@@ -44430,6 +44531,11 @@
         <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.SingleWebPartAppPage">
             <summary>
             Page is an app page, hosting a single SPFX web part full screen
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.HeaderlessSearchResults">
+            <summary>
+            Page is a custom search result page
             </summary>
         </member>
         <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.RepostPage">
@@ -48246,52 +48352,57 @@
             This class can be used to create modern site collections
             </summary>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32,System.Boolean)">
             <summary>
             Creates a new Communication Site Collection and waits for it to be created
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation,System.Int32,System.Boolean)">
             <summary>
             Creates a new Team Site Collection with no group and waits for it to be created
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Boolean)">
             <summary>
             Creates a new Team Site Collection and waits for it to be created
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32,System.Boolean)">
             <summary>
             Creates a new Communication Site Collection
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>        
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamNoGroupSiteCollectionCreationInformation,System.Int32,System.Boolean)">
             <summary>
             Creates a new Team Site Collection with no group
             </summary>
             <param name="clientContext">ClientContext object of a regular site</param>
             <param name="siteCollectionCreationInformation">information about the site to create</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32,System.Boolean)">
             <summary>
             Creates a new Modern Team Site Collection (so with an Office 365 group connected)
             </summary>
@@ -48300,9 +48411,10 @@
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
             <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32,System.Int32,System.Int32,System.Boolean)">
             <summary>
             Create a modern site without a group (so communication site and modern team sites without group STS#3)
             </summary>
@@ -48312,6 +48424,7 @@
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
             <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GroupifyAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionGroupifyInformation)">
@@ -51031,7 +51144,7 @@
             <param name="contentType">Content type to add to the list</param>
             <param name="defaultContent">If set true, content type is updated to be default content type for the list</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -51039,8 +51152,9 @@
             <param name="fieldId">String representation of the id of the field (=Guid)</param>
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
+            <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.Guid,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.Guid,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -51048,8 +51162,9 @@
             <param name="fieldId">The Id of the field</param>
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
+            <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldByName(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldByName(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -51057,8 +51172,9 @@
             <param name="fieldName">The title or internal name of the field</param>
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
+            <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeById(Microsoft.SharePoint.Client.Web,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeById(Microsoft.SharePoint.Client.Web,System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -51067,8 +51183,9 @@
             <param name="fieldId">String representation of the field ID (=guid)</param>
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
+            <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeByName(Microsoft.SharePoint.Client.Web,System.String,System.Guid,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeByName(Microsoft.SharePoint.Client.Web,System.String,System.Guid,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -51077,8 +51194,9 @@
             <param name="fieldID">Guid representation of the field ID</param>
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
+            <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentType(Microsoft.SharePoint.Client.Web,Microsoft.SharePoint.Client.ContentType,Microsoft.SharePoint.Client.Field,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentType(Microsoft.SharePoint.Client.Web,Microsoft.SharePoint.Client.ContentType,Microsoft.SharePoint.Client.Field,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -51087,6 +51205,7 @@
             <param name="field">Field to associate to the content type</param>
             <param name="required">Optionally make this a required field</param>
             <param name="hidden">Optionally make this a hidden field</param>
+            <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
         </member>
         <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.BestMatchContentTypeId(Microsoft.SharePoint.Client.List,System.String)">
             <summary>
@@ -55039,40 +55158,38 @@
             Class for tenant extension methods
             </summary>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.DeployApplicationPackageToAppCatalog(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.ApplyTenantTemplate(Microsoft.Online.SharePoint.TenantAdministration.Tenant,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningHierarchy,System.String,OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.ApplyConfiguration)">
             <summary>
-            Adds a package to the tenants app catalog and by default deploys it if the package is a client side package (sppkg)
+            Applies a template to a tenant
             </summary>
-            <param name="tenant">Tenant to operate against</param>
-            <param name="spPkgName">Name of the package to upload (e.g. demo.sppkg) </param>
-            <param name="spPkgPath">Path on the filesystem where this package is stored</param>
-            <param name="autoDeploy">Automatically deploy the package, only applies to client side packages (sppkg)</param>
-            <param name="overwrite">Overwrite the package if it was already listed in the app catalog</param>
-            <returns>The ListItem of the added package row</returns>
+            <param name="tenant"></param>
+            <param name="tenantTemplate"></param>
+            <param name="sequenceId"></param>
+            <param name="configuration"></param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.DeployApplicationPackageToAppCatalog(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.GetTenantTemplate(Microsoft.Online.SharePoint.TenantAdministration.Tenant,OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.ExtractConfiguration)">
             <summary>
-            Adds a package to the tenants app catalog and by default deploys it if the package is a client side package (sppkg)
+            Extracts a template from a tenant
             </summary>
-            <param name="tenant">Tenant to operate against</param>
-            <param name="spPkgName">Name of the package to upload (e.g. demo.sppkg) </param>
-            <param name="spPkgPath">Path on the filesystem where this package is stored</param>
-            <param name="autoDeploy">Automatically deploy the package, only applies to client side packages (sppkg)</param>
-            <param name="skipFeatureDeployment">Skip the feature deployment step, allows for a one-time central deployment of your solution</param>
-            <param name="overwrite">Overwrite the package if it was already listed in the app catalog</param>
-            <returns>The ListItem of the added package row</returns>
+            <param name="tenant"></param>
+            <param name="configuration"></param>
+            <returns></returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.DeployApplicationPackageToAppCatalog(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.GetHubSiteChildUrls(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
             <summary>
-            Adds a package to the tenants app catalog and by default deploys it if the package is a client side package (sppkg)
+            Returns the urls of sites connected to the hubsite specified
             </summary>
-            <param name="tenant">Tenant to operate against</param>
-            <param name="appCatalogSiteUrl">Full URL to the tenant admin site (e.g. https://contoso.sharepoint.com/sites/apps) </param>
-            <param name="spPkgName">Name of the package to upload (e.g. demo.sppkg) </param>
-            <param name="spPkgPath">Path on the filesystem where this package is stored</param>
-            <param name="autoDeploy">Automatically deploy the package, only applies to client side packages (sppkg)</param>
-            <param name="overwrite">Overwrite the package if it was already listed in the app catalog</param>
-            <returns>The ListItem of the added package row</returns>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="hubSiteUrl">The fully qualified url of the hubsite</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.GetHubSiteChildUrls(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.Guid)">
+            <summary>
+            Returns the urls of sites connected to the hubsite specified
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="hubsiteId">The id of the hubsite</param>
+            <returns></returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.CreateSiteCollection(Microsoft.Online.SharePoint.TenantAdministration.Tenant,OfficeDevPnP.Core.Entities.SiteEntity,System.Boolean,System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
             <summary>
