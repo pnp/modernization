@@ -131,20 +131,35 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 if (section.Type == CanvasSectionTemplate.TwoColumn ||
                     section.Type == CanvasSectionTemplate.TwoColumnLeft ||
-                    section.Type == CanvasSectionTemplate.TwoColumnRight)
+                    section.Type == CanvasSectionTemplate.TwoColumnRight ||
+                    section.Type == CanvasSectionTemplate.TwoColumnVerticalSection ||
+                    section.Type == CanvasSectionTemplate.TwoColumnLeftVerticalSection ||
+                    section.Type == CanvasSectionTemplate.TwoColumnRightVerticalSection)
                 {
-                    var emptyColumn = section.Columns.Where(p => p.Controls.Count == 0).FirstOrDefault();
+                    var emptyColumn = section.Columns.Where(p => p.Controls.Count == 0 && !p.IsVerticalSectionColumn).FirstOrDefault();
                     if (emptyColumn != null)
                     {
                         // drop the empty column and change to single column section
                         section.Columns.Remove(emptyColumn);
-                        section.Type = CanvasSectionTemplate.OneColumn;
+
+                        if (section.Type == CanvasSectionTemplate.TwoColumnVerticalSection ||
+                            section.Type == CanvasSectionTemplate.TwoColumnLeftVerticalSection ||
+                            section.Type == CanvasSectionTemplate.TwoColumnRightVerticalSection)
+                        {
+                            section.Type = CanvasSectionTemplate.OneColumnVerticalSection;
+                        }
+                        else
+                        {
+                            section.Type = CanvasSectionTemplate.OneColumn;
+                        }
+
                         section.Columns.First().ResetColumn(0, 12);
                     }
                 }
-                else if (section.Type == CanvasSectionTemplate.ThreeColumn)
+                else if (section.Type == CanvasSectionTemplate.ThreeColumn ||
+                         section.Type == CanvasSectionTemplate.ThreeColumnVerticalSection)
                 {
-                    var emptyColumns = section.Columns.Where(p => p.Controls.Count == 0);
+                    var emptyColumns = section.Columns.Where(p => p.Controls.Count == 0 && !p.IsVerticalSectionColumn);
                     if (emptyColumns != null)
                     {
                         if (emptyColumns.Any() && emptyColumns.Count() == 2)
@@ -154,23 +169,41 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             {
                                 section.Columns.Remove(emptyColumn);
                             }
-                            section.Type = CanvasSectionTemplate.OneColumn;
+
+                            if (section.Type == CanvasSectionTemplate.ThreeColumnVerticalSection)
+                            {
+                                section.Type = CanvasSectionTemplate.OneColumnVerticalSection;
+                            }
+                            else
+                            {
+                                section.Type = CanvasSectionTemplate.OneColumn;
+                            }
+
                             section.Columns.First().ResetColumn(0, 12);
                         }
                         else if (emptyColumns.Any() && emptyColumns.Count() == 1)
                         {
                             // Remove the empty column and change to two column section
                             section.Columns.Remove(emptyColumns.First());
-                            section.Type = CanvasSectionTemplate.TwoColumn;
+
+                            if (section.Type == CanvasSectionTemplate.ThreeColumnVerticalSection)
+                            {
+                                section.Type = CanvasSectionTemplate.TwoColumnVerticalSection;
+                            }
+                            else
+                            {
+                                section.Type = CanvasSectionTemplate.TwoColumn;
+                            }
+
                             int i = 0;
-                            foreach (var column in section.Columns)
+                            foreach (var column in section.Columns.Where(p => !p.IsVerticalSectionColumn))
                             {
                                 column.ResetColumn(i, 6);
                                 i++;
                             }
                         }
                     }
-                }
+                }                
             }
         }
 
