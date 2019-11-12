@@ -230,7 +230,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 var alt = (element as IElement).Attributes.Where(p => p.Name.Equals("alt", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                                 if (alt != null)
                                 {
-                                    props.Add("AlternativeText", alt.Value.ToString());
+                                    props.Add("AlternativeText", alt.Value.CleanForJSON());
                                 }
 
                                 if (!inUnSplitableElement || addTableListImageAsImageWebPart)

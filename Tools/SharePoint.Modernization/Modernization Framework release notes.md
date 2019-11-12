@@ -19,6 +19,7 @@
 
 ### Changed
 
+- Fix: Double quotes used in the "alt" property of an img do break the web part properties later on #365
 
 ## [November release - version 1.0.1911.0]
 
