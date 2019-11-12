@@ -94,8 +94,8 @@
         public const string Error_AnalyserErrorOccurredExtractHtmlBlocks = "An error occurred extracting html blocks from page layout html";
         public const string Error_AnalyserCleaningExtractedWebPartFields = "An error occurred cleaning extracted web part fields";
         public const string Error_AnalyserExtractPageHeaderFromPageLayout = "An error occurred extract page header from page layout associated content type";
+        public const string Error_ApplyPermissionFailedToApplyPermissions = "Error occurred applying permissions to item {0}";
         public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
-
 
         #endregion
 
@@ -345,7 +345,6 @@
         public const string Error_UserMappingValidateExists = "Error occurred ensuring valid user exists: {0}";
         public const string Error_ErrorSearchingDomain = "Error Searching Source Domain For UPN";
         public const string Error_UserTransfomrmCannotResolveDomain = "Error Resolving Friendly Domain To Ldap Domain";
-        public const string Error_ApplyPermissionFailedToApplyPermissions = "Error occurred applying permissions to item {0}";
 
         public const string Warning_MultipleMatchFound = "More than one mapping found, only the first match is used: {0}";
         public const string Warning_UserTransformUserNotOnDomain = "Failed to detect if user is part of the domain, please use mapping instead.";

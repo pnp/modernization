@@ -21,6 +21,8 @@
 
 - Fix: Double quotes used in the "alt" property of an img do break the web part properties later on #365
 - Fix: Include page transformation version number in the log #362
+- Fix: Update logging to show correct user names when performing user mapping #357
+- Fix: Find username also works for SPO user names when doing SPO to SPO user mapping
 
 ## [November release - version 1.0.1911.0]
 

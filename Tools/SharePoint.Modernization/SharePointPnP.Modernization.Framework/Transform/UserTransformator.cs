@@ -133,19 +133,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns>Principal for the target site</returns>
         public string RemapPrincipal(string principalInput)
         {
+            // Should never happen, but just in case
+            if (string.IsNullOrEmpty(principalInput))
+            {
+                return principalInput;
+            }
+
             // when transforming from SPO without explicit enabling spo to spo
             if (!this.ShouldMapUsers)
             {
                 return principalInput;
             }
 
-            LogDebug(string.Format(LogStrings.UserTransformPrincipalInput, principalInput), LogStrings.Heading_UserTransform);
+            LogDebug(string.Format(LogStrings.UserTransformPrincipalInput, principalInput.GetUserName()), LogStrings.Heading_UserTransform);
 
             // Mapping Provided
             // Allow all types of platforms
             if(this.IsUserMappingSpecified)
             {
-                LogInfo(string.Format(LogStrings.UserTransformDefaultMapping, principalInput), LogStrings.Heading_UserTransform);
+                LogInfo(string.Format(LogStrings.UserTransformDefaultMapping, principalInput.GetUserName()), LogStrings.Heading_UserTransform);
 
                 // Find Mapping
                 // We dont like mulitple matches
@@ -158,8 +164,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     //Second check
                     if (principalInput.Contains("|"))
                     {
-                        var tokenSplit = principalInput.Split('|');
-                        var secondCheck = this._userMapping.Where(o => o.SourceUser.Equals(tokenSplit[1], StringComparison.InvariantCultureIgnoreCase));
+                        var userNameToCheck = principalInput.GetUserName();
+                        var secondCheck = this._userMapping.Where(o => o.SourceUser.Equals(userNameToCheck, StringComparison.InvariantCultureIgnoreCase));
 
                         if(secondCheck.Count() > 0)
                         {
@@ -176,17 +182,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             if (secondCheck.Count() > 1)
                             {
                                 // Log Warning, only first user replaced
-                                LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result), LogStrings.Heading_UserTransform);
+                                LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result.GetUserName()), LogStrings.Heading_UserTransform);
                             }
                             else
                             {
-                                LogInfo(string.Format(LogStrings.UserTransformSuccess, tokenSplit[1], result), LogStrings.Heading_UserTransform);
+                                LogInfo(string.Format(LogStrings.UserTransformSuccess, userNameToCheck, result), LogStrings.Heading_UserTransform);
                             }   
                         }
                         else
                         {
                             //Not Found Logging, let method pass-through with original value
-                            LogInfo(string.Format(LogStrings.UserTransformMappingNotFound, tokenSplit[1]), LogStrings.Heading_UserTransform);
+                            LogInfo(string.Format(LogStrings.UserTransformMappingNotFound, userNameToCheck), LogStrings.Heading_UserTransform);
                         }
                     }
                 }
@@ -205,11 +211,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     if (firstCheck.Count() > 1)
                     {
                         // Log Warning, only first user replaced
-                        LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result), LogStrings.Heading_UserTransform);
+                        LogWarning(string.Format(LogStrings.Warning_MultipleMatchFound, result.GetUserName()), LogStrings.Heading_UserTransform);
                     }
                     else
                     {
-                        LogInfo(string.Format(LogStrings.UserTransformSuccess, principalInput, result), LogStrings.Heading_UserTransform);
+                        LogInfo(string.Format(LogStrings.UserTransformSuccess, principalInput.GetUserName(), result), LogStrings.Heading_UserTransform);
                     }
                 }
 
@@ -221,7 +227,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // If not then default user transformation from on-premises only.
                 if(_sourceVersion != SPVersion.SPO && IsExecutingTransformOnDomain())
                 {
-                    LogInfo(string.Format(LogStrings.UserTransformDefaultMapping, principalInput), LogStrings.Heading_UserTransform);
+                    LogInfo(string.Format(LogStrings.UserTransformDefaultMapping, principalInput.GetUserName()), LogStrings.Heading_UserTransform);
 
                     var result = principalInput;
 
@@ -259,11 +265,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (result.Equals(principalInput, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        LogInfo(string.Format(LogStrings.UserTransformNotRemappedUser, principalInput), LogStrings.Heading_UserTransform);
+                        LogInfo(string.Format(LogStrings.UserTransformNotRemappedUser, principalInput.GetUserName()), LogStrings.Heading_UserTransform);
                     }
                     else
                     {
-                        LogInfo(string.Format(LogStrings.UserTransformRemappedUser, principalInput, result), LogStrings.Heading_UserTransform);
+                        LogInfo(string.Format(LogStrings.UserTransformRemappedUser, principalInput.GetUserName(), result), LogStrings.Heading_UserTransform);
                     }
 
                     if (!resultCameFromCache)
@@ -275,7 +281,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
                 else
                 {
-                    LogInfo(string.Format(LogStrings.UserTransformNotRemappedUser, principalInput), LogStrings.Heading_UserTransform);
+                    LogInfo(string.Format(LogStrings.UserTransformNotRemappedUser, principalInput.GetUserName()), LogStrings.Heading_UserTransform);
                 }
             }
 
