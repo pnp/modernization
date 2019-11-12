@@ -254,7 +254,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                         if (!string.IsNullOrEmpty(publishingPageTransformationInformation.TargetPageFolder))
                         {
-                            pageFolder = Path.Combine(pageFolder, publishingPageTransformationInformation.TargetPageFolder);
+                            if (publishingPageTransformationInformation.TargetPageFolderOverridesDefaultFolder)
+                            {
+                                pageFolder = publishingPageTransformationInformation.TargetPageFolder;
+                            }
+                            else
+                            {
+                                pageFolder = Path.Combine(pageFolder, publishingPageTransformationInformation.TargetPageFolder);
+                            }
 
                             if (!pageFolder.EndsWith("/"))
                             {

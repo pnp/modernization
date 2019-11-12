@@ -46,6 +46,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             PostAsNews = false;
             DisablePageComments = false;
             SkipUserMapping = false;
+            TargetPageFolderOverridesDefaultFolder = false;
             // Populate with OOB mapping properties
             MappingProperties = new Dictionary<string, string>(5)
             {

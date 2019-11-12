@@ -38,6 +38,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public string TargetPageFolder { get; set; }
 
         /// <summary>
+        /// When a target page folder is set, it overwrites the potentially default folder path (e.g. if the source page lived in a folder then that folder is in the default folder path)
+        /// </summary>
+        public bool TargetPageFolderOverridesDefaultFolder { get; set; }
+
+        /// <summary>
         /// Apply the item level page permissions on to the target page, defaults to true
         /// </summary>
         public bool KeepPageSpecificPermissions { get; set; }

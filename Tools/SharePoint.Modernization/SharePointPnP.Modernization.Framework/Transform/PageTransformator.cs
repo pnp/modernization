@@ -393,7 +393,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         if (!string.IsNullOrEmpty(pageTransformationInformation.TargetPageFolder))
                         {
-                            pageFolder = Path.Combine(pageFolder, pageTransformationInformation.TargetPageFolder);
+                            if (pageTransformationInformation.TargetPageFolderOverridesDefaultFolder)
+                            {
+                                pageFolder = pageTransformationInformation.TargetPageFolder;
+                            }
+                            else
+                            {
+                                pageFolder = Path.Combine(pageFolder, pageTransformationInformation.TargetPageFolder);
+                            }
 
                             if (!pageFolder.EndsWith("/"))
                             {

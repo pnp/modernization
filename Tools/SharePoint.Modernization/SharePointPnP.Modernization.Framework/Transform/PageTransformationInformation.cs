@@ -50,6 +50,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             PostAsNews = false;
             DisablePageComments = false;
             SkipUserMapping = false;
+            TargetPageFolderOverridesDefaultFolder = false;
             SetDefaultTargetPagePrefix();
             SetDefaultSourcePagePrefix();
             // Populate with OOB mapping properties

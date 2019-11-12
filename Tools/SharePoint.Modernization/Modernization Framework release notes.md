@@ -16,6 +16,7 @@
 
 ### Added
 
+- Added TargetPageFolderOverridesDefaultFolder option to have the provided target folder override the default generated folder #366
 
 ### Changed
 
