@@ -138,7 +138,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             SetPageId(Guid.NewGuid().ToString());
 
-            var logsForSettings = pageTransformationInformation.DetailSettingsAsLogEntries();
+            var logsForSettings = pageTransformationInformation.DetailSettingsAsLogEntries(this.version);
             logsForSettings?.ForEach(o => Log(o, LogLevel.Information));
 
             #region Check for Target Site Context

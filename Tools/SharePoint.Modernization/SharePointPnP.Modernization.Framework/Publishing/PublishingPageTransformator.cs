@@ -703,6 +703,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
             try
             {
+                // Add version 
+                logs.Add(new LogEntry()
+                {
+                    Heading = LogStrings.Heading_PageTransformationInfomation,
+                    Message = $"Engine version {LogStrings.KeyValueSeperatorToken} {this.version ?? "Not Specified"}"
+                });
 
                 var properties = pti.GetType().GetProperties();
                 foreach (var property in properties)

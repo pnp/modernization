@@ -50,12 +50,18 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
         /// </summary>
         /// <param name="pti">PageTransformationInformation object</param>
         /// <returns>List of log records</returns>
-        public static List<LogEntry> DetailSettingsAsLogEntries(this PageTransformationInformation pti)
+        public static List<LogEntry> DetailSettingsAsLogEntries(this PageTransformationInformation pti, string version)
         {
             List<LogEntry> logs = new List<LogEntry>();
 
             try
             {
+                // Add version 
+                logs.Add(new LogEntry()
+                {
+                    Heading = LogStrings.Heading_PageTransformationInfomation,
+                    Message = $"Engine version {LogStrings.KeyValueSeperatorToken} {version ?? "Not Specified"}"
+                });
 
                 var properties = pti.GetType().GetProperties();
                 foreach (var property in properties)

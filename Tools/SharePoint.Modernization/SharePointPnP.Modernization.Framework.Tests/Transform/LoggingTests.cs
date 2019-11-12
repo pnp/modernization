@@ -86,7 +86,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         public void Logging_PageTransInfoReflectionTest()
         {
             PageTransformationInformation pti = new PageTransformationInformation(null);
-            List<LogEntry> result = pti.DetailSettingsAsLogEntries();
+            List<LogEntry> result = pti.DetailSettingsAsLogEntries("some version");
 
             Assert.IsTrue(result.Count > 0);
         }
