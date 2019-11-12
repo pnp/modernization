@@ -1560,7 +1560,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             // Only increase row pos for actual rows as header is handled differently
                             rowPos++;
                         }
-                    }
+                        else
+                        {
+                            // Deals with rows formatted without TD or TH tags (e.g.  <tr class="ms-rteTableOddRow-default"></tr>)
+                            rowPos++;
+                        }
+                    }                    
                 }
             }
 

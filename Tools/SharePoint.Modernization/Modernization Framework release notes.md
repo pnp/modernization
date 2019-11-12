@@ -24,6 +24,7 @@
 - Fix: Update logging to show correct user names when performing user mapping #357
 - Fix: Find username also works for SPO user names when doing SPO to SPO user mapping
 - Fix: Sections with a vertical column are now also "cleaned" when they do contain empty columns #359
+- Fix: Empty table rows are now correctly processed as empty rows #358
 
 ## [November release - version 1.0.1911.0]
 
