@@ -66,6 +66,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             
                             PostAsNews = true,
 
+                            //UserMappingFile = @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Mapping\usermapping_sample2.csv",
+
                             //PublishCreatedPage = true,
                             
                             //RemoveEmptySectionsAndColumns = false,
