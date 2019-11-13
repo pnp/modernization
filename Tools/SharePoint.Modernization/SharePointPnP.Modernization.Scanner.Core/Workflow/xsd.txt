@@ -1,0 +1,2 @@
+﻿xsd.exe sp2010wfmodel.xsd /c /n:SharePoint.Modernization.Scanner.Core.Workflow.SP2010
+xsd.exe sp2013wfmodel.xsd /c /n:SharePoint.Modernization.Scanner.Core.Workflow.SP2013

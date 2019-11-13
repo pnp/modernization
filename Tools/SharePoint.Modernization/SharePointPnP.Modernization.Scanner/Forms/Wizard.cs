@@ -1,4 +1,5 @@
-﻿using SharePoint.Modernization.Scanner.Telemetry;
+﻿using SharePoint.Modernization.Scanner.Core;
+using SharePoint.Modernization.Scanner.Core.Telemetry;
 using System;
 using System.Collections;
 using System.Collections.Generic;

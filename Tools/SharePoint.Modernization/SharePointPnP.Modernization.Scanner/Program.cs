@@ -1,8 +1,8 @@
-﻿using SharePoint.Modernization.Scanner.Reports;
-using SharePoint.Modernization.Scanner.Telemetry;
+﻿using SharePoint.Modernization.Scanner.Core;
+using SharePoint.Modernization.Scanner.Core.Reports;
+using SharePoint.Modernization.Scanner.Core.Telemetry;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 
 namespace SharePoint.Modernization.Scanner
