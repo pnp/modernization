@@ -44,21 +44,103 @@ namespace SharePoint.Modernization.Scanner
 
             if (options.ExportPaths != null && options.ExportPaths.Count > 0)
             {
+                List<ReportStream> reportStreams = new List<ReportStream>();
+
                 Generator generator = new Generator();
-                //generator.CreateGroupifyReport(options.ExportPaths);
-                //generator.CreateListReport(options.ExportPaths);
-                //generator.CreatePageReport(options.ExportPaths);
-                //generator.CreatePublishingReport(options.ExportPaths);
-                //generator.CreateWorkflowReport(options.ExportPaths);
-                //generator.CreateInfoPathReport(options.ExportPaths);
-                //generator.CreateBlogReport(options.ExportPaths);
+
+                // populate memory streams for the consolidated groupify report
+                foreach (var path in options.ExportPaths)
+                {
+                    LoadCSVFile(reportStreams, path, Generator.GroupifyCSV);
+                    LoadCSVFile(reportStreams, path, Generator.ScannerSummaryCSV);
+                }
+                // create report
+                var groupifyReport = generator.CreateGroupifyReport(reportStreams);
+                PersistStream($".\\{Generator.GroupifyReport}", groupifyReport);
+                // free memory
+                ClearReportStreams(reportStreams);
+
+                // populate memory streams for the consolidated list report
+                foreach (var path in options.ExportPaths)
+                {
+                    LoadCSVFile(reportStreams, path, Generator.ListCSV);
+                    LoadCSVFile(reportStreams, path, Generator.ScannerSummaryCSV);
+                }
+                // create report
+                var listReport = generator.CreateListReport(reportStreams);
+                PersistStream($".\\{Generator.ListReport}", listReport);
+                // free memory
+                ClearReportStreams(reportStreams);
+
+                // populate memory streams for the consolidated page report
+                foreach (var path in options.ExportPaths)
+                {
+                    LoadCSVFile(reportStreams, path, Generator.PageCSV);
+                    LoadCSVFile(reportStreams, path, Generator.ScannerSummaryCSV);
+                }
+                // create report
+                var pageReport = generator.CreatePageReport(reportStreams);
+                PersistStream($".\\{Generator.PageReport}", pageReport);
+                // free memory
+                ClearReportStreams(reportStreams);
+
+                // populate memory streams for the consolidated publishing report
+                foreach (var path in options.ExportPaths)
+                {
+                    LoadCSVFile(reportStreams, path, Generator.PublishingSiteCSV);
+                    LoadCSVFile(reportStreams, path, Generator.PublishingWebCSV);
+                    LoadCSVFile(reportStreams, path, Generator.PublishingPageCSV);
+                    LoadCSVFile(reportStreams, path, Generator.ScannerSummaryCSV);
+                }
+                // create report
+                var publishingReport = generator.CreatePublishingReport(reportStreams);
+                PersistStream($".\\{Generator.PublishingReport}", publishingReport);
+                // free memory
+                ClearReportStreams(reportStreams);
+
+                // populate memory streams for the consolidated workflow report
+                foreach (var path in options.ExportPaths)
+                {
+                    LoadCSVFile(reportStreams, path, Generator.WorkflowCSV);
+                    LoadCSVFile(reportStreams, path, Generator.ScannerSummaryCSV);
+                }
+                // create report
+                var workflowReport = generator.CreateWorkflowReport(reportStreams);
+                PersistStream($".\\{Generator.WorkflowReport}", workflowReport);
+                // free memory
+                ClearReportStreams(reportStreams);
+
+                // populate memory streams for the consolidated InfoPath report
+                foreach (var path in options.ExportPaths)
+                {
+                    LoadCSVFile(reportStreams, path, Generator.InfoPathCSV);
+                    LoadCSVFile(reportStreams, path, Generator.ScannerSummaryCSV);
+                }
+                // create report
+                var infoPathReport = generator.CreateInfoPathReport(reportStreams);
+                PersistStream($".\\{Generator.InfoPathReport}", infoPathReport);
+                // free memory
+                ClearReportStreams(reportStreams);
+
+                // populate memory streams for the consolidated blog report
+                foreach (var path in options.ExportPaths)
+                {
+                    LoadCSVFile(reportStreams, path, Generator.BlogWebCSV);
+                    LoadCSVFile(reportStreams, path, Generator.BlogPageCSV);
+                    LoadCSVFile(reportStreams, path, Generator.ScannerSummaryCSV);
+                }
+                // create report
+                var blogReport = generator.CreateBlogReport(reportStreams);
+                PersistStream($".\\{Generator.BlogReport}", blogReport);
+                // free memory
+                ClearReportStreams(reportStreams);
             }
             else
             {
                 try
                 {
                     DateTime scanStartDateTime = DateTime.Now;
-                                       
+
                     // let's catch unhandled exceptions 
                     AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -182,6 +264,38 @@ namespace SharePoint.Modernization.Scanner
                     }
                 }
             }            
+        }
+
+        private static void ClearReportStreams(List<ReportStream> reportStreams)
+        {
+            foreach (var reportStream in reportStreams)
+            {
+                reportStream.DataStream.Dispose();
+            }
+            reportStreams.Clear();
+        }
+
+        private static void LoadCSVFile(List<ReportStream> reportStreams, string path, string fileName)
+        {
+            string csvFile = Path.Combine(path, fileName);
+
+            if (!File.Exists(csvFile))
+            {
+                return;
+            }
+
+            MemoryStream csvStream = new MemoryStream();
+            using (var csvFileStream = File.OpenRead(csvFile))
+            {
+                csvFileStream.CopyTo(csvStream);
+            }
+
+            reportStreams.Add(new ReportStream()
+            {
+                DataStream = csvStream,
+                Name = fileName,
+                Source = path,
+            });
         }
 
         private static void PersistStream(string outputfile, Stream excelReport)

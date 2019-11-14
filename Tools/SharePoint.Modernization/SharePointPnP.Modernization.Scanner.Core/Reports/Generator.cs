@@ -17,37 +17,37 @@ namespace SharePoint.Modernization.Scanner.Core.Reports
     /// </summary>
     public class Generator
     {
-        private const string ScannerSummaryCSV = "ScannerSummary.csv";
+        public const string ScannerSummaryCSV = "ScannerSummary.csv";
         // Groupify report variables
-        private const string GroupifyCSV = "ModernizationSiteScanResults.csv";
-        private const string GroupifyMasterFile = "groupifymaster.xlsx";
+        public const string GroupifyCSV = "ModernizationSiteScanResults.csv";
+        public const string GroupifyMasterFile = "groupifymaster.xlsx";
         public const string GroupifyReport = "Office 365 Group Connection Readiness.xlsx";
         // List report variables
-        private const string ListCSV = "ModernizationListScanResults.csv";
-        private const string ListMasterFile = "listmaster.xlsx";
+        public const string ListCSV = "ModernizationListScanResults.csv";
+        public const string ListMasterFile = "listmaster.xlsx";
         public const string ListReport = "Office 365 List Readiness.xlsx";
         // Page report variables
-        private const string PageCSV = "PageScanResults.csv";
-        private const string PageMasterFile = "pagemaster.xlsx";
+        public const string PageCSV = "PageScanResults.csv";
+        public const string PageMasterFile = "pagemaster.xlsx";
         public const string PageReport = "Office 365 Page Transformation Readiness.xlsx";
         // Publishing report variables
-        private const string PublishingSiteCSV = "ModernizationPublishingSiteScanResults.csv";
-        private const string PublishingWebCSV = "ModernizationPublishingWebScanResults.csv";
-        private const string PublishingPageCSV = "ModernizationPublishingPageScanResults.csv";
-        private const string PublishingMasterFile = "publishingmaster.xlsx";
+        public const string PublishingSiteCSV = "ModernizationPublishingSiteScanResults.csv";
+        public const string PublishingWebCSV = "ModernizationPublishingWebScanResults.csv";
+        public const string PublishingPageCSV = "ModernizationPublishingPageScanResults.csv";
+        public const string PublishingMasterFile = "publishingmaster.xlsx";
         public const string PublishingReport = "Office 365 Publishing Portal Transformation Readiness.xlsx";
         // Workflow report variables
-        private const string WorkflowCSV = "ModernizationWorkflowScanResults.csv";
-        private const string WorkflowMasterFile = "workflowmaster.xlsx";
+        public const string WorkflowCSV = "ModernizationWorkflowScanResults.csv";
+        public const string WorkflowMasterFile = "workflowmaster.xlsx";
         public const string WorkflowReport = "Office 365 Classic workflow inventory.xlsx";
         // InfoPath report variables
-        private const string InfoPathCSV = "ModernizationInfoPathScanResults.csv";
-        private const string InfoPathMasterFile = "infopathmaster.xlsx";
+        public const string InfoPathCSV = "ModernizationInfoPathScanResults.csv";
+        public const string InfoPathMasterFile = "infopathmaster.xlsx";
         public const string InfoPathReport = "Office 365 InfoPath inventory.xlsx";
         // Blog report variables
-        private const string BlogWebCSV = "ModernizationBlogWebScanResults.csv";
-        private const string BlogPageCSV = "ModernizationBlogPageScanResults.csv";
-        private const string BlogMasterFile = "blogmaster.xlsx";
+        public const string BlogWebCSV = "ModernizationBlogWebScanResults.csv";
+        public const string BlogPageCSV = "ModernizationBlogPageScanResults.csv";
+        public const string BlogMasterFile = "blogmaster.xlsx";
         public const string BlogReport = "Office 365 Blog inventory.xlsx";
 
         /// <summary>
