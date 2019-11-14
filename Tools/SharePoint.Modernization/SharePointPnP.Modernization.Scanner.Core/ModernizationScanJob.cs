@@ -49,7 +49,7 @@ namespace SharePoint.Modernization.Scanner.Core
         public ConcurrentDictionary<string, BlogPageScanResult> BlogPageScanResults;
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
-        public ScannerTelemetry ScannerTelemetry;        
+        public ScannerTelemetry ScannerTelemetry;
         #endregion
 
         #region Construction
@@ -95,6 +95,7 @@ namespace SharePoint.Modernization.Scanner.Core
             this.PublishingPageScanResults = new ConcurrentDictionary<string, PublishingPageScanResult>(options.Threads, 10000);
             this.BlogWebScanResults = new ConcurrentDictionary<string, BlogWebScanResult>(options.Threads, 50000);
             this.BlogPageScanResults = new ConcurrentDictionary<string, BlogPageScanResult>(options.Threads, 500000);
+            this.GeneratedFileStreams = new Dictionary<string, Stream>();
 
             // Setup telemetry client
             if (!options.DisableTelemetry)
@@ -415,7 +416,7 @@ namespace SharePoint.Modernization.Scanner.Core
             }
 
             // Handle the export of the job specific scanning data
-            string outputfile = string.Format("{0}\\ModernizationSiteScanResults.csv", this.OutputFolder);
+            MemoryStream modernizationSiteScanResults = new MemoryStream();
             string[] outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
                                                     "ReadyForGroupify", "GroupifyBlockers", "GroupifyWarnings", "GroupMode", "PermissionWarnings",
                                                     "ModernHomePage", "ModernUIWarnings",
@@ -429,34 +430,34 @@ namespace SharePoint.Modernization.Scanner.Core
                                                     "Members", "MembersContainsEveryone(ExceptExternalUsers)Claim", "MembersContainsADGroups",
                                                     "Visitors", "VisitorsContainsEveryone(ExceptExternalUsers)Claim", "VisitorsContainsADGroups"
                                                   };
-            Console.WriteLine("Outputting scan results to {0}", outputfile);
-            using (StreamWriter outfile = new StreamWriter(outputfile))
-            {
-                outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                foreach (var item in this.SiteScanResults)
-                {
-                    var groupifyBlockers = item.Value.GroupifyBlockers();
-                    var groupifyWarnings = item.Value.GroupifyWarnings(this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim);
-                    var modernWarnings = item.Value.ModernWarnings();
-                    var groupSecurity = item.Value.PermissionModel(this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim);
 
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
+            StreamWriter outStream = new StreamWriter(modernizationSiteScanResults);
+            outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+            foreach (var item in this.SiteScanResults)
+            {
+                var groupifyBlockers = item.Value.GroupifyBlockers();
+                var groupifyWarnings = item.Value.GroupifyWarnings(this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim);
+                var modernWarnings = item.Value.ModernWarnings();
+                var groupSecurity = item.Value.PermissionModel(this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim);
+
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
                                                                                        (groupifyBlockers.Count > 0 ? "FALSE" : "TRUE"), ToCsv(SiteScanResult.FormatList(groupifyBlockers)), ToCsv(SiteScanResult.FormatList(groupifyWarnings)), ToCsv(groupSecurity.Item1), ToCsv(SiteScanResult.FormatList(groupSecurity.Item2)),
                                                                                        item.Value.ModernHomePage, ToCsv(SiteScanResult.FormatList(modernWarnings)),
                                                                                        ToCsv(item.Value.WebTemplate), ToCsv(item.Value.Office365GroupId != Guid.Empty ? item.Value.Office365GroupId.ToString() : ""), item.Value.MasterPage, item.Value.AlternateCSS, ((item.Value.SiteUserCustomActions != null && item.Value.SiteUserCustomActions.Count > 0) || (item.Value.WebUserCustomActions != null && item.Value.WebUserCustomActions.Count > 0)),
                                                                                        item.Value.SubSites, item.Value.SubSitesWithBrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO,
                                                                                        item.Value.ModernListSiteBlockingFeatureEnabled, item.Value.ModernListWebBlockingFeatureEnabled, item.Value.SitePublishingFeatureEnabled, item.Value.WebPublishingFeatureEnabled,
-                                                                                       (SkipUsageInformation ? 0: item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers), ToCsv(item.Value.SiteId),
+                                                                                       (SkipUsageInformation ? 0 : item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers), ToCsv(item.Value.SiteId),
                                                                                        item.Value.EveryoneClaimsGranted, item.Value.ContainsADGroup(), ToCsv(item.Value.SharingCapabilities),
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Admins, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)), item.Value.HasClaim(item.Value.Admins, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim), item.Value.ContainsADGroup(item.Value.Admins),
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)), item.Value.HasClaim(item.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim), item.Value.ContainsADGroup(item.Value.Owners),
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Members, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)), item.Value.HasClaim(item.Value.Members, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim), item.Value.ContainsADGroup(item.Value.Members),
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Visitors, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)), item.Value.HasClaim(item.Value.Visitors, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim), item.Value.ContainsADGroup(item.Value.Visitors)
                                                 )));
-                }
             }
+            outStream.Flush();
+            this.GeneratedFileStreams.Add("ModernizationSiteScanResults.csv", modernizationSiteScanResults);
 
-            outputfile = string.Format("{0}\\ModernizationWebScanResults.csv", this.OutputFolder);
+            MemoryStream modernizationWebScanResults = new MemoryStream();
             outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
                                            "WebTemplate", "BrokenPermissionInheritance", "ModernPageWebFeatureDisabled", "ModernPageFeatureWasEnabledBySPO", "WebPublishingFeatureEnabled",
                                            "MasterPage", "CustomMasterPage", "AlternateCSS", "UserCustomActions",
@@ -465,13 +466,12 @@ namespace SharePoint.Modernization.Scanner.Core
                                            "UniqueMembers",
                                            "UniqueVisitors"
                                          };
-            Console.WriteLine("Outputting scan results to {0}", outputfile);
-            using (StreamWriter outfile = new StreamWriter(outputfile))
+            outStream = new StreamWriter(modernizationWebScanResults);
+            outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+
+            foreach (var item in this.WebScanResults)
             {
-                outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                foreach (var item in this.WebScanResults)
-                {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
                                                                                        ToCsv(item.Value.WebTemplate), item.Value.BrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO, item.Value.WebPublishingFeatureEnabled,
                                                                                        ToCsv(item.Value.MasterPage), ToCsv(item.Value.CustomMasterPage), ToCsv(item.Value.AlternateCSS), (item.Value.WebUserCustomActions.Count > 0),
                                                                                        item.Value.EveryoneClaimsGranted,
@@ -479,46 +479,50 @@ namespace SharePoint.Modernization.Scanner.Core
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Members, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)),
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Visitors, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim))
                                                 )));
-                }
             }
 
-            outputfile = string.Format("{0}\\ModernizationUserCustomActionScanResults.csv", this.OutputFolder);
+            outStream.Flush();
+            this.GeneratedFileStreams.Add("ModernizationWebScanResults.csv", modernizationWebScanResults);
+
+            MemoryStream modernizationUserCustomActionScanResults = new MemoryStream();
             outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
                                            "Title", "Name", "Location", "RegistrationType", "RegistrationId", "Reason", "CommandAction", "ScriptBlock", "ScriptSrc"
                                          };
-            Console.WriteLine("Outputting scan results to {0}", outputfile);
-            using (StreamWriter outfile = new StreamWriter(outputfile))
+
+            outStream = new StreamWriter(modernizationUserCustomActionScanResults);
+            outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+
+            foreach (var item in this.SiteScanResults)
             {
-                outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                foreach (var item in this.SiteScanResults)
+                if (item.Value.SiteUserCustomActions == null || item.Value.SiteUserCustomActions.Count == 0)
                 {
-                    if (item.Value.SiteUserCustomActions == null || item.Value.SiteUserCustomActions.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    foreach (var uca in item.Value.SiteUserCustomActions)
-                    {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
-                                                                                           ToCsv(uca.Title), ToCsv(uca.Name), ToCsv(uca.Location), uca.RegistrationType, ToCsv(uca.RegistrationId), ToCsv(uca.Problem), ToCsv(uca.CommandAction), ToCsv(uca.ScriptBlock), ToCsv(uca.ScriptSrc)
-                                                     )));
-                    }
+                    continue;
                 }
-                foreach (var item in this.WebScanResults)
-                {
-                    if (item.Value.WebUserCustomActions == null || item.Value.WebUserCustomActions.Count == 0)
-                    {
-                        continue;
-                    }
 
-                    foreach (var uca in item.Value.WebUserCustomActions)
-                    {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
+                foreach (var uca in item.Value.SiteUserCustomActions)
+                {
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
                                                                                            ToCsv(uca.Title), ToCsv(uca.Name), ToCsv(uca.Location), uca.RegistrationType, ToCsv(uca.RegistrationId), ToCsv(uca.Problem), ToCsv(uca.CommandAction), ToCsv(uca.ScriptBlock), ToCsv(uca.ScriptSrc)
                                                      )));
-                    }
                 }
             }
+            foreach (var item in this.WebScanResults)
+            {
+                if (item.Value.WebUserCustomActions == null || item.Value.WebUserCustomActions.Count == 0)
+                {
+                    continue;
+                }
+
+                foreach (var uca in item.Value.WebUserCustomActions)
+                {
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
+                                                                                           ToCsv(uca.Title), ToCsv(uca.Name), ToCsv(uca.Location), uca.RegistrationType, ToCsv(uca.RegistrationId), ToCsv(uca.Problem), ToCsv(uca.CommandAction), ToCsv(uca.ScriptBlock), ToCsv(uca.ScriptSrc)
+                                                     )));
+                }
+            }
+
+            outStream.Flush();
+            this.GeneratedFileStreams.Add("ModernizationUserCustomActionScanResults.csv", modernizationUserCustomActionScanResults);
 
             if (Options.IncludeLists(this.Mode))
             {
@@ -528,7 +532,9 @@ namespace SharePoint.Modernization.Scanner.Core
                     this.ScannerTelemetry.LogListScan(this.ScannedSites, this.ScannedWebs, this.ListScanResults, this.ScannedLists);
                 }
 
-                outputfile = string.Format("{0}\\ModernizationListScanResults.csv", this.OutputFolder);
+                MemoryStream modernizationListScanResults = new MemoryStream();
+                outStream = new StreamWriter(modernizationListScanResults);
+
                 outputHeaders = new string[] { "Url", "Site Url", "Site Collection Url", "List Title", "Only blocked by OOB reasons",
                                                "Blocked at site level", "Blocked at web level", "Blocked at list level", "List page render type", "List experience", "Blocked by not being able to load Page", "Blocked by not being able to load page exception",
                                                "Blocked by managed metadata navigation", "Blocked by view type", "View type", "Blocked by list base template", "List base template",
@@ -536,34 +542,32 @@ namespace SharePoint.Modernization.Scanner.Core
                                                "Blocked by JSLink field", "JSLink fields", "Blocked by business data field", "Business data fields", "Blocked by task outcome field", "Task outcome fields",
                                                "Blocked by publishingField", "Publishing fields", "Blocked by geo location field", "Geo location fields", "Blocked by list custom action", "List custom actions"  };
 
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
-                using (StreamWriter outfile = new StreamWriter(outputfile))
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                foreach (var list in this.ListScanResults)
                 {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                    foreach (var list in this.ListScanResults)
-                    {
 
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator,ToCsv(list.Key.Substring(36)), ToCsv(list.Value.SiteURL), ToCsv(list.Value.SiteColUrl), ToCsv(list.Value.ListTitle), list.Value.OnlyBlockedByOOBReasons,
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(list.Key.Substring(36)), ToCsv(list.Value.SiteURL), ToCsv(list.Value.SiteColUrl), ToCsv(list.Value.ListTitle), list.Value.OnlyBlockedByOOBReasons,
                                                            list.Value.BlockedAtSiteLevel, list.Value.BlockedAtWebLevel, list.Value.BlockedAtListLevel, list.Value.PageRenderType, list.Value.ListExperience, list.Value.BlockedByNotBeingAbleToLoadPage, ToCsv(list.Value.BlockedByNotBeingAbleToLoadPageException),
                                                            list.Value.XsltViewWebPartCompatibility.BlockedByManagedMetadataNavFeature, list.Value.XsltViewWebPartCompatibility.BlockedByViewType, ToCsv(list.Value.XsltViewWebPartCompatibility.ViewType), list.Value.XsltViewWebPartCompatibility.BlockedByListBaseTemplate, list.Value.XsltViewWebPartCompatibility.ListBaseTemplate,
                                                            list.Value.BlockedByZeroOrMultipleWebParts, list.Value.XsltViewWebPartCompatibility.BlockedByJSLink, ToCsv(list.Value.XsltViewWebPartCompatibility.JSLink), list.Value.XsltViewWebPartCompatibility.BlockedByXslLink, ToCsv(list.Value.XsltViewWebPartCompatibility.XslLink), list.Value.XsltViewWebPartCompatibility.BlockedByXsl,
                                                            list.Value.XsltViewWebPartCompatibility.BlockedByJSLinkField, ToCsv(list.Value.XsltViewWebPartCompatibility.JSLinkFields), list.Value.XsltViewWebPartCompatibility.BlockedByBusinessDataField, ToCsv(list.Value.XsltViewWebPartCompatibility.BusinessDataFields), list.Value.XsltViewWebPartCompatibility.BlockedByTaskOutcomeField, ToCsv(list.Value.XsltViewWebPartCompatibility.TaskOutcomeFields),
                                                            list.Value.XsltViewWebPartCompatibility.BlockedByPublishingField, ToCsv(list.Value.XsltViewWebPartCompatibility.PublishingFields), list.Value.XsltViewWebPartCompatibility.BlockedByGeoLocationField, ToCsv(list.Value.XsltViewWebPartCompatibility.GeoLocationFields), list.Value.XsltViewWebPartCompatibility.BlockedByListCustomAction, ToCsv(list.Value.XsltViewWebPartCompatibility.ListCustomActions)
                                                     )));
-                    }
                 }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("ModernizationListScanResults.csv", modernizationListScanResults);
 
                 // Analyze the lists that and export the site collections that use classic customizations
                 var sitesWithCodeCustomizations = ListAnalyzer.GenerateSitesWithCodeCustomizationsResults(this.ListScanResults);
-                outputfile = string.Format("{0}\\SitesWithCustomizations.csv", this.OutputFolder);
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
-                using (StreamWriter outfile = new StreamWriter(outputfile))
+                MemoryStream sitesWithCustomizations = new MemoryStream();
+                outStream = new StreamWriter(sitesWithCustomizations);
+
+                foreach (var siteWithCustomizations in sitesWithCodeCustomizations)
                 {
-                    foreach(var siteWithCustomizations in sitesWithCodeCustomizations)
-                    {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(siteWithCustomizations))));
-                    }
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(siteWithCustomizations))));
                 }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("SitesWithCustomizations.csv", sitesWithCustomizations);
 
             }
 
@@ -575,11 +579,11 @@ namespace SharePoint.Modernization.Scanner.Core
                     this.ScannerTelemetry.LogPageScan(this.ScannedSites, this.ScannedWebs, this.PageScanResults, this.PageTransformation);
                 }
 
-                outputfile = string.Format("{0}\\PageScanResults.csv", this.OutputFolder);
+                MemoryStream pageScanResults = new MemoryStream();
+                outStream = new StreamWriter(pageScanResults);
                 outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "PageUrl", "Library", "HomePage", "Uncustomized STS#0 home page",
                                            "Type", "Layout", "Mapping %", "Unmapped web parts", "ModifiedBy", "ModifiedAt",
                                            "ViewsRecent", "ViewsRecentUniqueUsers", "ViewsLifeTime", "ViewsLifeTimeUniqueUsers"};
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
 
                 string header1 = string.Join(this.Separator, outputHeaders);
                 string header2 = "";
@@ -596,14 +600,178 @@ namespace SharePoint.Modernization.Scanner.Core
                 }
 
                 List<string> UniqueWebParts = new List<string>();
-                using (StreamWriter outfile = new StreamWriter(outputfile))
+
+                outStream.Write(string.Format("{0}\r\n", header1 + header2));
+                foreach (var item in this.PageScanResults)
                 {
-                    outfile.Write(string.Format("{0}\r\n", header1 + header2));
-                    foreach (var item in this.PageScanResults)
+                    var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.PageUrl), ToCsv(item.Value.Library), item.Value.HomePage, item.Value.UncustomizedHomePage,
+                                                            ToCsv(item.Value.PageType), ToCsv(item.Value.Layout), "{MappingPercentage}", "{UnmappedWebParts}", ToCsv(item.Value.ModifiedBy), ToDateString(item.Value.ModifiedAt, this.DateFormat),
+                                                            (SkipUsageInformation ? 0 : item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers));
+
+                    string part2 = "";
+                    if (item.Value.WebParts != null)
                     {
-                        var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.PageUrl), ToCsv(item.Value.Library), item.Value.HomePage, item.Value.UncustomizedHomePage,
-                                                                ToCsv(item.Value.PageType), ToCsv(item.Value.Layout), "{MappingPercentage}", "{UnmappedWebParts}", ToCsv(item.Value.ModifiedBy), ToDateString(item.Value.ModifiedAt, this.DateFormat),
-                                                                (SkipUsageInformation ? 0 : item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers));
+                        int webPartsOnPage = item.Value.WebParts.Count();
+                        int webPartsOnPageMapped = 0;
+                        List<string> nonMappedWebParts = new List<string>();
+                        foreach (var webPart in item.Value.WebParts.OrderBy(p => p.Row).ThenBy(p => p.Column).ThenBy(p => p.Order))
+                        {
+                            var found = this.PageTransformation.WebParts.Where(p => p.Type.Equals(webPart.Type, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                            if (found != null && found.Mappings != null)
+                            {
+                                webPartsOnPageMapped++;
+                            }
+                            else
+                            {
+                                var t = webPart.Type.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0];
+                                if (!nonMappedWebParts.Contains(t))
+                                {
+                                    nonMappedWebParts.Add(t);
+                                }
+                            }
+
+                            if (ExportWebPartProperties)
+                            {
+                                part2 = part2 + $"{this.Separator}{ToCsv(webPart.TypeShort())}{this.Separator}{ToCsv(webPart.Title)}{this.Separator}{ToCsv(webPart.Json())}";
+                            }
+                            else
+                            {
+                                part2 = part2 + $"{this.Separator}{ToCsv(webPart.TypeShort())}{this.Separator}{ToCsv(webPart.Title)}";
+                            }
+
+                            if (!UniqueWebParts.Contains(webPart.Type))
+                            {
+                                UniqueWebParts.Add(webPart.Type);
+                            }
+                        }
+                        part1 = part1.Replace("{MappingPercentage}", webPartsOnPage == 0 ? "100" : String.Format("{0:0}", (((double)webPartsOnPageMapped / (double)webPartsOnPage) * 100))).Replace("{UnmappedWebParts}", SiteScanResult.FormatList(nonMappedWebParts));
+                    }
+                    else
+                    {
+                        part1 = part1.Replace("{MappingPercentage}", "").Replace("{UnmappedWebParts}", "");
+                    }
+
+                    outStream.Write(string.Format("{0}\r\n", part1 + (!string.IsNullOrEmpty(part2) ? part2 : "")));
+                }
+
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("PageScanResults.csv", pageScanResults);
+
+                MemoryStream uniqueWebParts = new MemoryStream();
+                outStream = new StreamWriter(uniqueWebParts);
+                outStream.Write(string.Format("{0}\r\n", $"Type{this.Separator}InMappingFile"));
+                foreach (var type in UniqueWebParts)
+                {
+                    var found = this.PageTransformation.WebParts.Where(p => p.Type.Equals(type, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    outStream.Write(string.Format("{0}\r\n", $"{ToCsv(type)}{this.Separator}{found != null}"));
+                }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("UniqueWebParts.csv", uniqueWebParts);
+            }
+
+            if (Options.IncludePublishing(this.Mode))
+            {
+                // "Calculate" publishing site results based upon the web/page level data we retrieved
+                this.PublishingSiteScanResults = PublishingAnalyzer.GeneratePublishingSiteResults(this.Mode, this.PublishingWebScanResults, this.PublishingPageScanResults);
+
+                // Telemetry
+                if (this.ScannerTelemetry != null)
+                {
+                    this.ScannerTelemetry.LogPublishingScan(this.PublishingSiteScanResults, this.PublishingWebScanResults, this.PublishingPageScanResults, this.PageTransformation);
+                }
+
+                // Export the site publishing data
+                MemoryStream modernizationPublishingSiteScanResults = new MemoryStream();
+                outputHeaders = new string[] { "SiteCollectionUrl", "NumberOfWebs", "NumberOfPages",
+                                               "UsedSiteMasterPages", "UsedSystemMasterPages",
+                                               "UsedPageLayouts", "LastPageUpdateDate"
+                                             };
+                outStream = new StreamWriter(modernizationPublishingSiteScanResults);
+
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                if (PublishingSiteScanResults != null)
+                {
+                    foreach (var item in this.PublishingSiteScanResults)
+                    {
+                        outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), item.Value.NumberOfWebs, item.Value.NumberOfPages,
+                                                                                               ToCsv(PublishingPageScanResult.FormatList(item.Value.UsedSiteMasterPages)), ToCsv(PublishingPageScanResult.FormatList(item.Value.UsedSystemMasterPages)),
+                                                                                               ToCsv(PublishingPageScanResult.FormatList(item.Value.UsedPageLayouts)), item.Value.LastPageUpdateDate.HasValue ? item.Value.LastPageUpdateDate.ToString() : ""
+                                                       )));
+                    }
+                }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("ModernizationPublishingSiteScanResults.csv", modernizationPublishingSiteScanResults);
+
+                // Export the web publishing data
+                MemoryStream modernizationPublishingWebScanResults = new MemoryStream();
+
+                outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "SiteCollectionComplexity",
+                                               "WebTemplate", "Level", "PageCount", "Language", "VariationLabels", "VariationSourceLabel",
+                                               "SiteMasterPage", "SystemMasterPage", "AlternateCSS", "HasIncompatibleUserCustomActions",
+                                               "AllowedPageLayouts", "PageLayoutsConfiguration", "DefaultPageLayout",
+                                               "GlobalNavigationType", "GlobalStructuralNavigationShowSubSites", "GlobalStructuralNavigationShowPages","GlobalStructuralNavigationShowSiblings","GlobalStructuralNavigationMaxCount","GlobalManagedNavigationTermSetId",
+                                               "CurrentNavigationType","CurrentStructuralNavigationShowSubSites","CurrentStructuralNavigationShowPages","CurrentStructuralNavigationShowSiblings","CurrentStructuralNavigationMaxCount","CurrentManagedNavigationTermSetId",
+                                               "ManagedNavigationAddNewPages", "ManagedNavigationCreateFriendlyUrls",
+                                               "LibraryItemScheduling","LibraryEnableModeration","LibraryEnableVersioning","LibraryEnableMinorVersions","LibraryApprovalWorkflowDefined",
+                                               "BrokenPermissionInheritance",
+                                               "Admins",
+                                               "Owners"
+                                             };
+                outStream = new StreamWriter(modernizationPublishingWebScanResults);
+
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                foreach (var item in this.PublishingWebScanResults)
+                {
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.SiteClassification),
+                                                                                           ToCsv(item.Value.WebTemplate), item.Value.Level.ToString(), item.Value.PageCount.ToString(), item.Value.Language.ToString(), ToCsv(item.Value.VariationLabels), ToCsv(item.Value.VariationSourceLabel),
+                                                                                           ToCsv(item.Value.SiteMasterPage), ToCsv(item.Value.SystemMasterPage), ToCsv(item.Value.AlternateCSS), (item.Value.UserCustomActions != null && item.Value.UserCustomActions.Count > 0),
+                                                                                           ToCsv(item.Value.AllowedPageLayouts), ToCsv(item.Value.PageLayoutsConfiguration), ToCsv(item.Value.DefaultPageLayout),
+                                                                                           ToCsv(item.Value.GlobalNavigationType), item.Value.GlobalStructuralNavigationShowSubSites.HasValue ? item.Value.GlobalStructuralNavigationShowSubSites.Value.ToString() : "", item.Value.GlobalStructuralNavigationShowPages.HasValue ? item.Value.GlobalStructuralNavigationShowPages.Value.ToString() : "", item.Value.GlobalStructuralNavigationShowSiblings.HasValue ? item.Value.GlobalStructuralNavigationShowSiblings.Value.ToString() : "", item.Value.GlobalStructuralNavigationMaxCount.HasValue ? item.Value.GlobalStructuralNavigationMaxCount.Value.ToString() : "", ToCsv(item.Value.GlobalManagedNavigationTermSetId),
+                                                                                           ToCsv(item.Value.CurrentNavigationType), item.Value.CurrentStructuralNavigationShowSubSites.HasValue ? item.Value.CurrentStructuralNavigationShowSubSites.Value.ToString() : "", item.Value.CurrentStructuralNavigationShowPages.HasValue ? item.Value.CurrentStructuralNavigationShowPages.Value.ToString() : "", item.Value.CurrentStructuralNavigationShowSiblings.HasValue ? item.Value.CurrentStructuralNavigationShowSiblings.Value.ToString() : "", item.Value.CurrentStructuralNavigationMaxCount.HasValue ? item.Value.CurrentStructuralNavigationMaxCount.Value.ToString() : "", ToCsv(item.Value.CurrentManagedNavigationTermSetId),
+                                                                                           item.Value.ManagedNavigationAddNewPages.HasValue ? item.Value.ManagedNavigationAddNewPages.ToString() : "", item.Value.ManagedNavigationCreateFriendlyUrls.HasValue ? item.Value.ManagedNavigationCreateFriendlyUrls.ToString() : "",
+                                                                                           item.Value.LibraryItemScheduling.ToString(), item.Value.LibraryEnableModeration.ToString(), item.Value.LibraryEnableVersioning.ToString(), item.Value.LibraryEnableMinorVersions.ToString(), item.Value.LibraryApprovalWorkflowDefined.ToString(),
+                                                                                           item.Value.BrokenPermissionInheritance.ToString(),
+                                                                                           ToCsv(SiteScanResult.FormatUserList(item.Value.Admins, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)),
+                                                                                           ToCsv(SiteScanResult.FormatUserList(item.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim))
+                                                    )));
+                }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("ModernizationPublishingWebScanResults.csv", modernizationPublishingWebScanResults);
+
+                if (Options.IncludePublishingWithPages(this.Mode))
+                {
+                    // Export the page publishing data
+                    MemoryStream modernizationPublishingPageScanResults = new MemoryStream();
+                    outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "PageRelativeUrl", "PageName",
+                                                   "ContentType", "ContentTypeId", "PageLayout", "PageLayoutFile", "PageLayoutWasCustomized",
+                                                   "GlobalAudiences", "SecurityGroupAudiences", "SharePointGroupAudiences",
+                                                   "ModifiedAt", "ModifiedBy", "Mapping %", "Unmapped web parts"
+                                                 };
+
+                    string header1 = string.Join(this.Separator, outputHeaders);
+                    string header2 = "";
+                    for (int i = 1; i <= 20; i++)
+                    {
+                        if (ExportWebPartProperties)
+                        {
+                            header2 = header2 + $"{this.Separator}WPType{i}{this.Separator}WPTitle{i}{this.Separator}WPData{i}";
+                        }
+                        else
+                        {
+                            header2 = header2 + $"{this.Separator}WPType{i}{this.Separator}WPTitle{i}";
+                        }
+                    }
+
+                    outStream = new StreamWriter(modernizationPublishingPageScanResults);
+
+                    outStream.Write(string.Format("{0}\r\n", header1 + header2));
+                    foreach (var item in this.PublishingPageScanResults)
+                    {
+                        var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.PageRelativeUrl), ToCsv(item.Value.PageName),
+                                                                ToCsv(item.Value.ContentType), ToCsv(item.Value.ContentTypeId), ToCsv(item.Value.PageLayout), ToCsv(item.Value.PageLayoutFile), item.Value.PageLayoutWasCustomized,
+                                                                ToCsv(PublishingPageScanResult.FormatList(item.Value.GlobalAudiences)), ToCsv(PublishingPageScanResult.FormatList(item.Value.SecurityGroupAudiences, "|")), ToCsv(PublishingPageScanResult.FormatList(item.Value.SharePointGroupAudiences)),
+                                                                ToDateString(item.Value.ModifiedAt, this.DateFormat), ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
+                            );
 
                         string part2 = "";
                         if (item.Value.WebParts != null)
@@ -635,11 +803,6 @@ namespace SharePoint.Modernization.Scanner.Core
                                 {
                                     part2 = part2 + $"{this.Separator}{ToCsv(webPart.TypeShort())}{this.Separator}{ToCsv(webPart.Title)}";
                                 }
-
-                                if (!UniqueWebParts.Contains(webPart.Type))
-                                {
-                                    UniqueWebParts.Add(webPart.Type);
-                                }
                             }
                             part1 = part1.Replace("{MappingPercentage}", webPartsOnPage == 0 ? "100" : String.Format("{0:0}", (((double)webPartsOnPageMapped / (double)webPartsOnPage) * 100))).Replace("{UnmappedWebParts}", SiteScanResult.FormatList(nonMappedWebParts));
                         }
@@ -648,168 +811,10 @@ namespace SharePoint.Modernization.Scanner.Core
                             part1 = part1.Replace("{MappingPercentage}", "").Replace("{UnmappedWebParts}", "");
                         }
 
-                        outfile.Write(string.Format("{0}\r\n", part1 + (!string.IsNullOrEmpty(part2) ? part2 : "")));
+                        outStream.Write(string.Format("{0}\r\n", part1 + (!string.IsNullOrEmpty(part2) ? part2 : "")));
                     }
-                }
-
-                outputfile = string.Format("{0}\\UniqueWebParts.csv", this.OutputFolder);
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
-                using (StreamWriter outfile = new StreamWriter(outputfile))
-                {
-                    outfile.Write(string.Format("{0}\r\n", $"Type{this.Separator}InMappingFile"));
-                    foreach (var type in UniqueWebParts)
-                    {
-                        var found = this.PageTransformation.WebParts.Where(p => p.Type.Equals(type, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-                        outfile.Write(string.Format("{0}\r\n", $"{ToCsv(type)}{this.Separator}{found != null}"));
-                    }
-                }
-            }
-
-            if (Options.IncludePublishing(this.Mode))
-            {
-                // "Calculate" publishing site results based upon the web/page level data we retrieved
-                this.PublishingSiteScanResults = PublishingAnalyzer.GeneratePublishingSiteResults(this.Mode, this.PublishingWebScanResults, this.PublishingPageScanResults);
-
-                // Telemetry
-                if (this.ScannerTelemetry != null)
-                {
-                    this.ScannerTelemetry.LogPublishingScan(this.PublishingSiteScanResults, this.PublishingWebScanResults, this.PublishingPageScanResults, this.PageTransformation);
-                }
-
-                // Export the site publishing data
-                outputfile = string.Format("{0}\\ModernizationPublishingSiteScanResults.csv", this.OutputFolder);
-                outputHeaders = new string[] { "SiteCollectionUrl", "NumberOfWebs", "NumberOfPages",
-                                               "UsedSiteMasterPages", "UsedSystemMasterPages",
-                                               "UsedPageLayouts", "LastPageUpdateDate"
-                                             };
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
-                using (StreamWriter outfile = new StreamWriter(outputfile))
-                {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                    if (PublishingSiteScanResults != null)
-                    {
-                        foreach (var item in this.PublishingSiteScanResults)
-                        {
-                            outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), item.Value.NumberOfWebs, item.Value.NumberOfPages,
-                                                                                               ToCsv(PublishingPageScanResult.FormatList(item.Value.UsedSiteMasterPages)), ToCsv(PublishingPageScanResult.FormatList(item.Value.UsedSystemMasterPages)),
-                                                                                               ToCsv(PublishingPageScanResult.FormatList(item.Value.UsedPageLayouts)), item.Value.LastPageUpdateDate.HasValue ? item.Value.LastPageUpdateDate.ToString() : ""
-                                                       )));
-                        }
-                    }
-                }
-
-                // Export the web publishing data
-                outputfile = string.Format("{0}\\ModernizationPublishingWebScanResults.csv", this.OutputFolder);
-                outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "SiteCollectionComplexity",
-                                               "WebTemplate", "Level", "PageCount", "Language", "VariationLabels", "VariationSourceLabel",
-                                               "SiteMasterPage", "SystemMasterPage", "AlternateCSS", "HasIncompatibleUserCustomActions",
-                                               "AllowedPageLayouts", "PageLayoutsConfiguration", "DefaultPageLayout",
-                                               "GlobalNavigationType", "GlobalStructuralNavigationShowSubSites", "GlobalStructuralNavigationShowPages","GlobalStructuralNavigationShowSiblings","GlobalStructuralNavigationMaxCount","GlobalManagedNavigationTermSetId",
-                                               "CurrentNavigationType","CurrentStructuralNavigationShowSubSites","CurrentStructuralNavigationShowPages","CurrentStructuralNavigationShowSiblings","CurrentStructuralNavigationMaxCount","CurrentManagedNavigationTermSetId",
-                                               "ManagedNavigationAddNewPages", "ManagedNavigationCreateFriendlyUrls",
-                                               "LibraryItemScheduling","LibraryEnableModeration","LibraryEnableVersioning","LibraryEnableMinorVersions","LibraryApprovalWorkflowDefined",
-                                               "BrokenPermissionInheritance",
-                                               "Admins",
-                                               "Owners"
-                                             };
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
-                using (StreamWriter outfile = new StreamWriter(outputfile))
-                {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                    foreach (var item in this.PublishingWebScanResults)
-                    {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.SiteClassification),
-                                                                                           ToCsv(item.Value.WebTemplate), item.Value.Level.ToString(), item.Value.PageCount.ToString(), item.Value.Language.ToString(), ToCsv(item.Value.VariationLabels), ToCsv(item.Value.VariationSourceLabel),
-                                                                                           ToCsv(item.Value.SiteMasterPage), ToCsv(item.Value.SystemMasterPage), ToCsv(item.Value.AlternateCSS), (item.Value.UserCustomActions != null && item.Value.UserCustomActions.Count > 0),
-                                                                                           ToCsv(item.Value.AllowedPageLayouts), ToCsv(item.Value.PageLayoutsConfiguration), ToCsv(item.Value.DefaultPageLayout),
-                                                                                           ToCsv(item.Value.GlobalNavigationType), item.Value.GlobalStructuralNavigationShowSubSites.HasValue ? item.Value.GlobalStructuralNavigationShowSubSites.Value.ToString() : "", item.Value.GlobalStructuralNavigationShowPages.HasValue ? item.Value.GlobalStructuralNavigationShowPages.Value.ToString() : "", item.Value.GlobalStructuralNavigationShowSiblings.HasValue ? item.Value.GlobalStructuralNavigationShowSiblings.Value.ToString() : "", item.Value.GlobalStructuralNavigationMaxCount.HasValue ? item.Value.GlobalStructuralNavigationMaxCount.Value.ToString() : "", ToCsv(item.Value.GlobalManagedNavigationTermSetId),
-                                                                                           ToCsv(item.Value.CurrentNavigationType), item.Value.CurrentStructuralNavigationShowSubSites.HasValue ? item.Value.CurrentStructuralNavigationShowSubSites.Value.ToString() : "", item.Value.CurrentStructuralNavigationShowPages.HasValue ? item.Value.CurrentStructuralNavigationShowPages.Value.ToString() : "", item.Value.CurrentStructuralNavigationShowSiblings.HasValue ? item.Value.CurrentStructuralNavigationShowSiblings.Value.ToString() : "", item.Value.CurrentStructuralNavigationMaxCount.HasValue ? item.Value.CurrentStructuralNavigationMaxCount.Value.ToString() : "", ToCsv(item.Value.CurrentManagedNavigationTermSetId),
-                                                                                           item.Value.ManagedNavigationAddNewPages.HasValue ? item.Value.ManagedNavigationAddNewPages.ToString() : "", item.Value.ManagedNavigationCreateFriendlyUrls.HasValue ? item.Value.ManagedNavigationCreateFriendlyUrls.ToString() : "",
-                                                                                           item.Value.LibraryItemScheduling.ToString(), item.Value.LibraryEnableModeration.ToString(), item.Value.LibraryEnableVersioning.ToString(), item.Value.LibraryEnableMinorVersions.ToString(), item.Value.LibraryApprovalWorkflowDefined.ToString(),
-                                                                                           item.Value.BrokenPermissionInheritance.ToString(),
-                                                                                           ToCsv(SiteScanResult.FormatUserList(item.Value.Admins, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)),
-                                                                                           ToCsv(SiteScanResult.FormatUserList(item.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim))
-                                                    )));
-                    }
-                }
-
-                if (Options.IncludePublishingWithPages(this.Mode))
-                {
-                    // Export the page publishing data
-                    outputfile = string.Format("{0}\\ModernizationPublishingPageScanResults.csv", this.OutputFolder);
-                    outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl", "WebRelativeUrl", "PageRelativeUrl", "PageName",
-                                                   "ContentType", "ContentTypeId", "PageLayout", "PageLayoutFile", "PageLayoutWasCustomized",
-                                                   "GlobalAudiences", "SecurityGroupAudiences", "SharePointGroupAudiences",
-                                                   "ModifiedAt", "ModifiedBy", "Mapping %", "Unmapped web parts"
-                                                 };
-
-                    string header1 = string.Join(this.Separator, outputHeaders);
-                    string header2 = "";
-                    for (int i = 1; i <= 20; i++)
-                    {
-                        if (ExportWebPartProperties)
-                        {
-                            header2 = header2 + $"{this.Separator}WPType{i}{this.Separator}WPTitle{i}{this.Separator}WPData{i}";
-                        }
-                        else
-                        {
-                            header2 = header2 + $"{this.Separator}WPType{i}{this.Separator}WPTitle{i}";
-                        }
-                    }
-
-                    Console.WriteLine("Outputting scan results to {0}", outputfile);
-                    using (StreamWriter outfile = new StreamWriter(outputfile))
-                    {
-                        outfile.Write(string.Format("{0}\r\n", header1 + header2));
-                        foreach (var item in this.PublishingPageScanResults)
-                        {
-                            var part1 = string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL), ToCsv(item.Value.WebRelativeUrl), ToCsv(item.Value.PageRelativeUrl), ToCsv(item.Value.PageName),
-                                                                    ToCsv(item.Value.ContentType), ToCsv(item.Value.ContentTypeId), ToCsv(item.Value.PageLayout), ToCsv(item.Value.PageLayoutFile), item.Value.PageLayoutWasCustomized,
-                                                                    ToCsv(PublishingPageScanResult.FormatList(item.Value.GlobalAudiences)), ToCsv(PublishingPageScanResult.FormatList(item.Value.SecurityGroupAudiences, "|")), ToCsv(PublishingPageScanResult.FormatList(item.Value.SharePointGroupAudiences)),
-                                                                    ToDateString(item.Value.ModifiedAt, this.DateFormat), ToCsv(item.Value.ModifiedBy), "{MappingPercentage}", "{UnmappedWebParts}"
-                                );
-
-                            string part2 = "";
-                            if (item.Value.WebParts != null)
-                            {
-                                int webPartsOnPage = item.Value.WebParts.Count();
-                                int webPartsOnPageMapped = 0;
-                                List<string> nonMappedWebParts = new List<string>();
-                                foreach (var webPart in item.Value.WebParts.OrderBy(p => p.Row).ThenBy(p => p.Column).ThenBy(p => p.Order))
-                                {
-                                    var found = this.PageTransformation.WebParts.Where(p => p.Type.Equals(webPart.Type, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-                                    if (found != null && found.Mappings != null)
-                                    {
-                                        webPartsOnPageMapped++;
-                                    }
-                                    else
-                                    {
-                                        var t = webPart.Type.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0];
-                                        if (!nonMappedWebParts.Contains(t))
-                                        {
-                                            nonMappedWebParts.Add(t);
-                                        }
-                                    }
-
-                                    if (ExportWebPartProperties)
-                                    {
-                                        part2 = part2 + $"{this.Separator}{ToCsv(webPart.TypeShort())}{this.Separator}{ToCsv(webPart.Title)}{this.Separator}{ToCsv(webPart.Json())}";
-                                    }
-                                    else
-                                    {
-                                        part2 = part2 + $"{this.Separator}{ToCsv(webPart.TypeShort())}{this.Separator}{ToCsv(webPart.Title)}";
-                                    }
-                                }
-                                part1 = part1.Replace("{MappingPercentage}", webPartsOnPage == 0 ? "100" : String.Format("{0:0}", (((double)webPartsOnPageMapped / (double)webPartsOnPage) * 100))).Replace("{UnmappedWebParts}", SiteScanResult.FormatList(nonMappedWebParts));
-                            }
-                            else
-                            {
-                                part1 = part1.Replace("{MappingPercentage}", "").Replace("{UnmappedWebParts}", "");
-                            }
-
-                            outfile.Write(string.Format("{0}\r\n", part1 + (!string.IsNullOrEmpty(part2) ? part2 : "")));
-                        }
-                    }
+                    outStream.Flush();
+                    this.GeneratedFileStreams.Add("ModernizationPublishingPageScanResults.csv", modernizationPublishingPageScanResults);
                 }
             }
 
@@ -821,7 +826,7 @@ namespace SharePoint.Modernization.Scanner.Core
                     this.ScannerTelemetry.LogWorkflowScan(this.WorkflowScanResults);
                 }
 
-                outputfile = string.Format("{0}\\ModernizationWorkflowScanResults.csv", this.OutputFolder);
+                MemoryStream modernizationWorkflowScanResults = new MemoryStream();
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB",
                                                "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id",
                                                "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id",
@@ -829,23 +834,24 @@ namespace SharePoint.Modernization.Scanner.Core
                                                "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Incompatible Action Count", "Incompatible Actions",
                                                "Change Year", "Change Quarter", "Change Month" };
 
-                using (StreamWriter outfile = new StreamWriter(outputfile))
-                {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                    foreach (var workflow in this.WorkflowScanResults)
-                    {
+                outStream = new StreamWriter(modernizationWorkflowScanResults);
 
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), workflow.Value.ConsiderUpgradingToFlow, ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
+
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                foreach (var workflow in this.WorkflowScanResults)
+                {
+
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), workflow.Value.ConsiderUpgradingToFlow, ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
                                                                                            ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
                                                                                            ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(),
                                                                                            ToDateString(workflow.Value.LastDefinitionEdit, this.DateFormat), ToDateString(workflow.Value.LastSubscriptionEdit, this.DateFormat),
                                                                                            workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, workflow.Value.UnsupportedActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow)),
                                                                                            ToYearString(workflow.Value.LastDefinitionEdit), ToQuarterString(workflow.Value.LastDefinitionEdit), ToMonthString(workflow.Value.LastDefinitionEdit)
                                                      )));
-                    }
                 }
 
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("ModernizationWorkflowScanResults.csv", modernizationWorkflowScanResults);
             }
 
             if (Options.IncludeInfoPath(this.Mode))
@@ -856,24 +862,23 @@ namespace SharePoint.Modernization.Scanner.Core
                     this.ScannerTelemetry.LogInfoPathScan(this.InfoPathScanResults);
                 }
 
-                outputfile = string.Format("{0}\\ModernizationInfoPathScanResults.csv", this.OutputFolder);
-                outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count", 
+                MemoryStream modernizationInfoPathScanResults = new MemoryStream();
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count",
                                                "List Title", "List Url", "List Id", "Template",
                                                "Change Year", "Change Quarter", "Change Month"  };
 
-                using (StreamWriter outfile = new StreamWriter(outputfile))
+                outStream = new StreamWriter(modernizationInfoPathScanResults);
+
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                foreach (var infoPath in this.InfoPathScanResults)
                 {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                    foreach (var infoPath in this.InfoPathScanResults)
-                    {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, ToDateString(infoPath.Value.LastItemUserModifiedDate, this.DateFormat), infoPath.Value.ItemCount,
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, ToDateString(infoPath.Value.LastItemUserModifiedDate, this.DateFormat), infoPath.Value.ItemCount,
                                                                                            ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate),
                                                                                            ToYearString(infoPath.Value.LastItemUserModifiedDate), ToQuarterString(infoPath.Value.LastItemUserModifiedDate), ToMonthString(infoPath.Value.LastItemUserModifiedDate)
                                                      )));
-                    }
                 }
-
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("ModernizationInfoPathScanResults.csv", modernizationInfoPathScanResults);
             }
 
             if (Options.IncludeBlog(this.Mode))
@@ -884,39 +889,38 @@ namespace SharePoint.Modernization.Scanner.Core
                     this.ScannerTelemetry.LogBlogScan(this.BlogWebScanResults, this.BlogPageScanResults);
                 }
 
-                outputfile = string.Format("{0}\\ModernizationBlogWebScanResults.csv", this.OutputFolder);
+                MemoryStream modernizationBlogWebScanResults = new MemoryStream();
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language",
                                                "Blog Page Count", "Last blog change date", "Last blog publish date",
                                                "Change Year", "Change Quarter", "Change Month" };
 
-                using (StreamWriter outfile = new StreamWriter(outputfile))
+                outStream = new StreamWriter(modernizationBlogWebScanResults);
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                foreach (var blogWeb in this.BlogWebScanResults)
                 {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                    foreach (var blogWeb in this.BlogWebScanResults)
-                    {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.WebTemplate, blogWeb.Value.Language, 
-                                                                                           blogWeb.Value.BlogPageCount, ToDateString(blogWeb.Value.LastRecentBlogPageChange, this.DateFormat), ToDateString(blogWeb.Value.LastRecentBlogPagePublish, this.DateFormat), 
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.WebTemplate, blogWeb.Value.Language,
+                                                                                           blogWeb.Value.BlogPageCount, ToDateString(blogWeb.Value.LastRecentBlogPageChange, this.DateFormat), ToDateString(blogWeb.Value.LastRecentBlogPagePublish, this.DateFormat),
                                                                                            ToYearString(blogWeb.Value.LastRecentBlogPageChange), ToQuarterString(blogWeb.Value.LastRecentBlogPageChange), ToMonthString(blogWeb.Value.LastRecentBlogPageChange)
                                                      )));
-                    }
                 }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("ModernizationBlogWebScanResults.csv", modernizationBlogWebScanResults);
 
-                Console.WriteLine("Outputting scan results to {0}", outputfile);
 
-                outputfile = string.Format("{0}\\ModernizationBlogPageScanResults.csv", this.OutputFolder);
+                MemoryStream modernizationBlogPageScanResults = new MemoryStream();
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Page Relative Url", "Page Title",
                                                "Modified At", "Modified By", "Published At" };
 
-                using (StreamWriter outfile = new StreamWriter(outputfile))
+                outStream = new StreamWriter(modernizationBlogPageScanResults);
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                foreach (var blogPage in this.BlogPageScanResults)
                 {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                    foreach (var blogPage in this.BlogPageScanResults)
-                    {
-                        outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
                                                                                            ToDateString(blogPage.Value.ModifiedAt, this.DateFormat), ToCsv(blogPage.Value.ModifiedBy), ToDateString(blogPage.Value.PublishedDate, this.DateFormat)
                                                      )));
-                    }
                 }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("ModernizationBlogPageScanResults.csv", modernizationBlogPageScanResults);
             }
 
             VersionWarning();

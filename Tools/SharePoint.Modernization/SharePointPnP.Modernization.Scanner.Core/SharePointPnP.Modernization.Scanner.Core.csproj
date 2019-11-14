@@ -208,6 +208,7 @@
     <Compile Include="Options.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reports\Generator.cs" />
+    <Compile Include="Reports\ReportStream.cs" />
     <Compile Include="Reports\ScanSummary.cs" />
     <Compile Include="Results\BlogPageScanResult.cs" />
     <Compile Include="Results\BlogWebScanResult.cs" />

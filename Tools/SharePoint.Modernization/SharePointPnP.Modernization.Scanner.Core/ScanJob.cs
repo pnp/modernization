@@ -34,6 +34,7 @@ namespace SharePoint.Modernization.Scanner.Core
         public string Tenant;
         public string ClientTag;
         public IList<string> Urls;
+        public Dictionary<string, Stream> GeneratedFileStreams;
 
         // Result stacks
         public ConcurrentStack<ScanError> ScanErrors = new ConcurrentStack<ScanError>();
@@ -124,43 +125,39 @@ namespace SharePoint.Modernization.Scanner.Core
             Console.WriteLine("=====================================================");
 
             // Export the common CSV's (like errors)
-            System.IO.Directory.CreateDirectory(this.OutputFolder);
-            string outputfile = null;
             string[] outputHeaders = null;
 
             #region Errors
-            string errorfile = string.Format("{0}\\errors.csv", this.OutputFolder);
-            Console.WriteLine("Outputting errors to {0}", errorfile);
+            MemoryStream errors = new MemoryStream();
             outputHeaders = new string[] { "Site Url", "Site Collection Url", "Error", "Field1", "Field2", "Field3" };
-            using (StreamWriter outfile = new StreamWriter(errorfile))
+            StreamWriter outStream = new StreamWriter(errors);
+            outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+            ScanError error;
+            while (this.ScanErrors.TryPop(out error))
             {
-                outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                ScanError error;
-                while (this.ScanErrors.TryPop(out error))
-                {
-                    outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(error.SiteURL), ToCsv(error.SiteColUrl), ToCsv(error.Error), ToCsv(error.Field1), ToCsv(error.Field2), ToCsv(error.Field3))));
-                }
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(error.SiteURL), ToCsv(error.SiteColUrl), ToCsv(error.Error), ToCsv(error.Field1), ToCsv(error.Field2), ToCsv(error.Field3))));
             }
+            outStream.Flush();
+            this.GeneratedFileStreams.Add("Errors.csv", errors);
             #endregion
 
             #region Scanner data
-            outputfile = string.Format("{0}\\ScannerSummary.csv", this.OutputFolder);
-            Console.WriteLine("Outputting information over the done scan to {0}", outputfile);
+            MemoryStream scannerSummary = new MemoryStream();
+            outStream = new StreamWriter(scannerSummary);
             outputHeaders = new string[] { "Site collections scanned", "Webs scanned", "List scanned", "Scan duration", "Scanner version" };
-            using (StreamWriter outfile = new StreamWriter(outputfile))
+            outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+            string version = "";
+            try
             {
-                outfile.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
-                string version = "";
-                try
-                {
-                    Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                    FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(BaseOptions.UrlToFileName(assembly.EscapedCodeBase));
-                    version = fvi.FileVersion;
-                }
-                catch { }
-                TimeSpan ts = DateTime.Now.Subtract(this.StartTime);
-                outfile.Write(string.Format("{0}\r\n", ToCsv(string.Join(this.Separator, this.ScannedSites, this.ScannedWebs, this.ScannedLists, $"{ts.Days} days - {ts.Hours} hours - {ts.Minutes} minutes and {ts.Seconds} seconds", version))));
+                Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(BaseOptions.UrlToFileName(assembly.EscapedCodeBase));
+                version = fvi.FileVersion;
             }
+            catch { }
+            TimeSpan ts = DateTime.Now.Subtract(this.StartTime);
+            outStream.Write(string.Format("{0}\r\n", ToCsv(string.Join(this.Separator, this.ScannedSites, this.ScannedWebs, this.ScannedLists, $"{ts.Days} days - {ts.Hours} hours - {ts.Minutes} minutes and {ts.Seconds} seconds", version))));
+            outStream.Flush();
+            this.GeneratedFileStreams.Add("ScannerSummary.csv", scannerSummary);
             #endregion
 
             return start;

@@ -37,7 +37,7 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
             else
             {
                 // No webpartmapping file found, let's grab the embedded one
-                string webpartMappingString = WebpartMappingLoader.LoadFile("SharePoint.Modernization.Scanner.webpartmapping.xml");
+                string webpartMappingString = WebpartMappingLoader.LoadFile("SharePointPnP.Modernization.Scanner.webpartmapping.xml");
                 using (var stream = WebpartMappingLoader.GenerateStreamFromString(webpartMappingString))
                 {
                     pt = (PageTransformation)xmlMapping.Deserialize(stream);

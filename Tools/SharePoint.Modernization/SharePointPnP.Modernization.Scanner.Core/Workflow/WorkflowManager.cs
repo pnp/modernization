@@ -294,11 +294,11 @@ namespace SharePoint.Modernization.Scanner.Core.Workflow
 
             if (wfType == WorkflowTypes.SP2010)
             {
-                fileName = "SharePoint.Modernization.Scanner.Workflow.sp2010wfmodel.xml";
+                fileName = "SharePointPnP.Modernization.Scanner.Core.Workflow.sp2010wfmodel.xml";
             }
             else if (wfType == WorkflowTypes.SP2013)
             {
-                fileName = "SharePoint.Modernization.Scanner.Workflow.sp2013wfmodel.xml";
+                fileName = "SharePointPnP.Modernization.Scanner.Core.Workflow.sp2013wfmodel.xml";
             }
 
             var wfModelString = "";

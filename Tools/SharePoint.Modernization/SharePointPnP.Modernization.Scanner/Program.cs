@@ -1,6 +1,7 @@
 ﻿using SharePoint.Modernization.Scanner.Core;
 using SharePoint.Modernization.Scanner.Core.Reports;
 using SharePoint.Modernization.Scanner.Core.Telemetry;
+using SharePointPnP.Modernization.Scanner.Core.Reports;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,22 +45,24 @@ namespace SharePoint.Modernization.Scanner
             if (options.ExportPaths != null && options.ExportPaths.Count > 0)
             {
                 Generator generator = new Generator();
-                generator.CreateGroupifyReport(options.ExportPaths);
-                generator.CreateListReport(options.ExportPaths);
-                generator.CreatePageReport(options.ExportPaths);
-                generator.CreatePublishingReport(options.ExportPaths);
-                generator.CreateWorkflowReport(options.ExportPaths);
-                generator.CreateInfoPathReport(options.ExportPaths);
-                generator.CreateBlogReport(options.ExportPaths);
+                //generator.CreateGroupifyReport(options.ExportPaths);
+                //generator.CreateListReport(options.ExportPaths);
+                //generator.CreatePageReport(options.ExportPaths);
+                //generator.CreatePublishingReport(options.ExportPaths);
+                //generator.CreateWorkflowReport(options.ExportPaths);
+                //generator.CreateInfoPathReport(options.ExportPaths);
+                //generator.CreateBlogReport(options.ExportPaths);
             }
             else
             {
                 try
                 {
                     DateTime scanStartDateTime = DateTime.Now;
-
+                                       
                     // let's catch unhandled exceptions 
                     AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+                    string workingFolder = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), DateTime.Now.Ticks.ToString());
 
                     //Instantiate scan job
                     ModernizationScanJob job = new ModernizationScanJob(options)
@@ -73,47 +76,95 @@ namespace SharePoint.Modernization.Scanner
 
                     job.Execute();
 
+                    // Persist the CSV file streams
+                    Directory.CreateDirectory(workingFolder);
+                    foreach (var csvStream in job.GeneratedFileStreams)
+                    {
+                        // Move pointer to start 
+                        csvStream.Value.Position = 0;
+                        string outputfile = $"{workingFolder}\\{csvStream.Key}";
+
+                        Console.WriteLine("Outputting scan results to {0}", outputfile);
+                        using (var fileStream = File.Create(outputfile))
+                        {
+                            CopyStream(csvStream.Value, fileStream);
+                            if (options.SkipReport)
+                            {
+                                // Close and dispose the stream when we're not generating reports
+                                csvStream.Value.Dispose();
+                            }
+                            else
+                            {
+                                csvStream.Value.Position = 0;
+                            }
+                        }
+                    }
+
                     // Create reports
                     if (!options.SkipReport)
                     {
-                        string workingFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                        List<ReportStream> reportStreams = new List<ReportStream>();
+
+                        foreach (var csvStream in job.GeneratedFileStreams)
+                        {
+                            reportStreams.Add(new ReportStream()
+                            {
+                                Name = csvStream.Key,
+                                Source = workingFolder,
+                                DataStream = csvStream.Value,
+                            });
+                        }
+
                         List<string> paths = new List<string>
                         {
-                            Path.Combine(workingFolder, job.OutputFolder)
+                            workingFolder
                         };
 
                         var generator = new Generator();
 
-                        generator.CreateGroupifyReport(paths);
+                        var groupifyReport = generator.CreateGroupifyReport(reportStreams);
+                        PersistStream($"{workingFolder}\\{Generator.GroupifyReport}", groupifyReport);
 
                         if (Options.IncludeLists(options.Mode))
                         {
-                            generator.CreateListReport(paths);
+                            var listReport = generator.CreateListReport(reportStreams);
+                            PersistStream($"{workingFolder}\\{Generator.ListReport}", listReport);
                         }
 
                         if (Options.IncludePage(options.Mode))
                         {
-                            generator.CreatePageReport(paths);
+                            var pageReport = generator.CreatePageReport(reportStreams);
+                            PersistStream($"{workingFolder}\\{Generator.PageReport}", pageReport);
                         }
 
                         if (Options.IncludePublishing(options.Mode))
                         {
-                            generator.CreatePublishingReport(paths);
+                            var publishingReport = generator.CreatePublishingReport(reportStreams);
+                            PersistStream($"{workingFolder}\\{Generator.PublishingReport}", publishingReport);
                         }
 
                         if (Options.IncludeWorkflow(options.Mode))
                         {
-                            generator.CreateWorkflowReport(paths);
+                            var workflowReport = generator.CreateWorkflowReport(reportStreams);
+                            PersistStream($"{workingFolder}\\{Generator.WorkflowReport}", workflowReport);
                         }
 
                         if (Options.IncludeInfoPath(options.Mode))
                         {
-                            generator.CreateInfoPathReport(paths);
+                            var infoPathReport = generator.CreateInfoPathReport(reportStreams);
+                            PersistStream($"{workingFolder}\\{Generator.InfoPathReport}", infoPathReport);
                         }
 
                         if (Options.IncludeBlog(options.Mode))
                         {
-                            generator.CreateBlogReport(paths);
+                            var blogReport = generator.CreateBlogReport(reportStreams);
+                            PersistStream($"{workingFolder}\\{Generator.BlogReport}", blogReport);
+                        }
+
+                        // Dispose streams
+                        foreach (var csvStream in job.GeneratedFileStreams)
+                        {
+                            csvStream.Value.Dispose();
                         }
                     }
 
@@ -133,11 +184,37 @@ namespace SharePoint.Modernization.Scanner
             }            
         }
 
+        private static void PersistStream(string outputfile, Stream excelReport)
+        {            
+            if (excelReport == null)
+            {
+                return;
+            }
+
+            Console.WriteLine($"Creating {outputfile}");
+
+            using (var fileStream = File.Create(outputfile))
+            {
+                excelReport.Position = 0;
+                CopyStream(excelReport, fileStream);
+            }
+        }
+
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             if (scannerTelemetry != null)
             {
                 scannerTelemetry.LogScanCrash(e.ExceptionObject);
+            }
+        }
+
+        private static void CopyStream(Stream input, Stream output)
+        {
+            byte[] buffer = new byte[8 * 1024];
+            int len;
+            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, len);
             }
         }
     }
