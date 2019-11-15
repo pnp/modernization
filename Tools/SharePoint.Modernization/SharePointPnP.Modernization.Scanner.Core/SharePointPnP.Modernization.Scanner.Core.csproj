@@ -198,7 +198,6 @@
     <Compile Include="Analyzers\SiteAnalyzer.cs" />
     <Compile Include="Analyzers\WebAnalyzer.cs" />
     <Compile Include="Analyzers\WorkflowAnalyzer.cs" />
-    <Compile Include="BaseOptions.cs" />
     <Compile Include="Extensions\FieldExtensions.cs" />
     <Compile Include="Extensions\FileExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />

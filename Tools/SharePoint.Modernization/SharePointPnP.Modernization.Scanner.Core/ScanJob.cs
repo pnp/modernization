@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SharePoint.Modernization.Scanner.Core
 {
@@ -47,7 +48,7 @@ namespace SharePoint.Modernization.Scanner.Core
         /// <param name="options">Scanner options</param>
         /// <param name="jobName">Name of the job</param>
         /// <param name="jobVersion">Version of the job</param>
-        public ScanJob(BaseOptions options, string jobName, string jobVersion) : base(jobName, jobVersion)
+        public ScanJob(Options options, string jobName, string jobVersion) : base(jobName, jobVersion)
         {
             // Basic scan job configuration
             this.UseThreading = true;
@@ -68,7 +69,46 @@ namespace SharePoint.Modernization.Scanner.Core
             }
             else if (options.AuthenticationTypeProvided() == AuthenticationType.AzureADAppOnly)
             {
-                this.UseAzureADAppOnlyAuthentication(options.ClientID, options.AzureTenant, options.CertificatePfx, options.CertificatePfxPassword);
+
+                if (!string.IsNullOrEmpty(options.StoredCertificate))
+                {
+                    // Did we get a three part certificate path (= local stored cert)
+                    var certPath = options.StoredCertificate.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                    if (certPath.Length == 3 && (certPath[1].Equals("CurrentUser", StringComparison.InvariantCultureIgnoreCase) || certPath[1].Equals("LocalMachine", StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        // Load the Azure cert based upon this
+                        string certThumbPrint = certPath[2].ToUpper();
+
+                        Enum.TryParse(certPath[0], out StoreName storeName);
+                        Enum.TryParse(certPath[1], out StoreLocation storeLocation);
+
+                        var store = new X509Store(storeName, storeLocation);
+                        store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+                        var certificateCollection = store.Certificates.Find(X509FindType.FindByThumbprint, certThumbPrint, false);
+
+                        store.Close();
+
+                        foreach (var certificate in certificateCollection)
+                        {
+                            if (certificate.Thumbprint == certThumbPrint)
+                            {
+                                options.AzureCert = certificate;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (options.AzureCert == null)
+                    {
+                        throw new Exception($"No valid certificate found for provided path {options.StoredCertificate}");
+                    }
+
+                    this.UseAzureADAppOnlyAuthentication(options.ClientID, options.AzureTenant, options.AzureCert);
+                }
+                else
+                {
+                    this.UseAzureADAppOnlyAuthentication(options.ClientID, options.AzureTenant, options.CertificatePfx, options.CertificatePfxPassword);
+                }
             }
             else if (options.AuthenticationTypeProvided() == AuthenticationType.Office365)
             {
@@ -150,7 +190,7 @@ namespace SharePoint.Modernization.Scanner.Core
             try
             {
                 Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(BaseOptions.UrlToFileName(assembly.EscapedCodeBase));
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Options.UrlToFileName(assembly.EscapedCodeBase));
                 version = fvi.FileVersion;
             }
             catch { }

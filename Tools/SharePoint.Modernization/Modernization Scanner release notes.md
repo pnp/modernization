@@ -8,6 +8,8 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ## Added
 
+- Added option to use a certificate stored in certificate store (next to the already existing option of providing via pfx)
+
 ## Changed
 
 - Refactored the scanner into a core scanner library and a consumer (.exe). Core scanner library uses streams for all the file manipulation, the consumer is responsible for providing/persisting files. This will make the core scan component easier to use

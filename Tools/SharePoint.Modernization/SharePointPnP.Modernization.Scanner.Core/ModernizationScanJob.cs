@@ -57,7 +57,7 @@ namespace SharePoint.Modernization.Scanner.Core
         /// Instantiate the scanner
         /// </summary>
         /// <param name="options">Options instance</param>
-        public ModernizationScanJob(Options options) : base(options as BaseOptions, "ModernizationScanner", "1.0")
+        public ModernizationScanJob(Options options) : base(options, "ModernizationScanner", "1.0")
         {
             this.options = options;
 
