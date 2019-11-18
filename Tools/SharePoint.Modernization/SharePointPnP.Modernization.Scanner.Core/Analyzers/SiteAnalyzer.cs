@@ -63,6 +63,21 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 // Is this the root site collection of the tenant
                 scanResult.IsRootSite = new Uri(this.SiteCollectionUrl).PathAndQuery.Equals("/");
 
+                // Is this site group connected
+                scanResult.Office365GroupId = site.GroupId;
+
+                if (site.GroupId != Guid.Empty)
+                {
+                    if (this.ScanJob.TeamifiedSiteCollections.Contains(site.GroupId))
+                    {
+                        scanResult.HasTeamsTeam = true;
+                    }
+                    else
+                    {
+                        scanResult.HasTeamsTeam = false;
+                    }
+                }
+
                 // Get security information for this site
                 if (!this.ScanJob.SkipUserInformation)
                 {
@@ -70,7 +85,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                     scanResult.Owners = web.GetOwners();
                     scanResult.Members = web.GetMembers();
                     scanResult.Visitors = web.GetVisitors();
-                    scanResult.Office365GroupId = site.GroupId;
                     scanResult.EveryoneClaimsGranted = web.ClaimsHaveRoleAssignment(this.ScanJob.EveryoneClaim, this.ScanJob.EveryoneExceptExternalUsersClaim);
                 }
 

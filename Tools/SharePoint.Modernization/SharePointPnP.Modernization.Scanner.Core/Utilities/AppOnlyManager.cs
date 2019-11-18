@@ -178,6 +178,21 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
             return false;
         }
 
+        internal string GetGraphAccessToken(Options options)
+        {
+            if (options.AzureCert != null)
+            {
+                var certificate = new ClientAssertionCertificate(options.ClientID, options.AzureCert);
+                string authority = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/", "https://login.microsoftonline.com", options.AzureTenant);
+                AuthenticationContext context = new AuthenticationContext(authority);
+                string resource = "https://graph.microsoft.com";
+                AuthenticationResult authenticationResult = context.AcquireTokenAsync(resource, certificate).GetAwaiter().GetResult();
+                return authenticationResult.AccessToken;
+            }
+
+            return null;
+        }
+
         #region Helper methods
         private void LoadSites(ClientContext tenantAdminClientContext)
         {
@@ -285,23 +300,13 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
 
         private string GetAzureADAppOnlyToken(Options options, string siteUrl, AzureEnvironment environment = AzureEnvironment.Production)
         {
-            var certfile = System.IO.File.OpenRead(options.CertificatePfx);
-            var certificateBytes = new byte[certfile.Length];
-            certfile.Read(certificateBytes, 0, (int)certfile.Length);
-            var cert = new X509Certificate2(
-                certificateBytes,
-                options.CertificatePfxPassword,
-                X509KeyStorageFlags.Exportable |
-                X509KeyStorageFlags.MachineKeySet |
-                X509KeyStorageFlags.PersistKeySet);
-
             var clientContext = new ClientContext(siteUrl);
 
-            string authority = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/", new OfficeDevPnP.Core.AuthenticationManager().GetAzureADLoginEndPoint(environment), options.AzureTenant);
+            string authority = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/", new AuthenticationManager().GetAzureADLoginEndPoint(environment), options.AzureTenant);
 
             var authContext = new AuthenticationContext(authority);
 
-            var clientAssertionCertificate = new ClientAssertionCertificate(options.ClientID, cert);
+            var clientAssertionCertificate = new ClientAssertionCertificate(options.ClientID, options.AzureCert);
 
             var host = new Uri(siteUrl);
 

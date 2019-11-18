@@ -1122,7 +1122,7 @@ namespace SharePoint.Modernization.Scanner.Core.Reports
                     // Table 1: Ready for Groupify
                     var readyForGroupifyTable1 = baseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "SiteUrl", "ReadyForGroupify", "GroupMode", "ModernHomePage", "WebTemplate", "MasterPage", "AlternateCSS", "UserCustomActions", "SubSites", "SubSitesWithBrokenPermissionInheritance", "ModernPageWebFeatureDisabled", "ModernPageFeatureWasEnabledBySPO", "ModernListSiteBlockingFeatureEnabled", "ModernListWebBlockingFeatureEnabled", "SitePublishingFeatureEnabled", "WebPublishingFeatureEnabled", "Everyone(ExceptExternalUsers)Claim", "UsesADGroups", "ExternalSharing" };
+                    string[] columnsToKeep = new string[] { "SiteUrl", "ReadyForGroupify", "GroupMode", "ModernHomePage", "WebTemplate", "HasTeamsTeam", "MasterPage", "AlternateCSS", "UserCustomActions", "SubSites", "SubSitesWithBrokenPermissionInheritance", "ModernPageWebFeatureDisabled", "ModernPageFeatureWasEnabledBySPO", "ModernListSiteBlockingFeatureEnabled", "ModernListWebBlockingFeatureEnabled", "SitePublishingFeatureEnabled", "WebPublishingFeatureEnabled", "Everyone(ExceptExternalUsers)Claim", "UsesADGroups", "ExternalSharing" };
                     readyForGroupifyTable1 = DropTableColumns(readyForGroupifyTable1, columnsToKeep);
 
                     if (readyForGroupifyTable == null)

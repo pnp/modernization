@@ -120,6 +120,11 @@ namespace SharePoint.Modernization.Scanner.Core.Results
         public Guid Office365GroupId { get; set; }
         
         /// <summary>
+        /// Is there a Teams team connected to the same Office 365 group as this site collection
+        /// </summary>
+        public bool? HasTeamsTeam { get; set; }
+
+        /// <summary>
         /// Site sharing capabilities
         /// </summary>
         public string SharingCapabilities { get; set; }
@@ -182,6 +187,7 @@ namespace SharePoint.Modernization.Scanner.Core.Results
                 Visitors = this.Visitors,
                 EveryoneClaimsGranted = this.EveryoneClaimsGranted,
                 Office365GroupId = this.Office365GroupId,
+                HasTeamsTeam = this.HasTeamsTeam,
                 SharingCapabilities = this.SharingCapabilities,
                 ViewsLifeTime = this.ViewsLifeTime,
                 ViewsLifeTimeUniqueUsers = this.ViewsLifeTimeUniqueUsers,
@@ -539,6 +545,25 @@ namespace SharePoint.Modernization.Scanner.Core.Results
         #endregion
 
         #region output formatting
+        public string IsTeamified()
+        {
+            if (this.HasTeamsTeam.HasValue)
+            {
+                if (this.HasTeamsTeam.Value)
+                {
+                    return "True";
+                }
+                else
+                {
+                    return "False";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
         public static string FormatUserList(List<UserEntity> users, string everyoneClaim = null, string everyoneExceptExternalUsersClaim = null)
         {
             string userList = "";

@@ -12,6 +12,8 @@ using SharePointPnP.Modernization.Framework;
 using SharePoint.Modernization.Scanner.Core.Telemetry;
 using SharePoint.Modernization.Scanner.Core.Utilities;
 using SharePoint.Modernization.Scanner.Core.Workflow;
+using OfficeDevPnP.Core.Framework.Graph;
+using Newtonsoft.Json.Linq;
 
 namespace SharePoint.Modernization.Scanner.Core
 {
@@ -47,6 +49,8 @@ namespace SharePoint.Modernization.Scanner.Core
         public ConcurrentDictionary<string, InfoPathScanResult> InfoPathScanResults;
         public ConcurrentDictionary<string, BlogWebScanResult> BlogWebScanResults;
         public ConcurrentDictionary<string, BlogPageScanResult> BlogPageScanResults;
+        public List<Guid> TeamifiedSiteCollections;
+        public bool TeamifiedSiteCollectionsLoaded = false;
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
         public ScannerTelemetry ScannerTelemetry;
@@ -96,6 +100,7 @@ namespace SharePoint.Modernization.Scanner.Core
             this.BlogWebScanResults = new ConcurrentDictionary<string, BlogWebScanResult>(options.Threads, 50000);
             this.BlogPageScanResults = new ConcurrentDictionary<string, BlogPageScanResult>(options.Threads, 500000);
             this.GeneratedFileStreams = new Dictionary<string, Stream>();
+            this.TeamifiedSiteCollections = new List<Guid>();
 
             // Setup telemetry client
             if (!options.DisableTelemetry)
@@ -367,6 +372,33 @@ namespace SharePoint.Modernization.Scanner.Core
                     }
                 }
 
+                // Create list of Teamified site collections
+                try
+                {
+                    var accessToken = AppOnlyManager.GetGraphAccessToken(this.options);
+
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        string getGroupsWithATeamsTeam = $"{GraphHttpClient.MicrosoftGraphBetaBaseUri}groups?$filter=resourceProvisioningOptions/Any(x:x eq 'Team')&select=id,resourceProvisioningOptions";
+
+                        var getGroupResult = GraphHttpClient.MakeGetRequestForString(
+                            getGroupsWithATeamsTeam,
+                            accessToken: accessToken);
+
+                        JObject groupObject = JObject.Parse(getGroupResult);
+
+                        this.TeamifiedSiteCollectionsLoaded = true;
+                        foreach (var item in groupObject["value"])
+                        {
+                            this.TeamifiedSiteCollections.Add(new Guid(item["id"].ToString()));
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    TeamifiedSiteCollectionsLoaded = false;
+                }
+
                 try
                 {
                     if (this.ScannerTelemetry != null)
@@ -420,7 +452,7 @@ namespace SharePoint.Modernization.Scanner.Core
             string[] outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
                                                     "ReadyForGroupify", "GroupifyBlockers", "GroupifyWarnings", "GroupMode", "PermissionWarnings",
                                                     "ModernHomePage", "ModernUIWarnings",
-                                                    "WebTemplate", "Office365GroupId", "MasterPage", "AlternateCSS", "UserCustomActions",
+                                                    "WebTemplate", "Office365GroupId", "HasTeamsTeam", "MasterPage", "AlternateCSS", "UserCustomActions",
                                                     "SubSites", "SubSitesWithBrokenPermissionInheritance", "ModernPageWebFeatureDisabled", "ModernPageFeatureWasEnabledBySPO",
                                                     "ModernListSiteBlockingFeatureEnabled", "ModernListWebBlockingFeatureEnabled", "SitePublishingFeatureEnabled", "WebPublishingFeatureEnabled",
                                                     "ViewsRecent", "ViewsRecentUniqueUsers", "ViewsLifeTime", "ViewsLifeTimeUniqueUsers", "SiteId",
@@ -443,7 +475,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
                                                                                        (groupifyBlockers.Count > 0 ? "FALSE" : "TRUE"), ToCsv(SiteScanResult.FormatList(groupifyBlockers)), ToCsv(SiteScanResult.FormatList(groupifyWarnings)), ToCsv(groupSecurity.Item1), ToCsv(SiteScanResult.FormatList(groupSecurity.Item2)),
                                                                                        item.Value.ModernHomePage, ToCsv(SiteScanResult.FormatList(modernWarnings)),
-                                                                                       ToCsv(item.Value.WebTemplate), ToCsv(item.Value.Office365GroupId != Guid.Empty ? item.Value.Office365GroupId.ToString() : ""), item.Value.MasterPage, item.Value.AlternateCSS, ((item.Value.SiteUserCustomActions != null && item.Value.SiteUserCustomActions.Count > 0) || (item.Value.WebUserCustomActions != null && item.Value.WebUserCustomActions.Count > 0)),
+                                                                                       ToCsv(item.Value.WebTemplate), ToCsv(item.Value.Office365GroupId != Guid.Empty ? item.Value.Office365GroupId.ToString() : ""), item.Value.IsTeamified(), item.Value.MasterPage, item.Value.AlternateCSS, ((item.Value.SiteUserCustomActions != null && item.Value.SiteUserCustomActions.Count > 0) || (item.Value.WebUserCustomActions != null && item.Value.WebUserCustomActions.Count > 0)),
                                                                                        item.Value.SubSites, item.Value.SubSitesWithBrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO,
                                                                                        item.Value.ModernListSiteBlockingFeatureEnabled, item.Value.ModernListWebBlockingFeatureEnabled, item.Value.SitePublishingFeatureEnabled, item.Value.WebPublishingFeatureEnabled,
                                                                                        (SkipUsageInformation ? 0 : item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers), ToCsv(item.Value.SiteId),

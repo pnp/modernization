@@ -2,6 +2,7 @@
 using Microsoft.SharePoint.Client.Search.Query;
 using OfficeDevPnP.Core.Framework.TimerJobs;
 using OfficeDevPnP.Core.Framework.TimerJobs.Enums;
+using OfficeDevPnP.Core.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -102,13 +103,25 @@ namespace SharePoint.Modernization.Scanner.Core
                     {
                         throw new Exception($"No valid certificate found for provided path {options.StoredCertificate}");
                     }
-
-                    this.UseAzureADAppOnlyAuthentication(options.ClientID, options.AzureTenant, options.AzureCert);
                 }
                 else
                 {
-                    this.UseAzureADAppOnlyAuthentication(options.ClientID, options.AzureTenant, options.CertificatePfx, options.CertificatePfxPassword);
+                    var certificatePassword = EncryptionUtility.ToSecureString(options.CertificatePfxPassword);
+                    using (var certfile = System.IO.File.OpenRead(options.CertificatePfx))
+                    {
+                        var certificateBytes = new byte[certfile.Length];
+                        certfile.Read(certificateBytes, 0, (int)certfile.Length);
+                        var cert = new X509Certificate2(
+                            certificateBytes,
+                            certificatePassword,
+                            X509KeyStorageFlags.Exportable |
+                            X509KeyStorageFlags.MachineKeySet |
+                            X509KeyStorageFlags.PersistKeySet);
+                        options.AzureCert = cert;
+                    }
                 }
+
+                this.UseAzureADAppOnlyAuthentication(options.ClientID, options.AzureTenant, options.AzureCert);
             }
             else if (options.AuthenticationTypeProvided() == AuthenticationType.Office365)
             {
