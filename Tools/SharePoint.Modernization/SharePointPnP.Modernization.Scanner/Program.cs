@@ -27,6 +27,7 @@ namespace SharePoint.Modernization.Scanner
             // Show wizard to help the user with filling the needed scan configuration
             if (args.Length == 0)
             {
+                Console.WriteLine("Launching wizard...");
                 var wizard = new Forms.Wizard(options);
                 wizard.ShowDialog();
 
