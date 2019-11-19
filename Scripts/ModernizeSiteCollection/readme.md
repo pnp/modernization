@@ -22,7 +22,6 @@ The sample uses [Windows Credential Manager](https://github.com/SharePoint/PnP-P
 Solution|Author(s)
 --------|---------
 ModernizeSitecollections.ps1 and ValidateSiteCollectionsInput.ps1 | Bert Jansen (**Microsoft**)
-modernizesitecollection.ps1 | Bert Jansen (**Microsoft**)
 
 ## Version history
 
