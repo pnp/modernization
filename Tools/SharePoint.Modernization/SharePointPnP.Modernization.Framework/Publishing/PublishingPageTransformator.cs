@@ -608,7 +608,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 #region Closing
                 CacheManager.Instance.SetLastUsedTransformator(this);
-                return serverRelativePathForModernPage;
+                return Uri.EscapeUriString(serverRelativePathForModernPage);
                 #endregion
 
                 #endregion

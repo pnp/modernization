@@ -194,6 +194,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var reportTgtPageTitle = modernizedFileLog.TargetPage.StripRelativeUrlSectionString();
                 var transformPageStartDate = modernizedFileLog.PageLogsOrdered.FirstOrDefault();
 
+                if (reportSrcPageUrl != null)
+                {
+                    reportSrcPageUrl = Uri.EscapeUriString(reportSrcPageUrl);
+                }
+                if (reportTgtPageUrl != null)
+                {
+                    reportTgtPageUrl = Uri.EscapeUriString(reportTgtPageUrl);
+                }
+
                 report.AppendLine($"{transformPageStartDate?.Item2.EntryTime} {TableColumnSeperator} {durationResult} {TableColumnSeperator} [{reportSrcPageTitle}]({reportSrcPageUrl}) {TableColumnSeperator} [{reportTgtPageTitle}]({reportTgtPageUrl}) {TableColumnSeperator} {status}");
             }
 
