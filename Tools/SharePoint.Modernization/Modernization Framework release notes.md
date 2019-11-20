@@ -26,6 +26,7 @@
 - Fix: Find username also works for SPO user names when doing SPO to SPO user mapping
 - Fix: Sections with a vertical column are now also "cleaned" when they do contain empty columns #359
 - Fix: Empty table rows are now correctly processed as empty rows #358
+- Fix: Webpart page layouts HeaderFooter2Columns4Rows and HeaderFooter4ColumnsTopRow threw "out of range" error #371
 
 ## [November release - version 1.0.1911.0]
 

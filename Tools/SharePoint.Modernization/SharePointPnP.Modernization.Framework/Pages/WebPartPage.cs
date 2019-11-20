@@ -236,13 +236,13 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     {
                         if (zoneId.Equals("Header", StringComparison.InvariantCultureIgnoreCase) ||
                             zoneId.Equals("Footer", StringComparison.InvariantCultureIgnoreCase) ||
-                            zoneId.Equals("LeftColumn", StringComparison.InvariantCultureIgnoreCase) ||
-                            zoneId.Equals("CenterLeftColumn", StringComparison.InvariantCultureIgnoreCase))
+                            zoneId.Equals("LeftColumn", StringComparison.InvariantCultureIgnoreCase) )
                         {
                             return 1;
                         }
                         else if (zoneId.Equals("TopRow", StringComparison.InvariantCultureIgnoreCase) ||
-                                 zoneId.Equals("CenterRightColumn", StringComparison.InvariantCultureIgnoreCase))
+                                 zoneId.Equals("CenterRightColumn", StringComparison.InvariantCultureIgnoreCase) ||
+                                 zoneId.Equals("CenterLeftColumn", StringComparison.InvariantCultureIgnoreCase))
                         {
                             return 2;
                         }
@@ -382,25 +382,16 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         }
                         else if (zoneId.Equals("LeftColumn", StringComparison.InvariantCultureIgnoreCase) ||
                                  zoneId.Equals("Row1", StringComparison.InvariantCultureIgnoreCase) ||
-                                 zoneId.Equals("RightColumn", StringComparison.InvariantCultureIgnoreCase))
+                                 zoneId.Equals("RightColumn", StringComparison.InvariantCultureIgnoreCase) ||
+                                 zoneId.Equals("Row2", StringComparison.InvariantCultureIgnoreCase) ||
+                                 zoneId.Equals("Row3", StringComparison.InvariantCultureIgnoreCase) ||
+                                 zoneId.Equals("Row4", StringComparison.InvariantCultureIgnoreCase))
                         {
                             return 2;
                         }
-                        else if (zoneId.Equals("Row2", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            return 3;
-                        }
-                        else if (zoneId.Equals("Row3", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            return 4;
-                        }
-                        else if (zoneId.Equals("Row4", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            return 5;
-                        }
                         else if (zoneId.Equals("Footer", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            return 6;
+                            return 3;
                         }
                         break;
                     }
@@ -412,18 +403,15 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         }
                         else if (zoneId.Equals("LeftColumn", StringComparison.InvariantCultureIgnoreCase) ||
                                  zoneId.Equals("TopRow", StringComparison.InvariantCultureIgnoreCase) ||
-                                 zoneId.Equals("RightColumn", StringComparison.InvariantCultureIgnoreCase))
+                                 zoneId.Equals("RightColumn", StringComparison.InvariantCultureIgnoreCase) ||
+                                 zoneId.Equals("CenterLeftColumn", StringComparison.InvariantCultureIgnoreCase) ||
+                                 zoneId.Equals("CenterRightColumn", StringComparison.InvariantCultureIgnoreCase))
                         {
                             return 2;
                         }
-                        else if (zoneId.Equals("CenterLeftColumn", StringComparison.InvariantCultureIgnoreCase) ||
-                                 zoneId.Equals("CenterRightColumn", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            return 3;
-                        }
                         else if (zoneId.Equals("Footer", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            return 4;
+                            return 3;
                         }
                         break;
                     }
