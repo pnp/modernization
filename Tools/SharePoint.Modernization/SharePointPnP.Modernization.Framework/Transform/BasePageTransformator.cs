@@ -966,9 +966,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch (Exception ex)
             {
-                LogDebug($"Error in updating with source page information {ex.Message}", LogStrings.Heading_ArticlePageHandling);
                 // Eat exceptions as this is not critical for the generated page
-                LogWarning(LogStrings.Warning_NonCriticalErrorDuringPublish, LogStrings.Heading_ArticlePageHandling);
+                LogWarning(string.Format(LogStrings.Warning_NonCriticalErrorDuringPublish, ex.Message), LogStrings.Heading_ArticlePageHandling);
             }
         }
 

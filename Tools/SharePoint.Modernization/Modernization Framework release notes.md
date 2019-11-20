@@ -29,6 +29,7 @@
 - Fix: Webpart page layouts HeaderFooter2Columns4Rows and HeaderFooter4ColumnsTopRow threw "out of range" error #371
 - Fix: Return result of page transformation an an URL encoded url #370
 - Fix: ClearCache doesnt clear page layout mappings #364
+- Fix: Minor logging message misleading during user transform #363
 
 ## [November release - version 1.0.1911.0]
 
