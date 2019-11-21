@@ -198,6 +198,7 @@
     <Compile Include="Entities\WebServiceWebPartProperties.cs" />
     <Compile Include="Entities\WebServiceWebPartEntity.cs" />
     <Compile Include="Extensions\FileFolderExtensions.cs" />
+    <Compile Include="Extensions\HttpWebRequestExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Pages\PublishingPageOnPremises.cs" />
     <Compile Include="Pages\WebPartPageOnPremises.cs" />

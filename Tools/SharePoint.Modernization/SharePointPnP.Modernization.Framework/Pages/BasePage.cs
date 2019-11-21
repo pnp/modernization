@@ -938,7 +938,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 soapEnvelope.Append("</soap:Envelope>");
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl);
-                request.Credentials = cc.Credentials;
+                //request.Credentials = cc.Credentials;
+                request.AddAuthenticationData(this.cc);
                 request.Method = "POST";
                 request.ContentType = "text/xml; charset=\"utf-8\"";
                 request.Accept = "text/xml";
@@ -1013,7 +1014,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 string webServiceUrl = string.Format("{0}_vti_bin/exportwp.aspx?pageurl={1}&guidstring={2}", fullWebUrl, fullPageUrl, webPartGuid);
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
-                request.Credentials = cc.Credentials;
+                //request.Credentials = cc.Credentials;
+                request.AddAuthenticationData(this.cc);
                 request.Method = "GET";
 
                 var response = request.GetResponse();
@@ -1282,7 +1284,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 soapEnvelope.Append("</soap:Envelope>");
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
-                request.Credentials = cc.Credentials;
+                //request.Credentials = cc.Credentials;
+                request.AddAuthenticationData(this.cc);
                 request.Method = "POST";
                 request.ContentType = "text/xml; charset=\"utf-8\"";
                 request.Accept = "text/xml";
