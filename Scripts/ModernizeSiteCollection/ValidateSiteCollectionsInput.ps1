@@ -105,9 +105,9 @@ $global:strmWrtError=[System.IO.StreamWriter]$Errorfile
 $minimumVersion = New-Object System.Version("3.15.1911.0")
 if (-not (Get-InstalledModule -Name SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -ErrorAction Ignore)) 
 {
-    #Install-Module SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -Scope CurrentUser -Force
+    Install-Module SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -Scope CurrentUser -Force
 }
-#Import-Module SharePointPnPPowerShellOnline -DisableNameChecking -MinimumVersion $minimumVersion
+Import-Module SharePointPnPPowerShellOnline -DisableNameChecking -MinimumVersion $minimumVersion
 #endregion
 
 #region Ensure Azure PowerShell is loaded
