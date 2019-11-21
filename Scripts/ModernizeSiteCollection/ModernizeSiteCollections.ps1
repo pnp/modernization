@@ -169,19 +169,20 @@ function ModernizeSite
 
     Try
     {
-        # Group connect steps
-        # - [Done] Add current tenant admin as site admin when needed
-        # - [Done] Verify site template / publishing feature use and prevent group connect --> align with the logic in the scanner
-        # - [Done] Ensure no modern blocking features are enabled...if so fix it
-        # - [Done] Ensure the modern page feature is enabled
-        # - [Done] Optional: Deploy applications (e.g. application customizer)
-        # - [Done] Optional: Add modern home page
-        # - [Done] Call group connect API
-        # - [Done] Define Site Admins and Site owners as group owners
-        # - [Done] Define Site members as group members
-        # - []     Have option to "expand" site owners/members if needed
-        # - [Done] Remove added tenant admin and site owners from SharePoint admins
-        # - [Done] Remove added tenant admin from the Office 365 group
+        # Modernize steps
+        # - Add current tenant admin as site admin when needed
+        # - Verify site template / publishing feature use and prevent group connect --> align with the logic in the scanner
+        # - Ensure no modern blocking features are enabled...if so fix it
+        # - Ensure the modern page feature is enabled
+        # - Optional: Deploy applications (e.g. application customizer)
+        # - Optional: Add modern home page
+        # - Cleanup branding and switch to tenant theme
+        # - Call group connect API
+        # - Define Site Admins and Site owners as group owners
+        # - Define Site members as group members
+        # - Create a Teams team
+        # - Remove added tenant admin and site owners from SharePoint admins
+        # - Remove added tenant admin from the Office 365 group
 
         #region Adding admin
         # Check if current tenant admin is part of the site collection admins, if not add the account        
@@ -312,7 +313,7 @@ function ModernizeSite
                                                           -KeepPageCreationModificationInformation `
                                                           -LogSkipFlush `
                                                           -LogType File `
-                                                          -LogFolder .
+                                                          -LogFolder "$PWD"
                 LogWrite "Done: $modernPage" 
             }
 
