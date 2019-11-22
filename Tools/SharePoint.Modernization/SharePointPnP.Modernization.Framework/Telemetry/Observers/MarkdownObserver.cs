@@ -409,6 +409,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var sourceSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.SourceSiteUrl);
             var targetSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetSiteUrl);
 
+            // Populate targetsite in case on an in-place transformation
+            if (targetSite==null)
+            {
+                targetSite = sourceSite;
+            }
+
             // Tenant Details
             var baseSourceUrl = GetBaseUrl(sourceSite); 
             var baseTargetUrl = GetBaseUrl(targetSite);

@@ -31,6 +31,7 @@
 - Fix: ClearCache doesnt clear page layout mappings #364
 - Fix: Minor logging message misleading during user transform #363 
 - Fix: Doing http requests (e.g. ASMX service calls) fail if cookie based authentication (e.g. when using ADFS) information was not attached to those requests #372
+- Fix: TargetUrl is not populated in log (Nov release regression) #375
 
 ## [November release - version 1.0.1911.0]
 
