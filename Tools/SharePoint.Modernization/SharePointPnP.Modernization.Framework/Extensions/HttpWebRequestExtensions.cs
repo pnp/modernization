@@ -1,8 +1,11 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Utilities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +14,7 @@ namespace System.Net
     public static class HttpWebRequestExtensions
     {
 
-        internal static void AddAuthenticationData(this HttpWebRequest httpWebRequest, ClientContext cc)
+        public static void AddAuthenticationData(this HttpWebRequest httpWebRequest, ClientContext cc)
         {
 
             if (cc.Credentials != null)
@@ -20,30 +23,7 @@ namespace System.Net
             }
             else
             {
-                CookieContainer authCookiesContainer = null;
-                EventHandler<WebRequestEventArgs> cookieInterceptorHandler = CollectCookiesHandler(authCookiesContainer);
-                try
-                {
-                    // Hookup a custom handler, assumes the original handler placing the cookies is ran first
-                    cc.ExecutingWebRequest += cookieInterceptorHandler;
-                    // Trigger the handler to fire by loading something
-                    cc.Load(cc.Web, p => p.Url);
-                    cc.ExecuteQuery();
-                }
-                catch(Exception ex)
-                {
-                    // Eating the exception
-                }
-                finally
-                {
-                    // Disconnect the handler as we don't need it anymore
-                    cc.ExecutingWebRequest -= cookieInterceptorHandler;
-                }
-
-                if (authCookiesContainer != null && authCookiesContainer.Count > 0)
-                {
-                    httpWebRequest.CookieContainer = authCookiesContainer;
-                }
+                httpWebRequest.CookieContainer = new CookieManager().GetCookies(cc);
             }            
 
         }
@@ -52,10 +32,22 @@ namespace System.Net
         {
             return (s, e) =>
             {
-                authCookies = e.WebRequestExecutor.WebRequest.CookieContainer;
+                if (authCookies == null || (authCookies != null && authCookies.Count == 0))
+                {
+                    authCookies = CopyContainer(e.WebRequestExecutor.WebRequest.CookieContainer);
+                }
             };
         }
 
-
+        private static CookieContainer CopyContainer(CookieContainer container)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, container);
+                stream.Seek(0, SeekOrigin.Begin);
+                return (CookieContainer)formatter.Deserialize(stream);
+            }
+        }
     }
 }
