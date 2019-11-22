@@ -1,53 +1,30 @@
 ﻿using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Utilities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace System.Net
 {
+    /// <summary>
+    /// HttpWebRequest extension methods
+    /// </summary>
     public static class HttpWebRequestExtensions
     {
-
+        /// <summary>
+        /// Grabs authenticaiton data from the passed client context and attaches that to the http request
+        /// </summary>
+        /// <param name="httpWebRequest">http request to update</param>
+        /// <param name="cc">ClientContext object to grab authentication data from</param>
         public static void AddAuthenticationData(this HttpWebRequest httpWebRequest, ClientContext cc)
         {
-
             if (cc.Credentials != null)
             {
+                // Copy credentials if set
                 httpWebRequest.Credentials = cc.Credentials;
             }
             else
             {
+                // If authentication happened via a cookie based approach (e.g. ADFS) then get the cookies that are currently linked to the context and reuse them
                 httpWebRequest.CookieContainer = new CookieManager().GetCookies(cc);
             }            
-
-        }
-
-        private static EventHandler<WebRequestEventArgs> CollectCookiesHandler(CookieContainer authCookies)
-        {
-            return (s, e) =>
-            {
-                if (authCookies == null || (authCookies != null && authCookies.Count == 0))
-                {
-                    authCookies = CopyContainer(e.WebRequestExecutor.WebRequest.CookieContainer);
-                }
-            };
-        }
-
-        private static CookieContainer CopyContainer(CookieContainer container)
-        {
-            using (MemoryStream stream = new MemoryStream())
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(stream, container);
-                stream.Seek(0, SeekOrigin.Begin);
-                return (CookieContainer)formatter.Deserialize(stream);
-            }
         }
     }
 }
