@@ -400,7 +400,10 @@ namespace SharePointPnP.Modernization.Framework.Functions
                         }
                         else
                         {
-                            throw new Exception($"Parameter {input.Name} was used but did not exist as a web part property of this Add-In part.");
+                            // Add with empty string as value. Since we can only have one ClientWebPart mapping it's valid for a parameter to be not available.
+                            input.Type = MapType("string");
+                            input.Value = "";
+                            def.Input.Add(input);
                         }
                     }
                     else
