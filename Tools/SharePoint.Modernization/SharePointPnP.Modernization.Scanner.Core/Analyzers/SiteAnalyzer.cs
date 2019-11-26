@@ -68,14 +68,26 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
                 if (site.GroupId != Guid.Empty)
                 {
-                    if (this.ScanJob.TeamifiedSiteCollections.Contains(site.GroupId))
+                    if (this.ScanJob.TeamifiedSiteCollectionsLoaded)
                     {
-                        scanResult.HasTeamsTeam = true;
+                        if (this.ScanJob.TeamifiedSiteCollections.Contains(site.GroupId))
+                        {
+                            scanResult.HasTeamsTeam = true;
+                        }
+                        else
+                        {
+                            scanResult.HasTeamsTeam = false;
+                        }
                     }
                     else
                     {
-                        scanResult.HasTeamsTeam = false;
+                       // we did not have the needed permissions to load the groups, hence leave the nullable bool null
                     }
+                }
+                else
+                {
+                    // We're sure there's no team as there's no group
+                    scanResult.HasTeamsTeam = false;
                 }
 
                 // Get security information for this site

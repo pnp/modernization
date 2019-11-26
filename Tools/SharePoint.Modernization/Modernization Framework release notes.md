@@ -17,6 +17,7 @@
 ### Added
 
 - Added TargetPageFolderOverridesDefaultFolder option to have the provided target folder override the default generated folder #366
+- SharePoint Add-In part properties can now be used in web part mappings #374
 
 ### Changed
 
@@ -26,6 +27,12 @@
 - Fix: Find username also works for SPO user names when doing SPO to SPO user mapping
 - Fix: Sections with a vertical column are now also "cleaned" when they do contain empty columns #359
 - Fix: Empty table rows are now correctly processed as empty rows #358
+- Fix: Webpart page layouts HeaderFooter2Columns4Rows and HeaderFooter4ColumnsTopRow threw "out of range" error #371
+- Fix: Return result of page transformation an an URL encoded url #370
+- Fix: ClearCache doesnt clear page layout mappings #364
+- Fix: Minor logging message misleading during user transform #363 
+- Fix: Doing http requests (e.g. ASMX service calls) fail if cookie based authentication (e.g. when using ADFS) information was not attached to those requests #372
+- Fix: TargetUrl is not populated in log (Nov release regression) #375
 
 ## [November release - version 1.0.1911.0]
 

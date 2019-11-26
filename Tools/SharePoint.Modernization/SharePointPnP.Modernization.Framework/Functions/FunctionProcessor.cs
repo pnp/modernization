@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
+using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 
@@ -385,7 +386,30 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 }
                 else
                 {
-                    throw new Exception($"Parameter {input.Name} was used but is not listed as a web part property that can be used.");
+                    // For add-in parts we've dynamically loaded all web part properties. These properties are typically not defined 
+                    // in the mapping as they differ per add-in part and we only have one ClientWebPart in our mapping. Therefore we
+                    // perform an additional validation with the loaded web part properties
+                    if (webPartData.Type.GetTypeShort() == WebParts.Client.GetTypeShort())
+                    {
+                        if (webPart.Properties.ContainsKey(input.Name))
+                        {
+                            // We can't know the type of these dynamic properties, hence they default to string
+                            input.Type = MapType("string");
+                            input.Value = webPart.Properties[input.Name];
+                            def.Input.Add(input);
+                        }
+                        else
+                        {
+                            // Add with empty string as value. Since we can only have one ClientWebPart mapping it's valid for a parameter to be not available.
+                            input.Type = MapType("string");
+                            input.Value = "";
+                            def.Input.Add(input);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"Parameter {input.Name} was used but is not listed as a web part property that can be used.");
+                    }
                 }
             }
 

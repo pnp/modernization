@@ -1,10 +1,8 @@
 ﻿using SharePoint.Modernization.Scanner.Core;
 using SharePoint.Modernization.Scanner.Core.Telemetry;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace SharePoint.Modernization.Scanner.Forms
@@ -470,19 +468,19 @@ namespace SharePoint.Modernization.Scanner.Forms
         private void llblAzureADAuth_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             llblAzureADAuth.LinkVisited = true;
-            Process.Start("https://docs.microsoft.com/en-us/sharepoint/dev/solution-guidance/security-apponly-azuread");
+            Process.Start("https://aka.ms/sppnp-modernizationscanner-azureadsetup");
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             llblAzureACSHelp.LinkVisited = true;
-            Process.Start("https://docs.microsoft.com/en-us/sharepoint/dev/solution-guidance/security-apponly-azureacs");
+            Process.Start("https://aka.ms/sppnp-modernizationscanner-azureacssetup");
         }
 
         private void llblScannerInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             llblScannerInfo.LinkVisited = true;
-            Process.Start("https://aka.ms/sppnp-modernuiscanner");
+            Process.Start("https://aka.ms/sppnp-modernizationscanner");
         }
 
         private void llblModernizationGuidance_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -585,7 +583,7 @@ namespace SharePoint.Modernization.Scanner.Forms
         private void llblCSV_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             llblCSV.LinkVisited = true;
-            Process.Start("https://github.com/SharePoint/sp-dev-modernization/tree/master/Tools/SharePoint.Modernization#i-only-want-to-scan-a-few-sites-can-i-do-that");
+            Process.Start("https://aka.ms/sppnp-modernizationscanner-csvinput");
         }
 
         private void label3_Click(object sender, EventArgs e)

@@ -1,8 +1,8 @@
-# Sample that modernizes a site
+# Sample that modernizes site collections
 
 ## Summary
 
-This script shows how to modernize a site by group connecting the site, modernizing the pages, configuring customizations and much more.
+These scripts shows how to modernize a site collections by group connecting the site, modernizing the pages, cleaning up branding, creating a Teams team and much more.
 
 ## Windows Credential Manager can be used for automation scenarios
 
@@ -21,12 +21,13 @@ The sample uses [Windows Credential Manager](https://github.com/SharePoint/PnP-P
 
 Solution|Author(s)
 --------|---------
-modernizesitecollection.ps1 | Bert Jansen (**Microsoft**)
+ModernizeSitecollections.ps1 and ValidateSiteCollectionsInput.ps1 | Bert Jansen (**Microsoft**)
 
 ## Version history
 
 Version|Date|Comments
 -------|----|--------
+2.0 | November 19th 2019 | Updated version that performs a bulk site collection modernization
 1.1 | December 18th 2018 | Updated to use the PnP PowerShell option for transforming pages
 1.0 | November 26th 2018 | Initial commit
 
@@ -38,7 +39,15 @@ THIS CODE IS PROVIDED AS IS WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPL
 
 ## Minimal Path to Awesome
 
-- Update $tenantAdminUrl with your tenant admin URL
-- Update $credentialManagerCredentialToUse with your credential manager entry...if not specified tenant admin credentials are asked by the script
+### I want to upgrade a single site collection
+
+- Open a PowerShell session and run ModernizeSiteCollections.ps1 and provide the requested input
+
+### I want to upgrade multiple site collections
+
+- Create a CSV file like shown in the sample sitecollections.csv file
+- Open a PowerShell session and run the ValidateSiteCollectionsInput.ps1 script and provide the needed input
+- If the result of the validation is good then continue to the next step
+- Run the ModernizeSiteCollections.ps1 script and provide the path to the csv file holding the site collections to modernize
 
 <img src="https://telemetry.sharepointpnp.com/sp-dev-modernization/scripts/modernizesitecollection" />

@@ -9,11 +9,11 @@ See https://aka.ms/sppnp-modernizationscanner
 ## Added
 
 - Added option to use a certificate stored in certificate store (next to the already existing option of providing via pfx)
-- Office 365 Group connection report and csv's will now also list of a site has a Teams team (only when using Azure AD auth and when the Groups.Read.All permission was granted)
+- Office 365 Group connection report and csv's will now also list if a site has a Teams team (only when using Azure AD auth and when the Groups.Read.All permission was granted)
 
 ## Changed
 
-- Refactored the scanner into a core scanner library and a consumer (.exe). Core scanner library uses streams for all the file manipulation, the consumer is responsible for providing/persisting files. This will make the core scan component easier to use
+- Refactored the scanner into a core scanner library and a consumer (.exe). Core scanner library uses streams for all the file manipulation, the consumer is responsible for providing/persisting files. This will make the core scan component easier to re-use
 
 ## [Version 2.6]
 

@@ -177,6 +177,44 @@ namespace SharePointPnP.Modernization.Framework.Functions
             return string1 + string2;
         }
 
+        [FunctionDocumentation(Description = "Concatenates 2 strings with a semicolon in between.",
+                       Example = "{CompleteString} = ConcatenateWithSemiColonDelimiter({String1},{String2})")]
+        [InputDocumentation(Name = "{String1}", Description = "First string")]
+        [InputDocumentation(Name = "{String2}", Description = "Second string")]
+        [OutputDocumentation(Name = "{CompleteString}", Description = "Concatenation of the passed strings")]
+        public string ConcatenateWithSemiColonDelimiter(string string1, string string2)
+        {
+            if (string1 == null)
+            {
+                string1 = "";
+            }
+            if (string2 == null)
+            {
+                string2 = "";
+            }
+
+            return string1 + ";" + string2;
+        }
+
+        [FunctionDocumentation(Description = "Concatenates 2 strings with a pipe character in between.",
+               Example = "{CompleteString} = ConcatenateWithSemiColonDelimiter({String1},{String2})")]
+        [InputDocumentation(Name = "{String1}", Description = "First string")]
+        [InputDocumentation(Name = "{String2}", Description = "Second string")]
+        [OutputDocumentation(Name = "{CompleteString}", Description = "Concatenation of the passed strings")]
+        public string ConcatenateWithPipeDelimiter(string string1, string string2)
+        {
+            if (string1 == null)
+            {
+                string1 = "";
+            }
+            if (string2 == null)
+            {
+                string2 = "";
+            }
+
+            return string1 + "|" + string2;
+        }
+
         /// <summary>
         /// Returns an the (static) string provided as input
         /// </summary>

@@ -214,7 +214,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{urlUri.Scheme}://{urlUri.DnsSafeHost}:{urlUri.Port}/_vti_pvt/service.cnf");
-                    request.Credentials = clientContext.Credentials;
+                    //request.Credentials = clientContext.Credentials;
+                    request.AddAuthenticationData(clientContext as ClientContext);
 
                     var response = request.GetResponse();
 

@@ -102,7 +102,7 @@
         #region Warning messages
 
         public const string Warning_NonCriticalErrorDuringVersionStampAndPublish = "Page could not be published as versioning is not enabled or version stamp could not be set.";
-        public const string Warning_NonCriticalErrorDuringPublish = "Page could not be published as versioning is not enabled on the SitePages library.";
+        public const string Warning_NonCriticalErrorDuringPublish = "There was a non critical issue during page update/publish. Returned error message: {0}";
         public const string Warning_PostingAPageAsNewsRequiresPagePublishing = "Posting a page as news requires the page to be published. Turning on the PublishCreatedPage flag.";
         public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled.";
         public const string Warning_FieldNotFoundInSourcePage = "You specified field {0} in your page layout mapping, but that field is not available in the source page.";

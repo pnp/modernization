@@ -985,7 +985,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 #region Closing
                 CacheManager.Instance.SetLastUsedTransformator(this);
-                return finalListItemToUpdate[Constants.FileRefField].ToString();
+                LogInfo($"{finalListItemToUpdate[Constants.FileRefField].ToString()}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
+                return Uri.EscapeUriString(finalListItemToUpdate[Constants.FileRefField].ToString());
                 #endregion
 
                 #endregion

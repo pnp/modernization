@@ -662,6 +662,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             ClearFieldsToCopy();
             ClearSharePointVersions();
+            ClearGeneratedPageLayoutMappings();
         }
 
         /// <summary>
@@ -670,6 +671,14 @@ namespace SharePointPnP.Modernization.Framework.Cache
         public void ClearSharePointVersions()
         {
             this.SharepointVersions.Clear();
+        }
+
+        /// <summary>
+        /// Clears the cache of generated page layout mappings
+        /// </summary>
+        public void ClearGeneratedPageLayoutMappings()
+        {
+            this.generatedPageLayoutMappings.Clear();
         }
 
         #endregion

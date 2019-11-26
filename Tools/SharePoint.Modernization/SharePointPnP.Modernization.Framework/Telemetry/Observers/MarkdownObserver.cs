@@ -194,6 +194,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 var reportTgtPageTitle = modernizedFileLog.TargetPage.StripRelativeUrlSectionString();
                 var transformPageStartDate = modernizedFileLog.PageLogsOrdered.FirstOrDefault();
 
+                if (reportSrcPageUrl != null)
+                {
+                    reportSrcPageUrl = Uri.EscapeUriString(reportSrcPageUrl);
+                }
+                if (reportTgtPageUrl != null)
+                {
+                    reportTgtPageUrl = Uri.EscapeUriString(reportTgtPageUrl);
+                }
+
                 report.AppendLine($"{transformPageStartDate?.Item2.EntryTime} {TableColumnSeperator} {durationResult} {TableColumnSeperator} [{reportSrcPageTitle}]({reportSrcPageUrl}) {TableColumnSeperator} [{reportTgtPageTitle}]({reportTgtPageUrl}) {TableColumnSeperator} {status}");
             }
 
@@ -399,6 +408,12 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             var targetPage = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetPage);
             var sourceSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.SourceSiteUrl);
             var targetSite = transformationSummary.FirstOrDefault(l => l.Item2.Significance == LogEntrySignificance.TargetSiteUrl);
+
+            // Populate targetsite in case on an in-place transformation
+            if (targetSite==null)
+            {
+                targetSite = sourceSite;
+            }
 
             // Tenant Details
             var baseSourceUrl = GetBaseUrl(sourceSite); 
