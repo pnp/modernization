@@ -138,6 +138,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 throw new ArgumentException(LogStrings.Error_PageIsNotAPublishingPage);
             }
 
+            if (IsDelveBlogPage(pageType))
+            {
+                LogError(LogStrings.Error_DelveBlogPagesNotSupported, LogStrings.Heading_InputValidation);
+                throw new ArgumentException(LogStrings.Error_DelveBlogPagesNotSupported);
+            }
+
             // Disable cross-farm item level permissions from copying
             CrossFarmTransformationValidation(publishingPageTransformationInformation);
 

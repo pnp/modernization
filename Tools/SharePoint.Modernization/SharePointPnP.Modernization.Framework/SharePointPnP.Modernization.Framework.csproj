@@ -189,6 +189,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Delve\DelvePageTransformationInformation.cs" />
+    <Compile Include="Delve\DelvePageTransformator.cs" />
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Entities\ResolvedUser.cs" />
     <Compile Include="Entities\TransformationLogAnalysis.cs" />
@@ -200,6 +202,7 @@
     <Compile Include="Extensions\FileFolderExtensions.cs" />
     <Compile Include="Extensions\HttpWebRequestExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Pages\DelvePage.cs" />
     <Compile Include="Pages\PublishingPageOnPremises.cs" />
     <Compile Include="Pages\WebPartPageOnPremises.cs" />
     <Compile Include="Publishing\Layouts\PageLayoutHeaderFieldEntity.cs" />

@@ -206,6 +206,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     LogError(LogStrings.Error_PublishingPagesNotYetSupported, LogStrings.Heading_InputValidation);
                     throw new ArgumentException(LogStrings.Error_PublishingPagesNotYetSupported);
                 }
+
+                if (IsDelveBlogPage(pageType))
+                {
+                    LogError(LogStrings.Error_DelveBlogPagesNotSupported, LogStrings.Heading_InputValidation);
+                    throw new ArgumentException(LogStrings.Error_DelveBlogPagesNotSupported);
+                }
             }
 
             if (hasTargetContext)
@@ -1156,52 +1162,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     targetPage.PageTitle = pageTitle;
                     LogInfo($"{LogStrings.TransformPageModernTitle} {pageTitle}", LogStrings.Heading_SetPageTitle);
                 }
-            }
-        }
-
-        private void SetAuthorInPageHeader(ClientSidePage targetClientSidePage)
-        {
-            try
-            {
-                string userToResolve = this.userTransformator.RemapPrincipal(this.sourceClientContext, this.SourcePageAuthor);
-
-                var ensuredPageAuthorUser = CacheManager.Instance.GetEnsuredUser(targetClientSidePage.Context, userToResolve);
-                if (ensuredPageAuthorUser != null)
-                {
-                    var author = CacheManager.Instance.GetUserFromUserList(targetClientSidePage.Context, ensuredPageAuthorUser.Id);
-
-                    if (author != null)
-                    {
-                        if (!author.IsGroup)
-                        {
-                            // Don't serialize null values
-                            var jsonSerializerSettings = new JsonSerializerSettings()
-                            {
-                                MissingMemberHandling = MissingMemberHandling.Ignore,
-                                NullValueHandling = NullValueHandling.Ignore
-                            };
-
-                            var json = JsonConvert.SerializeObject(author, jsonSerializerSettings);
-
-                            if (!string.IsNullOrEmpty(json))
-                            {
-                                targetClientSidePage.PageHeader.Authors = json;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, $"Author {this.SourcePageAuthor.LookupValue} could not be resolved."), LogStrings.Heading_ArticlePageHandling);
-                    }
-                }
-                else
-                {
-                    this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, $"Author {this.SourcePageAuthor.LookupValue} could not be resolved."), LogStrings.Heading_ArticlePageHandling);
-                }
-            }
-            catch (Exception ex)
-            {
-                this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, ex.Message), LogStrings.Heading_ArticlePageHandling);
             }
         }
 

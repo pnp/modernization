@@ -16,6 +16,7 @@
 
 ### Added
 
+- Added support for transforming Delve blog pages
 - Added TargetPageFolderOverridesDefaultFolder option to have the provided target folder override the default generated folder #366
 - SharePoint Add-In part properties can now be used in web part mappings #374
 
