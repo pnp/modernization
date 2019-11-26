@@ -14,6 +14,7 @@ using SharePoint.Modernization.Scanner.Core.Utilities;
 using SharePoint.Modernization.Scanner.Core.Workflow;
 using OfficeDevPnP.Core.Framework.Graph;
 using Newtonsoft.Json.Linq;
+using SharePointPnP.Modernization.Scanner.Core.Analyzers;
 
 namespace SharePoint.Modernization.Scanner.Core
 {
@@ -26,6 +27,7 @@ namespace SharePoint.Modernization.Scanner.Core
         private readonly string USDateFormat = "M/d/yyyy";
         private readonly string EuropeDateFormat = "d/M/yyyy";
         private Options options;
+        private static volatile bool delveBlogsDone = false;
 
         internal AppOnlyManager AppOnlyManager;
 
@@ -369,6 +371,22 @@ namespace SharePoint.Modernization.Scanner.Core
                     {
                         // The everyone except external users claim is different per tenant, so grab the correct value
                         this.EveryoneExceptExternalUsersClaim = cc.Web.GetEveryoneExceptExternalUsersClaim();
+                    }
+                }
+
+                // Handle Delve blog scanning
+                if (Options.IncludeBlog(this.options.Mode))
+                {
+                    if (!delveBlogsDone)
+                    {
+                        var uri = new Uri(sites[0]);
+                        string url = $"{uri.Scheme}://{uri.DnsSafeHost}/";
+                        using (ClientContext cc = this.CreateClientContext(url))
+                        {
+                            DelveBlogAnalyzer delveBlogAnalyzer = new DelveBlogAnalyzer(url, url, this);
+                            delveBlogAnalyzer.Analyze(cc);
+                            delveBlogsDone = true;
+                        }
                     }
                 }
 
@@ -922,7 +940,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 }
 
                 MemoryStream modernizationBlogWebScanResults = new MemoryStream();
-                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language",
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Blog Type", "Web Template", "Language",
                                                "Blog Page Count", "Last blog change date", "Last blog publish date",
                                                "Change Year", "Change Quarter", "Change Month" };
 
@@ -930,7 +948,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
                 foreach (var blogWeb in this.BlogWebScanResults)
                 {
-                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.WebTemplate, blogWeb.Value.Language,
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogWeb.Value.SiteURL), ToCsv(blogWeb.Value.SiteColUrl), ToCsv(blogWeb.Value.WebRelativeUrl), blogWeb.Value.BlogType, blogWeb.Value.WebTemplate, blogWeb.Value.Language,
                                                                                            blogWeb.Value.BlogPageCount, ToDateString(blogWeb.Value.LastRecentBlogPageChange, this.DateFormat), ToDateString(blogWeb.Value.LastRecentBlogPagePublish, this.DateFormat),
                                                                                            ToYearString(blogWeb.Value.LastRecentBlogPageChange), ToQuarterString(blogWeb.Value.LastRecentBlogPageChange), ToMonthString(blogWeb.Value.LastRecentBlogPageChange)
                                                      )));
@@ -940,14 +958,14 @@ namespace SharePoint.Modernization.Scanner.Core
 
 
                 MemoryStream modernizationBlogPageScanResults = new MemoryStream();
-                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Page Relative Url", "Page Title",
+                outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Blog Type", "Page Relative Url", "Page Title",
                                                "Modified At", "Modified By", "Published At" };
 
                 outStream = new StreamWriter(modernizationBlogPageScanResults);
                 outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
                 foreach (var blogPage in this.BlogPageScanResults)
                 {
-                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), blogPage.Value.BlogType ,ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
                                                                                            ToDateString(blogPage.Value.ModifiedAt, this.DateFormat), ToCsv(blogPage.Value.ModifiedBy), ToDateString(blogPage.Value.PublishedDate, this.DateFormat)
                                                      )));
                 }

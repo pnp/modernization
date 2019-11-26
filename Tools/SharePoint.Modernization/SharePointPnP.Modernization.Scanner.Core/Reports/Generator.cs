@@ -489,7 +489,7 @@ namespace SharePoint.Modernization.Scanner.Core.Reports
 
                     var blogWebsTable1 = blogWebsBaseTable.Copy();
                     // clean table
-                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Web Template", "Language", "Blog Page Count", "Last blog change date", "Last blog publish date", "Change Year", "Change Quarter", "Change Month" };
+                    string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Blog Type", "Web Template", "Language", "Blog Page Count", "Last blog change date", "Last blog publish date", "Change Year", "Change Quarter", "Change Month" };
                     blogWebsTable1 = DropTableColumns(blogWebsTable1, columnsToKeep);
 
                     if (blogWebsTable == null)
@@ -536,7 +536,7 @@ namespace SharePoint.Modernization.Scanner.Core.Reports
                         // Table 1
                         var blogPagesTable1 = blogPagesBaseTable.Copy();
                         // clean table
-                        string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Page Relative Url", "Page Title", "Modified At", "Modified By", "Published At" };
+                        string[] columnsToKeep = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Blog Type", "Page Relative Url", "Page Title", "Modified At", "Modified By", "Published At" };
                         blogPagesTable1 = DropTableColumns(blogPagesTable1, columnsToKeep);
 
                         if (blogPagesTable == null)

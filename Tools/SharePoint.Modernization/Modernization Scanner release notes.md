@@ -8,6 +8,7 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ## Added
 
+- Delve blogs are scanned as part of the blog scan component
 - Added option to use a certificate stored in certificate store (next to the already existing option of providing via pfx)
 - Office 365 Group connection report and csv's will now also list if a site has a Teams team (only when using Azure AD auth and when the Groups.Read.All permission was granted)
 

@@ -2,8 +2,22 @@
 
 namespace SharePoint.Modernization.Scanner.Core.Results
 {
+    /// <summary>
+    /// Stores information about a found blog page
+    /// </summary>
     public class BlogPageScanResult: Scan
     {
+
+        public BlogPageScanResult()
+        {
+            this.BlogType = BlogType.Classic;
+        }
+
+        /// <summary>
+        /// Type of blog page
+        /// </summary>
+        public BlogType BlogType { get; set; }
+        
         /// <summary>
         /// Web relative Url
         /// </summary>

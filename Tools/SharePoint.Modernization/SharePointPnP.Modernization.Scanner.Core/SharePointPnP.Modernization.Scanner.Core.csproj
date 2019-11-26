@@ -190,6 +190,7 @@
   <ItemGroup>
     <Compile Include="Analyzers\BaseAnalyzer.cs" />
     <Compile Include="Analyzers\BlogAnalyzer.cs" />
+    <Compile Include="Analyzers\DelveBlogAnalyzer.cs" />
     <Compile Include="Analyzers\IBaseAnalyzer.cs" />
     <Compile Include="Analyzers\InfoPathAnalyzer.cs" />
     <Compile Include="Analyzers\ListAnalyzer.cs" />
