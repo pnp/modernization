@@ -11,7 +11,7 @@
 
 .Example
 
-    Convert-DelveBlogPages.ps1 -SourceUrl "https://contoso.sharepoint.com/portals/personal/joedoe" -TargetUrl "https://contoso.sharepoint.com/sites/modernblog"
+    Convert-DelveBlogPages.ps1 -SourceUrl "https://contoso.sharepoint.com/portals/personal/joedoe" -TargetUrl "https://contoso.sharepoint.com/sites/modernblog" -Credentials Get-Credential
 
 .Notes
     
@@ -41,10 +41,10 @@ begin
     if($Credentials)
     {
         Connect-PnPOnline -Url $SourceUrl -Credentials $Credentials -Verbose
-        Start-Sleep -s 3
     }
     else
     {
+        # Sometimes this fails and a retry is needed
         Connect-PnPOnline -Url $sourceUrl -SPOManagementShell -ClearTokenCache -Verbose
         Start-Sleep -s 3
     }
@@ -69,7 +69,6 @@ process
                                     -Overwrite `
                                     -TargetWebUrl $TargetUrl `
                                     -LogType File `
-                                    -LogVerbose `
                                     -LogSkipFlush `
                                     -LogFolder $LogOutputFolder `
                                     -KeepPageCreationModificationInformation `
