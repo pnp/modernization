@@ -82,4 +82,6 @@ process
     Save-PnPClientSidePageConversionLog
 
     Write-Host "Delve blog site modernization complete! :)" -ForegroundColor Green
+
+    Disconnect-PnPOnline
 }
