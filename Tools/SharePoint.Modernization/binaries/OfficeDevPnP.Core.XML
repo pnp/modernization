@@ -5933,6 +5933,14 @@
             <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
             <returns>Classification value of a Unified group</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.HasTeamsTeam(System.String,System.String)">
+            <summary>
+            Does this group have a Teams team?
+            </summary>
+            <param name="groupId">Id of the group to check</param>
+            <param name="accessToken">Access token with scope Group.Read.All</param>
+            <returns>True if there's a Teams linked to this group</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateTeam(System.String,System.String)">
             <summary>
             Creates a team associated with an Office 365 group
@@ -10683,6 +10691,11 @@
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.TeamSiteCollection.HideTeamify">
             <summary>
             Defines whether to hide the create a Microsoft Team option in the UI of the Team Site
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.TeamSiteCollection.Language">
+            <summary>
+            Language of the target Site
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.TeamSiteCollection.GroupLifecyclePolicyId">
@@ -15838,6 +15851,39 @@
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.RecycledSiteException">
+            <summary>
+            Initializes a new instance of the RecycledSiteException class. This Exception occurs when the provisioning
+            engine targets a site that is in the recycle bin
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.RecycledSiteException.#ctor">
+            <summary>
+            Initializes a new instance of the RecycledSiteException class with a system supplied message
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.RecycledSiteException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the RecycledSiteException class with the specified message string.
+            </summary>
+            <param name="message"> A string that describes the exception.</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.RecycledSiteException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the RecycledSiteException class with a specified error message and a reference to the inner exception that
+            is the cause of this exception.
+            </summary>
+            <param name="message">A string that describes the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception.</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.RecycledSiteException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the RecycledSiteException class from serialized data.
+            </summary>
+            <param name="info">The object that contains the serialized data.</param>
+            <param name="context">The stream that contains the serialized data.</param>
+            <exception cref="T:System.ArgumentNullException">The info parameter is null.-or-The context parameter is null.</exception>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.SimpleTokenDefinition">
             <summary>
             Defines a provisioning engine Token. Make sure to only use the TokenContext property to execute queries in token methods.
@@ -17135,6 +17181,9 @@
             <remarks/>
         </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.V201909.TeamSite.GroupLifecyclePolicyId">
+            <remarks/>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.V201909.TeamSite.Language">
             <remarks/>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.V201909.CommunicationSite">
@@ -48150,20 +48199,6 @@
             <param name="retryCount">Maximum amount of retries before giving up</param>
             <param name="delay">Initial delay in milliseconds</param>
         </member>
-        <member name="M:OfficeDevPnP.Core.PnPClientContext.Clone(System.String)">
-            <summary>
-            Clones a PnPClientContext object while "taking over" the security context of the existing PnPClientContext instance
-            </summary>
-            <param name="siteUrl">Site URL to be used for cloned ClientContext</param>
-            <returns>A PnPClientContext object created for the passed site URL</returns>
-        </member>
-        <member name="M:OfficeDevPnP.Core.PnPClientContext.Clone(System.Uri)">
-            <summary>
-            Clones a PnPClientContext object while "taking over" the security context of the existing PnPClientContext instance
-            </summary>
-            <param name="siteUri">Site URL to be used for cloned ClientContext</param>
-            <returns>A PnPClientContext object created for the passed site URL</returns>
-        </member>
         <member name="T:OfficeDevPnP.Core.IdentityModel.TokenProviders.ADFS.CertificateMixed">
             <summary>
             ADFS Active authentication based on username + password. Uses the trust/13/usernamemixed ADFS endpoint.
@@ -50032,6 +50067,16 @@
             Clones a ClientContext object while "taking over" the security context of the existing ClientContext instance
             </summary>
             <param name="clientContext">ClientContext to be cloned</param>
+            <param name="siteUrl">Site URL to be used for cloned ClientContext</param>
+            <param name="accessTokens">Dictionary of access tokens for sites URLs</param>
+            <returns>A ClientContext object created for the passed site URL</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.Clone(Microsoft.SharePoint.Client.ClientRuntimeContext,Microsoft.SharePoint.Client.ClientContext,System.Uri,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Clones a ClientContext object while "taking over" the security context of the existing ClientContext instance
+            </summary>
+            <param name="clientContext">ClientContext to be cloned</param>
+            <param name="targetContext">CientContext stub to be used for cloning</param>
             <param name="siteUrl">Site URL to be used for cloned ClientContext</param>
             <param name="accessTokens">Dictionary of access tokens for sites URLs</param>
             <returns>A ClientContext object created for the passed site URL</returns>
@@ -55158,6 +55203,14 @@
             Class for tenant extension methods
             </summary>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
+            <summary>
+            Checks if a site collection exists, relies on tenant admin API. Sites that are recycled also return as existing sites
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="siteFullUrl">URL to the site collection</param>
+            <returns>True if existing, false if not</returns>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.ApplyTenantTemplate(Microsoft.Online.SharePoint.TenantAdministration.Tenant,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningHierarchy,System.String,OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration.ApplyConfiguration)">
             <summary>
             Applies a template to a tenant
@@ -55240,13 +55293,13 @@
             <param name="siteFullUrl">URL to the site collection</param>
             <returns>True if active, false if not</returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SiteExistsAnywhere(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
             <summary>
-            Checks if a site collection exists, relies on tenant admin API. Sites that are recycled also return as existing sites
+            Checks if a site collection exists, relies on tenant admin API. Sites that are recycled also return as existing sites, but with a different flag
             </summary>
             <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
             <param name="siteFullUrl">URL to the site collection</param>
-            <returns>True if existing, false if not</returns>
+            <returns>An enumerated type that can be: No, Yes, Recycled</returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SubSiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
             <summary>
@@ -56612,6 +56665,34 @@
             </summary>
             <param name="site">The target site</param>
             <returns>Returns true if the site is a Team Site</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.SiteExtensions.HasTeamsTeam(Microsoft.SharePoint.Client.Site,System.String)">
+            <summary>
+            Checks if this site collection has a Teams team linked
+            </summary>
+            <param name="site">Site collection</param>
+            <param name="accessToken">Graph access token (groups.read.all) </param>
+            <returns>True if there's a team</returns>
+        </member>
+        <member name="T:Microsoft.SharePoint.Client.SiteExistence">
+            <summary>
+            Defines the existence status of a Site Collection
+            </summary>
+        </member>
+        <member name="F:Microsoft.SharePoint.Client.SiteExistence.No">
+            <summary>
+            The Site Collection does not exist
+            </summary>
+        </member>
+        <member name="F:Microsoft.SharePoint.Client.SiteExistence.Yes">
+            <summary>
+            The Site Collection exists
+            </summary>
+        </member>
+        <member name="F:Microsoft.SharePoint.Client.SiteExistence.Recycled">
+            <summary>
+            The Site Collection is in the Recycle Bin
+            </summary>
         </member>
         <member name="T:Microsoft.SharePoint.Client.VariationExtensions">
             <summary>
