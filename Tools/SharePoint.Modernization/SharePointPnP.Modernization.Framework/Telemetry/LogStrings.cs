@@ -87,6 +87,7 @@
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
         public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
         public const string Error_ExtractWebPartPropertiesViaWebServicesFromPage = "Extract Web Part Properties via Web Services from Page failed";
+        public const string Error_ExtractWebPartPageViaWebServicesFromPage = "Extract Web Part page via Web Services from Page failed";
         public const string Error_CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string Error_ExportWebPartXmlWorkaround = "Export WebPart Xml from Web Call failed";
         public const string Error_AnalyserCouldNotFindLayouts = "GetAllPageLayouts - Could not search for page layouts";
@@ -176,6 +177,7 @@
         public const string PageLivesOutsideOfALibrary = "Page is loaded from outside a library";
         public const string TransformPageDoesNotExistInWeb = "Page does not exist in current web";
         public const string CallingWebServicesToExtractWebPartPropertiesFromPage = "Calling Web Services to Extract Web Part Properties from Page";
+        public const string CallingWebServicesToExtractWebPartPageFromPage = "Calling Web Services to Extract Web Part page from Page";
         public const string CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string RetreivingExportWebPartXmlWorkaround = "Retrieving Web Part using Workaround from Page for Transform";
         public const string PublishMessage = "Published by the page modernization engine";

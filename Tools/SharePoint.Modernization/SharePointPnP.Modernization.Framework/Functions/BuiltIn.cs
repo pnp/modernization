@@ -417,16 +417,30 @@ namespace SharePointPnP.Modernization.Framework.Functions
             {
                 var sourceList = this.sourceClientContext.Web.GetListById(listId);
                 sourceList.EnsureProperty(p=>p.Title);
+                string listTitleToCheck = sourceList.Title;
 
                 List targetlist = null;
                 try
                 {
-                    targetlist = this.clientContext.Web.GetListByTitle(sourceList.Title);
+                    
+                    if (this.baseTransformationInformation.SourceVersion == SPVersion.SP2010)
+                    {
+                        if (listTitleToCheck == "Shared Documents")
+                        {
+                            listTitleToCheck = "Documents"; 
+                        } 
+                        else if (listTitleToCheck == "Calendar")
+                        {
+                            listTitleToCheck = "Events";
+                        }
+                    }
+
+                    targetlist = this.clientContext.Web.GetListByTitle(listTitleToCheck);
                     targetlist.EnsureProperty(p => p.Id);
                 }
                 catch (Exception ex)
                 {
-                    throw new NotAvailableAtTargetException($"List with id {listId} and Title {sourceList.Title} is not available in the target site collection. This web part will be skipped.", ex);
+                    throw new NotAvailableAtTargetException($"List with id {listId} and Title {listTitleToCheck} is not available in the target site collection. This web part will be skipped.", ex);
                 }
 
                 return targetlist.Id.ToString();
