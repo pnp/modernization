@@ -106,6 +106,7 @@ namespace SharePoint.Modernization.Scanner.Core
 
                     if (options.AzureCert == null)
                     {
+                        Log($"No valid certificate found for provided path {options.StoredCertificate}", LogSeverity.Error);
                         throw new Exception($"No valid certificate found for provided path {options.StoredCertificate}");
                     }
                 }
