@@ -1,6 +1,7 @@
 ﻿using SharePoint.Modernization.Scanner.Core;
 using SharePoint.Modernization.Scanner.Core.Reports;
 using SharePoint.Modernization.Scanner.Core.Telemetry;
+using SharePointPnP.Modernization.Scanner.Core;
 using SharePointPnP.Modernization.Scanner.Core.Reports;
 using System;
 using System.Collections.Generic;
@@ -155,6 +156,8 @@ namespace SharePoint.Modernization.Scanner
                         //UseThreading = false
                     };
 
+                    job.Logger += Job_Logger;
+
                     scannerTelemetry = job.ScannerTelemetry;
 
                     job.Execute();
@@ -265,6 +268,18 @@ namespace SharePoint.Modernization.Scanner
                     }
                 }
             }            
+        }
+
+        private static void Job_Logger(object sender, EventArgs e)
+        {
+            if ((e as LogEventArgs).Severity == LogSeverity.Error)
+            {
+                Console.WriteLine($"[Error] {(e as LogEventArgs).Message}");
+            }
+            else
+            {
+                Console.WriteLine((e as LogEventArgs).Message);
+            }
         }
 
         private static void ClearReportStreams(List<ReportStream> reportStreams)

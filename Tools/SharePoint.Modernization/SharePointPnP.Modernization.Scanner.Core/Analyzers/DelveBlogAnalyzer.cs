@@ -4,9 +4,6 @@ using SharePoint.Modernization.Scanner.Core.Analyzers;
 using SharePoint.Modernization.Scanner.Core.Results;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Scanner.Core.Analyzers
 {

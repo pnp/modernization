@@ -441,7 +441,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                         }
 
                                         this.ScanJob.ScanErrors.Push(error);
-                                        Console.WriteLine("Error for page {1}: {0}", ex.Message, pageUrl);
                                     }
                                 }
                             }
@@ -479,7 +478,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                         }
 
                         this.ScanJob.ScanErrors.Push(error);
-                        Console.WriteLine("Error for web {1}: {0}", ex.Message, this.SiteUrl);
                     }
                 }
             }

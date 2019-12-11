@@ -15,6 +15,7 @@ using SharePoint.Modernization.Scanner.Core.Workflow;
 using OfficeDevPnP.Core.Framework.Graph;
 using Newtonsoft.Json.Linq;
 using SharePointPnP.Modernization.Scanner.Core.Analyzers;
+using SharePointPnP.Modernization.Scanner.Core;
 
 namespace SharePoint.Modernization.Scanner.Core
 {
@@ -135,7 +136,7 @@ namespace SharePoint.Modernization.Scanner.Core
                     SiteColUrl = e.Url
                 };
                 this.ScanErrors.Push(error);
-                Console.WriteLine("Error for site {1}: {0}", "No valid ClientContext objects", e.Url);
+                Log($"Error for site {e.Url}: No valid ClientContext objects", LogSeverity.Error);
 
                 // bail out
                 return;
@@ -171,7 +172,7 @@ namespace SharePoint.Modernization.Scanner.Core
                         // Clone the existing ClientContext for the sub web
                         using (ClientContext ccWeb = e.SiteClientContext.Clone(site))
                         {
-                            Console.WriteLine("Processing site {0}...", site);
+                            Log($"Processing site {site}...");
 
                             // Allow max server time out, might be needed for sites having a lot of users
                             ccWeb.RequestTimeout = Timeout.Infinite;
@@ -260,7 +261,7 @@ namespace SharePoint.Modernization.Scanner.Core
                         }
 
                         this.ScanErrors.Push(error);
-                        Console.WriteLine("Error for site {1}: {0}", ex.Message, site);
+                        Log($"Error for site {site}: {ex.Message}", LogSeverity.Error);
                     }
                 }
             }
@@ -282,18 +283,18 @@ namespace SharePoint.Modernization.Scanner.Core
                 }
 
                 this.ScanErrors.Push(error);
-                Console.WriteLine("Error for site {1}: {0}", ex.Message, e.Url);
+                Log($"Error for site {e.Url}: {ex.Message}", LogSeverity.Error);
             }
 
             // Output the scanning progress
             try
             {
                 TimeSpan ts = DateTime.Now.Subtract(this.StartTime);
-                Console.WriteLine($"Thread: {Thread.CurrentThread.ManagedThreadId}. Processed {this.ScannedSites} of {this.SitesToScan} site collections ({Math.Round(((float)this.ScannedSites / (float)this.SitesToScan) * 100)}%). Process running for {ts.Days} days, {ts.Hours} hours, {ts.Minutes} minutes and {ts.Seconds} seconds.");
+                Log($"Thread: {Thread.CurrentThread.ManagedThreadId}. Processed {this.ScannedSites} of {this.SitesToScan} site collections ({Math.Round(((float)this.ScannedSites / (float)this.SitesToScan) * 100)}%). Process running for {ts.Days} days, {ts.Hours} hours, {ts.Minutes} minutes and {ts.Seconds} seconds.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error showing progress: {ex.ToString()}");
+                Log($"Error showing progress: {ex.ToString()}", LogSeverity.Error);
             }
 
         }
@@ -975,9 +976,9 @@ namespace SharePoint.Modernization.Scanner.Core
 
             VersionWarning();
 
-            Console.WriteLine("=====================================================");
-            Console.WriteLine("All done. Took {0} for {1} sites", (DateTime.Now - start).ToString(), this.ScannedSites);
-            Console.WriteLine("=====================================================");
+            Log("=====================================================");
+            Log($"All done. Took {(DateTime.Now - start).ToString()} for {this.ScannedSites} sites");
+            Log("=====================================================");
 
             return start;
         }
@@ -988,8 +989,8 @@ namespace SharePoint.Modernization.Scanner.Core
             {
                 var currentColor = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"Scanner version {this.NewVersion} is available. You're currently running {this.CurrentVersion}.");
-                Console.WriteLine($"Download the latest version of the scanner from {VersionCheck.newVersionDownloadUrl}");
+                Log($"Scanner version {this.NewVersion} is available. You're currently running {this.CurrentVersion}.");
+                Log($"Download the latest version of the scanner from {VersionCheck.newVersionDownloadUrl}");
                 Console.ForegroundColor = currentColor;
             }
         }

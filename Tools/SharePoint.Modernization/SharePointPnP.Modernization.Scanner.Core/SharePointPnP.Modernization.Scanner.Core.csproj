@@ -204,6 +204,7 @@
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\UserCustomActionCollectionExtensions.cs" />
     <Compile Include="Extensions\WebExtensions.cs" />
+    <Compile Include="LogEventArgs.cs" />
     <Compile Include="ModernizationScanJob.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
