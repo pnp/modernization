@@ -399,6 +399,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         if (!string.IsNullOrEmpty(pageTransformationInformation.TargetPageFolder))
                         {
+                            // Handle special case <root> to indicate page should be created in the root folder
+                            if (pageTransformationInformation.TargetPageFolder.Equals("<root>", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                pageTransformationInformation.TargetPageFolder = "";
+                            }
+
                             if (pageTransformationInformation.TargetPageFolderOverridesDefaultFolder)
                             {
                                 pageFolder = pageTransformationInformation.TargetPageFolder;

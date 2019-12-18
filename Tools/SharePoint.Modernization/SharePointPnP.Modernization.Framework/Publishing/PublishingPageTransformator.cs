@@ -260,6 +260,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                         if (!string.IsNullOrEmpty(publishingPageTransformationInformation.TargetPageFolder))
                         {
+                            // Handle special case <root> to indicate page should be created in the root folder
+                            if (publishingPageTransformationInformation.TargetPageFolder.Equals("<root>", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                publishingPageTransformationInformation.TargetPageFolder = "";
+                            }
+
                             if (publishingPageTransformationInformation.TargetPageFolderOverridesDefaultFolder)
                             {
                                 pageFolder = publishingPageTransformationInformation.TargetPageFolder;
