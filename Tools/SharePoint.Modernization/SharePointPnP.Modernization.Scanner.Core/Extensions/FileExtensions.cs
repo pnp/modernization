@@ -182,7 +182,6 @@ namespace Microsoft.SharePoint.Client
                                         SiteColUrl = site.Url
                                     };
                                     scanErrors.Push(error);
-                                    Console.WriteLine("Error for site {1}: {0}", ex.Message, cc.Web.Url);
                                 }
                             }
                         }
@@ -237,7 +236,6 @@ namespace Microsoft.SharePoint.Client
                                     SiteColUrl = site.Url,
                                 };
                                 scanErrors.Push(error);
-                                Console.WriteLine("Error for site {1}: {0}", ex.Message, cc.Web.Url);
                             }
                         }
                     }
@@ -250,7 +248,6 @@ namespace Microsoft.SharePoint.Client
                             SiteColUrl = site.Url
                         };
                         scanErrors.Push(error);
-                        Console.WriteLine("Error for site {1}: {0}", ex.Message, cc.Web.Url);
                     }
                 }
             }

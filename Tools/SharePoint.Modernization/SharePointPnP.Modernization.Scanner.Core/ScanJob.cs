@@ -3,6 +3,7 @@ using Microsoft.SharePoint.Client.Search.Query;
 using OfficeDevPnP.Core.Framework.TimerJobs;
 using OfficeDevPnP.Core.Framework.TimerJobs.Enums;
 using OfficeDevPnP.Core.Utilities;
+using SharePointPnP.Modernization.Scanner.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -21,6 +22,10 @@ namespace SharePoint.Modernization.Scanner.Core
     /// </summary>
     public abstract class ScanJob : TimerJob
     {
+        #region Events
+        public event EventHandler Logger;
+        #endregion
+
         #region Variables
         public Int32 ScannedSites = 0;
         public Int32 ScannedWebs = 0;
@@ -101,6 +106,7 @@ namespace SharePoint.Modernization.Scanner.Core
 
                     if (options.AzureCert == null)
                     {
+                        Log($"No valid certificate found for provided path {options.StoredCertificate}", LogSeverity.Error);
                         throw new Exception($"No valid certificate found for provided path {options.StoredCertificate}");
                     }
                 }
@@ -150,10 +156,27 @@ namespace SharePoint.Modernization.Scanner.Core
             }
             else
             {
-                Console.WriteLine("No site selection specified, assume the job will use search to retrieve a list of sites");
+                Log("No site selection specified, assume the job will use search to retrieve a list of sites");
             }
 
             this.StartTime = DateTime.Now;
+        }
+        #endregion
+
+        #region Logging handling
+        protected virtual void Log(string message, LogSeverity severity = LogSeverity.Information)
+        {
+            EventHandler handler = Logger;
+            if (handler != null)
+            {
+                LogEventArgs e = new LogEventArgs()
+                {
+                    Message = message,
+                    Severity = severity,
+                    TriggeredAt = DateTime.UtcNow,
+                };
+                handler.Invoke(this, e);
+            }
         }
         #endregion
 
@@ -165,17 +188,17 @@ namespace SharePoint.Modernization.Scanner.Core
         public virtual DateTime Execute()
         {
             DateTime start = DateTime.Now;
-            Console.WriteLine("=====================================================");
-            Console.WriteLine("Scanning is starting...{0}", start.ToString());
-            Console.WriteLine("=====================================================");
+            Log("=====================================================");
+            Log($"Scanning is starting...{start.ToString()}");
+            Log("=====================================================");
 
             // Launch the job
             this.Run();
 
             // Dump scan results
-            Console.WriteLine("=====================================================");
-            Console.WriteLine("Scanning is done...now dump the results to a CSV file");
-            Console.WriteLine("=====================================================");
+            Log("=====================================================");
+            Log("Scanning is done...now dump the results to a CSV file");
+            Log("=====================================================");
 
             // Export the common CSV's (like errors)
             string[] outputHeaders = null;
@@ -470,9 +493,9 @@ namespace SharePoint.Modernization.Scanner.Core
 
                 int totalRows = 0;
 
-                Console.WriteLine($"Start search query {keywordQueryValue}");
+                Log($"Start search query {keywordQueryValue}");
                 totalRows = this.ProcessQuery(web, keywordQueryValue, propertiesToRetrieve, sites, keywordQuery);
-                Console.WriteLine($"Found {totalRows} rows...");
+                Log($"Found {totalRows} rows...");
                 if (totalRows > 0)
                 {
                     while (totalRows > 0)
@@ -483,7 +506,7 @@ namespace SharePoint.Modernization.Scanner.Core
                         if (sites.Last().TryGetValue("IndexDocId", out lastIndexDocIdString))
                         {
                             lastIndexDocId = double.Parse(lastIndexDocIdString);
-                            Console.WriteLine($"Retrieving a batch of up to 500 search results");
+                            Log($"Retrieving a batch of up to 500 search results");
                             totalRows = this.ProcessQuery(web, keywordQueryValue + " AND IndexDocId >" + lastIndexDocId, propertiesToRetrieve, sites, keywordQuery);// From the second Query get the next set (rowlimit) of search result based on IndexDocId
                         }
                     }

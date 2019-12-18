@@ -578,7 +578,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 }
 
                 this.ScanJob.ScanErrors.Push(error);
-                Console.WriteLine("Error during Workflow analysis for site {1}: {0}", ex.Message, $"{this.SiteUrl}");
             }
             finally
             {

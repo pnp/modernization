@@ -20,6 +20,7 @@ TransformPages.ps1 | Bert Jansen (**Microsoft**)
 Convert-PublishingPages.ps1 | Paul Bullock (CaPa Creative Ltd)
 Convert-OnPremisesPublishingPages.ps1 | Paul Bullock (CaPa Creative Ltd)
 Convert-BlogPages.ps1 | Bert Jansen (**Microsoft**)
+Convert-DelveBlogPages.ps1 | Bert Jansen (**Microsoft**)
 
 ## Version history
 
@@ -29,6 +30,7 @@ Version|Date|Comments
 1.1 | June 26th 2019 | Added new sample
 1.2 | August 8th 2019 | Added on-premises sample
 1.3 | October 23rd 2019 | Added blog sample
+1.4 | November 27th 2019 | Added Delve blog sample
 
 ## Disclaimer
 

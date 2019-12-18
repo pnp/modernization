@@ -56,6 +56,14 @@ namespace Microsoft.SharePoint.Client
                 return "WikiPage";
             }
 
+            if (FieldExistsAndUsed(item, Constants.FileTypeField) && !String.IsNullOrEmpty(item[Constants.FileTypeField].ToString()))
+            {
+                if (item[Constants.FileTypeField].ToString().Equals("pointpub", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return "DelveBlogPage";
+                }
+            }
+
             return "AspxPage";
         }
 

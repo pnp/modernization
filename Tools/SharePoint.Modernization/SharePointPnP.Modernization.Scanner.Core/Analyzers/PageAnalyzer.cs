@@ -223,7 +223,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                         this.ScanJob.ScanErrors.Push(error);
                                     }
                                     var duration = new TimeSpan((DateTime.Now.Subtract(start).Ticks));
-                                    Console.WriteLine($"Scan of page {pageUrl} took {duration.Seconds} seconds");
                                 }
                                 catch(Exception ex)
                                 {
@@ -244,7 +243,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                     }
 
                                     this.ScanJob.ScanErrors.Push(error);
-                                    Console.WriteLine("Error for page {1}: {0}", ex.Message, pageUrl);
                                 }
                             }
                         }

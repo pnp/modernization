@@ -78,6 +78,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (!string.IsNullOrEmpty(sourceAssetRelativeUrl) && isValid)
             {
 
+                // Are we dealing with an _layouts image?
+                if (sourceAssetRelativeUrl.ContainsIgnoringCasing("_layouts/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // _layouts based images automatically exist on the target site, so let's build a server relative url for the _layout image on the target site
+                    var targetRelativeSiteUrl = this._targetClientContext.Web.EnsureProperty(p => p.ServerRelativeUrl);
+
+                    return $"{targetRelativeSiteUrl}/{sourceAssetRelativeUrl.Substring(sourceAssetRelativeUrl.IndexOf("_layouts/", StringComparison.InvariantCultureIgnoreCase))}";
+                }
+
                 // Check the target library exists
                 string targetFolderServerRelativeUrl = EnsureDestination(pageFileName);
                 // Read in a preferred location

@@ -3,9 +3,6 @@ using SharePoint.Modernization.Scanner.Core.Results;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePoint.Modernization.Scanner.Core.Analyzers
 {
@@ -104,7 +101,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                         }
 
                         this.ScanJob.ScanErrors.Push(error);
-                        Console.WriteLine("Error for page {1}: {0}", ex.Message, $"{webAppUrl}{list.DefaultViewUrl}");
                     }
                 }
 

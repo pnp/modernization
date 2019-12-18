@@ -75,6 +75,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             List<WebServiceWebPartProperties> webServiceWebPartEntities = null;
             if (version == Transform.SPVersion.SP2010)
             {
+                // This loads the web part properties, zoneId and controlId for v2 and v3 web parts 
                 webServiceWebPartEntities = LoadWebPartPropertiesFromWebServices(webPartPage.EnsureProperty(p => p.ServerRelativeUrl));
             }
 

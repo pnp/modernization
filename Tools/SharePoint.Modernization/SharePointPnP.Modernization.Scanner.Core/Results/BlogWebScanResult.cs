@@ -2,13 +2,32 @@
 
 namespace SharePoint.Modernization.Scanner.Core.Results
 {
+
+    /// <summary>
+    /// Blog page types
+    /// </summary>
+    public enum BlogType
+    {
+        Classic,
+        Delve
+    }
+
+    /// <summary>
+    /// Stores information about a found blog site
+    /// </summary>
     public class BlogWebScanResult: Scan
     {
         public BlogWebScanResult()
         {
             this.LastRecentBlogPageChange = DateTime.MinValue;
             this.LastRecentBlogPagePublish = DateTime.MinValue;
+            this.BlogType = BlogType.Classic;
         }
+
+        /// <summary>
+        /// Type of blog page
+        /// </summary>
+        public BlogType BlogType { get; set; }
 
         /// <summary>
         /// Web relative Url

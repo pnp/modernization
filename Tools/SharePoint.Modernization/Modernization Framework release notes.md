@@ -16,6 +16,16 @@
 
 ### Added
 
+### Changed
+
+- Fix: Improved v3 (e.g. XSLTListView) web part handling for SP2010 - now webpart properties, zoneId and controlId are correct loaded #384
+- Fix: Correctly handle images hosted in the server side _layouts folder when doing cross site transformations #390
+
+## [December release - version 1.0.1912.0]
+
+### Added
+
+- Added support for transforming Delve blog pages
 - Added TargetPageFolderOverridesDefaultFolder option to have the provided target folder override the default generated folder #366
 - SharePoint Add-In part properties can now be used in web part mappings #374
 

@@ -1189,8 +1189,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="pageUrl">Server Relative Page Url</param>
         /// <returns></returns>
         internal List<WebServiceWebPartProperties> LoadWebPartPropertiesFromWebServices(string pageUrl)
-
         {
+            var version = GetVersion(cc);
+            
+            Regex ZoneIdRegex = new Regex("ZoneID=\"(.*?)\"", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            Regex ControlIdRegex = new Regex("ID=\"g_(.*?)\"", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
             // This may contain references to multiple web part
             var webPartProperties = new List<WebServiceWebPartProperties>();
             var wsWebPartProps = ExtractWebPartPropertiesViaWebServicesFromPage(pageUrl);
@@ -1222,7 +1226,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                             // Get the control ID from properties
                             var controlIDNode = webPartNode.SelectSingleNode("wpv2:ID", namespaceManager);
-                            wsWebPartPropertiesEntity.ControlId = controlIDNode?.InnerText; 
+                            wsWebPartPropertiesEntity.ControlId = controlIDNode?.InnerText;
 
                             // Get the type from a child node
                             var typeNode = webPartNode.SelectSingleNode("wpv2:TypeName", namespaceManager);
@@ -1231,7 +1235,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                             // Get the type from a child node
                             var zoneIDNode = webPartNode.SelectSingleNode("wpv2:ZoneID", namespaceManager);
                             wsWebPartPropertiesEntity.ZoneId = zoneIDNode?.InnerText;
-                            
+
                             //Get the properties
                             var propertyNodes = webPartNode.ChildNodes;
 
@@ -1242,6 +1246,72 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                             webPartProperties.Add(wsWebPartPropertiesEntity);
                         }
+
+                        // Also load the v3 web part properties when in 2010
+                        if (version == SPVersion.SP2010)
+                        {
+                            var xPathv3 = "//soap:Body/wpp:GetWebPartProperties2Response/wpp:GetWebPartProperties2Result/wpp:WebParts/wpp:WebPart";
+                            var webPartsv3 = xDoc.SelectNodes(xPathv3, namespaceManager);
+
+                            foreach (XmlNode webPartNode in webPartsv3)
+                            {
+                                WebServiceWebPartProperties wsWebPartPropertiesEntity = new WebServiceWebPartProperties();
+
+                                // Get Parent Node for Web Part ID
+                                var parentNodeIdAttribute = webPartNode.Attributes.GetNamedItem("ID");
+                                wsWebPartPropertiesEntity.Id = Guid.Parse(parentNodeIdAttribute.Value);
+
+                                // Get the control ID from properties, is same as id for web part pages but not for wiki pages
+                                wsWebPartPropertiesEntity.ControlId = $"g_{wsWebPartPropertiesEntity.Id.ToString().ToLower().Replace("-", "_")}";
+
+                                // Get the type from a child node
+                                var typeNode = webPartNode.SelectSingleNode("wpv3:webPart/wpv3:metaData/wpv3:type", namespaceManager);
+                                wsWebPartPropertiesEntity.Type = typeNode?.Attributes.GetNamedItem("name").Value;
+
+                                //Get the properties
+                                var propertyNodes = webPartNode.SelectNodes("wpv3:webPart/wpv3:data/wpv3:properties/wpv3:property", namespaceManager);
+
+                                foreach (XmlNode propertyNode in propertyNodes)
+                                {
+                                    wsWebPartPropertiesEntity.Properties.Add(propertyNode.Attributes.GetNamedItem("name").Value, propertyNode.InnerText);
+                                }
+
+                                // Since we did not get the zone id for v3 web parts we'll need to retrieve the page and parse that to find the zone id
+                                var webpartPage = ExtractWebPartPageViaWebServicesFromPage(pageUrl);
+
+                                if (!string.IsNullOrEmpty(webpartPage))
+                                {
+                                    // Get the string that contains the zoneId for this web part
+                                    Regex zoneIdStringRegex = new Regex($"ZoneID=\"(.*?)\".*?{wsWebPartPropertiesEntity.Id.ToString()}", RegexOptions.IgnoreCase);
+                                    var match = zoneIdStringRegex.Match(webpartPage);
+
+                                    if (match != null && match.Success)
+                                    {
+                                        // Use regex to extract the zoneId value from the string
+                                        var zoneIdMatch = ZoneIdRegex.Match(match.Value);
+                                        if (zoneIdMatch != null && zoneIdMatch.Success)
+                                        {
+                                            // Returned value = ZoneID="MiddleColumn"
+
+                                            // Set zoneId property
+                                            wsWebPartPropertiesEntity.ZoneId = zoneIdMatch.Value.Replace("ZoneID=\"", "", StringComparison.InvariantCultureIgnoreCase).Replace("\"", "");
+                                        }
+
+                                        // Use regex to extract the controlId value from the string 
+                                        var controlIdMatch = ControlIdRegex.Match(match.Value);
+                                        if (controlIdMatch != null && controlIdMatch.Success)
+                                        {
+                                            // returned value = ID="g_2b71545a_4278_4714_a26b_713b5365f44d"
+
+                                            // set ControlId property
+                                            wsWebPartPropertiesEntity.ControlId = controlIdMatch.Value.Replace("ID=\"", "", StringComparison.InvariantCultureIgnoreCase).Replace("\"", "");
+                                        }
+                                    }
+                                }                                
+
+                                webPartProperties.Add(wsWebPartPropertiesEntity);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -1251,6 +1321,83 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             return webPartProperties;
+        }
+
+        /// <summary>
+        /// Uses the WebPartPages.asmx service to retrieve the page contents, needed to find ZoneId for SP2010 based v3 web parts
+        /// </summary>
+        /// <param name="fileLeafRef">Page to load</param>
+        /// <returns>The found page</returns>
+        internal string ExtractWebPartPageViaWebServicesFromPage(string fileLeafRef)
+        {
+            try
+            {
+                LogInfo(LogStrings.CallingWebServicesToExtractWebPartPageFromPage, LogStrings.Heading_ContentTransform);
+                string webPartPage = String.Empty;
+                string webUrl = cc.Web.GetUrl();
+                string webServiceUrl = webUrl + "/_vti_bin/WebPartPages.asmx";
+
+                StringBuilder soapEnvelope = new StringBuilder();
+
+                soapEnvelope.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                soapEnvelope.Append("<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">");
+
+                soapEnvelope.Append(String.Format(
+                 "<soap:Body>" +
+                    "<GetWebPartPage xmlns=\"http://microsoft.com/sharepoint/webpartpages\">" +
+                        "<documentName>{0}</documentName>" +
+                    "</GetWebPartPage>" + "</soap:Body>"
+                 , WebUtility.HtmlEncode(fileLeafRef)));
+                soapEnvelope.Append("</soap:Envelope>");
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webServiceUrl); //hack to force webpart zones to render
+                //request.Credentials = cc.Credentials;
+                request.AddAuthenticationData(this.cc);
+                request.Method = "POST";
+                request.ContentType = "text/xml; charset=\"utf-8\"";
+                request.Accept = "text/xml";
+                request.Headers.Add("SOAPAction", "\"http://microsoft.com/sharepoint/webpartpages/GetWebPartPage\"");
+
+                using (System.IO.Stream stream = request.GetRequestStream())
+                {
+                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(stream))
+                    {
+                        writer.Write(soapEnvelope.ToString());
+                    }
+                }
+
+                var response = request.GetResponse();
+                using (var dataStream = response.GetResponseStream())
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load(dataStream);
+
+                    if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
+                    {
+                        webPartPage = xDoc.DocumentElement.InnerXml;
+
+                        var namespaceManager = new XmlNamespaceManager(xDoc.NameTable);
+                        namespaceManager.AddNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/");
+                        namespaceManager.AddNamespace("wpp", "http://microsoft.com/sharepoint/webpartpages");
+
+                        if (xDoc.DocumentElement != null && xDoc.DocumentElement.InnerXml.Length > 0)
+                        {
+                            var xPath = "//soap:Body/wpp:GetWebPartPageResponse/wpp:GetWebPartPageResult";
+                            var pageContent = xDoc.SelectSingleNode(xPath, namespaceManager);
+                            if (pageContent != null && pageContent.InnerXml != null)
+                            {
+                                return WebUtility.HtmlDecode(pageContent.InnerXml);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                LogError(LogStrings.Error_ExtractWebPartPropertiesViaWebServicesFromPage, LogStrings.Heading_ContentTransform, ex);
+            }
+
+            return string.Empty;
         }
 
         /// <summary>

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SharePoint.Client;
 using SharePoint.Modernization.Scanner.Core.Results;
 
@@ -183,7 +179,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                 }
 
                                 this.ScanJob.ScanErrors.Push(error);
-                                Console.WriteLine("Error during InfoPath analysis for list {1}: {0}", ex.Message, $"{webAppUrl}{list.DefaultViewUrl}");
                             }
                         }
                     }

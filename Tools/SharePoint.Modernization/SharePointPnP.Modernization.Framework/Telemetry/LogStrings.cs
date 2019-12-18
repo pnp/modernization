@@ -71,6 +71,7 @@
         public const string Error_PageNotValidMissingFileRef = "Page is not valid due to missing FileRef or FileLeafRef value";
         public const string Error_BasicASPXPageCannotTransform = "Page is an basic aspx page...can't currently transform that one, sorry!";
         public const string Error_PublishingPagesNotYetSupported = "Page transformation for publishing pages can only be done using the PublishingPageTransformator class";
+        public const string Error_DelveBlogPagesNotSupported = "Page transformation for Delve blog pages can only be done using the DelvePageTransformator class";
         public const string Error_PageIsNotAPublishingPage = "Page is not a publishing page, please use the wiki and webpart page API's";
         public const string Error_CannotUsePageAcceptBannerCrossSite = "Page transformation towards a different site collection cannot use the page accept banner.";
         public const string Error_OverridingTagePageTakesSourcePageName = "Overriding 'TargetPageTakesSourcePageName' to ensure that the newly created page in the other site collection gets the same name as the source page";
@@ -86,6 +87,7 @@
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
         public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
         public const string Error_ExtractWebPartPropertiesViaWebServicesFromPage = "Extract Web Part Properties via Web Services from Page failed";
+        public const string Error_ExtractWebPartPageViaWebServicesFromPage = "Extract Web Part page via Web Services from Page failed";
         public const string Error_CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string Error_ExportWebPartXmlWorkaround = "Export WebPart Xml from Web Call failed";
         public const string Error_AnalyserCouldNotFindLayouts = "GetAllPageLayouts - Could not search for page layouts";
@@ -144,6 +146,7 @@
         public const string TransformArticleHeaderImageUrl = "Image Url: ";
         public const string TransformSourcePageIsWikiPage = "Recognized source page as a Wiki Page.";
         public const string TransformSourcePageIsPublishingPage = "Recognized source page as a Publishing Page";
+        public const string TransformSourcePageIsDelvePage = "Recognized source page as a Delve Blog Page";
         public const string TransformSourcePageAnalysing = "Analyzing web parts and page layouts";
         public const string WikiTextContainsImagesVideosReferences = "Splitting images and videos from wiki text - as modern text web part does not support embedded images and videos";
         public const string TransformSourcePageIsWebPartPage = "Recognized source page as a Web Part Page.";
@@ -174,6 +177,7 @@
         public const string PageLivesOutsideOfALibrary = "Page is loaded from outside a library";
         public const string TransformPageDoesNotExistInWeb = "Page does not exist in current web";
         public const string CallingWebServicesToExtractWebPartPropertiesFromPage = "Calling Web Services to Extract Web Part Properties from Page";
+        public const string CallingWebServicesToExtractWebPartPageFromPage = "Calling Web Services to Extract Web Part page from Page";
         public const string CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
         public const string RetreivingExportWebPartXmlWorkaround = "Retrieving Web Part using Workaround from Page for Transform";
         public const string PublishMessage = "Published by the page modernization engine";
