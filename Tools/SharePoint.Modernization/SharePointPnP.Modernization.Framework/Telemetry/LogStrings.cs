@@ -236,7 +236,7 @@
         public const string Error_AssetTransferClientContextNull = "One or more client context is null";
 
         public const string AssetTransferredToUrl = "An referenced asset was found and copied to:";
-        public const string AssetTransferFailedFallback = "Asset was not transfered. Asset: ";
+        public const string AssetTransferFailedFallback = "Asset was not transferred. Asset: ";
 
         public const string Error_AssetTransferCheckingIfAssetExists = "An error occurred checking if a referenced asset exists";
         public const string AssetTransferUploading = "Uploading {0}";
