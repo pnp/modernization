@@ -21,6 +21,7 @@
 - Fix: Improved v3 (e.g. XSLTListView) web part handling for SP2010 - now webpart properties, zoneId and controlId are correct loaded #384
 - Fix: Correctly handle images hosted in the server side _layouts folder when doing cross site transformations #390
 - Fix: Allow to force a page to be created in the root of the SitePages library by setting `TargetPageFolder = "<root>"` and `TargetPageFolderOverridesDefaultFolder = true`
+- Bumped to .Net 4.6.1 as minimal .Net runtime version
 
 ## [December release - version 1.0.1912.0]
 

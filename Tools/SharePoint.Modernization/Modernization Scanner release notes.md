@@ -4,6 +4,14 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.8]
+
+## Added
+
+## Changed
+
+- Bumped to .Net 4.6.1 as minimal .Net runtime version
+
 ## [Version 2.7]
 
 ## Added
