@@ -1,8 +1,11 @@
-﻿namespace SharePointPnP.Modernization.Framework.Entities
+﻿using System;
+
+namespace SharePointPnP.Modernization.Framework.Entities
 {
     /// <summary>
     /// Url map entry
     /// </summary>
+    [Serializable]
     public class UrlMapping
     {
         /// <summary>

@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace SharePointPnP.Modernization.Framework.Entities
 {
     /// <summary>
     /// Class to hold information about a given user
     /// </summary>
+    [Serializable]
     public class UserEntity
     {
         /// <summary>

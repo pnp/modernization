@@ -1,8 +1,11 @@
-﻿namespace SharePointPnP.Modernization.Framework.Entities
+﻿using System;
+
+namespace SharePointPnP.Modernization.Framework.Entities
 {
     /// <summary>
     /// Class to hold a mapping between a user in the source site and a user in the target site
     /// </summary>
+    [Serializable]
     public class UserMappingEntity
     {
         /// <summary>

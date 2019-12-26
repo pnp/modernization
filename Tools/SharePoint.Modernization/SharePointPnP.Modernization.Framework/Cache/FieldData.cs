@@ -5,6 +5,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
     /// <summary>
     /// Field data used to transfer information about a field
     /// </summary>
+    [Serializable]
     public class FieldData
     {
         /// <summary>
