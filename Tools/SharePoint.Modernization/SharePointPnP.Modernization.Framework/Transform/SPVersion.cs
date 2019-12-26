@@ -11,6 +11,7 @@
         SP2016Legacy= 3,
         SP2013 = 4, 
         SP2013Legacy = 5,
-        SP2010 = 6
+        SP2010 = 6,
+        Unknown = 100
     }
 }

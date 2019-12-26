@@ -38,9 +38,14 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private ConcurrentDictionary<string, Dictionary<string, ResolvedUser>> ensuredUsers;
         private ConcurrentDictionary<string, string> contentTypes;
         private ConcurrentDictionary<string, List<FieldData>> publishingContentTypeFields;
+        private ConcurrentDictionary<Uri, Guid> aadTenantId;
+        private ConcurrentDictionary<Uri, SPVersion> sharepointVersions;
+        private ConcurrentDictionary<Uri, string> exactSharepointVersions;
         private BasePageTransformator lastUsedTransformator;
         private List<UrlMapping> urlMapping;
         private List<UserMappingEntity> userMappings;
+        private List<AssetTransferredEntity> assetsTransfered;
+        private Dictionary<string, string> mappedUsers;
 
         private static readonly string Publishing = "publishing";
         private static readonly string Blog = "blog";
@@ -64,7 +69,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             siteToComponentMapping = new ConcurrentDictionary<Guid, string>();
             baseTemplate = null;
             fieldsToCopy = new ConcurrentDictionary<string, List<FieldData>>();
-            AssetsTransfered = new List<AssetTransferredEntity>();
+            assetsTransfered = new List<AssetTransferredEntity>();
             publishingPagesLibraryNames = new ConcurrentDictionary<uint, string>();
             blogListNames = new ConcurrentDictionary<uint, string>();
             webType = new ConcurrentDictionary<string, string>();
@@ -73,35 +78,116 @@ namespace SharePointPnP.Modernization.Framework.Cache
             userJsonStrings = new ConcurrentDictionary<string, Dictionary<int, UserEntity>>();
             userJsonStringsViaUpn = new ConcurrentDictionary<string, Dictionary<string, UserEntity>>();
             ensuredUsers = new ConcurrentDictionary<string, Dictionary<string, ResolvedUser>>();
-            MappedUsers = new Dictionary<string, string>();
+            mappedUsers = new Dictionary<string, string>();
             contentTypes = new ConcurrentDictionary<string, string>();
             publishingContentTypeFields = new ConcurrentDictionary<string, List<FieldData>>();
-            SharepointVersions = new ConcurrentDictionary<Uri, SPVersion>();
-            ExactSharepointVersions = new ConcurrentDictionary<Uri, string>();
-            AADTenantId = new ConcurrentDictionary<Uri, Guid>();
+            sharepointVersions = new ConcurrentDictionary<Uri, SPVersion>();
+            exactSharepointVersions = new ConcurrentDictionary<Uri, string>();
+            aadTenantId = new ConcurrentDictionary<Uri, Guid>();
         }
         #endregion
 
+        #region SharePoint Versions and AAD
         /// <summary>
-        /// List of URLs and SharePoint Versions
+        /// Get's the cached SharePoint version for a given site
         /// </summary>
-        public ConcurrentDictionary<Uri, SPVersion> SharepointVersions { get; }
+        /// <param name="site">Site to get the SharePoint version for</param>
+        /// <returns>Found SharePoint version or "Unknown" if not found in cache</returns>
+        public SPVersion GetSharePointVersion(Uri site)
+        {
+            if (this.sharepointVersions.ContainsKey(site))
+            {
+                return this.sharepointVersions[site];
+            }
+
+            return SPVersion.Unknown;
+        }
 
         /// <summary>
-        /// List of URLs and Exact SharePoint Versions
+        /// Sets the SharePoint version in cache
         /// </summary>
-        public ConcurrentDictionary<Uri, string> ExactSharepointVersions { get; }
+        /// <param name="site">Site to the set the SharePoint version for</param>
+        /// <param name="version">SharePoint version of the site</param>
+        public void SetSharePointVersion(Uri site, SPVersion version)
+        {
+            if (!this.sharepointVersions.ContainsKey(site))
+            {
+                this.sharepointVersions.TryAdd(site, version);
+            }
+        }
 
         /// <summary>
-        /// AADTenantID's used
+        /// Get's the exact SharePoint version from cache
         /// </summary>
-        public ConcurrentDictionary<Uri, Guid> AADTenantId { get; }
+        /// <param name="site">Site to get the exact version for</param>
+        /// <returns>Exact version from cache</returns>
+        public string GetExactSharePointVersion(Uri site)
+        {
+            if (this.exactSharepointVersions.ContainsKey(site))
+            {
+                return this.exactSharepointVersions[site];
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Adds exact SharePoint version for a given site to cache
+        /// </summary>
+        /// <param name="site">Site to add the SharePoint version for to cache</param>
+        /// <param name="version">Version to add</param>
+        public void SetExactSharePointVersion(Uri site, string version)
+        {
+            if (!this.exactSharepointVersions.ContainsKey(site))
+            {
+                this.exactSharepointVersions.TryAdd(site, version);    
+            }
+        }
+
+        /// <summary>
+        /// Returns the used AzureAD tenant id
+        /// </summary>
+        /// <param name="site">Url of the site</param>
+        /// <returns>Azure AD tenant id</returns>
+        public Guid GetAADTenantId(Uri site)
+        {
+            if (this.aadTenantId.ContainsKey(site))
+            {
+                return this.aadTenantId[site];
+            }
+            else
+            {
+                return Guid.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Sets the Azure AD tenant Id in cache
+        /// </summary>
+        /// <param name="tenantId">Tenant Id</param>
+        /// <param name="site">Site url</param>
+        public void SetAADTenantId(Guid tenantId, Uri site)
+        {
+            if (!this.aadTenantId.ContainsKey(site))
+            {
+                this.aadTenantId.TryAdd(site, tenantId);
+            }
+        }
+        #endregion
 
         #region Asset Transfer
-        /// <summary>
-        /// List of assets transferred from source to destination
-        /// </summary>
-        public List<AssetTransferredEntity> AssetsTransfered { get; set; }
+        public List<AssetTransferredEntity> GetAssetsTransferred()
+        {
+            return this.assetsTransfered;
+        }
+
+        public void AddAssetTransferredEntity(AssetTransferredEntity asset)
+        {
+            if (!this.assetsTransfered.Contains(asset))
+            {
+                this.assetsTransfered.Add(asset);
+            }
+        }
         #endregion
 
         #region Client Side Components
@@ -652,7 +738,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// </summary>
         public void ClearAllCaches()
         {
-            this.AssetsTransfered.Clear();
+            this.assetsTransfered.Clear();
             ClearClientSideComponents();
             ClearBaseTemplate();
 
@@ -670,7 +756,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// </summary>
         public void ClearSharePointVersions()
         {
-            this.SharepointVersions.Clear();
+            this.sharepointVersions.Clear();
         }
 
         /// <summary>
@@ -687,7 +773,24 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <summary>
         /// Mapped users
         /// </summary>
-        public Dictionary<string, string> MappedUsers { get; }
+        /// <returns>A dictionary of mapped users</returns>
+        public Dictionary<string, string> GetMappedUsers()
+        {
+            return this.mappedUsers;
+        }
+
+        /// <summary>
+        /// Adds a user to the dictionary of mapped users
+        /// </summary>
+        /// <param name="principal">Principal to map</param>
+        /// <param name="user">mapped user</param>
+        public void AddMappedUser(string principal, string user)
+        {
+            if (!this.mappedUsers.ContainsKey(principal))
+            {
+                this.mappedUsers.Add(principal, user);
+            }
+        }
 
         /// <summary>
         /// Run and cache the output value of EnsureUser for a given user

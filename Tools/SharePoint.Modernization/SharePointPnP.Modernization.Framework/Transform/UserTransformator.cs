@@ -236,7 +236,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     var basicPrincipal = StripUserPrefixTokenAndDomain(principalInput);
 
                     bool resultCameFromCache = false;
-                    if (CacheManager.Instance.MappedUsers.TryGetValue(principalInput, out string mappedUser))
+                    if (CacheManager.Instance.GetMappedUsers().TryGetValue(principalInput, out string mappedUser))
                     {
                         result = mappedUser;
                         resultCameFromCache = true;
@@ -274,7 +274,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                     if (!resultCameFromCache)
                     {
-                        CacheManager.Instance.MappedUsers.Add(principalInput, result);
+                        CacheManager.Instance.AddMappedUser(principalInput, result);
                     }
 
                     return result;

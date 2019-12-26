@@ -1,4 +1,5 @@
-﻿using Microsoft.SharePoint.Client;
+﻿using AngleSharp;
+using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
@@ -184,14 +185,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             Uri urlUri = new Uri(clientContext.Url);
 
-            if (CacheManager.Instance.ExactSharepointVersions.ContainsKey(urlUri))
+            if (!string.IsNullOrEmpty(CacheManager.Instance.GetExactSharePointVersion(urlUri)))
             {
-                return CacheManager.Instance.ExactSharepointVersions[urlUri];
+                return CacheManager.Instance.GetExactSharePointVersion(urlUri);
             }
             else
             {
                 GetVersion(clientContext);
-                return CacheManager.Instance.ExactSharepointVersions[urlUri];
+                return CacheManager.Instance.GetExactSharePointVersion(urlUri);
             }
         }
 
@@ -204,9 +205,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             Uri urlUri = new Uri(clientContext.Url);
 
-            if (CacheManager.Instance.SharepointVersions.ContainsKey(urlUri))
+            var spVersionFromCache = CacheManager.Instance.GetSharePointVersion(urlUri); 
+            if (spVersionFromCache != SPVersion.Unknown)
             {
-                return CacheManager.Instance.SharepointVersions[urlUri];
+                return spVersionFromCache;
             }
             else
             {
@@ -249,19 +251,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
 
                             string version = reader.ReadToEnd().Split('|')[2].Trim();
-                            CacheManager.Instance.ExactSharepointVersions.TryAdd(urlUri, version);
+                            CacheManager.Instance.SetExactSharePointVersion(urlUri, version);
 
                             if (Version.TryParse(version, out Version v))
                             {
                                 if (v.Major == 14)
                                 {
-                                    CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2010);
+                                    CacheManager.Instance.SetSharePointVersion(urlUri, SPVersion.SP2010);
                                     return SPVersion.SP2010;
                                 }
                                 else if (v.Major == 15)
                                 {
                                     // You can change the output to SP2013 to use standard CSOM calls.
-                                    CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2013Legacy);
+                                    CacheManager.Instance.SetSharePointVersion(urlUri, SPVersion.SP2013Legacy);
                                     return SPVersion.SP2013Legacy;
 
                                 }
@@ -276,18 +278,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         //    return SPVersion.SP2016Legacy;
                                         //}
                                         
-                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2016Legacy);
+                                        CacheManager.Instance.SetSharePointVersion(urlUri, SPVersion.SP2016Legacy);
                                         return SPVersion.SP2016Legacy;
                                     }
                                     // Set to 12000 because some SPO reports as 12012 and SP2019 build numbers are increasing very slowly
                                     else if (v.MinorRevision > 10300 && v.MinorRevision < 12000)
                                     {
-                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SP2019);
+                                        CacheManager.Instance.SetSharePointVersion(urlUri, SPVersion.SP2019);
                                         return SPVersion.SP2019;
                                     }
                                     else
                                     {
-                                        CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SPO);
+                                        CacheManager.Instance.SetSharePointVersion(urlUri, SPVersion.SPO);
                                         return SPVersion.SPO;
                                     }
                                 }
@@ -301,7 +303,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
             }
 
-            CacheManager.Instance.SharepointVersions.TryAdd(urlUri, SPVersion.SPO);
+            CacheManager.Instance.SetSharePointVersion(urlUri, SPVersion.SPO);
             return SPVersion.SPO;
         }
         #endregion

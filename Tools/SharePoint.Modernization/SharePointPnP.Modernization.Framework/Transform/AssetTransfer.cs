@@ -421,10 +421,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Using the Cache Manager store the asset transfer references
             // If update - treat the source URL as unique, if multiple web parts reference to this, then it will still refer to the single resource
             var cache = Cache.CacheManager.Instance;
-            if (!cache.AssetsTransfered.Any(asset =>
+                    
+            if (!cache.GetAssetsTransferred().Any(asset =>
                  string.Equals(asset.TargetAssetTransferredUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase)))
             {
-                cache.AssetsTransfered.Add(assetTransferredEntity);
+                cache.AddAssetTransferredEntity(assetTransferredEntity);
             }
 
         }
@@ -439,7 +440,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 // Using the Cache Manager retrieve asset transfer references (all)
                 var cache = Cache.CacheManager.Instance;
 
-                var result = cache.AssetsTransfered.SingleOrDefault(
+                var result = cache.GetAssetsTransferred().SingleOrDefault(
                     asset => string.Equals(asset.TargetAssetFolderUrl, assetTransferredEntity.TargetAssetFolderUrl, StringComparison.InvariantCultureIgnoreCase) &&
                     string.Equals(asset.SourceAssetUrl, assetTransferredEntity.SourceAssetUrl, StringComparison.InvariantCultureIgnoreCase));
 

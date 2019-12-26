@@ -169,10 +169,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
             Uri spSiteUri = new Uri(context.Url);
             Uri urlUri = new Uri($"{spSiteUri.Scheme}://{spSiteUri.DnsSafeHost}");
 
-            if (CacheManager.Instance.AADTenantId.ContainsKey(urlUri))
+            var tenantIdFromCache = CacheManager.Instance.GetAADTenantId(urlUri);
+            if (tenantIdFromCache != Guid.Empty)
             {
-                this.aadTenantId = CacheManager.Instance.AADTenantId[urlUri];
-                return CacheManager.Instance.AADTenantId[urlUri];
+                this.aadTenantId = tenantIdFromCache;
+                return tenantIdFromCache;
             }
             else
             {
@@ -200,7 +201,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry
 
                         if (Guid.TryParse(targetRealm, out Guid realmGuid))
                         {
-                            CacheManager.Instance.AADTenantId.TryAdd(urlUri, realmGuid);
+                            CacheManager.Instance.SetAADTenantId(realmGuid, urlUri);
                             this.aadTenantId = realmGuid;
 
                             return realmGuid;
