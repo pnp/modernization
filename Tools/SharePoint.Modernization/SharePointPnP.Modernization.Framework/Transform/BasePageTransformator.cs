@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {
@@ -36,6 +37,28 @@ namespace SharePointPnP.Modernization.Framework.Transform
         internal DateTime SourcePageModified;
 
         #region Helper methods
+
+        /// <summary>
+        /// Loads the default webpart mapping model
+        /// </summary>
+        /// <returns></returns>
+        public PageTransformation LoadDefaultWebPartMapping()
+        {
+            // Load default webpartmapping file
+            XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
+
+            // Load the default one from resources into a model, no need for persisting this file
+            string webpartMappingFileContents = LoadFile("SharePointPnP.Modernization.Framework.webpartmapping.xml");
+
+            PageTransformation webPartMappingModel = null;
+            using (var stream = GenerateStreamFromString(webpartMappingFileContents))
+            {
+                webPartMappingModel = (PageTransformation)xmlMapping.Deserialize(stream);
+            }
+
+            return webPartMappingModel;
+        }
+
         internal string GetFieldValue(BaseTransformationInformation baseTransformationInformation, string fieldName)
         {
 
@@ -1034,8 +1057,31 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 this.LogWarning(string.Format(LogStrings.Warning_PageHeaderAuthorNotSet, ex.Message), LogStrings.Heading_ArticlePageHandling);
             }
         }
-        #endregion
 
+        internal static string LoadFile(string fileName)
+        {
+            var fileContent = "";
+            using (System.IO.Stream stream = typeof(BasePageTransformator).Assembly.GetManifestResourceStream(fileName))
+            {
+                using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+                {
+                    fileContent = reader.ReadToEnd();
+                }
+            }
+
+            return fileContent;
+        }
+
+        internal static System.IO.Stream GenerateStreamFromString(string s)
+        {
+            var stream = new System.IO.MemoryStream();
+            var writer = new System.IO.StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+        #endregion
 
     }
 }

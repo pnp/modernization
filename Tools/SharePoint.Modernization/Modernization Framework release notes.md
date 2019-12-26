@@ -22,6 +22,8 @@
 - Fix: Correctly handle images hosted in the server side _layouts folder when doing cross site transformations #390
 - Fix: Allow to force a page to be created in the root of the SitePages library by setting `TargetPageFolder = "<root>"` and `TargetPageFolderOverridesDefaultFolder = true`
 - Bumped to .Net 4.6.1 as minimal .Net runtime version
+- Caching now uses IDistributedCache as cache store model, allowing efficient caching in distributed systems
+- The default webpartmapping.xml file is available as embedded resource
 
 ## [December release - version 1.0.1912.0]
 
