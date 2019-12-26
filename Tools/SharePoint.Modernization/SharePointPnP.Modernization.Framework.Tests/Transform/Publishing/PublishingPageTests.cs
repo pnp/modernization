@@ -46,12 +46,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                     //"C:\temp\mappingtest.xml"
                     //@"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\webpartmapping.xml"
                     //var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\webpartmapping.xml", @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
-                    //var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext);
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext , @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Publishing\custompagelayoutmapping.xml");
                     pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "volvo");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "kevin");
                     //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News");
 
                     foreach (var page in pages)
