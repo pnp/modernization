@@ -72,8 +72,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         {
             // setup default cache store
             var defaultCacheOptions = new CacheOptions();
-            var memoryCache = new MemoryCache(defaultCacheOptions);
-            this.Store = new MemoryDistributedCache(memoryCache);
+            this.Store = new MemoryDistributedCache(defaultCacheOptions);
             this.StoreOptions = defaultCacheOptions;
 
             // place for instance initialization code

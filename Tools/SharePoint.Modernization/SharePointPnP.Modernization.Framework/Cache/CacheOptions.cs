@@ -7,14 +7,17 @@ namespace SharePointPnP.Modernization.Framework.Cache
     /// <summary>
     /// MemoryDistributedCache options class
     /// </summary>
-    public class CacheOptions : MemoryCacheOptions, IOptions<MemoryCacheOptions>, ICacheOptions
+    /// <summary>
+    /// MemoryDistributedCache options class
+    /// </summary>
+    public class CacheOptions : MemoryDistributedCacheOptions, IOptions<MemoryDistributedCacheOptions>, ICacheOptions
     {
         public CacheOptions()
         {
             this.EntryOptions = new DistributedCacheEntryOptions() { };
         }
 
-        MemoryCacheOptions IOptions<MemoryCacheOptions>.Value => this;
+        MemoryDistributedCacheOptions IOptions<MemoryDistributedCacheOptions>.Value => this;
 
         /// <summary>
         /// Prefix value that will be prepended to the provided key value
@@ -40,8 +43,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
             else
             {
                 return key;
-            }            
+            }
         }
-        
+
     }
 }
