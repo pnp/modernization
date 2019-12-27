@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
@@ -71,7 +72,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
         {
             // setup default cache store
             var defaultCacheOptions = new CacheOptions();
-            this.Store = new MemoryDistributedCache(defaultCacheOptions);
+            var memoryCache = new MemoryCache(defaultCacheOptions);
+            this.Store = new MemoryDistributedCache(memoryCache);
             this.StoreOptions = defaultCacheOptions;
 
             // place for instance initialization code

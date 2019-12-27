@@ -83,11 +83,10 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <typeparam name="T">Type of the object to return from cache</typeparam>
         /// <param name="distributedCache">Connected cache system</param>
         /// <param name="key">Key of the object in the cache</param>
-        /// <param name="token">Cancellation token</param>
         /// <returns>Object of the type T</returns>
-        public async static Task<T> GetAsync<T>(this IDistributedCache distributedCache, string key, CancellationToken token = default(CancellationToken)) where T : class
+        public async static Task<T> GetAsync<T>(this IDistributedCache distributedCache, string key) where T : class
         {
-            var result = await distributedCache.GetAsync(key, token);
+            var result = await distributedCache.GetAsync(key);
             return result.FromByteArray<T>();
         }
 

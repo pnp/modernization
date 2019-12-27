@@ -55,6 +55,11 @@ namespace SharePointPnP.Modernization.Framework.Utilities
 
         private CookieContainer CopyContainer(CookieContainer container)
         {
+            if (container == null)
+            {
+                return null;
+            }
+
             using (MemoryStream stream = new MemoryStream())
             {
                 BinaryFormatter formatter = new BinaryFormatter();

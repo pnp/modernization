@@ -42,7 +42,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Loads the default webpart mapping model
         /// </summary>
         /// <returns></returns>
-        public PageTransformation LoadDefaultWebPartMapping()
+        public static PageTransformation LoadDefaultWebPartMapping()
         {
             // Load default webpartmapping file
             XmlSerializer xmlMapping = new XmlSerializer(typeof(PageTransformation));
