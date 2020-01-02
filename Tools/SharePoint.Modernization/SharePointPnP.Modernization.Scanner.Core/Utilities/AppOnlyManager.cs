@@ -1,17 +1,19 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.SharePoint.Client;
 using OfficeDevPnP.Core;
 using OfficeDevPnP.Core.Framework.TimerJobs.Enums;
+using SharePointPnP.Modernization.Framework.Cache;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace SharePoint.Modernization.Scanner.Core.Utilities
 {
+    [Serializable]
     internal class SiteInformation
     {
         internal string SiteUrl { get; set; }
@@ -28,8 +30,13 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
     /// <summary>
     /// Class used to detect Sites.Read.All permissions and deal with the consequences of that
     /// </summary>
-    internal class AppOnlyManager
+    public class AppOnlyManager
     {
+        private IDistributedCache store { get; set; }
+        private ICacheOptions storeOptions { get; set; }
+
+        public static readonly string keyAllSitesList = "AllSitesList";
+
         private static readonly string SitesInformationListUrl = "DO_NOT_DELETE_SPLIST_TENANTADMIN_AGGREGATED_SITECO";
         private static readonly string SitesInformationListAllUrl = "DO_NOT_DELETE_SPLIST_TENANTADMIN_ALL_SITES_AGGREGA";
         private static readonly string SitesListAllQuery = @"<View Scope=""RecursiveAll"">
@@ -75,8 +82,10 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
                                                           </View>";
 
         #region Construction
-        internal AppOnlyManager()
+        public AppOnlyManager(IDistributedCache store, ICacheOptions storeOptions)
         {
+            this.store = store;
+            this.storeOptions = storeOptions; 
             this.SiteInformation = new List<SiteInformation>();
         }
         #endregion
@@ -194,11 +203,23 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
         }
 
         #region Helper methods
-        private void LoadSites(ClientContext tenantAdminClientContext)
+        public void LoadSites(ClientContext tenantAdminClientContext)
         {
+
+            var allSitesList = this.store.GetAndInitialize<List<SiteInformation>>(storeOptions.GetKey(keyAllSitesList));
+
+            if (allSitesList.Count > 0)
+            {
+                this.SiteInformation.Clear();
+                this.SiteInformation.AddRange(allSitesList);
+                return;
+            }
+
             tenantAdminClientContext.Web.EnsureProperty(p => p.Url);
             var sitesList = tenantAdminClientContext.Web.GetList($"{tenantAdminClientContext.Web.Url}/Lists/{SitesInformationListUrl}");
             tenantAdminClientContext.ExecuteQueryRetry();
+
+            //bool containsWildCardUrl = ContainsWildCardUrl(addedSites);
 
             // Query the list to obtain the sites to return
             CamlQuery camlQuery = new CamlQuery
@@ -213,6 +234,15 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
                 sitesList.Context.ExecuteQueryRetry();
                 foreach (var site in sites)
                 {
+                    // No point in keeping this data in memory if we're sure there's no site that will use it
+                    //if (!containsWildCardUrl)
+                    //{
+                    //    if (addedSites.FindIndex(x => x.Equals(site["SiteUrl"].ToString(), StringComparison.OrdinalIgnoreCase)) == -1)
+                    //    {
+                    //        continue;
+                    //    }
+                    //}
+
                     if (this.SiteInformation.Where(p => p.SiteUrl.Equals(site["SiteUrl"].ToString())).FirstOrDefault() == null)
                     {
                         DateTime.TryParse(site["LastActivityOn"]?.ToString(), out DateTime lastActivityOn);
@@ -259,9 +289,12 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
                 camlQuery.ListItemCollectionPosition = sites.ListItemCollectionPosition;
 
             } while (camlQuery.ListItemCollectionPosition != null);
+
+            // Cache the data for future use
+            this.store.Set<List<SiteInformation>>(this.storeOptions.GetKey(keyAllSitesList), this.SiteInformation, storeOptions.EntryOptions);
         }
 
-        private void LoadAllSites(ClientContext tenantAdminClientContext, List<string> foundSites, bool excludeOD4B)
+        public void LoadAllSites(ClientContext tenantAdminClientContext, List<string> foundSites, bool excludeOD4B)
         {
             tenantAdminClientContext.Web.EnsureProperty(p => p.Url);
             var sitesList = tenantAdminClientContext.Web.GetList($"{tenantAdminClientContext.Web.Url}/Lists/{SitesInformationListAllUrl}");
@@ -345,27 +378,18 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
             return siteUrl;
         }
 
-        #region not used
-        //private string GetAzureACSAppOnlyToken(Options options, string siteUrl, AzureEnvironment environment = AzureEnvironment.Production)
-        //{
-        //    string accessToken = null;
+        private bool ContainsWildCardUrl(List<string> sites)
+        {
+            foreach(var site in sites)
+            {
+                if (site.Contains("*"))
+                {
+                    return true;
+                }
+            }
 
-        //    var am = new AuthenticationManager();
-        //    using (var clientContext = am.GetAppOnlyAuthenticatedContext(siteUrl, options.ClientID, options.ClientSecret))
-        //    {
-        //        clientContext.ExecutingWebRequest += (sender, args) =>
-        //        {
-        //            var authHeader = args.WebRequestExecutor.RequestHeaders["Authorization"];
-        //            accessToken = authHeader.Replace("Bearer", "").Trim();
-        //        };
-
-        //        clientContext.Load(clientContext.Web, p => p.Title);
-        //        clientContext.ExecuteQueryRetry();
-        //    }
-
-        //    return accessToken;
-        //}
-        #endregion
+            return false;
+        }
 
         #endregion
     }

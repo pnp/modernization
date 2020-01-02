@@ -149,7 +149,7 @@ namespace SharePoint.Modernization.Scanner
                     string workingFolder = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), DateTime.Now.Ticks.ToString());
 
                     //Instantiate scan job
-                    ModernizationScanJob job = new ModernizationScanJob(options)
+                    ModernizationScanJob job = new ModernizationScanJob(options, null, null)
                     {
 
                         // I'm debugging
