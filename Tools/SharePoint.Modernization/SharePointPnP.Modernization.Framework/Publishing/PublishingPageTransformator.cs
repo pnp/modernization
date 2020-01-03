@@ -640,6 +640,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return string.Empty;
         }
 
+        /// <summary>
+        /// Loads the default page layout mapping model file
+        /// </summary>
+        /// <returns></returns>
+        public static string LoadDefaultPageLayoutMappingFile()
+        {
+            return LoadFile("SharePointPnP.Modernization.Framework.Publishing.pagelayoutmapping.xml");
+        }
+
         #region Helper methods
         private void SetPageTitle(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientSidePage targetPage)
         {

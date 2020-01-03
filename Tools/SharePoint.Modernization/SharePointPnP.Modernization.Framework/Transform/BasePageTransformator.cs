@@ -59,6 +59,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return webPartMappingModel;
         }
 
+        /// <summary>
+        /// Loads the default webpart mapping model file
+        /// </summary>
+        /// <returns></returns>
+        public static string LoadDefaultWebPartMappingFile()
+        {
+            return LoadFile("SharePointPnP.Modernization.Framework.webpartmapping.xml"); ;
+        }
+
         internal string GetFieldValue(BaseTransformationInformation baseTransformationInformation, string fieldName)
         {
 
