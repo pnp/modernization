@@ -208,6 +208,97 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         }
 
         [TestMethod]
+        public void GetLDAPConnectingStringProvidedByParamTest()
+        {
+            var ldap = "LDAP://OU=CDT,OU=Demo Users,DC=AlphaDelta,DC=Local";
+
+            //Doesnt matter what the settings are.
+            PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+            {
+                // Don't log test runs
+                SkipTelemetry = true,
+
+                LDAPConnectionString = ldap
+            };
+
+            UserTransformator userTransformator = new UserTransformator(pti, null, null, null);
+
+            var result = userTransformator.GetLDAPConnectionString();
+            Console.WriteLine(result);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(result));
+            Assert.IsTrue(result.Equals(ldap, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        [TestMethod]
+        public void GetUPNFromAccountWithCustomLDAPNegativeTest()
+        {
+            var ldap = "LDAP://OU=CDT,OU=Demo Users,DC=AlphaDelta,DC=Local";
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        //Permissions are should work given cross domain with mapping
+                        KeepPageSpecificPermissions = true,
+
+                        LDAPConnectionString = ldap
+                    };
+
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
+
+                    var result = userTransformator.SearchSourceDomainForUPN(AccountType.User, "Brown.Bromley"); //User Outside of LDAP Connection String
+                    Console.WriteLine(result);
+
+                    Assert.IsTrue(string.IsNullOrEmpty(result));
+
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetUPNFromAccountWithCustomLDAPPositiveTest()
+        {
+            var ldap = "LDAP://OU=CDT,OU=Demo Users,DC=AlphaDelta,DC=Local";
+
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                {
+                    PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation()
+                    {
+                        // If target page exists, then overwrite it
+                        Overwrite = true,
+
+                        // Don't log test runs
+                        SkipTelemetry = true,
+
+                        //Permissions are should work given cross domain with mapping
+                        KeepPageSpecificPermissions = true,
+
+                        LDAPConnectionString = ldap
+                    };
+
+                    UserTransformator userTransformator = new UserTransformator(pti, sourceClientContext, targetClientContext, null);
+
+                    var result = userTransformator.SearchSourceDomainForUPN(AccountType.User, "Cara.Irvine"); //User Outside of LDAP Connection String
+                    Console.WriteLine(result);
+
+                    Assert.IsTrue(!string.IsNullOrEmpty(result));
+
+                }
+            }
+        }
+
+        [TestMethod]
         public void PrincipalAccountTest()
         {
 
