@@ -294,7 +294,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 // Need to add further validation for target template
                 if (hasTargetContext &&
-                   (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && targetClientContext.Web.WebTemplate != "GROUP"))
+                   (targetClientContext.Web.WebTemplate != "SITEPAGEPUBLISHING" && targetClientContext.Web.WebTemplate != "STS" && 
+                    targetClientContext.Web.WebTemplate != "GROUP" && targetClientContext.Web.WebTemplate != "BDR" && targetClientContext.Web.WebTemplate != "DEV"))
                 {
 
                     LogError(LogStrings.Error_CrossSiteTransferTargetsNonModernSite);

@@ -24,6 +24,7 @@
 - Bumped to .Net 4.6.1 as minimal .Net runtime version
 - Caching now uses IDistributedCache as cache store model, allowing efficient caching in distributed systems
 - The default webpartmapping.xml file is available as embedded resource
+- Target site can be a developer site (DEV web template) or document center (BDR web template)
 
 ## [December release - version 1.0.1912.0]
 
