@@ -4,6 +4,7 @@ Created:      Paul Bullock
 Date:         26/06/2019
 License:      MIT License (MIT)
 Disclaimer:   
+Version:      1.0
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -95,7 +96,8 @@ process {
     Write-Host "Converting site..." -ForegroundColor Cyan
 
     $web = Get-PnPWeb -Connection $sourceConnection
-    $pages = Get-PnPListItem -List "Pages" -Connection $sourceConnection
+    # Use paging (-PageSize parameter) to ensure the query works when there are more than 5000 items in the list
+    $pages = Get-PnPListItem -List "Pages" -Connection $sourceConnection -PageSize 500
         
     Foreach($page in $pages){
 
@@ -121,7 +123,8 @@ process {
 
         Write-Host " Modernizing $($targetFileName)..."
 
-        $result = ConvertTo-PnPClientSidePage -Identity $page.FieldValues["FileLeafRef"] `
+        # Use the PageID value instead of the page name in the Identity parameter as that is more performant + it works when there are more than 5000 items in the list
+        $result = ConvertTo-PnPClientSidePage -Identity $page.FieldValues["ID"] `
                     -PublishingPage `
                     -TargetWebUrl $targetSiteUrl `
                     -PublishingTargetPageName $targetFileName `
