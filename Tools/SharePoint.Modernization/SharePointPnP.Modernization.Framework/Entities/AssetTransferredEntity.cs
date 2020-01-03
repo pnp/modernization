@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Entities
 {
     /// <summary>
     /// Model for asset transfer status for references
     /// </summary>
+    [Serializable]
     public class AssetTransferredEntity
     {
         /// <summary>
