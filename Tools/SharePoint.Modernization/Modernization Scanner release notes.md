@@ -4,7 +4,7 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
-## [Version 2.8]
+## [Version 2.8 - unreleased]
 
 ## Added
 
