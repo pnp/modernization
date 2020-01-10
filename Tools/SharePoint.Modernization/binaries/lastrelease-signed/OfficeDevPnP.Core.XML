@@ -2823,6 +2823,11 @@
             List of additional properties that need to be applied to the field on creation
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Entities.FieldCreationInformation.AdditionalChildNodes">
+            <summary>
+            List of additional child nodes that need to be included in the CAML field on creation
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Entities.FieldCreationInformation.FieldType">
             <summary>
             Type of the field
@@ -16046,7 +16051,7 @@
             Helper class holding public methods that used by the client side page object handler. The purpose is to be able to reuse these public methods in a extensibility provider
             </summary>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ClientSidePageContentsHelper.ExtractClientSidePage(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ClientSidePageContentsHelper.ExtractClientSidePage(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.PageToExport)">
             <summary>
             Extracts a client side page
             </summary>
@@ -16054,10 +16059,12 @@
             <param name="template">Current provisioning template that will hold the extracted page</param>
             <param name="creationInfo">ProvisioningTemplateCreationInformation passed into the provisioning engine</param>
             <param name="scope">Scope used for logging</param>
-            <param name="pageUrl">Url of the page to extract</param>
-            <param name="pageName">Name of the page to extract</param>
-            <param name="isHomePage">Is this a home page?</param>
-            <param name="isTemplate">Is this a template?</param>
+            <param name="page">page to be exported</param>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.PageToExport">
+            <summary>
+            Class that defines a page to be exported
+            </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.Utilities.ListItemUtilities.TryDeserializeAsJson``1(System.String,``0@)">
             <summary>
@@ -16098,6 +16105,23 @@
             <param name="parser"></param>
             <param name="scope"></param>
             <returns></returns>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.WebhookSender">
+            <summary>
+            Static class that provides basic functionalities to deliver webhook notifications
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.WebhookSender.InvokeWebhook(OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningWebhookBase,System.Net.Http.HttpClient,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplateWebhookKind,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,System.String,System.Exception,OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope)">
+            <summary>
+            Public method to send a Webhook notification
+            </summary>
+            <param name="webhook">The reference webhook to notify</param>
+            <param name="httpClient">The HttpClient instance to use to send the notification</param>
+            <param name="kind">The Kind of webhook</param>
+            <param name="parser">The parser to use for parsing parameters, optional</param>
+            <param name="objectHandler">The objectHandler name, optional</param>
+            <param name="exception">The exception, optional</param>
+            <param name="scope">The PnP Provisioning Scope, if any, optional</param>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateApplyingInformation">
             <summary>
@@ -43698,6 +43722,67 @@
             <param name="startRow">Row as of which we want to see the results</param>
             <returns>Total result rows of the query</returns>
         </member>
+        <member name="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection">
+            <summary>
+            Translation status of a page
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Pages.TranslationPath">
+            <summary>
+            Translation page url
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Pages.TranslationStatus">
+            <summary>
+            Translation status for a page
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.TranslationStatus.Culture">
+            <summary>
+            The culture of this translation
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.TranslationStatus.Path">
+            <summary>
+            The web-relative path to this translation
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.TranslationStatus.LastModified">
+            <summary>
+            Last modified date of this translation
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.TranslationStatus.FileStatus">
+            <summary>
+            The file status (checked out, draft, published) of this translation
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.TranslationStatus.HasPublishedVersion">
+            <summary>
+            The file status (checked out, draft, published) of this translation
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.TranslationStatus.Title">
+            <summary>
+            The page title of this translation
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Pages.TranslationStatusCreationRequest">
+            <summary>
+            Class that defines the languages for which a translation must be generated
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.TranslationStatusCreationRequest.LanguageCodes">
+            <summary>
+            List of languages to generate a translation for
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.TranslationStatusCreationRequest.AddLanguage(System.Int32)">
+            <summary>
+            Add a new language to the list of langauges to be generated. Note that this language must be a language configured for multi-lingual pages on the site
+            </summary>
+            <param name="languageId">Id defining the language to add</param>
+        </member>
         <member name="T:OfficeDevPnP.Core.Pages.AvailableClientSideComponents">
             <summary>
             Class holding a collection of client side webparts (retrieved via the _api/web/GetClientSideWebParts REST call)
@@ -44145,6 +44230,21 @@
             Returns the page header for this page
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.PageId">
+            <summary>
+            ID value of the page (only available when the page was saved)
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.SpaceContent">
+            <summary>
+            Space content field (JSON) for spaces pages
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.SupportedUILanguages">
+            <summary>
+            List the languages this page possibly can be translated into
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.GetTemplatesFolder(Microsoft.SharePoint.Client.List)">
             <summary>
             Returns the name of the templates folder, and creates if it doesn't exist.
@@ -44335,6 +44435,44 @@
             </summary>
             <param name="name">Name of the web part to retrieve</param>
             <returns>List of available <see cref="T:OfficeDevPnP.Core.Pages.ClientSideComponent"/></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.GenerateTranslations(OfficeDevPnP.Core.Pages.TranslationStatusCreationRequest)">
+            <summary>
+            Generate translations for this page
+            </summary>
+            <param name="translationStatusCreationRequest">Languages to generate a translation for</param>
+            <returns><see cref="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection"/> collection listing translated and untranslated pages</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.Translations">
+            <summary>
+            Gets the translation status of this page
+            </summary>
+            <returns><see cref="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection"/> collection listing translated and untranslated pages</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.TranslationsAsync">
+            <summary>
+            Gets the translation status of this page
+            </summary>
+            <returns><see cref="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection"/> collection listing translated and untranslated pages</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.GenerateTranslations">
+            <summary>
+            Generate translations for this page, for all languages defined in this site
+            </summary>
+            <returns><see cref="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection"/> collection listing translated and untranslated pages</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.GenerateTranslationsAsync(OfficeDevPnP.Core.Pages.TranslationStatusCreationRequest)">
+            <summary>
+            Generate translations for this page
+            </summary>
+            <param name="translationStatusCreationRequest">Languages to generate a translation for</param>
+            <returns><see cref="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection"/> collection listing translated and untranslated pages</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.GenerateTranslationsAsync">
+            <summary>
+            Generate translations for this page, for all languages defined in this site
+            </summary>
+            <returns><see cref="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection"/> collection listing translated and untranslated pages</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.Publish">
             <summary>
@@ -44585,6 +44723,11 @@
         <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.HeaderlessSearchResults">
             <summary>
             Page is a custom search result page
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.Spaces">
+            <summary>
+            Page is a spaces page
             </summary>
         </member>
         <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.RepostPage">
@@ -45269,15 +45412,22 @@
             See https://docs.microsoft.com/en-us/azure/architecture/antipatterns/improper-instantiation/
             </remarks>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeGetRequestForString(System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeGetRequestForString(System.String,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP GET request and returns the result as a String
             </summary>
             <param name="requestUrl">The URL of the request</param>
+            <param name="accept">The value for the accept header in the request</param>
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <returns>The String value of the result</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeGetRequestForStream(System.String,System.String,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeGetRequestForStream(System.String,System.String,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP GET request and returns the result as a String
             </summary>
@@ -45285,9 +45435,15 @@
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
             <param name="accept">The accept header for the response</param>
             <param name="referer">The URL Referer for the request</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <returns>The Stream  of the result</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeGetRequestForStreamWithResponseHeaders(System.String,System.String,System.Net.Http.Headers.HttpResponseHeaders@,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeGetRequestForStreamWithResponseHeaders(System.String,System.String,System.Net.Http.Headers.HttpResponseHeaders@,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP GET request and returns the result as a String
             </summary>
@@ -45295,9 +45451,15 @@
             <param name="responseHeaders">The response headers of the HTTP request (output argument)</param>
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
             <param name="accept">The accept header for the response</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <returns>The Stream  of the result</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePostRequest(System.String,System.Object,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePostRequest(System.String,System.Object,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP POST request without a response
             </summary>
@@ -45305,8 +45467,14 @@
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
             <param name="content">The content of the request</param>
             <param name="contentType">The content/type of the request</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePostRequestForString(System.String,System.Object,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePostRequestForString(System.String,System.Object,System.String,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP POST request and returns the result as a String
             </summary>
@@ -45314,9 +45482,32 @@
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
             <param name="content">The content of the request</param>
             <param name="contentType">The content/type of the request</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="accept">The value for the accept header in the request</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <returns>The String value of the result</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePutRequest(System.String,System.Object,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePostRequestForHeaders(System.String,System.Object,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            This helper method makes an HTTP GET request and returns the result as a String
+            </summary>
+            <param name="requestUrl">The URL of the request</param>
+            <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
+            <param name="content">The content of the request</param>
+            <param name="contentType">The content type for the request</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
+            <returns>The Stream  of the result</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePutRequest(System.String,System.Object,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP PUT request without a response
             </summary>
@@ -45324,8 +45515,14 @@
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
             <param name="content">The content of the request</param>
             <param name="contentType">The content/type of the request</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePutRequestForString(System.String,System.Object,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePutRequestForString(System.String,System.Object,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP PUT request and returns the result as a String
             </summary>
@@ -45333,9 +45530,15 @@
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
             <param name="content">The content of the request</param>
             <param name="contentType">The content/type of the request</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <returns>The String value of the result</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePatchRequestForString(System.String,System.Object,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakePatchRequestForString(System.String,System.Object,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP PATCH request and returns the result as a String
             </summary>
@@ -45343,17 +45546,29 @@
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
             <param name="content">The content of the request</param>
             <param name="contentType">The content/type of the request</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <returns>The String value of the result</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeDeleteRequest(System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeDeleteRequest(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP DELETE request
             </summary>
             <param name="requestUrl">The URL of the request</param>
             <param name="accessToken">The OAuth 2.0 Access Token for the request, if authorization is required</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <returns>The String value of the result</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeHttpRequest``1(System.String,System.String,System.String,System.String,System.Object,System.String,System.String,System.Func{System.Net.Http.HttpResponseMessage,``0})">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeHttpRequest``1(System.String,System.String,System.String,System.String,System.Object,System.String,System.String,System.Func{System.Net.Http.HttpResponseMessage,``0},System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP request and eventually returns a result
             </summary>
@@ -45365,10 +45580,16 @@
             <param name="contentType">The content  type of the request</param>
             <param name="referer">The URL Referer for the request</param>
             <param name="resultPredicate">The predicate to retrieve the result, if any</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <typeparam name="TResult">The type of the result, if any</typeparam>
             <returns>The value of the result, if any</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeHttpRequest``1(System.String,System.String,System.Net.Http.Headers.HttpResponseHeaders@,System.String,System.String,System.Object,System.String,System.String,System.Func{System.Net.Http.HttpResponseMessage,``0})">
+        <member name="M:OfficeDevPnP.Core.Utilities.HttpHelper.MakeHttpRequest``1(System.String,System.String,System.Net.Http.Headers.HttpResponseHeaders@,System.String,System.String,System.Object,System.String,System.String,System.Func{System.Net.Http.HttpResponseMessage,``0},System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Int32,System.Int32,System.String,Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             This helper method makes an HTTP request and eventually returns a result
             </summary>
@@ -45381,6 +45602,12 @@
             <param name="contentType">The content  type of the request</param>
             <param name="referer">The URL Referer for the request</param>
             <param name="resultPredicate">The predicate to retrieve the result, if any</param>
+            <param name="requestHeaders">A collection of any custom request headers</param>
+            <param name="cookies">Any request cookies values</param>
+            <param name="retryCount">Number of times to retry the request</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="userAgent">UserAgent string value to insert for this request. You can define this value in your app's config file using key="SharePointPnPUserAgent" value="PnPRocks"</param>
+            <param name="spContext">An optional SharePoint client context</param>
             <typeparam name="TResult">The type of the result, if any</typeparam>
             <returns>The value of the result, if any</returns>
         </member>
@@ -45434,6 +45661,16 @@
             <param name="retryCount">Number of retries, defaults to 10</param>
             <param name="delay">Incremental delay increase in milliseconds</param>
             <param name="userAgent">User-Agent string to set</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Utilities.PnPHttpProvider.#ctor(System.Net.Http.HttpMessageHandler,System.Boolean,System.Int32,System.Int32,System.String)">
+            <summary>
+            Constructor with HttpMessageHandler
+            </summary>
+            <param name="innerHandler">HttpMessageHandler instance to pass along</param>
+            <param name="retryCount">Number of retries, defaults to 10</param>
+            <param name="delay">Incremental delay increase in milliseconds</param>
+            <param name="userAgent">User-Agent string to set</param>
+            <param name="disposeHandler">Declares whether to automatically dispose the internal HttpHandler instance</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Utilities.PnPHttpProvider.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
             <summary>
@@ -51415,6 +51652,16 @@
             </summary>
             <param name="web">Web to be processed</param>
             <param name="contentTypeName">Name of the content type</param>
+            <param name="searchInSiteHierarchy">Searches accross all content types in the site up to the root site</param>
+            <returns>Content type object or null if was not found</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.GetContentTypeById(Microsoft.SharePoint.Client.Web,System.String,System.Linq.Expressions.Expression{System.Func{Microsoft.SharePoint.Client.ContentTypeCollection,System.Object}},System.Boolean)">
+            <summary>
+            Return content type by Id
+            </summary>
+            <param name="web">Web to be processed</param>
+            <param name="contentTypeId">Complete ID for the content type</param>
+            <param name="retrievals">Specify additional data to load when retrieving the content types</param>
             <param name="searchInSiteHierarchy">Searches accross all content types in the site up to the root site</param>
             <returns>Content type object or null if was not found</returns>
         </member>
