@@ -1356,7 +1356,6 @@ namespace SharePoint.Modernization.Scanner.Core.Reports
 
             try
             {
-                dataStream.Position = 0;
                 StreamReader reader = new StreamReader(dataStream);
                 using (GenericParserAdapter parser = new GenericParserAdapter(reader))
                 {
@@ -1522,10 +1521,14 @@ namespace SharePoint.Modernization.Scanner.Core.Reports
         {
             byte[] buffer = new byte[8 * 1024];
             int len;
+            // Set position to start
+            input.Position = 0;
             while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
             {
                 output.Write(buffer, 0, len);
             }
+            // Set output to start 
+            output.Position = 0;
         }
         #endregion
 
