@@ -10,13 +10,13 @@ The page transformation engine can also be used from PowerShell. This allows it 
 
 ## Prerequisites
 
-- SharePoint PnP PowerShell version 3.4.1812.0 or higher (December 2018)
+- SharePoint PnP PowerShell version 3.16.1912.0 or higher (December 2019)
 
 ## Solution
 
 Solution|Author(s)
 --------|---------
-TransformPages.ps1 | Bert Jansen (**Microsoft**)
+Convert-WikiAndWebPartPages.ps1 | Bert Jansen (**Microsoft**)
 Convert-PublishingPages.ps1 | Paul Bullock (CaPa Creative Ltd)
 Convert-OnPremisesPublishingPages.ps1 | Paul Bullock (CaPa Creative Ltd)
 Convert-BlogPages.ps1 | Bert Jansen (**Microsoft**)
@@ -31,6 +31,7 @@ Version|Date|Comments
 1.2 | August 8th 2019 | Added on-premises sample
 1.3 | October 23rd 2019 | Added blog sample
 1.4 | November 27th 2019 | Added Delve blog sample
+1.5 | January 16th 2020 | Updated wiki/webpart page sample to be inline with the other samples
 
 ## Disclaimer
 

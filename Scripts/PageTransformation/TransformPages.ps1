@@ -2,7 +2,7 @@
 .SYNOPSIS
 Modernizes the pages of a site. 
 
-IMPORTANT: this requires the PnP PowerShell version 3.4.1812.1 (December 2018) or higher to work!
+IMPORTANT: this requires the PnP PowerShell version 3.16.1912.* (December 2019) or higher to work!
 Version: 1.1
 
 .EXAMPLE
@@ -19,7 +19,8 @@ $pages = Get-PnPListItem -List sitepages -PageSize 500
 # Iterate over the pages
 foreach($page in $pages) 
 { 
-    # Optionally filter the pages you want to modernize
+    # Optionally filter the pages you want to modernize, filtering on FileLeafRef is filterigng on page name. In below 
+    # sample all the classic pages that start with a t are transformed
     if ($page.FieldValues["FileLeafRef"].StartsWith(("t")))
     {
         # No need to convert modern pages again
@@ -38,4 +39,5 @@ foreach($page in $pages)
     }  
 }
 
+Disconnect-PnPOnline
 
