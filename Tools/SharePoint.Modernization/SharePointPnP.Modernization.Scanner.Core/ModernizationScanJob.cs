@@ -752,6 +752,18 @@ namespace SharePoint.Modernization.Scanner.Core
                 }
                 outStream.Flush();
                 this.GeneratedFileStreams.Add("UniqueWebParts.csv", uniqueWebParts);
+
+                // Analyze the pages and export the sites that have uncustomized home pages
+                var sitesWithUncustomizedHomePages = PageAnalyzer.GenerateSitesWithUncustomizedHomePages(this.PageScanResults);
+                MemoryStream uncustomizedHomePageSites = new MemoryStream();
+                outStream = new StreamWriter(uncustomizedHomePageSites);
+
+                foreach (var siteWithUncustomizedHomePage in sitesWithUncustomizedHomePages)
+                {
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(siteWithUncustomizedHomePage))));
+                }
+                outStream.Flush();
+                this.GeneratedFileStreams.Add("SitesWithUncustomizedHomePages.csv", uncustomizedHomePageSites);
             }
 
             if (Options.IncludePublishing(this.Mode))

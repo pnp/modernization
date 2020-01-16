@@ -8,6 +8,9 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ## Added
 
+- Home page only page scan mode
+- Creation of a SitesWithUncustomizedHomePages.csv file listing all the home pages which are uncustomized
+
 ## Changed
 
 - Bumped to .Net 4.6.1 as minimal .Net runtime version

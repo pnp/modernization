@@ -24,6 +24,7 @@ namespace SharePoint.Modernization.Scanner.Core
         WorkflowOnly,
         InfoPathOnly,
         BlogOnly,
+        HomePageOnly,
     }
 
     /// <summary>
@@ -98,7 +99,7 @@ namespace SharePoint.Modernization.Scanner.Core
         public string Separator { get; set; }
         #endregion
 
-        [Option('m', "mode", HelpText = "Execution mode. Use following modes: Full, GroupifyOnly, ListOnly, PageOnly, PublishingOnly, PublishingWithPagesOnly, WorkflowOnly, InfoPathOnly or BlogOnly. Omit or use full for a full scan", DefaultValue = Mode.Full, Required = false)]
+        [Option('m', "mode", HelpText = "Execution mode. Use following modes: Full, GroupifyOnly, ListOnly, PageOnly, HomePageOnly, PublishingOnly, PublishingWithPagesOnly, WorkflowOnly, InfoPathOnly or BlogOnly. Omit or use full for a full scan", DefaultValue = Mode.Full, Required = false)]
         public Mode Mode { get; set; }
 
         [Option('b', "exportwebpartproperties", HelpText = "Export the web part property data", DefaultValue = false, Required = false)]
@@ -299,7 +300,22 @@ namespace SharePoint.Modernization.Scanner.Core
                 return true;
             }
 
-            if (mode == Mode.PageOnly)
+            if (mode == Mode.PageOnly || mode == Mode.HomePageOnly)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Include detailed site page analysis
+        /// </summary>
+        /// <param name="mode">mode that was provided</param>
+        /// <returns>True if included, false otherwise</returns>
+        public static bool IsHomePageOnly(Mode mode)
+        {
+            if (mode == Mode.HomePageOnly)
             {
                 return true;
             }

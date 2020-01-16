@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -104,6 +105,12 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                     if (page.FieldValues.ContainsKey(Field_FileRefField) && !String.IsNullOrEmpty(page[Field_FileRefField].ToString()))
                                     {
                                         pageUrl = page[Field_FileRefField].ToString();
+
+                                        // In home page only mode we only continue if this page is the site's home page
+                                        if (Options.IsHomePageOnly(this.ScanJob.Mode) && !pageUrl.EndsWith(homePageUrl, StringComparison.InvariantCultureIgnoreCase))
+                                        {
+                                            continue;
+                                        }
                                     }
                                     else
                                     {
@@ -256,6 +263,25 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
             // return the duration of this scan
             return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
+        }
+
+        internal static List<string> GenerateSitesWithUncustomizedHomePages(ConcurrentDictionary<string, PageScanResult> pageScanResults)
+        {
+            List<string> sitesWithUncustomizedHomePages = new List<string>(500);
+
+            foreach(var page in pageScanResults)
+            {
+                if (page.Value.UncustomizedHomePage)
+                {
+                    string webUrl = page.Value.SiteURL.ToLower();
+                    if (!sitesWithUncustomizedHomePages.Contains(webUrl))
+                    {
+                        sitesWithUncustomizedHomePages.Add(webUrl);
+                    }
+                }
+            }
+
+            return sitesWithUncustomizedHomePages;
         }
 
         #region Helper methods

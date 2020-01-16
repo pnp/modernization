@@ -41,6 +41,19 @@
             this.nextButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.wizardPageContainer1 = new AeroWizard.WizardPageContainer();
+            this.modePage = new AeroWizard.WizardPage();
+            this.tgModeHomePageOnly = new System.Windows.Forms.CheckBox();
+            this.tgModeBlogUsage = new System.Windows.Forms.CheckBox();
+            this.tgModeInfoPathUsage = new System.Windows.Forms.CheckBox();
+            this.tgModeClassicWorkflowUsage = new System.Windows.Forms.CheckBox();
+            this.tgModePublishingDetailed = new System.Windows.Forms.CheckBox();
+            this.tgModePublishing = new System.Windows.Forms.CheckBox();
+            this.tgModePages = new System.Windows.Forms.CheckBox();
+            this.tgModeList = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.tgModeGroupConnect = new System.Windows.Forms.CheckBox();
+            this.cmbScanMode = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.optionsPage = new AeroWizard.WizardPage();
             this.cmbDateFormat = new System.Windows.Forms.ComboBox();
             this.label13 = new System.Windows.Forms.Label();
@@ -54,18 +67,6 @@
             this.tgOptionSkipUsage = new System.Windows.Forms.CheckBox();
             this.nmThreads = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
-            this.modePage = new AeroWizard.WizardPage();
-            this.tgModeBlogUsage = new System.Windows.Forms.CheckBox();
-            this.tgModeInfoPathUsage = new System.Windows.Forms.CheckBox();
-            this.tgModeClassicWorkflowUsage = new System.Windows.Forms.CheckBox();
-            this.tgModePublishingDetailed = new System.Windows.Forms.CheckBox();
-            this.tgModePublishing = new System.Windows.Forms.CheckBox();
-            this.tgModePages = new System.Windows.Forms.CheckBox();
-            this.tgModeList = new System.Windows.Forms.CheckBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.tgModeGroupConnect = new System.Windows.Forms.CheckBox();
-            this.cmbScanMode = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.authPage = new AeroWizard.WizardPage();
             this.llblModernizationGuidance = new System.Windows.Forms.LinkLabel();
             this.llblScannerInfo = new System.Windows.Forms.LinkLabel();
@@ -125,9 +126,9 @@
             this.commandPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.wizardPageContainer1)).BeginInit();
             this.wizardPageContainer1.SuspendLayout();
+            this.modePage.SuspendLayout();
             this.optionsPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).BeginInit();
-            this.modePage.SuspendLayout();
             this.authPage.SuspendLayout();
             this.pnlCredentials.SuspendLayout();
             this.pnlAzureACS.SuspendLayout();
@@ -216,7 +217,7 @@
             this.backButton.Name = "backButton";
             this.backButton.Size = new System.Drawing.Size(97, 23);
             this.backButton.TabIndex = 2;
-            this.backButton.Tag = AeroWizard.WizardCommandButtonState.Disabled;
+            this.backButton.Tag = AeroWizard.WizardCommandButtonState.Enabled;
             this.backButton.Text = "< Back";
             this.backButton.UseVisualStyleBackColor = true;
             // 
@@ -249,9 +250,9 @@
             this.wizardPageContainer1.BackButtonText = "< Back";
             this.wizardPageContainer1.CancelButton = this.cancelButton;
             this.wizardPageContainer1.CancelButtonText = "Cancel";
+            this.wizardPageContainer1.Controls.Add(this.modePage);
             this.wizardPageContainer1.Controls.Add(this.authPage);
             this.wizardPageContainer1.Controls.Add(this.optionsPage);
-            this.wizardPageContainer1.Controls.Add(this.modePage);
             this.wizardPageContainer1.Controls.Add(this.scopePage);
             this.wizardPageContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardPageContainer1.FinishButtonText = "&Start scan";
@@ -267,6 +268,180 @@
             this.wizardPageContainer1.TabIndex = 0;
             this.wizardPageContainer1.Finished += new System.EventHandler(this.wizardPageContainer1_Finished);
             this.wizardPageContainer1.SelectedPageChanged += new System.EventHandler(this.wizardPageContainer1_SelectedPageChanged);
+            // 
+            // modePage
+            // 
+            this.modePage.Controls.Add(this.tgModeHomePageOnly);
+            this.modePage.Controls.Add(this.tgModeBlogUsage);
+            this.modePage.Controls.Add(this.tgModeInfoPathUsage);
+            this.modePage.Controls.Add(this.tgModeClassicWorkflowUsage);
+            this.modePage.Controls.Add(this.tgModePublishingDetailed);
+            this.modePage.Controls.Add(this.tgModePublishing);
+            this.modePage.Controls.Add(this.tgModePages);
+            this.modePage.Controls.Add(this.tgModeList);
+            this.modePage.Controls.Add(this.label6);
+            this.modePage.Controls.Add(this.tgModeGroupConnect);
+            this.modePage.Controls.Add(this.cmbScanMode);
+            this.modePage.Controls.Add(this.label5);
+            this.modePage.Name = "modePage";
+            this.modePage.NextPage = this.optionsPage;
+            this.modePage.Size = new System.Drawing.Size(480, 264);
+            this.modePage.TabIndex = 2;
+            this.modePage.Tag = "";
+            this.modePage.Text = "Select the scan mode";
+            // 
+            // tgModeHomePageOnly
+            // 
+            this.tgModeHomePageOnly.AutoCheck = false;
+            this.tgModeHomePageOnly.AutoSize = true;
+            this.tgModeHomePageOnly.Enabled = false;
+            this.tgModeHomePageOnly.Location = new System.Drawing.Point(33, 109);
+            this.tgModeHomePageOnly.Name = "tgModeHomePageOnly";
+            this.tgModeHomePageOnly.Size = new System.Drawing.Size(305, 17);
+            this.tgModeHomePageOnly.TabIndex = 12;
+            this.tgModeHomePageOnly.TabStop = false;
+            this.tgModeHomePageOnly.Text = "Wiki/Webpart Page transformation readiness (home pages)";
+            this.tgModeHomePageOnly.UseVisualStyleBackColor = true;
+            // 
+            // tgModeBlogUsage
+            // 
+            this.tgModeBlogUsage.AutoSize = true;
+            this.tgModeBlogUsage.Enabled = false;
+            this.tgModeBlogUsage.Location = new System.Drawing.Point(33, 244);
+            this.tgModeBlogUsage.Margin = new System.Windows.Forms.Padding(2);
+            this.tgModeBlogUsage.Name = "tgModeBlogUsage";
+            this.tgModeBlogUsage.Size = new System.Drawing.Size(115, 17);
+            this.tgModeBlogUsage.TabIndex = 11;
+            this.tgModeBlogUsage.Text = "Classic Blog usage";
+            this.tgModeBlogUsage.UseVisualStyleBackColor = true;
+            // 
+            // tgModeInfoPathUsage
+            // 
+            this.tgModeInfoPathUsage.AutoSize = true;
+            this.tgModeInfoPathUsage.Enabled = false;
+            this.tgModeInfoPathUsage.Location = new System.Drawing.Point(33, 224);
+            this.tgModeInfoPathUsage.Margin = new System.Windows.Forms.Padding(2);
+            this.tgModeInfoPathUsage.Name = "tgModeInfoPathUsage";
+            this.tgModeInfoPathUsage.Size = new System.Drawing.Size(98, 17);
+            this.tgModeInfoPathUsage.TabIndex = 10;
+            this.tgModeInfoPathUsage.Text = "InfoPath usage";
+            this.tgModeInfoPathUsage.UseVisualStyleBackColor = true;
+            // 
+            // tgModeClassicWorkflowUsage
+            // 
+            this.tgModeClassicWorkflowUsage.AutoSize = true;
+            this.tgModeClassicWorkflowUsage.Enabled = false;
+            this.tgModeClassicWorkflowUsage.Location = new System.Drawing.Point(33, 202);
+            this.tgModeClassicWorkflowUsage.Margin = new System.Windows.Forms.Padding(2);
+            this.tgModeClassicWorkflowUsage.Name = "tgModeClassicWorkflowUsage";
+            this.tgModeClassicWorkflowUsage.Size = new System.Drawing.Size(136, 17);
+            this.tgModeClassicWorkflowUsage.TabIndex = 9;
+            this.tgModeClassicWorkflowUsage.Text = "Classic workflow usage";
+            this.tgModeClassicWorkflowUsage.UseVisualStyleBackColor = true;
+            // 
+            // tgModePublishingDetailed
+            // 
+            this.tgModePublishingDetailed.AutoCheck = false;
+            this.tgModePublishingDetailed.AutoSize = true;
+            this.tgModePublishingDetailed.Enabled = false;
+            this.tgModePublishingDetailed.Location = new System.Drawing.Point(52, 178);
+            this.tgModePublishingDetailed.Name = "tgModePublishingDetailed";
+            this.tgModePublishingDetailed.Size = new System.Drawing.Size(266, 17);
+            this.tgModePublishingDetailed.TabIndex = 8;
+            this.tgModePublishingDetailed.TabStop = false;
+            this.tgModePublishingDetailed.Text = "Publishing portal transformation readiness (detailed)";
+            this.tgModePublishingDetailed.UseVisualStyleBackColor = true;
+            // 
+            // tgModePublishing
+            // 
+            this.tgModePublishing.AutoCheck = false;
+            this.tgModePublishing.AutoSize = true;
+            this.tgModePublishing.Enabled = false;
+            this.tgModePublishing.Location = new System.Drawing.Point(33, 154);
+            this.tgModePublishing.Name = "tgModePublishing";
+            this.tgModePublishing.Size = new System.Drawing.Size(220, 17);
+            this.tgModePublishing.TabIndex = 6;
+            this.tgModePublishing.TabStop = false;
+            this.tgModePublishing.Text = "Publishing portal transformation readiness";
+            this.tgModePublishing.UseVisualStyleBackColor = true;
+            // 
+            // tgModePages
+            // 
+            this.tgModePages.AutoCheck = false;
+            this.tgModePages.AutoSize = true;
+            this.tgModePages.Enabled = false;
+            this.tgModePages.Location = new System.Drawing.Point(52, 131);
+            this.tgModePages.Name = "tgModePages";
+            this.tgModePages.Size = new System.Drawing.Size(291, 17);
+            this.tgModePages.TabIndex = 5;
+            this.tgModePages.TabStop = false;
+            this.tgModePages.Text = "Wiki/Webpart Page transformation readiness (alll pages)";
+            this.tgModePages.UseVisualStyleBackColor = true;
+            // 
+            // tgModeList
+            // 
+            this.tgModeList.AutoCheck = false;
+            this.tgModeList.AutoSize = true;
+            this.tgModeList.Enabled = false;
+            this.tgModeList.Location = new System.Drawing.Point(33, 87);
+            this.tgModeList.Name = "tgModeList";
+            this.tgModeList.Size = new System.Drawing.Size(180, 17);
+            this.tgModeList.TabIndex = 4;
+            this.tgModeList.TabStop = false;
+            this.tgModeList.Text = "Modern list experience readiness";
+            this.tgModeList.UseVisualStyleBackColor = true;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 42);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(239, 13);
+            this.label6.TabIndex = 3;
+            this.label6.Text = "Components included in the selected scan mode:";
+            // 
+            // tgModeGroupConnect
+            // 
+            this.tgModeGroupConnect.AutoCheck = false;
+            this.tgModeGroupConnect.AutoSize = true;
+            this.tgModeGroupConnect.Enabled = false;
+            this.tgModeGroupConnect.Location = new System.Drawing.Point(33, 63);
+            this.tgModeGroupConnect.Name = "tgModeGroupConnect";
+            this.tgModeGroupConnect.Size = new System.Drawing.Size(211, 17);
+            this.tgModeGroupConnect.TabIndex = 2;
+            this.tgModeGroupConnect.TabStop = false;
+            this.tgModeGroupConnect.Text = "Office 365 Group connection readiness";
+            this.tgModeGroupConnect.UseVisualStyleBackColor = true;
+            // 
+            // cmbScanMode
+            // 
+            this.cmbScanMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbScanMode.FormattingEnabled = true;
+            this.cmbScanMode.Items.AddRange(new object[] {
+            "Office 365 Group connection readiness",
+            "Modern list experience readiness",
+            "Wiki/Webpart Page transformation readiness (home pages)",
+            "Wiki/Webpart Page transformation readiness (all pages)",
+            "Publishing portal transformation readiness",
+            "Publishing portal transformation readiness (detailed)",
+            "Classic workflow usage",
+            "InfoPath usage",
+            "Classic Blog usage",
+            "All of the above (full scan)"});
+            this.cmbScanMode.Location = new System.Drawing.Point(171, 9);
+            this.cmbScanMode.Name = "cmbScanMode";
+            this.cmbScanMode.Size = new System.Drawing.Size(299, 21);
+            this.cmbScanMode.TabIndex = 1;
+            this.cmbScanMode.SelectedIndexChanged += new System.EventHandler(this.cmbScanMode_SelectedIndexChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(15, 12);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(145, 13);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Select the scan mode to use:";
             // 
             // optionsPage
             // 
@@ -416,165 +591,6 @@
             this.label7.Size = new System.Drawing.Size(165, 13);
             this.label7.TabIndex = 0;
             this.label7.Text = "Number of parallel threads to use:";
-            // 
-            // modePage
-            // 
-            this.modePage.Controls.Add(this.tgModeBlogUsage);
-            this.modePage.Controls.Add(this.tgModeInfoPathUsage);
-            this.modePage.Controls.Add(this.tgModeClassicWorkflowUsage);
-            this.modePage.Controls.Add(this.tgModePublishingDetailed);
-            this.modePage.Controls.Add(this.tgModePublishing);
-            this.modePage.Controls.Add(this.tgModePages);
-            this.modePage.Controls.Add(this.tgModeList);
-            this.modePage.Controls.Add(this.label6);
-            this.modePage.Controls.Add(this.tgModeGroupConnect);
-            this.modePage.Controls.Add(this.cmbScanMode);
-            this.modePage.Controls.Add(this.label5);
-            this.modePage.Name = "modePage";
-            this.modePage.NextPage = this.optionsPage;
-            this.modePage.Size = new System.Drawing.Size(480, 264);
-            this.modePage.TabIndex = 2;
-            this.modePage.Tag = "";
-            this.modePage.Text = "Select the scan mode";
-            // 
-            // tgModeBlogUsage
-            // 
-            this.tgModeBlogUsage.AutoSize = true;
-            this.tgModeBlogUsage.Enabled = false;
-            this.tgModeBlogUsage.Location = new System.Drawing.Point(33, 244);
-            this.tgModeBlogUsage.Margin = new System.Windows.Forms.Padding(2);
-            this.tgModeBlogUsage.Name = "tgModeBlogUsage";
-            this.tgModeBlogUsage.Size = new System.Drawing.Size(115, 17);
-            this.tgModeBlogUsage.TabIndex = 11;
-            this.tgModeBlogUsage.Text = "Classic Blog usage";
-            this.tgModeBlogUsage.UseVisualStyleBackColor = true;
-            // 
-            // tgModeInfoPathUsage
-            // 
-            this.tgModeInfoPathUsage.AutoSize = true;
-            this.tgModeInfoPathUsage.Enabled = false;
-            this.tgModeInfoPathUsage.Location = new System.Drawing.Point(33, 224);
-            this.tgModeInfoPathUsage.Margin = new System.Windows.Forms.Padding(2);
-            this.tgModeInfoPathUsage.Name = "tgModeInfoPathUsage";
-            this.tgModeInfoPathUsage.Size = new System.Drawing.Size(98, 17);
-            this.tgModeInfoPathUsage.TabIndex = 10;
-            this.tgModeInfoPathUsage.Text = "InfoPath usage";
-            this.tgModeInfoPathUsage.UseVisualStyleBackColor = true;
-            // 
-            // tgModeClassicWorkflowUsage
-            // 
-            this.tgModeClassicWorkflowUsage.AutoSize = true;
-            this.tgModeClassicWorkflowUsage.Enabled = false;
-            this.tgModeClassicWorkflowUsage.Location = new System.Drawing.Point(33, 202);
-            this.tgModeClassicWorkflowUsage.Margin = new System.Windows.Forms.Padding(2);
-            this.tgModeClassicWorkflowUsage.Name = "tgModeClassicWorkflowUsage";
-            this.tgModeClassicWorkflowUsage.Size = new System.Drawing.Size(136, 17);
-            this.tgModeClassicWorkflowUsage.TabIndex = 9;
-            this.tgModeClassicWorkflowUsage.Text = "Classic workflow usage";
-            this.tgModeClassicWorkflowUsage.UseVisualStyleBackColor = true;
-            // 
-            // tgModePublishingDetailed
-            // 
-            this.tgModePublishingDetailed.AutoCheck = false;
-            this.tgModePublishingDetailed.AutoSize = true;
-            this.tgModePublishingDetailed.Enabled = false;
-            this.tgModePublishingDetailed.Location = new System.Drawing.Point(52, 178);
-            this.tgModePublishingDetailed.Name = "tgModePublishingDetailed";
-            this.tgModePublishingDetailed.Size = new System.Drawing.Size(266, 17);
-            this.tgModePublishingDetailed.TabIndex = 8;
-            this.tgModePublishingDetailed.TabStop = false;
-            this.tgModePublishingDetailed.Text = "Publishing portal transformation readiness (detailed)";
-            this.tgModePublishingDetailed.UseVisualStyleBackColor = true;
-            // 
-            // tgModePublishing
-            // 
-            this.tgModePublishing.AutoCheck = false;
-            this.tgModePublishing.AutoSize = true;
-            this.tgModePublishing.Enabled = false;
-            this.tgModePublishing.Location = new System.Drawing.Point(33, 154);
-            this.tgModePublishing.Name = "tgModePublishing";
-            this.tgModePublishing.Size = new System.Drawing.Size(220, 17);
-            this.tgModePublishing.TabIndex = 6;
-            this.tgModePublishing.TabStop = false;
-            this.tgModePublishing.Text = "Publishing portal transformation readiness";
-            this.tgModePublishing.UseVisualStyleBackColor = true;
-            // 
-            // tgModePages
-            // 
-            this.tgModePages.AutoCheck = false;
-            this.tgModePages.AutoSize = true;
-            this.tgModePages.Enabled = false;
-            this.tgModePages.Location = new System.Drawing.Point(33, 131);
-            this.tgModePages.Name = "tgModePages";
-            this.tgModePages.Size = new System.Drawing.Size(238, 17);
-            this.tgModePages.TabIndex = 5;
-            this.tgModePages.TabStop = false;
-            this.tgModePages.Text = "Wiki/Webpart Page transformation readiness";
-            this.tgModePages.UseVisualStyleBackColor = true;
-            // 
-            // tgModeList
-            // 
-            this.tgModeList.AutoCheck = false;
-            this.tgModeList.AutoSize = true;
-            this.tgModeList.Enabled = false;
-            this.tgModeList.Location = new System.Drawing.Point(33, 107);
-            this.tgModeList.Name = "tgModeList";
-            this.tgModeList.Size = new System.Drawing.Size(180, 17);
-            this.tgModeList.TabIndex = 4;
-            this.tgModeList.TabStop = false;
-            this.tgModeList.Text = "Modern list experience readiness";
-            this.tgModeList.UseVisualStyleBackColor = true;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 57);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(239, 13);
-            this.label6.TabIndex = 3;
-            this.label6.Text = "Components included in the selected scan mode:";
-            // 
-            // tgModeGroupConnect
-            // 
-            this.tgModeGroupConnect.AutoCheck = false;
-            this.tgModeGroupConnect.AutoSize = true;
-            this.tgModeGroupConnect.Enabled = false;
-            this.tgModeGroupConnect.Location = new System.Drawing.Point(33, 83);
-            this.tgModeGroupConnect.Name = "tgModeGroupConnect";
-            this.tgModeGroupConnect.Size = new System.Drawing.Size(211, 17);
-            this.tgModeGroupConnect.TabIndex = 2;
-            this.tgModeGroupConnect.TabStop = false;
-            this.tgModeGroupConnect.Text = "Office 365 Group connection readiness";
-            this.tgModeGroupConnect.UseVisualStyleBackColor = true;
-            // 
-            // cmbScanMode
-            // 
-            this.cmbScanMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbScanMode.FormattingEnabled = true;
-            this.cmbScanMode.Items.AddRange(new object[] {
-            "Office 365 Group connection readiness",
-            "Modern list experience readiness",
-            "Wiki/Webpart Page transformation readiness",
-            "Publishing portal transformation readiness",
-            "Publishing portal transformation readiness (detailed)",
-            "Classic workflow usage",
-            "InfoPath usage",
-            "Classic Blog usage",
-            "All of the above (full scan)"});
-            this.cmbScanMode.Location = new System.Drawing.Point(171, 17);
-            this.cmbScanMode.Name = "cmbScanMode";
-            this.cmbScanMode.Size = new System.Drawing.Size(299, 21);
-            this.cmbScanMode.TabIndex = 1;
-            this.cmbScanMode.SelectedIndexChanged += new System.EventHandler(this.cmbScanMode_SelectedIndexChanged);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(15, 20);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(145, 13);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "Select the scan mode to use:";
             // 
             // authPage
             // 
@@ -1142,11 +1158,11 @@
             this.commandPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.wizardPageContainer1)).EndInit();
             this.wizardPageContainer1.ResumeLayout(false);
+            this.modePage.ResumeLayout(false);
+            this.modePage.PerformLayout();
             this.optionsPage.ResumeLayout(false);
             this.optionsPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).EndInit();
-            this.modePage.ResumeLayout(false);
-            this.modePage.PerformLayout();
             this.authPage.ResumeLayout(false);
             this.authPage.PerformLayout();
             this.pnlCredentials.ResumeLayout(false);
@@ -1259,5 +1275,6 @@
         private System.Windows.Forms.CheckBox tgModeBlogUsage;
         private System.Windows.Forms.ComboBox cmbDateFormat;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.CheckBox tgModeHomePageOnly;
     }
 }
