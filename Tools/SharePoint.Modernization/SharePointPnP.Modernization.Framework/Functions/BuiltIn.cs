@@ -247,7 +247,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return "Text";
             }
 
-            var empty = new HtmlTransformator().IsEmptyParagraph(text);
+            var empty = new HtmlTransformator(base.RegisteredLogObservers).IsEmptyParagraph(text);
 
             if (empty)
             {
@@ -286,7 +286,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
             bool.TryParse(usePlaceHolders, out usePlaceHolder);
 
-            return new HtmlTransformator().Transform(text, usePlaceHolder);
+            return new HtmlTransformator(base.RegisteredLogObservers).Transform(text, usePlaceHolder);
         }
 
         /// <summary>

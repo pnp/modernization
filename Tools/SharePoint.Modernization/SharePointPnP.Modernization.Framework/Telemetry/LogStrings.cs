@@ -265,6 +265,8 @@
         public const string Error_LoadContentFromFile = "An error occurred in LoadContentFromFile function";
 
         public const string Error_LoadContentFromFileContentLink = "An error occurred in getting the referenced file in content link";
+
+        public const string Warning_TableCouldNotBeNormalized = "Table could not be normalized and will be taken over as is. Error = {0}";
         #endregion
 
         #region Publishing Page Transformation

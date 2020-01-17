@@ -18,6 +18,8 @@
 
 ## Changed
 
+- Fix: Improved table migration reliability #404
+
 ## [January release - version 1.0.2001.0]
 
 ### Added

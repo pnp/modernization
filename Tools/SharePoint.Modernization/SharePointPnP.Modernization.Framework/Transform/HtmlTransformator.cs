@@ -2,6 +2,7 @@
 using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Html;
+using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     /// <summary>
     /// Transforms the received Html in html that can be displayed and maintained in the modern client side text part
     /// </summary>
-    public class HtmlTransformator : IHtmlTransformator
+    public class HtmlTransformator : BaseTransform, IHtmlTransformator
     {
         #region Internal table classes
         internal class Table
@@ -70,8 +71,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Default constructor
         /// </summary>
-        public HtmlTransformator()
+        public HtmlTransformator(IList<ILogObserver> logObservers = null): base()
         {
+            if (logObservers != null)
+            {
+                foreach (var observer in logObservers)
+                {
+                    base.RegisterObserver(observer);
+                }
+            }
+
             // Instantiate the AngleSharp Html parser, configure to load the Style property as well
             parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true }, Configuration.Default.WithDefaultLoader().WithCss());
         }
@@ -243,8 +252,29 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             foreach (var table in tables)
             {
-                // Normalize table by removing the col and row spans and returning a Table object containing matrix of cells, header cells and table information
-                var normalizedTable = NormalizeTable(table);
+                Table normalizedTable = null;
+
+                try
+                {
+                    // Normalize table by removing the col and row spans and returning a Table object containing matrix of cells, header cells and table information
+                    normalizedTable = NormalizeTable(table);
+                }
+                catch(Exception ex)
+                {
+                    LogWarning(string.Format(LogStrings.Warning_TableCouldNotBeNormalized, ex.Message), LogStrings.Heading_BuiltInFunctions);
+                }
+
+                // If we could not normalize this table then let's skip it
+                if (normalizedTable == null)
+                {
+                    continue;
+                }
+
+                // Skip empty tables
+                if (normalizedTable.Cells.GetLength(0) == 0 && normalizedTable.Cells.GetLength(1) == 0)
+                {
+                    continue;
+                }
 
                 // <div class="canvasRteResponsiveTable">
                 var newTableElement = document.CreateElement($"div");
@@ -1525,9 +1555,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         int tempColPos = colPos - 1;
                                         for (int i = 0; i < columnCellsToAdd; i++)
                                         {
-                                            if (cells[tempColPos, tempRowPos] == null)
+                                            if (cells[tempRowPos, tempColPos] == null)
                                             {
-                                                cells[tempColPos, tempRowPos] = new IElementCell(null);
+                                                cells[tempRowPos, tempColPos] = new IElementCell(null);
                                             }
                                             tempColPos++;
                                         }
@@ -1627,7 +1657,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="table">Table to investigate</param>
         /// <returns>Tuple containing the columns and rows</returns>
-        private Tuple<int,int> GetTableDimensions(IElement table)
+        private Tuple<int, int> GetTableDimensions(IElement table)
         {
             int maxCols = 0;
             int maxRows = 0;
@@ -1700,9 +1730,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 maxCols = 1;
             }
 
-            return new Tuple<int, int>(maxCols,maxRows);
+            return new Tuple<int, int>(maxCols, maxRows);
         }
-
         #endregion
     }
 }
