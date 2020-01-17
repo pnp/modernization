@@ -723,8 +723,10 @@ namespace SharePointPnP.Modernization.Framework.Functions
 
                 var newAssetLocation = assetTransfer.TransferAsset(serverRelativeAssetFileName, pageFileName);
 
-                return newAssetLocation;
-
+                if (!string.IsNullOrEmpty(newAssetLocation))
+                {
+                    return newAssetLocation;
+                }
             }
             catch (Exception ex)
             {

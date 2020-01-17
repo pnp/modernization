@@ -19,6 +19,7 @@
 ## Changed
 
 - Fix: Improved table migration reliability #404
+- Fix: Improved handling of missing source page images #404
 
 ## [January release - version 1.0.2001.0]
 
