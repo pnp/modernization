@@ -16,7 +16,7 @@
 
 ## Added
 
-- When transforming publishing page html you can now prefix and/or suffix the publishing html with extra text. This is useful in scenarios where there's hardcoded text in the custom pagelayout. #412
+- When transforming publishing page html you can now prefix and/or suffix the publishing html with extra text. This is useful in scenarios where there's hardcoded text in the custom pagelayout. #413
 
 ## Changed
 
