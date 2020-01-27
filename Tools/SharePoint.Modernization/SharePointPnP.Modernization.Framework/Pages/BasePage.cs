@@ -686,7 +686,29 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     return WebParts.TitleBar;
                 }
 
+                // Check for ListView web part
+                string[] legacyListWebPart = new string[] { "ListViewXml", "ListName", "ListId", "ViewContentTypeId" };
+                if (CheckWebPartProperties(legacyListWebPart, properties))
+                {
+                    return WebParts.ListView;
+                }
 
+                string[] legacyXsltWebPart = new string[] { "ListUrl", "ListId", "ListName", "CatalogIconImageUrl" };
+                if (CheckWebPartProperties(legacyXsltWebPart, properties))
+                {
+                    // TODO: Validate if 2013 the references are different.
+                    // Too Many Lists are showing here, so extra filters are required
+                    // Not the cleanest method, but options limited to filter list type
+                    var iconToRepresent = properties["CatalogIconImageUrl"];
+                    switch (iconToRepresent)
+                    {
+                        // 2010 Icons to represent list types
+                        case "/_layouts/images/itdl.png":
+                        case "/_layouts/images/itissue.png":
+                        case "/_layouts/images/itgen.png":
+                            return WebParts.XsltListView;
+                    }
+                }
             }
 
             // check for Script Editor web part
@@ -703,7 +725,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 return WebParts.SPUserCode;
             }
 
-            return "NonExportable_Unidentified";
+            return "Not Supported/Non Exportable/Unidentified Web Part";
         }
 
         private bool CheckWebPartProperties(string[] propertiesToCheck, Dictionary<string, object> properties)
