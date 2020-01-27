@@ -52,8 +52,16 @@
           <Property Name="Caption" Type="string" Functions="ToImageCaption({PublishingImageCaption})" />
         </Field>
         <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
+          <Property Name="Text" Type="string" Functions="PrefixAndSuffix('&lt;H1&gt;Prefix some extra text&lt;/H1&gt;','&lt;H1&gt;Suffix some extra text&lt;/H1&gt;',{PublishingPageContent},'false')" />
+        </Field>
+        <!--
+        <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
           <Property Name="Text" Type="string" Functions="" />
         </Field>
+        <Field Name="PublishingPageContent" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="2">
+          <Property Name="Text" Type="string" Functions="Prefix('&lt;H1&gt;Prefix some extra text&lt;/H1&gt;', {PublishingPageContent}, 'false')" />
+        </Field>
+        -->
         <!-- Add some extra 'hard coded' text in row 1 column 3 -->
         <Field Name="ID" TargetWebPart="SharePointPnP.Modernization.WikiTextPart" Row="1" Column="3">
           <Property Name="Text" Type="string" Functions="StaticString('&lt;H1&gt;This is some extra text&lt;/H1&gt;')" />

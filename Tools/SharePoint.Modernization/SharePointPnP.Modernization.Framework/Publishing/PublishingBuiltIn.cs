@@ -73,6 +73,162 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         {
             return staticString;
         }
+
+        /// <summary>
+        /// Prefixes a string
+        /// </summary>
+        /// <param name="prefix">Prefix to be applied</param>
+        /// <param name="content">Value to apply the prefix to</param>
+        /// <param name="applyIfContentIsEmpty">Apply prefix also when the content field is empty</param>
+        /// <returns>Prefixed string</returns>
+        [FunctionDocumentation(Description = "Prefixes the input text with another text. The applyIfContentIsEmpty parameter controls if the prefix also needs to happen when the actual content is empty",
+                               Example = "Prefix('&lt;H1&gt;Prefix some extra text&lt;/H1&gt;', {PublishingPageContent}, 'false')")]
+        [InputDocumentation(Name = "'prefix string'", Description = "Static input string which will be used as prefix")]
+        [InputDocumentation(Name = "{PublishingPageContent}", Description = "The actual publishing page HTML field content to prefix")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the prefixing still needs to happen when the {PublishingPageContent} field content is emty")]
+        [OutputDocumentation(Name = "return value", Description = "Value of {PublishingPageContent} prefixed with the provided prefix value")]
+        public string Prefix(string prefix, string content, string applyIfContentIsEmpty)
+        {
+            if (!string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(content))
+            {
+                return prefix + content;
+            }
+            else if (string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+            else if (!string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(content))
+            {
+                if (!bool.TryParse(applyIfContentIsEmpty, out bool applyIfEmpty))
+                {
+                    applyIfEmpty = true;
+                }
+
+                if (applyIfEmpty)
+                {
+                    return prefix;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Suffixes a string
+        /// </summary>
+        /// <param name="suffix">Suffix to be applied</param>
+        /// <param name="content">Value to apply the suffix to</param>
+        /// <param name="applyIfContentIsEmpty">Apply suffix also when the content field is empty</param>
+        /// <returns>Prefixed string</returns>
+        [FunctionDocumentation(Description = "Suffixes the input text with another text. The applyIfContentIsEmpty parameter controls if the suffix also needs to happen when the actual content is empty",
+                               Example = "Suffix('&lt;H1&gt;Suffix some extra text&lt;/H1&gt;', {PublishingPageContent}, 'false')")]
+        [InputDocumentation(Name = "'suffix string'", Description = "Static input string which will be used as suffix")]
+        [InputDocumentation(Name = "{PublishingPageContent}", Description = "The actual publishing page HTML field content to suffix")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the suffixing still needs to happen when the {PublishingPageContent} field content is emty")]
+        [OutputDocumentation(Name = "return value", Description = "Value of {PublishingPageContent} suffixed with the provided suffix value")]
+        public string Suffix(string suffix, string content, string applyIfContentIsEmpty)
+        {
+            if (!string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return content + suffix;
+            }
+            else if (string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+            else if (!string.IsNullOrEmpty(suffix) && string.IsNullOrEmpty(content))
+            {
+                if (!bool.TryParse(applyIfContentIsEmpty, out bool applyIfEmpty))
+                {
+                    applyIfEmpty = true;
+                }
+
+                if (applyIfEmpty)
+                {
+                    return suffix;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Prefixes and suffixes a string
+        /// </summary>
+        /// <param name="prefix">Prefix to be applied</param>
+        /// <param name="suffix">Suffix to be applied</param>
+        /// <param name="content">Value to apply the prefix/suffix to</param>
+        /// <param name="applyIfContentIsEmpty">Apply prefix/suffix also when the content field is empty</param>
+        /// <returns>Prefixed string</returns>
+        [FunctionDocumentation(Description = "Prefixes and suffixes the input text with another text. The applyIfContentIsEmpty parameter controls if the prefix/suffix also needs to happen when the actual content is empty",
+                               Example = "PrefixAndSuffix('&lt;H1&gt;Prefix some extra text&lt;/H1&gt;','&lt;H1&gt;Suffix some extra text&lt;/H1&gt;',{PublishingPageContent},'false')")]
+        [InputDocumentation(Name = "'prefix string'", Description = "Static input string which will be used as prefix")]
+        [InputDocumentation(Name = "'suffix string'", Description = "Static input string which will be used as suffix")]
+        [InputDocumentation(Name = "{PublishingPageContent}", Description = "The actual publishing page HTML field content to prefix/suffix")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the prefixing/suffixing still needs to happen when the {PublishingPageContent} field content is emty")]
+        [OutputDocumentation(Name = "return value", Description = "Value of {PublishingPageContent} prefixed/suffixed with the provided values")]
+        public string PrefixAndSuffix(string prefix, string suffix, string content, string applyIfContentIsEmpty)
+        {
+            if (!string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return prefix + content + suffix;
+            }
+            if (!string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return prefix + content;
+            }
+            if (string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return content + suffix;
+            }
+            else if (string.IsNullOrEmpty(suffix) && string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+            else if (string.IsNullOrEmpty(content))
+            {
+                if (!bool.TryParse(applyIfContentIsEmpty, out bool applyIfEmpty))
+                {
+                    applyIfEmpty = true;
+                }
+
+                if (applyIfEmpty)
+                {
+                    if (!string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix))
+                    {
+                        return prefix + suffix;
+                    }
+                    else if (string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix))
+                    {
+                        return suffix;
+                    }
+                    else
+                    {
+                        return prefix;
+                    }
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
         #endregion
 
         #region Image functions
