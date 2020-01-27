@@ -694,19 +694,20 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 }
 
                 string[] legacyXsltWebPart = new string[] { "ListUrl", "ListId", "ListName", "CatalogIconImageUrl" };
+                var iconsToCheck = new string[]{
+                    "images/itdl.png", "images/itissue.png", "images/itgen.png" };
+
                 if (CheckWebPartProperties(legacyXsltWebPart, properties))
                 {
-                    // TODO: Validate if 2013 the references are different.
                     // Too Many Lists are showing here, so extra filters are required
                     // Not the cleanest method, but options limited to filter list type
                     var iconToRepresent = properties["CatalogIconImageUrl"];
-                    switch (iconToRepresent)
+                    foreach(var iconPath in iconsToCheck)
                     {
-                        // 2010 Icons to represent list types
-                        case "/_layouts/images/itdl.png":
-                        case "/_layouts/images/itissue.png":
-                        case "/_layouts/images/itgen.png":
+                        if (iconToRepresent.ToString().ContainsIgnoringCasing(iconPath))
+                        {
                             return WebParts.XsltListView;
+                        }
                     }
                 }
             }
