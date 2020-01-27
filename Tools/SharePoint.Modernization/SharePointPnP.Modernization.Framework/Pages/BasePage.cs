@@ -694,13 +694,12 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 }
 
                 string[] legacyXsltWebPart = new string[] { "ListUrl", "ListId", "ListName", "CatalogIconImageUrl" };
-                var iconsToCheck = new string[]{
-                    "images/itdl.png", "images/itissue.png", "images/itgen.png" };
-
                 if (CheckWebPartProperties(legacyXsltWebPart, properties))
                 {
                     // Too Many Lists are showing here, so extra filters are required
-                    // Not the cleanest method, but options limited to filter list type
+                    // Not the cleanest method, but options limited to filter list type without extra calls to SharePoint
+                    var iconsToCheck = new string[]{
+                    "images/itdl.png", "images/itissue.png", "images/itgen.png" };
                     var iconToRepresent = properties["CatalogIconImageUrl"];
                     foreach(var iconPath in iconsToCheck)
                     {
@@ -726,7 +725,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 return WebParts.SPUserCode;
             }
 
-            return "Not Supported/Non Exportable/Unidentified Web Part";
+            LogWarning(LogStrings.Warning_NotSupportedWebPart, LogStrings.Heading_ContentTransform);
+            return "Unsupported Web Part Type";
         }
 
         private bool CheckWebPartProperties(string[] propertiesToCheck, Dictionary<string, object> properties)

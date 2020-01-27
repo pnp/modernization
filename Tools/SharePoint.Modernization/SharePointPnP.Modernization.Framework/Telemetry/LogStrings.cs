@@ -226,7 +226,8 @@
         public const string Error_NotValidForTargetSiteCollection = "NotAvailableAtTargetException is used to \"skip\" a web part since it's not valid for the target site collection (only applies to cross site collection transfers)";
         public const string Error_NoDefaultMappingFound = "No default mapping was found int the provided mapping file";
         public const string Error_AnErrorOccurredFunctions = "An error occurred processing functions";
-        
+
+        public const string Warning_NotSupportedWebPart = "Not Supported, Non Exportable or Unidentified Web Part";
 
         #endregion
 
