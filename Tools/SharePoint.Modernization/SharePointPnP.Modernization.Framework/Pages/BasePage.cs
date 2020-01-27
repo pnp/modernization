@@ -1123,7 +1123,36 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                                 foreach (XmlNode wpChildNodes in nodeToExtractProperties.ChildNodes)
                                 {
-                                    webPart.Properties.Add(wpChildNodes.LocalName, wpChildNodes.InnerText);
+                                    var property = wpChildNodes.LocalName;
+                                    var propertyValue = wpChildNodes.InnerText;
+
+                                    // Rewrite "old" frametype modelling to newer chromeType based modelling
+                                    if (wpChildNodes.LocalName.Equals("FrameType"))
+                                    {
+                                        property = "ChromeType";
+                                        if (propertyValue.Equals("None")) 
+                                        {
+                                            propertyValue = "2";
+                                        }
+                                        else if (propertyValue.Equals("Standard"))
+                                        {
+                                            propertyValue = "1";
+                                        }
+                                        else if (propertyValue.Equals("TitleBarOnly"))
+                                        {
+                                            propertyValue = "3";
+                                        }
+                                        else if (propertyValue.Equals("Default"))
+                                        {
+                                            propertyValue = "0";
+                                        }
+                                        else if (propertyValue.Equals("BorderOnly"))
+                                        {
+                                            propertyValue = "4";
+                                        }
+                                    }
+
+                                    webPart.Properties.Add(property, propertyValue);
                                 }
                             }
                             else
