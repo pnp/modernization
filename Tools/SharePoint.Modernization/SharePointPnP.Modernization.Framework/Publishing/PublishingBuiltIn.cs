@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Parser.Html;
+using Microsoft.Data.OData.Metadata;
 using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
 using SharePointPnP.Modernization.Framework.Functions;
@@ -487,5 +488,68 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return "";
         }
         #endregion
+
+        #region Taxonomy functions
+        /// <summary>
+        /// Populate a taxonomy field based upon provided term id's. You can configure to optionally overwrite existing values
+        /// </summary>
+        /// <param name="fieldValue">List of term id's to set, multiple values can also be used when the taxonomy field is configured to accept multiple terms</param>
+        /// <param name="termIdString">Static bool ('true', 'false') to indicate if the default term values have to be set in case the fiels already contains terms</param>
+        /// <param name="overwriteString">String with term information needed to set the taxonomy field</param>
+        /// <returns></returns>
+        [FunctionDocumentation(Description = "Populate a taxonomy field based upon provided term id's. You can configure to optionally overwrite existing values",
+                               Example = "DefaultTaxonomyFieldValue({TaxField2},'a65537e8-aa27-4b3a-bad6-f0f61f84b9f7|69524923-a5a0-44d1-b5ec-7f7c6d0ec160','true')")]
+        [InputDocumentation(Name = "{Taxonomy Field}", Description = "The taxonomy field to update")]
+        [InputDocumentation(Name = "'term ids split by |'", Description = "List of term id's to set, multiple values can also be used when the taxonomy field is configured to accept multiple terms")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the default term values have to be set in case the fiels already contains terms")]
+        [OutputDocumentation(Name = "return value", Description = "String with term information needed to set the taxonomy field")]
+        public string DefaultTaxonomyFieldValue(string fieldValue, string termIdString, string overwriteString)
+        {
+            List<string> termIds = new List<string>();
+            if (termIdString.Contains("|"))
+            {
+                string[] termIdParts = termIdString.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                termIds.AddRange(termIdParts);
+            }
+            else
+            {
+                termIds.Add(termIdString);
+            }
+
+            if (!bool.TryParse(overwriteString, out bool overwrite))
+            {
+                overwrite = false;
+            }
+
+            if (!string.IsNullOrEmpty(fieldValue) && !overwrite)
+            {
+                return null;
+            }
+
+            string resultingTermInfo = "";
+            foreach (var term in termIds)
+            {
+                if (Guid.TryParse(term, out Guid termId))
+                {
+                    var termInfo = Cache.CacheManager.Instance.GetTermFromId(this.targetClientContext, termId);
+
+                    if (termInfo != null)
+                    {
+                        if (string.IsNullOrEmpty(resultingTermInfo))
+                        {
+                            resultingTermInfo = $"{termInfo}|{termId}";
+                        }
+                        else
+                        {
+                            resultingTermInfo += $"§{termInfo}|{termId}";
+                        }
+                    }                    
+                }
+            }
+
+            return resultingTermInfo;
+        }
+        #endregion
+
     }
 }

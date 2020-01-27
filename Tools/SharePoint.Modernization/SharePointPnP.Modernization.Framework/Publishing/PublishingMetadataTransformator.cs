@@ -130,22 +130,73 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
                                                 if (taxFieldBeforeCast != null)
                                                 {
-                                                    var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                                                    object fieldValueToSet = null;
+
+                                                    if (!string.IsNullOrEmpty(fieldToProcess.Functions))
+                                                    {
+                                                        // execute function
+                                                        var evaluatedField = this.functionProcessor.Process(fieldToProcess.Functions, fieldToProcess.Name, CastToPublishingFunctionProcessorFieldType(targetFieldData.FieldType));
+                                                        if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                                                        {
+                                                            if (!string.IsNullOrEmpty(evaluatedField.Item2))
+                                                            {
+                                                                List<string> termInfoStrings = new List<string>();
+                                                                if (evaluatedField.Item2.Contains("§"))
+                                                                {
+                                                                    string[] termInfoStringList = evaluatedField.Item2.Split(new string[] { "§" }, StringSplitOptions.RemoveEmptyEntries);
+                                                                    termInfoStrings.AddRange(termInfoStringList);
+                                                                }
+                                                                else
+                                                                {
+                                                                    termInfoStrings.Add(evaluatedField.Item2);
+                                                                }
+
+                                                                if (termInfoStrings.Count > 0)
+                                                                {
+                                                                    fieldValueToSet = new Dictionary<string, object>();
+                                                                    List<Dictionary<string, object>> termsToSetList = new List<Dictionary<string, object>>();
+
+                                                                    foreach (var term in termInfoStrings)
+                                                                    {
+                                                                        string[] termValueParts = term.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+
+                                                                        if (termValueParts.Length == 2)
+                                                                        {
+                                                                            Dictionary<string, object> termsToSet = new Dictionary<string, object>();
+                                                                            (termsToSet as Dictionary<string, object>).Add("Label", termValueParts[0]);
+                                                                            (termsToSet as Dictionary<string, object>).Add("TermGuid", termValueParts[1]);
+                                                                            termsToSetList.Add(termsToSet);
+                                                                        }
+                                                                    }
+
+                                                                    (fieldValueToSet as Dictionary<string, object>).Add("_Child_Items_", termsToSetList.ToArray());
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // No value was set via the function processing, so let's stick with the default
+                                                    if (fieldValueToSet == null)
+                                                    {
+                                                        fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
+                                                    }
 
                                                     if (this.publishingPageTransformationInformation.SourcePage.FieldExists(fieldToProcess.Name))
                                                     {
-                                                        if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValueCollection)
+                                                        var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+
+                                                        if (fieldValueToSet is TaxonomyFieldValueCollection)
                                                         {
-                                                            var valueCollectionToCopy = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValueCollection);
+                                                            var valueCollectionToCopy = (fieldValueToSet as TaxonomyFieldValueCollection);
                                                             var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
                                                             var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
                                                             taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
                                                             isDirty = true;
                                                             LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                         }
-                                                        else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
+                                                        else if (fieldValueToSet is Dictionary<string, object>)
                                                         {
-                                                            var taxDictionaryList = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
+                                                            var taxDictionaryList = (fieldValueToSet as Dictionary<string, object>);
                                                             var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
 
                                                             List<string> taxonomyFieldValueArray = new List<string>();
@@ -187,24 +238,53 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
                                                 if (taxFieldBeforeCast != null)
                                                 {
-                                                    var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
-                                                    var taxValue = new TaxonomyFieldValue();
+                                                    object fieldValueToSet = null;
+
+                                                    if (!string.IsNullOrEmpty(fieldToProcess.Functions))
+                                                    {
+                                                        // execute function
+                                                        var evaluatedField = this.functionProcessor.Process(fieldToProcess.Functions, fieldToProcess.Name, CastToPublishingFunctionProcessorFieldType(targetFieldData.FieldType));
+                                                        if (!string.IsNullOrEmpty(evaluatedField.Item1))
+                                                        {
+                                                            if (!string.IsNullOrEmpty(evaluatedField.Item2))
+                                                            {
+                                                                string[] termValueParts = evaluatedField.Item2.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+
+                                                                if (termValueParts.Length == 2)
+                                                                {
+                                                                    fieldValueToSet = new Dictionary<string, object>();
+
+                                                                    (fieldValueToSet as Dictionary<string, object>).Add("Label", termValueParts[0]);
+                                                                    (fieldValueToSet as Dictionary<string, object>).Add("TermGuid", termValueParts[1]);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // No value was set via the function processing, so let's stick with the default
+                                                    if (fieldValueToSet == null)
+                                                    {
+                                                        fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
+                                                    }
 
                                                     if (this.publishingPageTransformationInformation.SourcePage.FieldExists(fieldToProcess.Name))
                                                     {
-                                                        if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is TaxonomyFieldValue)
+                                                        var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                                                        TaxonomyFieldValue taxValue = new TaxonomyFieldValue();
+
+                                                        if (fieldValueToSet is TaxonomyFieldValue)
                                                         {
 
-                                                            taxValue.Label = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).Label;
-                                                            taxValue.TermGuid = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).TermGuid;
+                                                            taxValue.Label = (fieldValueToSet as TaxonomyFieldValue).Label;
+                                                            taxValue.TermGuid = (fieldValueToSet as TaxonomyFieldValue).TermGuid;
                                                             taxValue.WssId = -1;
                                                             taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
                                                             isDirty = true;
                                                             LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                         }
-                                                        else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
+                                                        else if ((fieldValueToSet is Dictionary<string, object>))
                                                         {
-                                                            var taxDictionary = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as Dictionary<string, object>);
+                                                            var taxDictionary = (fieldValueToSet as Dictionary<string, object>);
                                                             taxValue.Label = taxDictionary["Label"].ToString();
                                                             taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
                                                             taxValue.WssId = -1;

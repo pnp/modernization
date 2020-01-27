@@ -28,7 +28,8 @@
         <Field Name="PublishingContactName;PublishingContactEmail" TargetFieldName="Custom1" Functions="" />
         <!--<Field Name="PublishingContactEmail" TargetFieldName="Custom2" Functions="" />-->
         <Field Name="TaxField1" TargetFieldName="Metadata1" Functions="" ShowInPageProperties="true" />
-        <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="" ShowInPageProperties="true"/>
+        <!--<Field Name="TaxField1" TargetFieldName="Metadata1" Functions="DefaultTaxonomyFieldValue({TaxField1},'ed5449ec-4a4f-4102-8f07-5a207c438571','false')" ShowInPageProperties="true" />-->
+        <Field Name="TaxField2" TargetFieldName="Metadata2" Functions="DefaultTaxonomyFieldValue({TaxField2},'a65537e8-aa27-4b3a-bad6-f0f61f84b9f7|69524923-a5a0-44d1-b5ec-7f7c6d0ec160','true')" ShowInPageProperties="true"/>
         <Field Name="Person" TargetFieldName="Person" Functions="" ShowInPageProperties="true"/>
         
         <!-- OBSOLETE: please use the new KeepPageCreationModificationInformation option-->
