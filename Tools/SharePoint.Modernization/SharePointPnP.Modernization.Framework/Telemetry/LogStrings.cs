@@ -161,6 +161,7 @@
         public const string TransformSavedPageInCrossSiteCollection = "Saved page in cross-site collection";
         public const string TransformSavedPage = "Saved page";
         public const string TransformCopyingMetaDataField = "Copying field: ";
+        public const string TransformCopyingMetaDataTaxFieldEmpty = "Copying taxonomy field {0} skipped because it's empty";
         public const string TransformCopyingMetaDataFieldSkipped = "Skipped copying field: ";
         public const string TransformCopyingUserMetaDataFieldSkipped = "Skipped copying user field due to a cross farm modernization. Skipped field: ";
         public const string TransformGetItemPermissions = "Item level permissions read";

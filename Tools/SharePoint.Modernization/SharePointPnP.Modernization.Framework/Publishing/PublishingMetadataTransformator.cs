@@ -140,6 +140,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                             var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
                                                             var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
                                                             taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
+                                                            isDirty = true;
+                                                            LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                         }
                                                         else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
                                                         {
@@ -152,12 +154,25 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                 var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
                                                                 taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
                                                             }
-                                                            var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                                            taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
-                                                        }
 
-                                                        isDirty = true;
-                                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                            if (valueCollectionToCopy.Length > 0)
+                                                            {
+                                                                var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                                taxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
+                                                                isDirty = true;
+                                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                            }
+                                                            else
+                                                            {
+                                                                // Publishing field was empty, so let's skip the metadata copy
+                                                                LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            // Publishing field was empty, so let's skip the metadata copy
+                                                            LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -183,6 +198,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                             taxValue.Label = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).Label;
                                                             taxValue.TermGuid = (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] as TaxonomyFieldValue).TermGuid;
                                                             taxValue.WssId = -1;
+                                                            taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                            isDirty = true;
+                                                            LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                         }
                                                         else if (this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name] is Dictionary<string, object>)
                                                         {
@@ -190,10 +208,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                             taxValue.Label = taxDictionary["Label"].ToString();
                                                             taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
                                                             taxValue.WssId = -1;
+                                                            taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                            isDirty = true;
+                                                            LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                         }
-                                                        taxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
-                                                        isDirty = true;
-                                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                        else
+                                                        {
+                                                            // Publishing field was empty, so let's skip the metadata copy
+                                                            LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
+                                                        }
                                                     }
                                                     else
                                                     {
