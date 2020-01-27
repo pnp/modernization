@@ -24,6 +24,7 @@
 - Fix: Improved handling of missing source page images #404
 - Fix: When web parts are retrieved via a web service call then map the "FrameType" property to "ChromeType": logic to control the titlebar behaviour works upon ChromeType. This fixes #408
 - Fix: Empty taxonomy fields are skipped during metadata value copy. Fixes #412
+- Fix: Don't use static log collection as this does not work when using multiple log observers #415 [schnito]
 
 ## [January release - version 1.0.2001.0]
 
