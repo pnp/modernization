@@ -16,10 +16,16 @@
 
 ## Added
 
+- When transforming publishing page html you can now prefix and/or suffix the publishing html with extra text. This is useful in scenarios where there's hardcoded text in the custom pagelayout. #413
+- When transforming publishing page taxonomy metadata fields you now can configure a default terms via the DefaultTaxonomyFieldValue function #411
+
 ## Changed
 
 - Fix: Improved table migration reliability #404
 - Fix: Improved handling of missing source page images #404
+- Fix: When web parts are retrieved via a web service call then map the "FrameType" property to "ChromeType": logic to control the titlebar behaviour works upon ChromeType. This fixes #408
+- Fix: Empty taxonomy fields are skipped during metadata value copy. Fixes #412
+- Fix: Don't use static log collection as this does not work when using multiple log observers #415 [schnito]
 
 ## [January release - version 1.0.2001.0]
 

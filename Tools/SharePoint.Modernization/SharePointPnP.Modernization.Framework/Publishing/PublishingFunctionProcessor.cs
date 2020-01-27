@@ -182,6 +182,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 {
                     staticParameters.Add($"'StaticParameter{staticReplacement}'", match.ToString());
                     function = function.Replace(match.ToString(), $"'StaticParameter{staticReplacement}'");
+                    staticReplacement++;
                 }
             }
 
@@ -243,9 +244,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     input.IsStatic = true;
                     input.Name = $"Static_{staticCounter}";
 
-                    if (functionParameter.StartsWith("'StaticParameter"))
+                    if (functionParameter.Trim().StartsWith("'StaticParameter"))
                     {
-                        if (staticParameters.TryGetValue(functionParameter, out string staticParameterValue))
+                        if (staticParameters.TryGetValue(functionParameter.Trim(), out string staticParameterValue))
                         {
                             input.Value = staticParameterValue.Replace("'", "");
                         }

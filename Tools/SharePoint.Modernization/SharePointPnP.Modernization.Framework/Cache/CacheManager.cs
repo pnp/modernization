@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Taxonomy;
 using Newtonsoft.Json;
 using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Entities;
@@ -54,6 +55,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private static readonly string keyUrlMapping = "urlMapping";
         private static readonly string keyUserMappings = "userMappings";
         private static readonly string keyMappedUsers = "mappedUsers";
+        private static readonly string keyTermCache = "termCache";
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -1169,6 +1171,44 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
 
             return contentTypeId;
+        }
+        #endregion
+
+        #region Taxonomy 
+        /// <summary>
+        /// Return information for the given term
+        /// </summary>
+        /// <param name="context">ClientContext object to operate on</param>
+        /// <param name="termId">Id of the term to lookup</param>
+        /// <returns>Term label</returns>
+        public string GetTermFromId(ClientContext context, Guid termId)
+        {
+            string termInfo = null;
+
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, string>>(StoreOptions.GetKey(keyTermCache));
+            termCache.TryGetValue(termId, out string termInfoFromCache);
+            if (!string.IsNullOrEmpty(termInfoFromCache))
+            {
+                return termInfoFromCache;
+            }
+
+            // Lookup the provided term
+            TaxonomySession taxSession = TaxonomySession.GetTaxonomySession(context);
+            var loadedTerm = taxSession.GetTerm(termId);
+            context.Load(loadedTerm, p => p.Name);
+            context.ExecuteQueryRetry();
+
+            if (loadedTerm != null)
+            {
+                //uint lcid = context.Web.EnsureProperty(p => p.Language);
+                termInfo = loadedTerm.Name;
+                
+                // add to cache
+                termCache.TryAdd(termId, termInfo);
+                Store.Set<ConcurrentDictionary<Guid, string>>(StoreOptions.GetKey(keyTermCache), termCache, StoreOptions.EntryOptions);
+            }
+
+            return termInfo;
         }
         #endregion
 

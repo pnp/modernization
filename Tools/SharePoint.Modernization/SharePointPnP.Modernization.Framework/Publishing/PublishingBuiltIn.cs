@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Parser.Html;
+using Microsoft.Data.OData.Metadata;
 using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
 using SharePointPnP.Modernization.Framework.Functions;
@@ -72,6 +73,162 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         public string StaticString(string staticString)
         {
             return staticString;
+        }
+
+        /// <summary>
+        /// Prefixes a string
+        /// </summary>
+        /// <param name="prefix">Prefix to be applied</param>
+        /// <param name="content">Value to apply the prefix to</param>
+        /// <param name="applyIfContentIsEmpty">Apply prefix also when the content field is empty</param>
+        /// <returns>Prefixed string</returns>
+        [FunctionDocumentation(Description = "Prefixes the input text with another text. The applyIfContentIsEmpty parameter controls if the prefix also needs to happen when the actual content is empty",
+                               Example = "Prefix('&lt;H1&gt;Prefix some extra text&lt;/H1&gt;', {PublishingPageContent}, 'false')")]
+        [InputDocumentation(Name = "'prefix string'", Description = "Static input string which will be used as prefix")]
+        [InputDocumentation(Name = "{PublishingPageContent}", Description = "The actual publishing page HTML field content to prefix")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the prefixing still needs to happen when the {PublishingPageContent} field content is emty")]
+        [OutputDocumentation(Name = "return value", Description = "Value of {PublishingPageContent} prefixed with the provided prefix value")]
+        public string Prefix(string prefix, string content, string applyIfContentIsEmpty)
+        {
+            if (!string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(content))
+            {
+                return prefix + content;
+            }
+            else if (string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+            else if (!string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(content))
+            {
+                if (!bool.TryParse(applyIfContentIsEmpty, out bool applyIfEmpty))
+                {
+                    applyIfEmpty = true;
+                }
+
+                if (applyIfEmpty)
+                {
+                    return prefix;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Suffixes a string
+        /// </summary>
+        /// <param name="suffix">Suffix to be applied</param>
+        /// <param name="content">Value to apply the suffix to</param>
+        /// <param name="applyIfContentIsEmpty">Apply suffix also when the content field is empty</param>
+        /// <returns>Prefixed string</returns>
+        [FunctionDocumentation(Description = "Suffixes the input text with another text. The applyIfContentIsEmpty parameter controls if the suffix also needs to happen when the actual content is empty",
+                               Example = "Suffix('&lt;H1&gt;Suffix some extra text&lt;/H1&gt;', {PublishingPageContent}, 'false')")]
+        [InputDocumentation(Name = "'suffix string'", Description = "Static input string which will be used as suffix")]
+        [InputDocumentation(Name = "{PublishingPageContent}", Description = "The actual publishing page HTML field content to suffix")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the suffixing still needs to happen when the {PublishingPageContent} field content is emty")]
+        [OutputDocumentation(Name = "return value", Description = "Value of {PublishingPageContent} suffixed with the provided suffix value")]
+        public string Suffix(string suffix, string content, string applyIfContentIsEmpty)
+        {
+            if (!string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return content + suffix;
+            }
+            else if (string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+            else if (!string.IsNullOrEmpty(suffix) && string.IsNullOrEmpty(content))
+            {
+                if (!bool.TryParse(applyIfContentIsEmpty, out bool applyIfEmpty))
+                {
+                    applyIfEmpty = true;
+                }
+
+                if (applyIfEmpty)
+                {
+                    return suffix;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Prefixes and suffixes a string
+        /// </summary>
+        /// <param name="prefix">Prefix to be applied</param>
+        /// <param name="suffix">Suffix to be applied</param>
+        /// <param name="content">Value to apply the prefix/suffix to</param>
+        /// <param name="applyIfContentIsEmpty">Apply prefix/suffix also when the content field is empty</param>
+        /// <returns>Prefixed string</returns>
+        [FunctionDocumentation(Description = "Prefixes and suffixes the input text with another text. The applyIfContentIsEmpty parameter controls if the prefix/suffix also needs to happen when the actual content is empty",
+                               Example = "PrefixAndSuffix('&lt;H1&gt;Prefix some extra text&lt;/H1&gt;','&lt;H1&gt;Suffix some extra text&lt;/H1&gt;',{PublishingPageContent},'false')")]
+        [InputDocumentation(Name = "'prefix string'", Description = "Static input string which will be used as prefix")]
+        [InputDocumentation(Name = "'suffix string'", Description = "Static input string which will be used as suffix")]
+        [InputDocumentation(Name = "{PublishingPageContent}", Description = "The actual publishing page HTML field content to prefix/suffix")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the prefixing/suffixing still needs to happen when the {PublishingPageContent} field content is emty")]
+        [OutputDocumentation(Name = "return value", Description = "Value of {PublishingPageContent} prefixed/suffixed with the provided values")]
+        public string PrefixAndSuffix(string prefix, string suffix, string content, string applyIfContentIsEmpty)
+        {
+            if (!string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return prefix + content + suffix;
+            }
+            if (!string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return prefix + content;
+            }
+            if (string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix) && !string.IsNullOrEmpty(content))
+            {
+                return content + suffix;
+            }
+            else if (string.IsNullOrEmpty(suffix) && string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+            else if (string.IsNullOrEmpty(content))
+            {
+                if (!bool.TryParse(applyIfContentIsEmpty, out bool applyIfEmpty))
+                {
+                    applyIfEmpty = true;
+                }
+
+                if (applyIfEmpty)
+                {
+                    if (!string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix))
+                    {
+                        return prefix + suffix;
+                    }
+                    else if (string.IsNullOrEmpty(prefix) && !string.IsNullOrEmpty(suffix))
+                    {
+                        return suffix;
+                    }
+                    else
+                    {
+                        return prefix;
+                    }
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
         }
         #endregion
 
@@ -331,5 +488,68 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             return "";
         }
         #endregion
+
+        #region Taxonomy functions
+        /// <summary>
+        /// Populate a taxonomy field based upon provided term id's. You can configure to optionally overwrite existing values
+        /// </summary>
+        /// <param name="fieldValue">List of term id's to set, multiple values can also be used when the taxonomy field is configured to accept multiple terms</param>
+        /// <param name="termIdString">Static bool ('true', 'false') to indicate if the default term values have to be set in case the fiels already contains terms</param>
+        /// <param name="overwriteString">String with term information needed to set the taxonomy field</param>
+        /// <returns></returns>
+        [FunctionDocumentation(Description = "Populate a taxonomy field based upon provided term id's. You can configure to optionally overwrite existing values",
+                               Example = "DefaultTaxonomyFieldValue({TaxField2},'a65537e8-aa27-4b3a-bad6-f0f61f84b9f7|69524923-a5a0-44d1-b5ec-7f7c6d0ec160','true')")]
+        [InputDocumentation(Name = "{Taxonomy Field}", Description = "The taxonomy field to update")]
+        [InputDocumentation(Name = "'term ids split by |'", Description = "List of term id's to set, multiple values can also be used when the taxonomy field is configured to accept multiple terms")]
+        [InputDocumentation(Name = "'static boolean value'", Description = "Static bool ('true', 'false') to indicate if the default term values have to be set in case the fiels already contains terms")]
+        [OutputDocumentation(Name = "return value", Description = "String with term information needed to set the taxonomy field")]
+        public string DefaultTaxonomyFieldValue(string fieldValue, string termIdString, string overwriteString)
+        {
+            List<string> termIds = new List<string>();
+            if (termIdString.Contains("|"))
+            {
+                string[] termIdParts = termIdString.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                termIds.AddRange(termIdParts);
+            }
+            else
+            {
+                termIds.Add(termIdString);
+            }
+
+            if (!bool.TryParse(overwriteString, out bool overwrite))
+            {
+                overwrite = false;
+            }
+
+            if (!string.IsNullOrEmpty(fieldValue) && !overwrite)
+            {
+                return null;
+            }
+
+            string resultingTermInfo = "";
+            foreach (var term in termIds)
+            {
+                if (Guid.TryParse(term, out Guid termId))
+                {
+                    var termInfo = Cache.CacheManager.Instance.GetTermFromId(this.targetClientContext, termId);
+
+                    if (termInfo != null)
+                    {
+                        if (string.IsNullOrEmpty(resultingTermInfo))
+                        {
+                            resultingTermInfo = $"{termInfo}|{termId}";
+                        }
+                        else
+                        {
+                            resultingTermInfo += $"§{termInfo}|{termId}";
+                        }
+                    }                    
+                }
+            }
+
+            return resultingTermInfo;
+        }
+        #endregion
+
     }
 }
