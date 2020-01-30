@@ -612,14 +612,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     {
                         LogInfo($"{LogStrings.TransformSourcePageIsWikiPage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
 
-                        pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze();
+                        pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation, base.RegisteredLogObservers).Analyze();
 
                         // Wiki pages can contain embedded images and videos, which is not supported by the target RTE...split wiki text blocks so the transformator can handle the images and videos as separate web parts
                         LogInfo(LogStrings.WikiTextContainsImagesVideosReferences, LogStrings.Heading_ArticlePageHandling);
                     }
                     else if (IsBlogPage(pageType))
                     {
-                        pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation).Analyze(isBlogPage: true);
+                        pageData = new WikiPage(pageTransformationInformation.SourcePage, pageTransformation, base.RegisteredLogObservers).Analyze(isBlogPage: true);
                     }
                     else if (IsWebPartPage(pageType))
                     {
@@ -627,11 +627,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         if (spVersion == SPVersion.SP2010 || spVersion == SPVersion.SP2013Legacy || spVersion == SPVersion.SP2016Legacy)
                         {
-                            pageData = new WebPartPageOnPremises(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation).Analyze(true);
+                            pageData = new WebPartPageOnPremises(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation, base.RegisteredLogObservers).Analyze(true);
                         }
                         else
                         {
-                            pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation).Analyze(true);
+                            pageData = new WebPartPage(pageTransformationInformation.SourcePage, pageTransformationInformation.SourceFile, pageTransformation, base.RegisteredLogObservers).Analyze(true);
                         }
                     }
 

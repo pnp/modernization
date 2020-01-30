@@ -22,7 +22,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// </summary>
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public WikiPage(ListItem page, PageTransformation pageTransformation): base(page, null, pageTransformation)
+        public WikiPage(ListItem page, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null) 
+            : base(page, null, pageTransformation, logObservers)
         {
         }
         #endregion
