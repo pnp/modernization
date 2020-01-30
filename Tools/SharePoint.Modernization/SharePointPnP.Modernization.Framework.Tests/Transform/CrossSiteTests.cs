@@ -9,6 +9,7 @@ using SharePointPnP.Modernization.Framework.Entities;
 using System.Linq;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Delve;
+using SharePointPnP.Modernization.Framework.Telemetry.Observers;
 
 namespace SharePointPnP.Modernization.Framework.Tests.Transform
 {
@@ -143,12 +144,17 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
+                //https://capadevtest.sharepoint.com/portals/personal/transform
+                //https://bertonline.sharepoint.com/portals/personal/bertjansen
                 using (var sourceClientContext = TestCommon.CreateClientContext("https://bertonline.sharepoint.com/portals/personal/bertjansen"))
                 {
                     var pageTransformator = new DelvePageTransformator(sourceClientContext, targetClientContext);
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetBlogsFromList("Pages", "Delve");
+                    var pages = sourceClientContext.Web.GetBlogsFromList("Pages");
+
+                    pages.FailTestIfZero();
 
                     foreach (var page in pages)
                     {
@@ -197,6 +203,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform
 
                         var result = pageTransformator.Transform(pti);
                     }
+
+                    pageTransformator.FlushObservers();
                 }
             }
 
