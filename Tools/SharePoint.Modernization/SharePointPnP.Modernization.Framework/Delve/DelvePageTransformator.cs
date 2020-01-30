@@ -244,8 +244,7 @@ namespace SharePointPnP.Modernization.Framework.Delve
                 var spVersion = pageTransformationInformation.SourceVersion;
                 var exactSpVersion = pageTransformationInformation.SourceVersionNumber;
                 LogInfo($"{spVersion.DisplaySharePointVersion()} ({exactSpVersion})", LogStrings.Heading_Summary, LogEntrySignificance.SharePointVersion);
-                LogInfo(LogStrings.TransformationModePublishing, LogStrings.Heading_Summary, LogEntrySignificance.TransformMode);
-
+                
                 //Load User Mapping File
                 InitializeUserMapping(pageTransformationInformation);
                 #endregion
@@ -384,7 +383,7 @@ namespace SharePointPnP.Modernization.Framework.Delve
                 LogInfo($"{LogStrings.TransformSourcePageIsDelvePage} - {LogStrings.TransformSourcePageAnalysing}", LogStrings.Heading_ArticlePageHandling);
 
                 // Analyze the source page
-                Tuple<PageLayout, List<WebPartEntity>> pageData = new DelvePage(pageTransformationInformation.SourcePage, pageTransformation).AnalyzeAndTransform(pageTransformationInformation, targetPage);
+                Tuple<PageLayout, List<WebPartEntity>> pageData = new DelvePage(pageTransformationInformation.SourcePage, pageTransformation, base.RegisteredLogObservers).AnalyzeAndTransform(pageTransformationInformation, targetPage);
                 #endregion
 
                 #region Layout transformation
