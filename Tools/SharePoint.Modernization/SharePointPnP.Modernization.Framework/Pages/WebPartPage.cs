@@ -22,7 +22,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageFile">File holding the page (for pages living outside of a library)</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public WebPartPage(ListItem page, File pageFile, PageTransformation pageTransformation) : base(page, pageFile, pageTransformation)
+        public WebPartPage(ListItem page, File pageFile, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null) : base(page, pageFile, pageTransformation, logObservers)
         {
         }
         #endregion

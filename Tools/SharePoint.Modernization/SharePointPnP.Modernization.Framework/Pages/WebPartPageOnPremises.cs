@@ -22,7 +22,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <param name="page">ListItem holding the page to analyze</param>
         /// <param name="pageFile">File holding the page (for pages living outside of a library)</param>
         /// <param name="pageTransformation">Page transformation information</param>
-        public WebPartPageOnPremises(ListItem page, File pageFile, PageTransformation pageTransformation) : base(page, pageFile, pageTransformation)
+        public WebPartPageOnPremises(ListItem page, File pageFile, PageTransformation pageTransformation, IList<ILogObserver> logObservers = null) : base(page, pageFile, pageTransformation, logObservers)
         {
         }
         #endregion
@@ -63,6 +63,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             if (version == Transform.SPVersion.SP2010)
             {
                 // No zoneid and properties properties in 2010 csom
+                LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
                 webParts = cc.LoadQuery(limitedWPManager.WebParts.IncludeWithDefaultProperties(wp => wp.Id, wp => wp.WebPart.Title, wp => wp.WebPart.ZoneIndex, wp => wp.WebPart.IsClosed, wp => wp.WebPart.Hidden));
             }
             else
@@ -71,7 +72,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
             cc.ExecuteQueryRetry();
 
-            LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
             List<WebServiceWebPartProperties> webServiceWebPartEntities = null;
             if (version == Transform.SPVersion.SP2010)
             {

@@ -1021,7 +1021,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             try
             {
-                LogInfo(LogStrings.RetreivingExportWebPartXmlWorkaround, LogStrings.Heading_ContentTransform);
+                LogInfo($"{LogStrings.RetreivingExportWebPartXmlWorkaround} WebPartId: {webPartGuid}", LogStrings.Heading_ContentTransform);
                 string webPartXml = String.Empty;
                 string serverRelativeUrl = cc.Web.EnsureProperty(w => w.ServerRelativeUrl);
                 var uri = new Uri(cc.Site.Url);

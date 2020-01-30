@@ -16,8 +16,8 @@
 
         #region Report Text
 
-        public const string Report_ModernisationReport = "Modernisation Report";
-        public const string Report_ModernisationSummaryReport = "Modernisation Summary Report";
+        public const string Report_ModernisationReport = "Modernization Report";
+        public const string Report_ModernisationSummaryReport = "Modernization Summary Report";
         public const string Report_ModernisationPageDetails = "Individual Page details";
         public const string Report_TransformationDetails = "Transformation Details";
         public const string Report_ReportDate = "Report date";
@@ -72,7 +72,7 @@
         public const string Error_BasicASPXPageCannotTransform = "Page is an basic aspx page...can't currently transform that one, sorry!";
         public const string Error_PublishingPagesNotYetSupported = "Page transformation for publishing pages can only be done using the PublishingPageTransformator class";
         public const string Error_DelveBlogPagesNotSupported = "Page transformation for Delve blog pages can only be done using the DelvePageTransformator class";
-        public const string Error_PageIsNotAPublishingPage = "Page is not a publishing page, please use the wiki and webpart page API's";
+        public const string Error_PageIsNotAPublishingPage = "Page is not a publishing page, please use the wiki and web part page API's";
         public const string Error_CannotUsePageAcceptBannerCrossSite = "Page transformation towards a different site collection cannot use the page accept banner.";
         public const string Error_OverridingTagePageTakesSourcePageName = "Overriding 'TargetPageTakesSourcePageName' to ensure that the newly created page in the other site collection gets the same name as the source page";
         public const string Error_FallBackToSameSiteTransfer = "Oops, seems source and target point to the same site collection...switch back the 'source only' mode";
@@ -85,11 +85,11 @@
 
         public const string Error_SettingVersionStampError = "Setting version stamp on page error";
         public const string Error_GetPrincipalFailedEnsureUser = "Failed to ensure user exists";
-        public const string Error_WebPartMappingSchemaValidation = "Provided custom webpart mapping file is invalid: {0}";
+        public const string Error_WebPartMappingSchemaValidation = "Provided custom web part mapping file is invalid: {0}";
         public const string Error_ExtractWebPartPropertiesViaWebServicesFromPage = "Extract Web Part Properties via Web Services from Page failed";
         public const string Error_ExtractWebPartPageViaWebServicesFromPage = "Extract Web Part page via Web Services from Page failed";
         public const string Error_CallingWebServicesToExtractWebPartsFromPage = "Calling Web Services to Extract Web Parts from Page";
-        public const string Error_ExportWebPartXmlWorkaround = "Export WebPart Xml from Web Call failed";
+        public const string Error_ExportWebPartXmlWorkaround = "Export Web Part Xml from Web Call failed";
         public const string Error_AnalyserCouldNotFindLayouts = "GetAllPageLayouts - Could not search for page layouts";
         public const string Error_AnalyserErrorOccurredExtractMetadata = "An issue occurred with extracting metadata from page layout";
         public const string Error_AnalyserErrorOccurredExtractNamespaces = "An error occurred extracting web part prefixes from namespaces";
@@ -189,11 +189,12 @@
 
         public const string SourceSharePointVersion = "Source SharePoint version: ";
         public const string TransformMode = "Mode: ";
-        public const string TransformUsesWebServicesFallback = "Transform using Web Services fallback";
+        public const string TransformUsesWebServicesFallback = "Transform using Web Services";
+        public const string TransformFallback = "Fallback:";
         public const string TransformationModePublishing = "Publishing Page Transformation Mode";
         public const string TransformationMode = "{0} Transformation";
         public const string AnalysingNoWebPartsFound = "No web parts were found on page";
-        public const string ContentTransformFoundSourceWebParts = "Source page contains webpart `{0}` of type `{1}`";
+        public const string ContentTransformFoundSourceWebParts = "Source page contains web part `{0}` of type `{1}`";
         public const string WebPartXmlNotExported = "Xml definition for web part {0} was not exportable. Error {1}.";
 
         #endregion
