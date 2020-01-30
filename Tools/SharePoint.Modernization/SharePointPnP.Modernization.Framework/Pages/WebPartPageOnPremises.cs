@@ -71,7 +71,6 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
             cc.ExecuteQueryRetry();
 
-            LogInfo(LogStrings.TransformUsesWebServicesFallback, LogStrings.Heading_Summary, LogEntrySignificance.WebServiceFallback);
             List<WebServiceWebPartProperties> webServiceWebPartEntities = null;
             if (version == Transform.SPVersion.SP2010)
             {

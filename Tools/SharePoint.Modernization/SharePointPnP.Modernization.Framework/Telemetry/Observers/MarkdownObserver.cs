@@ -248,7 +248,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                                 signifcance = LogStrings.TransformMode;
                                 break;
                             case LogEntrySignificance.WebServiceFallback:
-                                signifcance = LogStrings.TransformUsesWebServicesFallback;
+                                signifcance = LogStrings.TransformFallback;
                                 break;
                         }
 
