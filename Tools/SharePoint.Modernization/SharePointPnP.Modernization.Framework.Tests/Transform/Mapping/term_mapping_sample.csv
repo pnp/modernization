@@ -1,3 +1,13 @@
-﻿PnPTransform|OnPremises|ClassicPage,PnPTransform|Online|ModernPage
-PnPTransform|OnPremises|PublishingPage,PnPTransform|Online|ModernPage
-PnPTransform|OnPremises|SitePages,PnPTransform|Online|ModernPage
+﻿Sauce|PnPTransform|On-Premises|Classic Page,PnPTransform|Online|Modern Page
+Sauce|PnPTransform|On-Premises|Publishing Page,PnPTransform|Online|Modern Page
+Sauce|PnPTransform|On-Premises|Site Page,PnPTransform|Online|Modern Page
+Sauce|PnPTransform|On-Premises|Site Page,PnPTransform|From|SharePoint 2013
+
+Sauce|PnPTransform|On-Premises|SitePages,PnPTransform|From|NodeDoesNotExist
+Sauce|PnPTransform|On-Premises|NodeDoesNotExist,PnPTransform|From|SharePoint 2013
+
+2d42d4fa-1dde-45a0-81cc-0bc19acae8db,6558ed84-4a37-46e8-99df-5de2be42f06c
+69475f27-e66a-49d7-8935-f955a187dae5,9be9c990-2a3e-4f68-8ec0-c1e3326586cc
+f6020784-3191-4ae9-993c-e5fd4e2de499,335b95c3-52db-4bda-89be-55e7555fe97b
+
+
