@@ -56,6 +56,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private static readonly string keyUserMappings = "userMappings";
         private static readonly string keyMappedUsers = "mappedUsers";
         private static readonly string keyTermCache = "termCache";
+        private static readonly string keyTermMappings = "termMappings";
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -790,6 +791,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
             Store.Remove(StoreOptions.GetKey(keyUrlMapping));
             Store.Remove(StoreOptions.GetKey(keyUserMappings));
             Store.Remove(StoreOptions.GetKey(keyEnsuredUsers));
+            Store.Remove(StoreOptions.GetKey(keyTermMappings));
 
             ClearFieldsToCopy();
             ClearSharePointVersions();
@@ -1278,6 +1280,27 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return userMappings;
         }
         #endregion
+
+        /// <summary>
+        /// Returns a cached list of mapped items
+        /// </summary>
+        /// <param name="mappingFile"></param>
+        /// <param name="logObservers"></param>
+        /// <returns></returns>
+        public List<TermMapping> GetTermMapping(string mappingFile, IList<ILogObserver> logObservers = null)
+        {
+            var termMapping = Store.GetAndInitialize<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings));
+            if (termMapping != null && termMapping.Count > 0)
+            {
+                return termMapping;
+            }
+
+            FileManager fileManager = new FileManager(logObservers);
+            termMapping = fileManager.LoadTermMappingFile(mappingFile);
+            Store.Set<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings), termMapping, StoreOptions.EntryOptions);
+
+            return termMapping;
+        }
 
         #region Helper methods
 

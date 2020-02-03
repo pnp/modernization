@@ -1,4 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
+using SharePointPnP.Modernization.Framework.Cache;
+using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
     {
         private ClientContext _sourceContext;
         private ClientContext _targetContext;
+        private List<TermMapping> termMapping;
+        private bool skipDefaultTermStoreMapping;
+        private string TermNodeDelimiter = "|";
 
         #region Construction        
 
@@ -48,10 +53,70 @@ namespace SharePointPnP.Modernization.Framework.Transform
             this._sourceContext = sourceContext;
             this._targetContext = targetContext;
 
+            // Load the Term mapping file
+            if (!string.IsNullOrEmpty(baseTransformationInformation?.TermMappingFile))
+            {
+                this.termMapping = CacheManager.Instance.GetTermMapping(baseTransformationInformation.TermMappingFile, logObservers);
+            }
+
+            this.skipDefaultTermStoreMapping = baseTransformationInformation.SkipTermStoreMapping;
         }
 
         #endregion
 
+        /// <summary>
+        /// Main entry method for transforming terms
+        /// </summary>
+        public string Transform(string inputSourceTerm)
+        {
+            //Design:
+            // This will have two modes:
+            // Default mode to work out the terms from source to destination based on identical IDs or Term Paths
+            // Mapping file to override default mode for specifically mapping a source term to designation term
 
+            //Scenarios:
+            // Term Ids or Term Names
+            // Source or Target Term ID/Name may not be found
+
+
+
+            if (this.skipDefaultTermStoreMapping)
+            {
+                // Mapping mode only
+                if (termMapping != null)
+                {
+
+                }
+            }
+            else
+            {
+                // Default Mode 
+                // Mapping Mode 
+                if (termMapping != null)
+                {
+
+                }
+            }
+
+
+
+            return inputSourceTerm; //Pass-Through
+        }
+
+        
+
+        public void ValidateSourceTerm() {
+            throw new NotImplementedException();
+        }
+
+        public void ValidateTargetTerm()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsValidGuid()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

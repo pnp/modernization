@@ -108,7 +108,7 @@ namespace SharePointPnP.Modernization.Framework.Utilities
 
                             if (!string.IsNullOrEmpty(sourceTerm) && !string.IsNullOrEmpty(targetTerm))
                             {
-                                termMappings.Add(new TermMapping() { SourceRaw = sourceTerm, TargetRaw = targetTerm });
+                                termMappings.Add(new TermMapping() { SourceTerm = sourceTerm, TargetTerm = targetTerm });
                                 LogDebug(string.Format(LogStrings.Term_MappingLoaded, sourceTerm, targetTerm), LogStrings.Heading_TermMapping);
                             }
                         }
