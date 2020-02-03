@@ -77,6 +77,53 @@ namespace SharePointPnP.Modernization.Framework.Utilities
             return urlMappings;
         }
 
+
+        /// <summary>
+        /// Loads a URL mapping file
+        /// </summary>
+        /// <param name="mappingFile">Path to the mapping file</param>
+        /// <returns>A collection of URLMapping objects</returns>
+        public List<TermMapping> LoadTermMappingFile(string mappingFile)
+        {
+            List<TermMapping> termMappings = new List<TermMapping>();
+
+            LogInfo(string.Format(LogStrings.Term_LoadingMappingFile, mappingFile), LogStrings.Heading_TermMapping);
+
+            if (System.IO.File.Exists(mappingFile))
+            {
+                var lines = System.IO.File.ReadLines(mappingFile);
+
+                if (lines.Count() > 0)
+                {
+                    string delimiter = this.DetectDelimiter(lines);
+
+                    foreach (var line in lines)
+                    {
+                        var split = line.Split(new string[] { delimiter }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (split.Length == 2)
+                        {
+                            string sourceTerm = split[0];
+                            string targetTerm = split[1];
+
+                            if (!string.IsNullOrEmpty(sourceTerm) && !string.IsNullOrEmpty(targetTerm))
+                            {
+                                termMappings.Add(new TermMapping() { SourceRaw = sourceTerm, TargetRaw = targetTerm });
+                                LogDebug(string.Format(LogStrings.Term_MappingLoaded, sourceTerm, targetTerm), LogStrings.Heading_TermMapping);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                LogError(string.Format("Term mapping file {0} not found", mappingFile), LogStrings.Heading_UrlRewriter);
+                throw new Exception(string.Format("Term mapping file {0} not found", mappingFile));
+            }
+
+            return termMappings;
+        }
+
         /// <summary>
         /// Load User Mapping File
         /// </summary>

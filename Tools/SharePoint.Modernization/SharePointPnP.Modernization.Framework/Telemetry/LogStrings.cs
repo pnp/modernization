@@ -345,6 +345,12 @@
         public const string UrlRewritten = "ULR rewritten from: {0} to: {1}";
         #endregion
 
+        #region Term Mapping
+        public const string Heading_TermMapping = "Term Mapping";
+        public const string Term_LoadingMappingFile = "Loading term mapping file {0}";
+        public const string Term_MappingLoaded = "Mapping Term from {0} to {1} loaded";
+        #endregion
+
         #region User Mapping
 
         public const string Heading_UserMapping = "User Mapping";
