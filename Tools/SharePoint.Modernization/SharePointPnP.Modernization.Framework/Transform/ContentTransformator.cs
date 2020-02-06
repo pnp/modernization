@@ -25,6 +25,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private ClientContext sourceClientContext;
         private Dictionary<string, string> globalTokens;
         private bool isCrossSiteTransfer;
+        private BaseTransformationInformation transformationInformation;
 
         class CombinedMapping
         {
@@ -55,6 +56,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             this.pageTransformation = pageTransformation ?? throw new ArgumentException("pageTransformation cannot be null");
             this.globalTokens = CreateGlobalTokenList(page.Context, transformationInformation.MappingProperties);
             this.functionProcessor = new FunctionProcessor(sourceClientContext, this.page, this.pageTransformation, transformationInformation, base.RegisteredLogObservers);
+            this.transformationInformation = transformationInformation;
 
             this.sourceClientContext = sourceClientContext;
             this.isCrossSiteTransfer = IsCrossSiteTransfer();
@@ -89,18 +91,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Load existing available controls
             var componentsToAdd = CacheManager.Instance.GetClientSideComponents(page);
 
-            // Normalize row numbers as there can be gaps if the analyzed page contained wiki tables
-            int newRowOrder = 0;
-            int lastExistingRowOrder = -1;
-            foreach (var webPart in webParts.OrderBy(p => p.Row))
+            if (this.transformationInformation.SourcePage != null && this.transformationInformation.SourcePage.PageType().Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
             {
-                if (lastExistingRowOrder < webPart.Row)
+                // Normalize row numbers as there can be gaps if the analyzed page contained wiki tables
+                int newRowOrder = 0;
+                int lastExistingRowOrder = -1;
+                foreach (var webPart in webParts.OrderBy(p => p.Row))
                 {
-                    newRowOrder++;
-                    lastExistingRowOrder = webPart.Row;
-                }
+                    if (lastExistingRowOrder < webPart.Row)
+                    {
+                        newRowOrder++;
+                        lastExistingRowOrder = webPart.Row;
+                    }
 
-                webPart.Row = newRowOrder;
+                    webPart.Row = newRowOrder;
+                }
             }
 
             // Iterate over the web parts, important to order them by row, column and zoneindex

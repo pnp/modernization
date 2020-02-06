@@ -28,6 +28,7 @@
 - Fix: Don't use static log collection as this does not work when using multiple log observers #415 [schnito]
 - Fix: SP2010 web parts in web part zones were not correctly detected and transformation failed #419 [pkbullock]
 - Fix: Some classess where not hooked up to the logging system #420 / #422 [pkbullock]
+- Fix: Row normalization should not be done for web part pages as that can break predefined web part page layout to modern layout mapping #426
 
 ## [January release - version 1.0.2001.0]
 
