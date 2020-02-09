@@ -130,6 +130,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
                                                 if (taxFieldBeforeCast != null)
                                                 {
+
+                                                    //TODO: Add Term Transformator here
+
                                                     object fieldValueToSet = null;
 
                                                     if (!string.IsNullOrEmpty(fieldToProcess.Functions))
@@ -183,6 +186,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                                                     if (this.publishingPageTransformationInformation.SourcePage.FieldExists(fieldToProcess.Name))
                                                     {
+                                                        //TODO: Add Term Transformator here
+
                                                         var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
 
                                                         if (fieldValueToSet is TaxonomyFieldValueCollection)
@@ -269,6 +274,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                                                     if (this.publishingPageTransformationInformation.SourcePage.FieldExists(fieldToProcess.Name))
                                                     {
+
+                                                        //TODO: Add Term Transformator here
+
                                                         var taxField = this.targetClientContext.CastTo<TaxonomyField>(taxFieldBeforeCast);
                                                         TaxonomyFieldValue taxValue = new TaxonomyFieldValue();
 

@@ -514,6 +514,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         targetPage.Context.ExecuteQueryRetry();
                         listItemWasReloaded = true;
                     }
+
+                    //TODO: Add Term Transformator here
+
                     switch (fieldToCopy.FieldType)
                     {
                         case "TaxonomyFieldTypeMulti":
@@ -625,7 +628,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     targetPage.Context.ExecuteQueryRetry();
                     isDirty = false;
                 }
-
+                                
+                // This is all other metadata except for taxonomy fields
                 foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType != "TaxonomyFieldTypeMulti" && p.FieldType != "TaxonomyFieldType"))
                 {
                     var targetField = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
