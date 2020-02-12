@@ -159,6 +159,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                             {
                                                 try
                                                 {
+                                                    //Gather terms from the term store
+                                                    termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, targetTaxField.TermSetId);
+                                                    
                                                     object fieldValueToSet = null;
 
                                                     switch (targetFieldData.FieldType)
@@ -214,8 +217,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                     fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
                                                                 }
 
-
-
                                                                 if (fieldValueToSet is TaxonomyFieldValueCollection)
                                                                 {
                                                                     var valueCollectionToCopy = (fieldValueToSet as TaxonomyFieldValueCollection);
@@ -232,16 +233,19 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                 {
                                                                     var taxDictionaryList = (fieldValueToSet as Dictionary<string, object>);
 
-                                                                    //Term Transformator
-                                                                    taxDictionaryList = termTransformator.TransformCollection(taxDictionaryList);
-
                                                                     var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
 
                                                                     List<string> taxonomyFieldValueArray = new List<string>();
                                                                     for (int i = 0; i < valueCollectionToCopy.Length; i++)
                                                                     {
                                                                         var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
-                                                                        taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
+                                                                        var label = taxDictionary["Label"].ToString();
+                                                                        var termGuid = taxDictionary["TermGuid"].ToString();
+
+                                                                        //Term Transformator
+                                                                        var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
+
+                                                                        taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid}");
                                                                     }
 
                                                                     if (valueCollectionToCopy.Length > 0)
@@ -309,11 +313,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                                                                     //Term Transformator
                                                                     var termTranform = termTransformator.Transform(new TermData() { TermGuid = termGuidToSet, TermLabel = labelToSet });
-                                                                    labelToSet = termTranform.TermLabel;
-                                                                    termGuidToSet = termTranform.TermGuid;
 
-                                                                    taxValue.Label = labelToSet;
-                                                                    taxValue.TermGuid = termGuidToSet;
+                                                                    taxValue.Label = termTranform.TermLabel;
+                                                                    taxValue.TermGuid = termTranform.TermGuid;
                                                                     taxValue.WssId = -1;
                                                                     targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
                                                                     isDirty = true;
@@ -322,12 +324,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                 else if ((fieldValueToSet is Dictionary<string, object>))
                                                                 {
                                                                     var taxDictionary = (fieldValueToSet as Dictionary<string, object>);
+                                                                    
+                                                                    var label = taxDictionary["Label"].ToString();
+                                                                    var termGuid = taxDictionary["TermGuid"].ToString();
 
                                                                     //Term Transformator
-                                                                    taxDictionary = termTransformator.TransformCollection(taxDictionary);
+                                                                    var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
 
-                                                                    taxValue.Label = taxDictionary["Label"].ToString();
-                                                                    taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
+                                                                    taxValue.Label = transformTerm.TermLabel;
+                                                                    taxValue.TermGuid = transformTerm.TermGuid;
                                                                     taxValue.WssId = -1;
                                                                     targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
                                                                     isDirty = true;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace SharePointPnP.Modernization.Framework.Entities
 {
+    [Serializable]
     public class TermData
     {
         /// <summary>
@@ -17,5 +18,10 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// Term Label
         /// </summary>
         public string TermLabel { get; set; }
+
+        /// <summary>
+        /// Term Path
+        /// </summary>
+        public string TermPath { get; set; }
     }
 }

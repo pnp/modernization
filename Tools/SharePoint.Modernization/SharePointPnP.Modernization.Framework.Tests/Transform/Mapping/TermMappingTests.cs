@@ -221,5 +221,80 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                 }
             }
         }
+
+        [TestMethod]
+        public void CacheTermStoreSiteCollectionTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                {
+                    TermTransformator termTransformator = new TermTransformator(null, sourceClientContext, targetClientContext);
+
+                    // Target - Katchup - dc2cca62-cf9a-4a61-b672-4aa7d0b6a179
+                    // Source - Categories - e757dcf5-f443-42e9-98c6-5842861099cb (site collection term set)
+                    termTransformator.CacheTermsFromTermStore(
+                        new Guid("e757dcf5-f443-42e9-98c6-5842861099cb"),
+                        new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
+
+                    // Need to have the term store populated values
+                    var result = Cache.CacheManager.Instance.GetTransformTermCacheTermById(sourceClientContext, "ac625b0a-0459-4d23-bc96-0970abd1029d");
+                    var expectedLabel = "Announcements";
+
+                    Assert.AreEqual(expectedLabel, result.TermLabel);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CacheTermStoreTenantStoreTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                {
+                    TermTransformator termTransformator = new TermTransformator(null, sourceClientContext, targetClientContext);
+
+                    // Target - Katchup - dc2cca62-cf9a-4a61-b672-4aa7d0b6a179
+                    // Source - Categories - e757dcf5-f443-42e9-98c6-5842861099cb (site collection term set)
+                    termTransformator.CacheTermsFromTermStore(
+                        new Guid("e757dcf5-f443-42e9-98c6-5842861099cb"),
+                        new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
+
+                    // Need to have the term store populated values
+                    var result = Cache.CacheManager.Instance.GetTransformTermCacheTermById(sourceClientContext, "c9cbb11b-77ed-4890-ae24-ee103002c46b");
+                    var expectedLabel = "PnPTransform";
+
+                    Assert.AreEqual(expectedLabel, result.TermLabel);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetTermSetPathsTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                {
+                    TermTransformator termTransformator = new TermTransformator(null, sourceClientContext, targetClientContext);
+
+                    // Target - Katchup - dc2cca62-cf9a-4a61-b672-4aa7d0b6a179
+                    // Source - Categories - e757dcf5-f443-42e9-98c6-5842861099cb (site collection term set)
+                    termTransformator.CacheTermsFromTermStore(
+                        new Guid("e757dcf5-f443-42e9-98c6-5842861099cb"),
+                        new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
+
+                    var results = TermTransformator.GetAllTermsFromTermSet(new Guid("e757dcf5-f443-42e9-98c6-5842861099cb"), sourceClientContext);
+                    foreach(var result in results)
+                    {
+                        Console.WriteLine($"ID: {result.Key} {result.Value.TermPath}");
+                    }
+
+                    Assert.IsTrue(results.Count > 0); //Super simple
+                }
+            }
+        }
+
     }
 }
