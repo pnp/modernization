@@ -293,6 +293,7 @@
     <Compile Include="Delve\DelvePageTransformator.cs" />
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Entities\ResolvedUser.cs" />
+    <Compile Include="Entities\TermData.cs" />
     <Compile Include="Entities\TermMapping.cs" />
     <Compile Include="Entities\TransformationLogAnalysis.cs" />
     <Compile Include="Entities\UrlMapping.cs" />

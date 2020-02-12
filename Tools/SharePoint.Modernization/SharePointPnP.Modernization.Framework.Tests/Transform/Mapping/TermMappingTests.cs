@@ -55,11 +55,13 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
 
                     TermTransformator termTransformator = new TermTransformator(pti, sourceClientContext, targetClientContext, null);
 
-                    var input = "pass-through-test";
-                    var result = termTransformator.Transform(input);
-                    Console.WriteLine(result);
+                    var inputLabel = "pass-through-test";
+                    var inputGuid = Guid.NewGuid().ToString();
+                    var result = termTransformator.Transform(new Entities.TermData() { TermGuid = inputGuid, TermLabel = inputLabel });
+                    Console.WriteLine(inputLabel + " and " + inputGuid);
 
-                    Assert.AreEqual(input, result);
+                    Assert.AreEqual(inputLabel, result.TermLabel);
+                    Assert.AreEqual(inputGuid, result.TermGuid);
                 }
             }
         }

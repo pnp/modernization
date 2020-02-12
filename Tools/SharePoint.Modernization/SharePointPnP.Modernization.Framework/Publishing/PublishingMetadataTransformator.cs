@@ -3,6 +3,7 @@ using Microsoft.SharePoint.Client.Taxonomy;
 using OfficeDevPnP.Core.Pages;
 using OfficeDevPnP.Core.Utilities;
 using SharePointPnP.Modernization.Framework.Cache;
+using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using SharePointPnP.Modernization.Framework.Transform;
 using System;
@@ -24,11 +25,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
         private PublishingPageTransformation publishingPageTransformation;
         private PublishingFunctionProcessor functionProcessor;
         private UserTransformator userTransformator;
-        
+        private TermTransformator termTransformator;
+
         #region Construction
-        public PublishingMetadataTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext, 
+        public PublishingMetadataTransformator(PublishingPageTransformationInformation publishingPageTransformationInformation, ClientContext sourceClientContext,
             ClientContext targetClientContext, ClientSidePage page, PageLayout publishingPageLayoutModel, PublishingPageTransformation publishingPageTransformation,
-            UserTransformator userTransformator,IList<ILogObserver> logObservers = null)
+            UserTransformator userTransformator, IList<ILogObserver> logObservers = null)
         {
             // Register observers
             if (logObservers != null)
@@ -47,6 +49,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             this.publishingPageTransformation = publishingPageTransformation;
             this.functionProcessor = new PublishingFunctionProcessor(publishingPageTransformationInformation.SourcePage, sourceClientContext, targetClientContext, this.publishingPageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers);
             this.userTransformator = userTransformator;
+            this.termTransformator = new TermTransformator(publishingPageTransformationInformation, sourceClientContext, targetClientContext, base.RegisteredLogObservers);
         }
         #endregion
 
@@ -137,7 +140,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         sourceLibraryLoaded = true;
                                     }
 
-                                    
+
                                     var targetTaxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
                                     if (targetTaxFieldBeforeCast != null)
                                     {
@@ -147,8 +150,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         {
                                             var targetTaxField = this.targetClientContext.CastTo<TaxonomyField>(targetTaxFieldBeforeCast);
                                             var srcTaxField = this.sourceClientContext.CastTo<TaxonomyField>(srcTaxFieldBeforeCast);
-                                            //Block if the source field is a single valued tax field and target is multi-valued
-                                            if (targetTaxField.AllowMultipleValues != srcTaxField.AllowMultipleValues)
+                                            //Block if the source field is a multi-valued tax field and target is single-valued
+                                            if (targetTaxField.AllowMultipleValues != srcTaxField.AllowMultipleValues && srcTaxField.AllowMultipleValues)
                                             {
                                                 LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToProcess.TargetFieldName} Source or target multi-value setting mis-match", LogStrings.Heading_CopyingPageMetadata);
                                             }
@@ -161,9 +164,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 {
                                                     case "TaxonomyFieldTypeMulti":
                                                         {
-                                                            //TODO: Add Term Transformator here
-                                                                                                                       
-
                                                             if (!string.IsNullOrEmpty(fieldToProcess.Functions))
                                                             {
                                                                 // execute function
@@ -212,12 +212,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                             {
                                                                 fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
                                                             }
-                                                                                                                        
-                                                            //TODO: Add Term Transformator here
+
+
 
                                                             if (fieldValueToSet is TaxonomyFieldValueCollection)
                                                             {
                                                                 var valueCollectionToCopy = (fieldValueToSet as TaxonomyFieldValueCollection);
+                                                                //Term Transformator
+                                                                valueCollectionToCopy = termTransformator.TransformCollection(valueCollectionToCopy);
+
                                                                 var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
                                                                 var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), targetTaxField);
                                                                 targetTaxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
@@ -227,6 +230,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                             else if (fieldValueToSet is Dictionary<string, object>)
                                                             {
                                                                 var taxDictionaryList = (fieldValueToSet as Dictionary<string, object>);
+                                                                
+                                                                //Term Transformator
+                                                                taxDictionaryList = termTransformator.TransformCollection(taxDictionaryList);
+
                                                                 var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
 
                                                                 List<string> taxonomyFieldValueArray = new List<string>();
@@ -249,12 +256,16 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                     LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                                 }
                                                             }
+                                                            else if (fieldValueToSet is TaxonomyFieldValue)
+                                                            {
+                                                                //TODO: Single source value to multi-source value
+                                                            }
                                                             else
                                                             {
                                                                 // Publishing field was empty, so let's skip the metadata copy
                                                                 LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                             }
-                                                           
+
                                                         }
                                                         break;
 
@@ -287,35 +298,46 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                 fieldValueToSet = this.publishingPageTransformationInformation.SourcePage[fieldToProcess.Name];
                                                             }
 
-                                                                //TODO: Add Term Transformator here
-                                                                TaxonomyFieldValue taxValue = new TaxonomyFieldValue();
+                                                            TaxonomyFieldValue taxValue = new TaxonomyFieldValue();
 
-                                                                if (fieldValueToSet is TaxonomyFieldValue)
-                                                                {
+                                                            if (fieldValueToSet is TaxonomyFieldValue)
+                                                            {
+                                                                
+                                                                var labelToSet = (fieldValueToSet as TaxonomyFieldValue).Label;
+                                                                var termGuidToSet = (fieldValueToSet as TaxonomyFieldValue).TermGuid;
 
-                                                                    taxValue.Label = (fieldValueToSet as TaxonomyFieldValue).Label;
-                                                                    taxValue.TermGuid = (fieldValueToSet as TaxonomyFieldValue).TermGuid;
-                                                                    taxValue.WssId = -1;
-                                                                    targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
-                                                                    isDirty = true;
-                                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                                                }
-                                                                else if ((fieldValueToSet is Dictionary<string, object>))
-                                                                {
-                                                                    var taxDictionary = (fieldValueToSet as Dictionary<string, object>);
-                                                                    taxValue.Label = taxDictionary["Label"].ToString();
-                                                                    taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
-                                                                    taxValue.WssId = -1;
-                                                                    targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
-                                                                    isDirty = true;
-                                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                                                }
-                                                                else
-                                                                {
-                                                                    // Publishing field was empty, so let's skip the metadata copy
-                                                                    LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
-                                                                }
-                                                            
+                                                                //Term Transformator
+                                                                var termTranform = termTransformator.Transform(new TermData() { TermGuid = termGuidToSet, TermLabel = labelToSet });
+                                                                labelToSet = termTranform.TermLabel;
+                                                                termGuidToSet = termTranform.TermGuid;
+
+                                                                taxValue.Label = labelToSet;
+                                                                taxValue.TermGuid = termGuidToSet;
+                                                                taxValue.WssId = -1;
+                                                                targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                                isDirty = true;
+                                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                            }
+                                                            else if ((fieldValueToSet is Dictionary<string, object>))
+                                                            {
+                                                                var taxDictionary = (fieldValueToSet as Dictionary<string, object>);
+                                                                
+                                                                //Term Transformator
+                                                                taxDictionary = termTransformator.TransformCollection(taxDictionary);
+
+                                                                taxValue.Label = taxDictionary["Label"].ToString();
+                                                                taxValue.TermGuid = taxDictionary["TermGuid"].ToString();
+                                                                taxValue.WssId = -1;
+                                                                targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                                isDirty = true;
+                                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                            }
+                                                            else
+                                                            {
+                                                                // Publishing field was empty, so let's skip the metadata copy
+                                                                LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
+                                                            }
+
                                                             break;
                                                         }
                                                 }
@@ -328,7 +350,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         }
 
                                     }
-                                    
+                                    else
+                                    {
+                                        //TODO: Add Logging specified target field does not exist.
+                                    }
+
                                 }
                             }
                         }
@@ -482,7 +508,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                         this.page.PageListItem[targetFieldData.FieldName] = null;
                                                     }
 
-                                                }                                                
+                                                }
                                             }
                                             else
                                             {

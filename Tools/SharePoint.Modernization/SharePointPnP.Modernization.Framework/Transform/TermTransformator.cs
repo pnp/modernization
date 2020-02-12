@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Taxonomy;
 using SharePointPnP.Modernization.Framework.Cache;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
@@ -65,9 +66,28 @@ namespace SharePointPnP.Modernization.Framework.Transform
         #endregion
 
         /// <summary>
+        /// Transforms a collection of terms in a dictionary
+        /// </summary>
+        /// <returns></returns>
+        public TaxonomyFieldValueCollection TransformCollection(TaxonomyFieldValueCollection taxonomyFieldValueCollection)
+        {
+            throw new NotImplementedException();
+            
+        }
+
+        /// <summary>
+        /// Transforms a collection of terms in a dictionary
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, object> TransformCollection(Dictionary<string, object> fieldValueCollection)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Main entry method for transforming terms
         /// </summary>
-        public string Transform(string inputSourceTerm)
+        public TermData Transform(TermData inputSourceTerm)
         {
             //Design:
             // This will have two modes:
@@ -91,18 +111,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
             else
             {
                 // Default Mode 
+
+
                 // Mapping Mode 
                 if (termMapping != null)
                 {
 
                 }
             }
-
-
-
+                       
             return inputSourceTerm; //Pass-Through
         }
 
+        
         
 
         public void ValidateSourceTerm() {
