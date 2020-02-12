@@ -99,6 +99,8 @@
         public const string Error_ApplyPermissionFailedToApplyPermissions = "Error occurred applying permissions to item {0}";
         public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
 
+        public const string Error_TransformingTaxonomyField = "Error occurred transforming taxonomy field: {0}";
+
         #endregion
 
         #region Warning messages
@@ -108,6 +110,7 @@
         public const string Warning_PostingAPageAsNewsRequiresPagePublishing = "Posting a page as news requires the page to be published. Turning on the PublishCreatedPage flag.";
         public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled.";
         public const string Warning_FieldNotFoundInSourcePage = "You specified field {0} in your page layout mapping, but that field is not available in the source page.";
+        public const string Warning_FieldNotFoundInTargetPage = "You specified field {0} in your page layout mapping, but that field is not available in the target page.";
         public const string Warning_PageLayoutsCannotBeDetermined = "Page layout could not be determined by the publishing page.";
         public const string Warning_PageHeaderAuthorNotSet = "The page author header could not be set. Error = {0}.";
         public const string Warning_UserIsNotResolving = "User {0} can't be found, skipped assigning this user. Error: {1}";
@@ -163,6 +166,7 @@
         public const string TransformCopyingMetaDataField = "Copying field: ";
         public const string TransformCopyingMetaDataTaxFieldEmpty = "Copying taxonomy field {0} skipped because it's empty";
         public const string TransformCopyingMetaDataFieldSkipped = "Skipped copying field: ";
+        public const string TransformCopyingMetaDataFieldMismatch = "Source or target multi-value setting mis-match";
         public const string TransformCopyingUserMetaDataFieldSkipped = "Skipped copying user field due to a cross farm modernization. Skipped field: ";
         public const string TransformGetItemPermissions = "Item level permissions read";
         public const string TransformCopiedItemPermissions = "Item level permissions copied";
