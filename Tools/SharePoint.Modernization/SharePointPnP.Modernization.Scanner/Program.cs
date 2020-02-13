@@ -32,7 +32,7 @@ namespace SharePoint.Modernization.Scanner
                 var wizard = new Forms.Wizard(options);
                 wizard.ShowDialog();
 
-                if (string.IsNullOrEmpty(options.User) && string.IsNullOrEmpty(options.ClientID))
+                if (string.IsNullOrEmpty(options.User) && string.IsNullOrEmpty(options.ClientID) && string.IsNullOrEmpty(options.AccessToken))
                 {
                     // Trigger validation which will show usage information
                     options.ValidateOptions(args);

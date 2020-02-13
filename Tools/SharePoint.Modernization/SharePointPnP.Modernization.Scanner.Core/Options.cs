@@ -131,6 +131,8 @@ namespace SharePoint.Modernization.Scanner.Core
 
         public X509Certificate2 AzureCert { get; set; }
 
+        public string AccessToken { get; set; }
+
         /// <summary>
         /// Property holding the possible newer version
         /// </summary>
@@ -147,21 +149,25 @@ namespace SharePoint.Modernization.Scanner.Core
         /// <returns>true if app-only, false otherwise</returns>
         public AuthenticationType AuthenticationTypeProvided()
         {
-            if (!String.IsNullOrEmpty(ClientID) && !String.IsNullOrEmpty(ClientSecret))
+            if (!string.IsNullOrEmpty(ClientID) && !string.IsNullOrEmpty(ClientSecret))
             {
                 return AuthenticationType.AppOnly;
             }
-            else if (!String.IsNullOrEmpty(User) && !String.IsNullOrEmpty(Password))
+            else if (!string.IsNullOrEmpty(User) && !string.IsNullOrEmpty(Password))
             {
                 return AuthenticationType.Office365;
             }
-            else if (!String.IsNullOrEmpty(CertificatePfx) && !String.IsNullOrEmpty(CertificatePfxPassword) && !String.IsNullOrEmpty(ClientID) && !String.IsNullOrEmpty(AzureTenant))
+            else if (!string.IsNullOrEmpty(CertificatePfx) && !string.IsNullOrEmpty(CertificatePfxPassword) && !string.IsNullOrEmpty(ClientID) && !string.IsNullOrEmpty(AzureTenant))
             {
                 return AuthenticationType.AzureADAppOnly;
             }
-            else if (!String.IsNullOrEmpty(StoredCertificate) && !String.IsNullOrEmpty(ClientID) && !String.IsNullOrEmpty(AzureTenant))
+            else if (!string.IsNullOrEmpty(StoredCertificate) && !string.IsNullOrEmpty(ClientID) && !string.IsNullOrEmpty(AzureTenant))
             {
                 return AuthenticationType.AzureADAppOnly;
+            }
+            else if (!string.IsNullOrEmpty(AccessToken))
+            {
+                return AuthenticationType.AccessToken;
             }
             else
             {

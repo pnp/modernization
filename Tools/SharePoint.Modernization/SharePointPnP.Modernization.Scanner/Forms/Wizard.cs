@@ -1,15 +1,22 @@
-﻿using SharePoint.Modernization.Scanner.Core;
+﻿using AeroWizard;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using SharePoint.Modernization.Scanner.Core;
 using SharePoint.Modernization.Scanner.Core.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using ADAL = Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace SharePoint.Modernization.Scanner.Forms
 {
     public partial class Wizard : Form
     {
         private Options options;
+        private ADAL.AuthenticationContext authContext = null;
+        private const string AuthorityUri = "https://login.microsoftonline.com/common/oauth2/authorize";
+        private bool accessTokenObtained = false;
 
         public Wizard(Options options)
         {
@@ -45,14 +52,14 @@ namespace SharePoint.Modernization.Scanner.Forms
             }
             else if (cmbAuthOption.SelectedIndex == 2)
             {
-                // Azure ACS App-Only
+                // Username + pwd
                 options.User = txtCredentialsUser.Text;
                 options.Password = txtCredentialsPassword.Text;
             }
 
             // Mode
             if (cmbScanMode.SelectedIndex == 0)
-            {
+            { 
                 // Group
                 options.Mode = Mode.GroupifyOnly;
             }
@@ -194,24 +201,29 @@ namespace SharePoint.Modernization.Scanner.Forms
         {
             if ((sender as ComboBox).SelectedIndex == 0)
             {
-                AuthOptionUI(true, false, false);
+                AuthOptionUI(true, false, false, false);
             }
             else if ((sender as ComboBox).SelectedIndex == 1)
             {
-                AuthOptionUI(false, true, false);
+                AuthOptionUI(false, true, false, false);
             }
             else if ((sender as ComboBox).SelectedIndex == 2)
             {
-                AuthOptionUI(false, false, true);
+                AuthOptionUI(false, false, true, false);
+            }
+            else if ((sender as ComboBox).SelectedIndex == 3)
+            {
+                AuthOptionUI(false, false, false, true);
             }
         }
 
 
-        private void AuthOptionUI(bool azureAD, bool azureACS, bool credentials)
+        private void AuthOptionUI(bool azureAD, bool azureACS, bool credentials, bool twofactorAuth)
         {
             pnlAzureAD.Visible = azureAD;
             pnlAzureACS.Visible = azureACS;
             pnlCredentials.Visible = credentials;
+            pnl2FA.Visible = twofactorAuth;
 
             if (azureAD)
             {
@@ -224,6 +236,10 @@ namespace SharePoint.Modernization.Scanner.Forms
             else if (credentials)
             {
                 txtCredentialsUser.Focus();
+            }
+            else if (twofactorAuth)
+            {
+                txtSiteFor2FA.Focus();
             }
         }
 
@@ -554,11 +570,21 @@ namespace SharePoint.Modernization.Scanner.Forms
                 }
                 else if (cmbAuthOption.SelectedIndex == 2)
                 {
-                    // Azure ACS App-Only
+                    // Username + pwd
                     if (string.IsNullOrEmpty(txtCredentialsUser.Text) ||
                         string.IsNullOrEmpty(txtCredentialsPassword.Text))
                     {
                         MessageBox.Show("Please specify an user id and password");
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+                else if (cmbAuthOption.SelectedIndex == 3)
+                {
+                    // 2FA
+                    if (!this.accessTokenObtained)
+                    {
+                        MessageBox.Show("Please login before continuing");
                         e.Cancel = true;
                         return;
                     }
@@ -627,5 +653,49 @@ namespace SharePoint.Modernization.Scanner.Forms
         {
 
         }
+
+        private async void btnLogin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                await AdalLogin(true);
+                this.wizardPageContainer1.NextPage();
+            }
+            catch (Exception ex)
+            {
+                Cursor.Current = Cursors.Default;
+                MessageBox.Show(ex.ToDetailedString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);                
+            }
+        }
+
+        private async Task AdalLogin(bool forcePrompt)
+        {
+            var spUri = new Uri($"{txtSiteFor2FA.Text}");
+
+            string resourceUri = spUri.Scheme + "://" + spUri.Authority;
+            const string clientId = "9bc3ab49-b65d-410a-85ad-de819febfddc";
+            const string redirectUri = "https://oauth.spops.microsoft.com/";
+
+            ADAL.AuthenticationResult authenticationResult;
+
+            if (authContext == null || forcePrompt)
+            {
+                ADAL.TokenCache cache = new ADAL.TokenCache();
+                authContext = new ADAL.AuthenticationContext(AuthorityUri, cache);
+            }
+            try
+            {
+                if (forcePrompt) throw new ADAL.AdalSilentTokenAcquisitionException();
+                authenticationResult = await authContext.AcquireTokenSilentAsync(resourceUri, clientId);
+            }
+            catch (ADAL.AdalSilentTokenAcquisitionException)
+            {
+                authenticationResult = await authContext.AcquireTokenAsync(resourceUri, clientId, new Uri(redirectUri), new PlatformParameters(PromptBehavior.Always, null), ADAL.UserIdentifier.AnyUser, null, null);
+            }
+
+            options.AccessToken = authenticationResult.AccessToken;
+            accessTokenObtained = true;
+        }
+
     }
 }

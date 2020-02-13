@@ -41,44 +41,11 @@
             this.nextButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.wizardPageContainer1 = new AeroWizard.WizardPageContainer();
-            this.modePage = new AeroWizard.WizardPage();
-            this.tgModeHomePageOnly = new System.Windows.Forms.CheckBox();
-            this.tgModeBlogUsage = new System.Windows.Forms.CheckBox();
-            this.tgModeInfoPathUsage = new System.Windows.Forms.CheckBox();
-            this.tgModeClassicWorkflowUsage = new System.Windows.Forms.CheckBox();
-            this.tgModePublishingDetailed = new System.Windows.Forms.CheckBox();
-            this.tgModePublishing = new System.Windows.Forms.CheckBox();
-            this.tgModePages = new System.Windows.Forms.CheckBox();
-            this.tgModeList = new System.Windows.Forms.CheckBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.tgModeGroupConnect = new System.Windows.Forms.CheckBox();
-            this.cmbScanMode = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.optionsPage = new AeroWizard.WizardPage();
-            this.cmbDateFormat = new System.Windows.Forms.ComboBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.tgDisableTelemetry = new System.Windows.Forms.CheckBox();
-            this.cmbSeparator = new System.Windows.Forms.ComboBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.tgSkipExcelReports = new System.Windows.Forms.CheckBox();
-            this.tgExportDetailedWebPartData = new System.Windows.Forms.CheckBox();
-            this.tgListBlockedDueToOOB = new System.Windows.Forms.CheckBox();
-            this.tgSkipUser = new System.Windows.Forms.CheckBox();
-            this.tgOptionSkipUsage = new System.Windows.Forms.CheckBox();
-            this.nmThreads = new System.Windows.Forms.NumericUpDown();
-            this.label7 = new System.Windows.Forms.Label();
             this.authPage = new AeroWizard.WizardPage();
             this.llblModernizationGuidance = new System.Windows.Forms.LinkLabel();
             this.llblScannerInfo = new System.Windows.Forms.LinkLabel();
             this.llblAzureACSHelp = new System.Windows.Forms.LinkLabel();
             this.llblAzureADAuth = new System.Windows.Forms.LinkLabel();
-            this.pnlCredentials = new System.Windows.Forms.Panel();
-            this.label12 = new System.Windows.Forms.Label();
-            this.lblAuthCreds2FAWarning = new System.Windows.Forms.Label();
-            this.txtCredentialsPassword = new System.Windows.Forms.TextBox();
-            this.txtCredentialsUser = new System.Windows.Forms.TextBox();
-            this.lblCredsPassword = new System.Windows.Forms.Label();
-            this.lblCredsUserName = new System.Windows.Forms.Label();
             this.pnlAzureACS = new System.Windows.Forms.Panel();
             this.txtAzureADClientSecret = new System.Windows.Forms.TextBox();
             this.txtAzureACSClientId = new System.Windows.Forms.TextBox();
@@ -94,6 +61,19 @@
             this.lblAzureADDomainName = new System.Windows.Forms.Label();
             this.txtAuthAzureADDomainName = new System.Windows.Forms.TextBox();
             this.lblAzureADCertificateFile = new System.Windows.Forms.Label();
+            this.pnlCredentials = new System.Windows.Forms.Panel();
+            this.label12 = new System.Windows.Forms.Label();
+            this.lblAuthCreds2FAWarning = new System.Windows.Forms.Label();
+            this.txtCredentialsPassword = new System.Windows.Forms.TextBox();
+            this.txtCredentialsUser = new System.Windows.Forms.TextBox();
+            this.lblCredsPassword = new System.Windows.Forms.Label();
+            this.lblCredsUserName = new System.Windows.Forms.Label();
+            this.pnl2FA = new System.Windows.Forms.Panel();
+            this.btnLogin = new System.Windows.Forms.Button();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.txtSiteFor2FA = new System.Windows.Forms.TextBox();
+            this.label17 = new System.Windows.Forms.Label();
             this.cmbAuthOption = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.scopePage = new AeroWizard.WizardPage();
@@ -120,23 +100,50 @@
             this.txtSitesUrlToAdd = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.modePage = new AeroWizard.WizardPage();
+            this.tgModeHomePageOnly = new System.Windows.Forms.CheckBox();
+            this.tgModeBlogUsage = new System.Windows.Forms.CheckBox();
+            this.tgModeInfoPathUsage = new System.Windows.Forms.CheckBox();
+            this.tgModeClassicWorkflowUsage = new System.Windows.Forms.CheckBox();
+            this.tgModePublishingDetailed = new System.Windows.Forms.CheckBox();
+            this.tgModePublishing = new System.Windows.Forms.CheckBox();
+            this.tgModePages = new System.Windows.Forms.CheckBox();
+            this.tgModeList = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.tgModeGroupConnect = new System.Windows.Forms.CheckBox();
+            this.cmbScanMode = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.optionsPage = new AeroWizard.WizardPage();
+            this.cmbDateFormat = new System.Windows.Forms.ComboBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.tgDisableTelemetry = new System.Windows.Forms.CheckBox();
+            this.cmbSeparator = new System.Windows.Forms.ComboBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.tgSkipExcelReports = new System.Windows.Forms.CheckBox();
+            this.tgExportDetailedWebPartData = new System.Windows.Forms.CheckBox();
+            this.tgListBlockedDueToOOB = new System.Windows.Forms.CheckBox();
+            this.tgSkipUser = new System.Windows.Forms.CheckBox();
+            this.tgOptionSkipUsage = new System.Windows.Forms.CheckBox();
+            this.nmThreads = new System.Windows.Forms.NumericUpDown();
+            this.label7 = new System.Windows.Forms.Label();
             this.ttAuthentication = new System.Windows.Forms.ToolTip(this.components);
             this.headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.headerImage)).BeginInit();
             this.commandPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.wizardPageContainer1)).BeginInit();
             this.wizardPageContainer1.SuspendLayout();
-            this.modePage.SuspendLayout();
-            this.optionsPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).BeginInit();
             this.authPage.SuspendLayout();
-            this.pnlCredentials.SuspendLayout();
             this.pnlAzureACS.SuspendLayout();
             this.pnlAzureAD.SuspendLayout();
+            this.pnlCredentials.SuspendLayout();
+            this.pnl2FA.SuspendLayout();
             this.scopePage.SuspendLayout();
             this.pnlSiteFiles.SuspendLayout();
             this.pnlSiteTenant.SuspendLayout();
             this.pnlSiteWildcard.SuspendLayout();
+            this.modePage.SuspendLayout();
+            this.optionsPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).BeginInit();
             this.SuspendLayout();
             // 
             // headerPanel
@@ -217,7 +224,7 @@
             this.backButton.Name = "backButton";
             this.backButton.Size = new System.Drawing.Size(97, 23);
             this.backButton.TabIndex = 2;
-            this.backButton.Tag = AeroWizard.WizardCommandButtonState.Enabled;
+            this.backButton.Tag = AeroWizard.WizardCommandButtonState.Disabled;
             this.backButton.Text = "< Back";
             this.backButton.UseVisualStyleBackColor = true;
             // 
@@ -250,10 +257,10 @@
             this.wizardPageContainer1.BackButtonText = "< Back";
             this.wizardPageContainer1.CancelButton = this.cancelButton;
             this.wizardPageContainer1.CancelButtonText = "Cancel";
-            this.wizardPageContainer1.Controls.Add(this.modePage);
             this.wizardPageContainer1.Controls.Add(this.authPage);
-            this.wizardPageContainer1.Controls.Add(this.optionsPage);
             this.wizardPageContainer1.Controls.Add(this.scopePage);
+            this.wizardPageContainer1.Controls.Add(this.modePage);
+            this.wizardPageContainer1.Controls.Add(this.optionsPage);
             this.wizardPageContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardPageContainer1.FinishButtonText = "&Start scan";
             this.wizardPageContainer1.Location = new System.Drawing.Point(0, 59);
@@ -268,6 +275,609 @@
             this.wizardPageContainer1.TabIndex = 0;
             this.wizardPageContainer1.Finished += new System.EventHandler(this.wizardPageContainer1_Finished);
             this.wizardPageContainer1.SelectedPageChanged += new System.EventHandler(this.wizardPageContainer1_SelectedPageChanged);
+            // 
+            // authPage
+            // 
+            this.authPage.Controls.Add(this.llblModernizationGuidance);
+            this.authPage.Controls.Add(this.llblScannerInfo);
+            this.authPage.Controls.Add(this.llblAzureACSHelp);
+            this.authPage.Controls.Add(this.llblAzureADAuth);
+            this.authPage.Controls.Add(this.pnlAzureACS);
+            this.authPage.Controls.Add(this.pnlAzureAD);
+            this.authPage.Controls.Add(this.pnlCredentials);
+            this.authPage.Controls.Add(this.pnl2FA);
+            this.authPage.Controls.Add(this.cmbAuthOption);
+            this.authPage.Controls.Add(this.label1);
+            this.authPage.Name = "authPage";
+            this.authPage.NextPage = this.scopePage;
+            this.authPage.Size = new System.Drawing.Size(480, 264);
+            this.authPage.TabIndex = 4;
+            this.authPage.Text = "Configure authentication for the scan";
+            this.authPage.Commit += new System.EventHandler<AeroWizard.WizardPageConfirmEventArgs>(this.PageCommit);
+            this.authPage.Initialize += new System.EventHandler<AeroWizard.WizardPageInitEventArgs>(this.authPage_Initialize);
+            // 
+            // llblModernizationGuidance
+            // 
+            this.llblModernizationGuidance.AutoSize = true;
+            this.llblModernizationGuidance.Location = new System.Drawing.Point(255, 234);
+            this.llblModernizationGuidance.Name = "llblModernizationGuidance";
+            this.llblModernizationGuidance.Size = new System.Drawing.Size(175, 13);
+            this.llblModernizationGuidance.TabIndex = 15;
+            this.llblModernizationGuidance.TabStop = true;
+            this.llblModernizationGuidance.Text = "SharePoint Modernization guidance";
+            this.llblModernizationGuidance.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblModernizationGuidance_LinkClicked);
+            // 
+            // llblScannerInfo
+            // 
+            this.llblScannerInfo.AutoSize = true;
+            this.llblScannerInfo.Location = new System.Drawing.Point(19, 234);
+            this.llblScannerInfo.Name = "llblScannerInfo";
+            this.llblScannerInfo.Size = new System.Drawing.Size(209, 13);
+            this.llblScannerInfo.TabIndex = 14;
+            this.llblScannerInfo.TabStop = true;
+            this.llblScannerInfo.Text = "SharePoint Modernization Scanner readme";
+            this.llblScannerInfo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblScannerInfo_LinkClicked);
+            // 
+            // llblAzureACSHelp
+            // 
+            this.llblAzureACSHelp.AutoSize = true;
+            this.llblAzureACSHelp.LinkArea = new System.Windows.Forms.LinkArea(6, 4);
+            this.llblAzureACSHelp.Location = new System.Drawing.Point(18, 202);
+            this.llblAzureACSHelp.Name = "llblAzureACSHelp";
+            this.llblAzureACSHelp.Size = new System.Drawing.Size(409, 17);
+            this.llblAzureACSHelp.TabIndex = 13;
+            this.llblAzureACSHelp.TabStop = true;
+            this.llblAzureACSHelp.Text = "Click here for more information on setting up Azure ACS App Only authentication";
+            this.llblAzureACSHelp.UseCompatibleTextRendering = true;
+            this.llblAzureACSHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            // 
+            // llblAzureADAuth
+            // 
+            this.llblAzureADAuth.AutoSize = true;
+            this.llblAzureADAuth.LinkArea = new System.Windows.Forms.LinkArea(6, 4);
+            this.llblAzureADAuth.Location = new System.Drawing.Point(18, 185);
+            this.llblAzureADAuth.Name = "llblAzureADAuth";
+            this.llblAzureADAuth.Size = new System.Drawing.Size(401, 17);
+            this.llblAzureADAuth.TabIndex = 12;
+            this.llblAzureADAuth.TabStop = true;
+            this.llblAzureADAuth.Text = "Click here for more information on setting up Azure AD App Only authentication";
+            this.llblAzureADAuth.UseCompatibleTextRendering = true;
+            this.llblAzureADAuth.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblAzureADAuth_LinkClicked);
+            // 
+            // pnlAzureACS
+            // 
+            this.pnlAzureACS.Controls.Add(this.txtAzureADClientSecret);
+            this.pnlAzureACS.Controls.Add(this.txtAzureACSClientId);
+            this.pnlAzureACS.Controls.Add(this.lblAzureACSSecret);
+            this.pnlAzureACS.Controls.Add(this.lblAzureACSClientId);
+            this.pnlAzureACS.Location = new System.Drawing.Point(6, 42);
+            this.pnlAzureACS.Name = "pnlAzureACS";
+            this.pnlAzureACS.Size = new System.Drawing.Size(469, 75);
+            this.pnlAzureACS.TabIndex = 10;
+            // 
+            // txtAzureADClientSecret
+            // 
+            this.txtAzureADClientSecret.Location = new System.Drawing.Point(168, 40);
+            this.txtAzureADClientSecret.Name = "txtAzureADClientSecret";
+            this.txtAzureADClientSecret.Size = new System.Drawing.Size(292, 20);
+            this.txtAzureADClientSecret.TabIndex = 3;
+            this.ttAuthentication.SetToolTip(this.txtAzureADClientSecret, "Secret (long string) of the created app principal");
+            // 
+            // txtAzureACSClientId
+            // 
+            this.txtAzureACSClientId.Location = new System.Drawing.Point(168, 13);
+            this.txtAzureACSClientId.Name = "txtAzureACSClientId";
+            this.txtAzureACSClientId.Size = new System.Drawing.Size(292, 20);
+            this.txtAzureACSClientId.TabIndex = 2;
+            this.ttAuthentication.SetToolTip(this.txtAzureACSClientId, "Client ID (guid) of the created app principal");
+            // 
+            // lblAzureACSSecret
+            // 
+            this.lblAzureACSSecret.AutoSize = true;
+            this.lblAzureACSSecret.Location = new System.Drawing.Point(13, 43);
+            this.lblAzureACSSecret.Name = "lblAzureACSSecret";
+            this.lblAzureACSSecret.Size = new System.Drawing.Size(124, 13);
+            this.lblAzureACSSecret.TabIndex = 1;
+            this.lblAzureACSSecret.Text = "Azure ACS Client Secret:";
+            // 
+            // lblAzureACSClientId
+            // 
+            this.lblAzureACSClientId.AutoSize = true;
+            this.lblAzureACSClientId.Location = new System.Drawing.Point(13, 13);
+            this.lblAzureACSClientId.Name = "lblAzureACSClientId";
+            this.lblAzureACSClientId.Size = new System.Drawing.Size(104, 13);
+            this.lblAzureACSClientId.TabIndex = 0;
+            this.lblAzureACSClientId.Text = "Azure ACS Client ID:";
+            // 
+            // pnlAzureAD
+            // 
+            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADCertPassword);
+            this.pnlAzureAD.Controls.Add(this.label8);
+            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADId);
+            this.pnlAzureAD.Controls.Add(this.btnCertificate);
+            this.pnlAzureAD.Controls.Add(this.lblAzureADApplicationId);
+            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADCert);
+            this.pnlAzureAD.Controls.Add(this.lblAzureADDomainName);
+            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADDomainName);
+            this.pnlAzureAD.Controls.Add(this.lblAzureADCertificateFile);
+            this.pnlAzureAD.Location = new System.Drawing.Point(6, 42);
+            this.pnlAzureAD.Name = "pnlAzureAD";
+            this.pnlAzureAD.Size = new System.Drawing.Size(469, 123);
+            this.pnlAzureAD.TabIndex = 9;
+            // 
+            // txtAuthAzureADCertPassword
+            // 
+            this.txtAuthAzureADCertPassword.Location = new System.Drawing.Point(168, 98);
+            this.txtAuthAzureADCertPassword.Name = "txtAuthAzureADCertPassword";
+            this.txtAuthAzureADCertPassword.Size = new System.Drawing.Size(292, 20);
+            this.txtAuthAzureADCertPassword.TabIndex = 10;
+            this.ttAuthentication.SetToolTip(this.txtAuthAzureADCertPassword, "Password used to protect the PFX file");
+            this.txtAuthAzureADCertPassword.UseSystemPasswordChar = true;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(10, 101);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(128, 13);
+            this.label8.TabIndex = 9;
+            this.label8.Text = "Password for the PFX file:";
+            // 
+            // txtAuthAzureADId
+            // 
+            this.txtAuthAzureADId.Location = new System.Drawing.Point(168, 14);
+            this.txtAuthAzureADId.Name = "txtAuthAzureADId";
+            this.txtAuthAzureADId.Size = new System.Drawing.Size(292, 20);
+            this.txtAuthAzureADId.TabIndex = 5;
+            this.ttAuthentication.SetToolTip(this.txtAuthAzureADId, "Application ID (guid) for the Azure AD app used to get app-only access");
+            // 
+            // btnCertificate
+            // 
+            this.btnCertificate.Location = new System.Drawing.Point(435, 69);
+            this.btnCertificate.Name = "btnCertificate";
+            this.btnCertificate.Size = new System.Drawing.Size(25, 23);
+            this.btnCertificate.TabIndex = 8;
+            this.btnCertificate.Text = "...";
+            this.btnCertificate.UseVisualStyleBackColor = true;
+            this.btnCertificate.Click += new System.EventHandler(this.btnCertificate_Click);
+            // 
+            // lblAzureADApplicationId
+            // 
+            this.lblAzureADApplicationId.AutoSize = true;
+            this.lblAzureADApplicationId.Location = new System.Drawing.Point(10, 14);
+            this.lblAzureADApplicationId.Name = "lblAzureADApplicationId";
+            this.lblAzureADApplicationId.Size = new System.Drawing.Size(124, 13);
+            this.lblAzureADApplicationId.TabIndex = 2;
+            this.lblAzureADApplicationId.Text = "Azure AD Application ID:";
+            // 
+            // txtAuthAzureADCert
+            // 
+            this.txtAuthAzureADCert.Location = new System.Drawing.Point(168, 71);
+            this.txtAuthAzureADCert.Name = "txtAuthAzureADCert";
+            this.txtAuthAzureADCert.Size = new System.Drawing.Size(261, 20);
+            this.txtAuthAzureADCert.TabIndex = 7;
+            this.ttAuthentication.SetToolTip(this.txtAuthAzureADCert, "Full path the PFX file holding the certificate used to access the Azure AD app");
+            // 
+            // lblAzureADDomainName
+            // 
+            this.lblAzureADDomainName.AutoSize = true;
+            this.lblAzureADDomainName.Location = new System.Drawing.Point(10, 44);
+            this.lblAzureADDomainName.Name = "lblAzureADDomainName";
+            this.lblAzureADDomainName.Size = new System.Drawing.Size(123, 13);
+            this.lblAzureADDomainName.TabIndex = 3;
+            this.lblAzureADDomainName.Text = "Azure AD Domain name:";
+            // 
+            // txtAuthAzureADDomainName
+            // 
+            this.txtAuthAzureADDomainName.Location = new System.Drawing.Point(168, 44);
+            this.txtAuthAzureADDomainName.Name = "txtAuthAzureADDomainName";
+            this.txtAuthAzureADDomainName.Size = new System.Drawing.Size(292, 20);
+            this.txtAuthAzureADDomainName.TabIndex = 6;
+            this.ttAuthentication.SetToolTip(this.txtAuthAzureADDomainName, "Azure AD domain (e.g. contoso.onmicrosoft.com) where you\'ve created the Azure AD " +
+        "for SharePoint app only access");
+            // 
+            // lblAzureADCertificateFile
+            // 
+            this.lblAzureADCertificateFile.AutoSize = true;
+            this.lblAzureADCertificateFile.Location = new System.Drawing.Point(10, 71);
+            this.lblAzureADCertificateFile.Name = "lblAzureADCertificateFile";
+            this.lblAzureADCertificateFile.Size = new System.Drawing.Size(102, 13);
+            this.lblAzureADCertificateFile.TabIndex = 4;
+            this.lblAzureADCertificateFile.Text = "Certificate (PFX) file:";
+            // 
+            // pnlCredentials
+            // 
+            this.pnlCredentials.Controls.Add(this.label12);
+            this.pnlCredentials.Controls.Add(this.lblAuthCreds2FAWarning);
+            this.pnlCredentials.Controls.Add(this.txtCredentialsPassword);
+            this.pnlCredentials.Controls.Add(this.txtCredentialsUser);
+            this.pnlCredentials.Controls.Add(this.lblCredsPassword);
+            this.pnlCredentials.Controls.Add(this.lblCredsUserName);
+            this.pnlCredentials.Location = new System.Drawing.Point(6, 42);
+            this.pnlCredentials.Name = "pnlCredentials";
+            this.pnlCredentials.Size = new System.Drawing.Size(469, 100);
+            this.pnlCredentials.TabIndex = 11;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(10, 61);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(405, 13);
+            this.label12.TabIndex = 5;
+            this.label12.Text = "Note: - The provided account needs to have owner permissions to the scanned sites" +
+    "";
+            // 
+            // lblAuthCreds2FAWarning
+            // 
+            this.lblAuthCreds2FAWarning.AutoSize = true;
+            this.lblAuthCreds2FAWarning.Location = new System.Drawing.Point(40, 79);
+            this.lblAuthCreds2FAWarning.Name = "lblAuthCreds2FAWarning";
+            this.lblAuthCreds2FAWarning.Size = new System.Drawing.Size(389, 13);
+            this.lblAuthCreds2FAWarning.TabIndex = 4;
+            this.lblAuthCreds2FAWarning.Text = "- Credential fails when multi-factor authentication is required";
+            // 
+            // txtCredentialsPassword
+            // 
+            this.txtCredentialsPassword.Location = new System.Drawing.Point(168, 38);
+            this.txtCredentialsPassword.Name = "txtCredentialsPassword";
+            this.txtCredentialsPassword.Size = new System.Drawing.Size(292, 20);
+            this.txtCredentialsPassword.TabIndex = 3;
+            this.txtCredentialsPassword.UseSystemPasswordChar = true;
+            // 
+            // txtCredentialsUser
+            // 
+            this.txtCredentialsUser.Location = new System.Drawing.Point(168, 12);
+            this.txtCredentialsUser.Name = "txtCredentialsUser";
+            this.txtCredentialsUser.Size = new System.Drawing.Size(292, 20);
+            this.txtCredentialsUser.TabIndex = 2;
+            this.ttAuthentication.SetToolTip(this.txtCredentialsUser, "User id (e.g. joe@contoso.com or kate@contoso.onmicrosoft.com)");
+            // 
+            // lblCredsPassword
+            // 
+            this.lblCredsPassword.AutoSize = true;
+            this.lblCredsPassword.Location = new System.Drawing.Point(9, 38);
+            this.lblCredsPassword.Name = "lblCredsPassword";
+            this.lblCredsPassword.Size = new System.Drawing.Size(56, 13);
+            this.lblCredsPassword.TabIndex = 1;
+            this.lblCredsPassword.Text = "Password:";
+            // 
+            // lblCredsUserName
+            // 
+            this.lblCredsUserName.AutoSize = true;
+            this.lblCredsUserName.Location = new System.Drawing.Point(9, 12);
+            this.lblCredsUserName.Name = "lblCredsUserName";
+            this.lblCredsUserName.Size = new System.Drawing.Size(148, 13);
+            this.lblCredsUserName.TabIndex = 0;
+            this.lblCredsUserName.Text = "User (e.g. joe@contoso.com):";
+            // 
+            // pnl2FA
+            // 
+            this.pnl2FA.Controls.Add(this.btnLogin);
+            this.pnl2FA.Controls.Add(this.label14);
+            this.pnl2FA.Controls.Add(this.label15);
+            this.pnl2FA.Controls.Add(this.txtSiteFor2FA);
+            this.pnl2FA.Controls.Add(this.label17);
+            this.pnl2FA.Location = new System.Drawing.Point(6, 42);
+            this.pnl2FA.Name = "pnl2FA";
+            this.pnl2FA.Size = new System.Drawing.Size(469, 100);
+            this.pnl2FA.TabIndex = 12;
+            // 
+            // btnLogin
+            // 
+            this.btnLogin.Location = new System.Drawing.Point(395, 10);
+            this.btnLogin.Name = "btnLogin";
+            this.btnLogin.Size = new System.Drawing.Size(64, 23);
+            this.btnLogin.TabIndex = 6;
+            this.btnLogin.Text = "Login";
+            this.btnLogin.UseVisualStyleBackColor = true;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(10, 41);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(335, 13);
+            this.label14.TabIndex = 5;
+            this.label14.Text = "Note: - The scan can run for the lifetime of the received access token";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(40, 58);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(405, 13);
+            this.label15.TabIndex = 4;
+            this.label15.Text = "- Use this for scanning just a few sites, for more sites use one of the App-Only " +
+    "models";
+            // 
+            // txtSiteFor2FA
+            // 
+            this.txtSiteFor2FA.Location = new System.Drawing.Point(167, 12);
+            this.txtSiteFor2FA.Name = "txtSiteFor2FA";
+            this.txtSiteFor2FA.Size = new System.Drawing.Size(222, 20);
+            this.txtSiteFor2FA.TabIndex = 2;
+            this.ttAuthentication.SetToolTip(this.txtSiteFor2FA, "The multi factor login process requires a site that you can access today");
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(9, 12);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(141, 13);
+            this.label17.TabIndex = 0;
+            this.label17.Text = "Url of a site you can access:";
+            // 
+            // cmbAuthOption
+            // 
+            this.cmbAuthOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbAuthOption.FormattingEnabled = true;
+            this.cmbAuthOption.Items.AddRange(new object[] {
+            "Azure AD App Only (preferred)",
+            "Azure ACS App Only",
+            "Username and password",
+            "Username and password (Multi Factor Auth)"});
+            this.cmbAuthOption.Location = new System.Drawing.Point(176, 17);
+            this.cmbAuthOption.Name = "cmbAuthOption";
+            this.cmbAuthOption.Size = new System.Drawing.Size(292, 21);
+            this.cmbAuthOption.TabIndex = 1;
+            this.cmbAuthOption.SelectedIndexChanged += new System.EventHandler(this.cmbAuthOption_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(15, 20);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(154, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Selected authentication option:";
+            // 
+            // scopePage
+            // 
+            this.scopePage.Controls.Add(this.pnlSiteFiles);
+            this.scopePage.Controls.Add(this.cmbSiteSelectionOption);
+            this.scopePage.Controls.Add(this.lblSiteSelectionOption);
+            this.scopePage.Controls.Add(this.pnlSiteTenant);
+            this.scopePage.Controls.Add(this.pnlSiteWildcard);
+            this.scopePage.Name = "scopePage";
+            this.scopePage.NextPage = this.modePage;
+            this.scopePage.Size = new System.Drawing.Size(480, 264);
+            this.scopePage.TabIndex = 1;
+            this.scopePage.Tag = "";
+            this.scopePage.Text = "Configure the sites to scan";
+            this.scopePage.Commit += new System.EventHandler<AeroWizard.WizardPageConfirmEventArgs>(this.PageCommit);
+            this.scopePage.Initialize += new System.EventHandler<AeroWizard.WizardPageInitEventArgs>(this.scopePage_Initialize);
+            // 
+            // pnlSiteFiles
+            // 
+            this.pnlSiteFiles.Controls.Add(this.llblCSV);
+            this.pnlSiteFiles.Controls.Add(this.btnSelectCSVFile);
+            this.pnlSiteFiles.Controls.Add(this.txtSitesCSVFile);
+            this.pnlSiteFiles.Controls.Add(this.label2);
+            this.pnlSiteFiles.Location = new System.Drawing.Point(466, 46);
+            this.pnlSiteFiles.Name = "pnlSiteFiles";
+            this.pnlSiteFiles.Size = new System.Drawing.Size(463, 74);
+            this.pnlSiteFiles.TabIndex = 4;
+            // 
+            // llblCSV
+            // 
+            this.llblCSV.AutoSize = true;
+            this.llblCSV.Location = new System.Drawing.Point(157, 47);
+            this.llblCSV.Name = "llblCSV";
+            this.llblCSV.Size = new System.Drawing.Size(60, 13);
+            this.llblCSV.TabIndex = 3;
+            this.llblCSV.TabStop = true;
+            this.llblCSV.Text = "Learn more";
+            this.llblCSV.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblCSV_LinkClicked);
+            // 
+            // btnSelectCSVFile
+            // 
+            this.btnSelectCSVFile.Location = new System.Drawing.Point(427, 13);
+            this.btnSelectCSVFile.Name = "btnSelectCSVFile";
+            this.btnSelectCSVFile.Size = new System.Drawing.Size(24, 23);
+            this.btnSelectCSVFile.TabIndex = 2;
+            this.btnSelectCSVFile.Text = "...";
+            this.btnSelectCSVFile.UseVisualStyleBackColor = true;
+            this.btnSelectCSVFile.Click += new System.EventHandler(this.btnSelectCSVFile_Click);
+            // 
+            // txtSitesCSVFile
+            // 
+            this.txtSitesCSVFile.Location = new System.Drawing.Point(157, 15);
+            this.txtSitesCSVFile.Name = "txtSitesCSVFile";
+            this.txtSitesCSVFile.Size = new System.Drawing.Size(268, 20);
+            this.txtSitesCSVFile.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 18);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(107, 13);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Select CSV sites file: ";
+            // 
+            // cmbSiteSelectionOption
+            // 
+            this.cmbSiteSelectionOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSiteSelectionOption.FormattingEnabled = true;
+            this.cmbSiteSelectionOption.Items.AddRange(new object[] {
+            "Complete tenant (not possible with vanity urls)",
+            "Selected site collections",
+            "CSV file listing sites to scan"});
+            this.cmbSiteSelectionOption.Location = new System.Drawing.Point(171, 16);
+            this.cmbSiteSelectionOption.Name = "cmbSiteSelectionOption";
+            this.cmbSiteSelectionOption.Size = new System.Drawing.Size(299, 21);
+            this.cmbSiteSelectionOption.TabIndex = 1;
+            this.cmbSiteSelectionOption.SelectedIndexChanged += new System.EventHandler(this.cmbSiteSelectionOption_SelectedIndexChanged);
+            // 
+            // lblSiteSelectionOption
+            // 
+            this.lblSiteSelectionOption.AutoSize = true;
+            this.lblSiteSelectionOption.Location = new System.Drawing.Point(15, 16);
+            this.lblSiteSelectionOption.Name = "lblSiteSelectionOption";
+            this.lblSiteSelectionOption.Size = new System.Drawing.Size(105, 13);
+            this.lblSiteSelectionOption.TabIndex = 0;
+            this.lblSiteSelectionOption.Text = "Site selection option:";
+            // 
+            // pnlSiteTenant
+            // 
+            this.pnlSiteTenant.Controls.Add(this.textBox3);
+            this.pnlSiteTenant.Controls.Add(this.textBox2);
+            this.pnlSiteTenant.Controls.Add(this.lblSiteTenantName);
+            this.pnlSiteTenant.Controls.Add(this.txtSitesTenantName);
+            this.pnlSiteTenant.Location = new System.Drawing.Point(462, 199);
+            this.pnlSiteTenant.Name = "pnlSiteTenant";
+            this.pnlSiteTenant.Size = new System.Drawing.Size(458, 49);
+            this.pnlSiteTenant.TabIndex = 2;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Enabled = false;
+            this.textBox3.Location = new System.Drawing.Point(369, 14);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(82, 20);
+            this.textBox3.TabIndex = 3;
+            this.textBox3.Text = ".sharepoint.com";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Enabled = false;
+            this.textBox2.Location = new System.Drawing.Point(157, 14);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(44, 20);
+            this.textBox2.TabIndex = 2;
+            this.textBox2.Text = "https://";
+            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // lblSiteTenantName
+            // 
+            this.lblSiteTenantName.AutoSize = true;
+            this.lblSiteTenantName.Location = new System.Drawing.Point(6, 17);
+            this.lblSiteTenantName.Name = "lblSiteTenantName";
+            this.lblSiteTenantName.Size = new System.Drawing.Size(94, 13);
+            this.lblSiteTenantName.TabIndex = 1;
+            this.lblSiteTenantName.Text = "Your tenant name:";
+            // 
+            // txtSitesTenantName
+            // 
+            this.txtSitesTenantName.Location = new System.Drawing.Point(204, 14);
+            this.txtSitesTenantName.Name = "txtSitesTenantName";
+            this.txtSitesTenantName.Size = new System.Drawing.Size(161, 20);
+            this.txtSitesTenantName.TabIndex = 0;
+            this.ttAuthentication.SetToolTip(this.txtSitesTenantName, "Tenant name (e.g. contoso). Don\'t add the admin url (contoso-admin) here");
+            // 
+            // pnlSiteWildcard
+            // 
+            this.pnlSiteWildcard.Controls.Add(this.label10);
+            this.pnlSiteWildcard.Controls.Add(this.label9);
+            this.pnlSiteWildcard.Controls.Add(this.txtSitesAdminCenterUrl);
+            this.pnlSiteWildcard.Controls.Add(this.btnSitesClearUrls);
+            this.pnlSiteWildcard.Controls.Add(this.btnSitesRemoveUrl);
+            this.pnlSiteWildcard.Controls.Add(this.btnSitesAddUrl);
+            this.pnlSiteWildcard.Controls.Add(this.lstSitesUrlsToScan);
+            this.pnlSiteWildcard.Controls.Add(this.txtSitesUrlToAdd);
+            this.pnlSiteWildcard.Controls.Add(this.label4);
+            this.pnlSiteWildcard.Controls.Add(this.label3);
+            this.pnlSiteWildcard.Location = new System.Drawing.Point(7, 43);
+            this.pnlSiteWildcard.Name = "pnlSiteWildcard";
+            this.pnlSiteWildcard.Size = new System.Drawing.Size(452, 205);
+            this.pnlSiteWildcard.TabIndex = 3;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 156);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(373, 13);
+            this.label10.TabIndex = 9;
+            this.label10.Text = "Only when using vanity url\'s specify the full SharePoint Online admin center url";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(5, 176);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(75, 13);
+            this.label9.TabIndex = 8;
+            this.label9.Text = "Admin  center:";
+            this.label9.Click += new System.EventHandler(this.label9_Click);
+            // 
+            // txtSitesAdminCenterUrl
+            // 
+            this.txtSitesAdminCenterUrl.Location = new System.Drawing.Point(86, 173);
+            this.txtSitesAdminCenterUrl.Name = "txtSitesAdminCenterUrl";
+            this.txtSitesAdminCenterUrl.Size = new System.Drawing.Size(354, 20);
+            this.txtSitesAdminCenterUrl.TabIndex = 7;
+            this.ttAuthentication.SetToolTip(this.txtSitesAdminCenterUrl, "SPO Admin center url (e.g. https://spoadmin.contoso.com). Only needed when using " +
+        "SPO with vanity urls (= urls that not end on .sharepoint.com)");
+            this.txtSitesAdminCenterUrl.TextChanged += new System.EventHandler(this.txtSitesAdminCenterUrl_TextChanged);
+            // 
+            // btnSitesClearUrls
+            // 
+            this.btnSitesClearUrls.Location = new System.Drawing.Point(365, 100);
+            this.btnSitesClearUrls.Name = "btnSitesClearUrls";
+            this.btnSitesClearUrls.Size = new System.Drawing.Size(75, 23);
+            this.btnSitesClearUrls.TabIndex = 6;
+            this.btnSitesClearUrls.Text = "Clear";
+            this.btnSitesClearUrls.UseVisualStyleBackColor = true;
+            this.btnSitesClearUrls.Click += new System.EventHandler(this.btnSitesClearUrls_Click);
+            // 
+            // btnSitesRemoveUrl
+            // 
+            this.btnSitesRemoveUrl.Location = new System.Drawing.Point(365, 71);
+            this.btnSitesRemoveUrl.Name = "btnSitesRemoveUrl";
+            this.btnSitesRemoveUrl.Size = new System.Drawing.Size(75, 23);
+            this.btnSitesRemoveUrl.TabIndex = 5;
+            this.btnSitesRemoveUrl.Text = "Remove";
+            this.btnSitesRemoveUrl.UseVisualStyleBackColor = true;
+            this.btnSitesRemoveUrl.Click += new System.EventHandler(this.btnSitesRemoveUrl_Click);
+            // 
+            // btnSitesAddUrl
+            // 
+            this.btnSitesAddUrl.Location = new System.Drawing.Point(365, 29);
+            this.btnSitesAddUrl.Name = "btnSitesAddUrl";
+            this.btnSitesAddUrl.Size = new System.Drawing.Size(75, 23);
+            this.btnSitesAddUrl.TabIndex = 4;
+            this.btnSitesAddUrl.Text = "Add";
+            this.btnSitesAddUrl.UseVisualStyleBackColor = true;
+            this.btnSitesAddUrl.Click += new System.EventHandler(this.btnSitesAddUrl_Click);
+            // 
+            // lstSitesUrlsToScan
+            // 
+            this.lstSitesUrlsToScan.FormattingEnabled = true;
+            this.lstSitesUrlsToScan.Location = new System.Drawing.Point(86, 54);
+            this.lstSitesUrlsToScan.Name = "lstSitesUrlsToScan";
+            this.lstSitesUrlsToScan.Size = new System.Drawing.Size(265, 95);
+            this.lstSitesUrlsToScan.TabIndex = 3;
+            this.lstSitesUrlsToScan.SelectedIndexChanged += new System.EventHandler(this.lstSitesUrlsToScan_SelectedIndexChanged);
+            // 
+            // txtSitesUrlToAdd
+            // 
+            this.txtSitesUrlToAdd.Location = new System.Drawing.Point(86, 29);
+            this.txtSitesUrlToAdd.Name = "txtSitesUrlToAdd";
+            this.txtSitesUrlToAdd.Size = new System.Drawing.Size(265, 20);
+            this.txtSitesUrlToAdd.TabIndex = 2;
+            this.ttAuthentication.SetToolTip(this.txtSitesUrlToAdd, "Add one or more (wildcard) urls (e.g. https://contoso.sharepoint.com/sites/a*)");
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(8, 29);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(56, 13);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "Url to add:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(8, 11);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(353, 13);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Add one or more (wildcard) url\'s. Url\'s ending on a * are valid wild card urls";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // modePage
             // 
@@ -592,550 +1202,6 @@
             this.label7.TabIndex = 0;
             this.label7.Text = "Number of parallel threads to use:";
             // 
-            // authPage
-            // 
-            this.authPage.Controls.Add(this.llblModernizationGuidance);
-            this.authPage.Controls.Add(this.llblScannerInfo);
-            this.authPage.Controls.Add(this.llblAzureACSHelp);
-            this.authPage.Controls.Add(this.llblAzureADAuth);
-            this.authPage.Controls.Add(this.pnlCredentials);
-            this.authPage.Controls.Add(this.pnlAzureACS);
-            this.authPage.Controls.Add(this.pnlAzureAD);
-            this.authPage.Controls.Add(this.cmbAuthOption);
-            this.authPage.Controls.Add(this.label1);
-            this.authPage.Name = "authPage";
-            this.authPage.NextPage = this.scopePage;
-            this.authPage.Size = new System.Drawing.Size(480, 264);
-            this.authPage.TabIndex = 4;
-            this.authPage.Text = "Configure authentication for the scan";
-            this.authPage.Commit += new System.EventHandler<AeroWizard.WizardPageConfirmEventArgs>(this.PageCommit);
-            this.authPage.Initialize += new System.EventHandler<AeroWizard.WizardPageInitEventArgs>(this.authPage_Initialize);
-            // 
-            // llblModernizationGuidance
-            // 
-            this.llblModernizationGuidance.AutoSize = true;
-            this.llblModernizationGuidance.Location = new System.Drawing.Point(255, 234);
-            this.llblModernizationGuidance.Name = "llblModernizationGuidance";
-            this.llblModernizationGuidance.Size = new System.Drawing.Size(175, 13);
-            this.llblModernizationGuidance.TabIndex = 15;
-            this.llblModernizationGuidance.TabStop = true;
-            this.llblModernizationGuidance.Text = "SharePoint Modernization guidance";
-            this.llblModernizationGuidance.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblModernizationGuidance_LinkClicked);
-            // 
-            // llblScannerInfo
-            // 
-            this.llblScannerInfo.AutoSize = true;
-            this.llblScannerInfo.Location = new System.Drawing.Point(19, 234);
-            this.llblScannerInfo.Name = "llblScannerInfo";
-            this.llblScannerInfo.Size = new System.Drawing.Size(209, 13);
-            this.llblScannerInfo.TabIndex = 14;
-            this.llblScannerInfo.TabStop = true;
-            this.llblScannerInfo.Text = "SharePoint Modernization Scanner readme";
-            this.llblScannerInfo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblScannerInfo_LinkClicked);
-            // 
-            // llblAzureACSHelp
-            // 
-            this.llblAzureACSHelp.AutoSize = true;
-            this.llblAzureACSHelp.LinkArea = new System.Windows.Forms.LinkArea(6, 4);
-            this.llblAzureACSHelp.Location = new System.Drawing.Point(18, 202);
-            this.llblAzureACSHelp.Name = "llblAzureACSHelp";
-            this.llblAzureACSHelp.Size = new System.Drawing.Size(409, 17);
-            this.llblAzureACSHelp.TabIndex = 13;
-            this.llblAzureACSHelp.TabStop = true;
-            this.llblAzureACSHelp.Text = "Click here for more information on setting up Azure ACS App Only authentication";
-            this.llblAzureACSHelp.UseCompatibleTextRendering = true;
-            this.llblAzureACSHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-            // 
-            // llblAzureADAuth
-            // 
-            this.llblAzureADAuth.AutoSize = true;
-            this.llblAzureADAuth.LinkArea = new System.Windows.Forms.LinkArea(6, 4);
-            this.llblAzureADAuth.Location = new System.Drawing.Point(18, 185);
-            this.llblAzureADAuth.Name = "llblAzureADAuth";
-            this.llblAzureADAuth.Size = new System.Drawing.Size(401, 17);
-            this.llblAzureADAuth.TabIndex = 12;
-            this.llblAzureADAuth.TabStop = true;
-            this.llblAzureADAuth.Text = "Click here for more information on setting up Azure AD App Only authentication";
-            this.llblAzureADAuth.UseCompatibleTextRendering = true;
-            this.llblAzureADAuth.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblAzureADAuth_LinkClicked);
-            // 
-            // pnlCredentials
-            // 
-            this.pnlCredentials.Controls.Add(this.label12);
-            this.pnlCredentials.Controls.Add(this.lblAuthCreds2FAWarning);
-            this.pnlCredentials.Controls.Add(this.txtCredentialsPassword);
-            this.pnlCredentials.Controls.Add(this.txtCredentialsUser);
-            this.pnlCredentials.Controls.Add(this.lblCredsPassword);
-            this.pnlCredentials.Controls.Add(this.lblCredsUserName);
-            this.pnlCredentials.Location = new System.Drawing.Point(6, 45);
-            this.pnlCredentials.Name = "pnlCredentials";
-            this.pnlCredentials.Size = new System.Drawing.Size(469, 100);
-            this.pnlCredentials.TabIndex = 11;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(10, 61);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(405, 13);
-            this.label12.TabIndex = 5;
-            this.label12.Text = "Note: - The provided account needs to have owner permissions to the scanned sites" +
-    "";
-            // 
-            // lblAuthCreds2FAWarning
-            // 
-            this.lblAuthCreds2FAWarning.AutoSize = true;
-            this.lblAuthCreds2FAWarning.Location = new System.Drawing.Point(40, 79);
-            this.lblAuthCreds2FAWarning.Name = "lblAuthCreds2FAWarning";
-            this.lblAuthCreds2FAWarning.Size = new System.Drawing.Size(413, 13);
-            this.lblAuthCreds2FAWarning.TabIndex = 4;
-            this.lblAuthCreds2FAWarning.Text = "- Credential fails with 2FA + you need to have LegacyAuthProtocolsEnabled set to " +
-    "true";
-            // 
-            // txtCredentialsPassword
-            // 
-            this.txtCredentialsPassword.Location = new System.Drawing.Point(168, 38);
-            this.txtCredentialsPassword.Name = "txtCredentialsPassword";
-            this.txtCredentialsPassword.Size = new System.Drawing.Size(292, 20);
-            this.txtCredentialsPassword.TabIndex = 3;
-            this.txtCredentialsPassword.UseSystemPasswordChar = true;
-            // 
-            // txtCredentialsUser
-            // 
-            this.txtCredentialsUser.Location = new System.Drawing.Point(168, 12);
-            this.txtCredentialsUser.Name = "txtCredentialsUser";
-            this.txtCredentialsUser.Size = new System.Drawing.Size(292, 20);
-            this.txtCredentialsUser.TabIndex = 2;
-            this.ttAuthentication.SetToolTip(this.txtCredentialsUser, "User id (e.g. joe@contoso.com or kate@contoso.onmicrosoft.com)");
-            // 
-            // lblCredsPassword
-            // 
-            this.lblCredsPassword.AutoSize = true;
-            this.lblCredsPassword.Location = new System.Drawing.Point(9, 38);
-            this.lblCredsPassword.Name = "lblCredsPassword";
-            this.lblCredsPassword.Size = new System.Drawing.Size(56, 13);
-            this.lblCredsPassword.TabIndex = 1;
-            this.lblCredsPassword.Text = "Password:";
-            // 
-            // lblCredsUserName
-            // 
-            this.lblCredsUserName.AutoSize = true;
-            this.lblCredsUserName.Location = new System.Drawing.Point(9, 12);
-            this.lblCredsUserName.Name = "lblCredsUserName";
-            this.lblCredsUserName.Size = new System.Drawing.Size(148, 13);
-            this.lblCredsUserName.TabIndex = 0;
-            this.lblCredsUserName.Text = "User (e.g. joe@contoso.com):";
-            // 
-            // pnlAzureACS
-            // 
-            this.pnlAzureACS.Controls.Add(this.txtAzureADClientSecret);
-            this.pnlAzureACS.Controls.Add(this.txtAzureACSClientId);
-            this.pnlAzureACS.Controls.Add(this.lblAzureACSSecret);
-            this.pnlAzureACS.Controls.Add(this.lblAzureACSClientId);
-            this.pnlAzureACS.Location = new System.Drawing.Point(6, 43);
-            this.pnlAzureACS.Name = "pnlAzureACS";
-            this.pnlAzureACS.Size = new System.Drawing.Size(469, 75);
-            this.pnlAzureACS.TabIndex = 10;
-            // 
-            // txtAzureADClientSecret
-            // 
-            this.txtAzureADClientSecret.Location = new System.Drawing.Point(168, 40);
-            this.txtAzureADClientSecret.Name = "txtAzureADClientSecret";
-            this.txtAzureADClientSecret.Size = new System.Drawing.Size(292, 20);
-            this.txtAzureADClientSecret.TabIndex = 3;
-            this.ttAuthentication.SetToolTip(this.txtAzureADClientSecret, "Secret (long string) of the created app principal");
-            // 
-            // txtAzureACSClientId
-            // 
-            this.txtAzureACSClientId.Location = new System.Drawing.Point(168, 13);
-            this.txtAzureACSClientId.Name = "txtAzureACSClientId";
-            this.txtAzureACSClientId.Size = new System.Drawing.Size(292, 20);
-            this.txtAzureACSClientId.TabIndex = 2;
-            this.ttAuthentication.SetToolTip(this.txtAzureACSClientId, "Client ID (guid) of the created app principal");
-            // 
-            // lblAzureACSSecret
-            // 
-            this.lblAzureACSSecret.AutoSize = true;
-            this.lblAzureACSSecret.Location = new System.Drawing.Point(13, 43);
-            this.lblAzureACSSecret.Name = "lblAzureACSSecret";
-            this.lblAzureACSSecret.Size = new System.Drawing.Size(124, 13);
-            this.lblAzureACSSecret.TabIndex = 1;
-            this.lblAzureACSSecret.Text = "Azure ACS Client Secret:";
-            // 
-            // lblAzureACSClientId
-            // 
-            this.lblAzureACSClientId.AutoSize = true;
-            this.lblAzureACSClientId.Location = new System.Drawing.Point(13, 13);
-            this.lblAzureACSClientId.Name = "lblAzureACSClientId";
-            this.lblAzureACSClientId.Size = new System.Drawing.Size(104, 13);
-            this.lblAzureACSClientId.TabIndex = 0;
-            this.lblAzureACSClientId.Text = "Azure ACS Client ID:";
-            // 
-            // pnlAzureAD
-            // 
-            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADCertPassword);
-            this.pnlAzureAD.Controls.Add(this.label8);
-            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADId);
-            this.pnlAzureAD.Controls.Add(this.btnCertificate);
-            this.pnlAzureAD.Controls.Add(this.lblAzureADApplicationId);
-            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADCert);
-            this.pnlAzureAD.Controls.Add(this.lblAzureADDomainName);
-            this.pnlAzureAD.Controls.Add(this.txtAuthAzureADDomainName);
-            this.pnlAzureAD.Controls.Add(this.lblAzureADCertificateFile);
-            this.pnlAzureAD.Location = new System.Drawing.Point(6, 47);
-            this.pnlAzureAD.Name = "pnlAzureAD";
-            this.pnlAzureAD.Size = new System.Drawing.Size(469, 123);
-            this.pnlAzureAD.TabIndex = 9;
-            // 
-            // txtAuthAzureADCertPassword
-            // 
-            this.txtAuthAzureADCertPassword.Location = new System.Drawing.Point(168, 98);
-            this.txtAuthAzureADCertPassword.Name = "txtAuthAzureADCertPassword";
-            this.txtAuthAzureADCertPassword.Size = new System.Drawing.Size(292, 20);
-            this.txtAuthAzureADCertPassword.TabIndex = 10;
-            this.ttAuthentication.SetToolTip(this.txtAuthAzureADCertPassword, "Password used to protect the PFX file");
-            this.txtAuthAzureADCertPassword.UseSystemPasswordChar = true;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(10, 101);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(128, 13);
-            this.label8.TabIndex = 9;
-            this.label8.Text = "Password for the PFX file:";
-            // 
-            // txtAuthAzureADId
-            // 
-            this.txtAuthAzureADId.Location = new System.Drawing.Point(168, 14);
-            this.txtAuthAzureADId.Name = "txtAuthAzureADId";
-            this.txtAuthAzureADId.Size = new System.Drawing.Size(292, 20);
-            this.txtAuthAzureADId.TabIndex = 5;
-            this.ttAuthentication.SetToolTip(this.txtAuthAzureADId, "Application ID (guid) for the Azure AD app used to get app-only access");
-            // 
-            // btnCertificate
-            // 
-            this.btnCertificate.Location = new System.Drawing.Point(435, 69);
-            this.btnCertificate.Name = "btnCertificate";
-            this.btnCertificate.Size = new System.Drawing.Size(25, 23);
-            this.btnCertificate.TabIndex = 8;
-            this.btnCertificate.Text = "...";
-            this.btnCertificate.UseVisualStyleBackColor = true;
-            this.btnCertificate.Click += new System.EventHandler(this.btnCertificate_Click);
-            // 
-            // lblAzureADApplicationId
-            // 
-            this.lblAzureADApplicationId.AutoSize = true;
-            this.lblAzureADApplicationId.Location = new System.Drawing.Point(10, 14);
-            this.lblAzureADApplicationId.Name = "lblAzureADApplicationId";
-            this.lblAzureADApplicationId.Size = new System.Drawing.Size(124, 13);
-            this.lblAzureADApplicationId.TabIndex = 2;
-            this.lblAzureADApplicationId.Text = "Azure AD Application ID:";
-            // 
-            // txtAuthAzureADCert
-            // 
-            this.txtAuthAzureADCert.Location = new System.Drawing.Point(168, 71);
-            this.txtAuthAzureADCert.Name = "txtAuthAzureADCert";
-            this.txtAuthAzureADCert.Size = new System.Drawing.Size(261, 20);
-            this.txtAuthAzureADCert.TabIndex = 7;
-            this.ttAuthentication.SetToolTip(this.txtAuthAzureADCert, "Full path the PFX file holding the certificate used to access the Azure AD app");
-            // 
-            // lblAzureADDomainName
-            // 
-            this.lblAzureADDomainName.AutoSize = true;
-            this.lblAzureADDomainName.Location = new System.Drawing.Point(10, 44);
-            this.lblAzureADDomainName.Name = "lblAzureADDomainName";
-            this.lblAzureADDomainName.Size = new System.Drawing.Size(123, 13);
-            this.lblAzureADDomainName.TabIndex = 3;
-            this.lblAzureADDomainName.Text = "Azure AD Domain name:";
-            // 
-            // txtAuthAzureADDomainName
-            // 
-            this.txtAuthAzureADDomainName.Location = new System.Drawing.Point(168, 44);
-            this.txtAuthAzureADDomainName.Name = "txtAuthAzureADDomainName";
-            this.txtAuthAzureADDomainName.Size = new System.Drawing.Size(292, 20);
-            this.txtAuthAzureADDomainName.TabIndex = 6;
-            this.ttAuthentication.SetToolTip(this.txtAuthAzureADDomainName, "Azure AD domain (e.g. contoso.onmicrosoft.com) where you\'ve created the Azure AD " +
-        "for SharePoint app only access");
-            // 
-            // lblAzureADCertificateFile
-            // 
-            this.lblAzureADCertificateFile.AutoSize = true;
-            this.lblAzureADCertificateFile.Location = new System.Drawing.Point(10, 71);
-            this.lblAzureADCertificateFile.Name = "lblAzureADCertificateFile";
-            this.lblAzureADCertificateFile.Size = new System.Drawing.Size(102, 13);
-            this.lblAzureADCertificateFile.TabIndex = 4;
-            this.lblAzureADCertificateFile.Text = "Certificate (PFX) file:";
-            // 
-            // cmbAuthOption
-            // 
-            this.cmbAuthOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbAuthOption.FormattingEnabled = true;
-            this.cmbAuthOption.Items.AddRange(new object[] {
-            "Azure AD App Only (preferred)",
-            "Azure ACS App Only",
-            "Username and password"});
-            this.cmbAuthOption.Location = new System.Drawing.Point(176, 17);
-            this.cmbAuthOption.Name = "cmbAuthOption";
-            this.cmbAuthOption.Size = new System.Drawing.Size(292, 21);
-            this.cmbAuthOption.TabIndex = 1;
-            this.cmbAuthOption.SelectedIndexChanged += new System.EventHandler(this.cmbAuthOption_SelectedIndexChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 20);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(154, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Selected authentication option:";
-            // 
-            // scopePage
-            // 
-            this.scopePage.Controls.Add(this.pnlSiteFiles);
-            this.scopePage.Controls.Add(this.cmbSiteSelectionOption);
-            this.scopePage.Controls.Add(this.lblSiteSelectionOption);
-            this.scopePage.Controls.Add(this.pnlSiteTenant);
-            this.scopePage.Controls.Add(this.pnlSiteWildcard);
-            this.scopePage.Name = "scopePage";
-            this.scopePage.NextPage = this.modePage;
-            this.scopePage.Size = new System.Drawing.Size(480, 265);
-            this.scopePage.TabIndex = 1;
-            this.scopePage.Tag = "";
-            this.scopePage.Text = "Configure the sites to scan";
-            this.scopePage.Commit += new System.EventHandler<AeroWizard.WizardPageConfirmEventArgs>(this.PageCommit);
-            this.scopePage.Initialize += new System.EventHandler<AeroWizard.WizardPageInitEventArgs>(this.scopePage_Initialize);
-            // 
-            // pnlSiteFiles
-            // 
-            this.pnlSiteFiles.Controls.Add(this.llblCSV);
-            this.pnlSiteFiles.Controls.Add(this.btnSelectCSVFile);
-            this.pnlSiteFiles.Controls.Add(this.txtSitesCSVFile);
-            this.pnlSiteFiles.Controls.Add(this.label2);
-            this.pnlSiteFiles.Location = new System.Drawing.Point(466, 46);
-            this.pnlSiteFiles.Name = "pnlSiteFiles";
-            this.pnlSiteFiles.Size = new System.Drawing.Size(463, 74);
-            this.pnlSiteFiles.TabIndex = 4;
-            // 
-            // llblCSV
-            // 
-            this.llblCSV.AutoSize = true;
-            this.llblCSV.Location = new System.Drawing.Point(157, 47);
-            this.llblCSV.Name = "llblCSV";
-            this.llblCSV.Size = new System.Drawing.Size(60, 13);
-            this.llblCSV.TabIndex = 3;
-            this.llblCSV.TabStop = true;
-            this.llblCSV.Text = "Learn more";
-            this.llblCSV.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblCSV_LinkClicked);
-            // 
-            // btnSelectCSVFile
-            // 
-            this.btnSelectCSVFile.Location = new System.Drawing.Point(427, 13);
-            this.btnSelectCSVFile.Name = "btnSelectCSVFile";
-            this.btnSelectCSVFile.Size = new System.Drawing.Size(24, 23);
-            this.btnSelectCSVFile.TabIndex = 2;
-            this.btnSelectCSVFile.Text = "...";
-            this.btnSelectCSVFile.UseVisualStyleBackColor = true;
-            this.btnSelectCSVFile.Click += new System.EventHandler(this.btnSelectCSVFile_Click);
-            // 
-            // txtSitesCSVFile
-            // 
-            this.txtSitesCSVFile.Location = new System.Drawing.Point(157, 15);
-            this.txtSitesCSVFile.Name = "txtSitesCSVFile";
-            this.txtSitesCSVFile.Size = new System.Drawing.Size(268, 20);
-            this.txtSitesCSVFile.TabIndex = 1;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 18);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(107, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Select CSV sites file: ";
-            // 
-            // cmbSiteSelectionOption
-            // 
-            this.cmbSiteSelectionOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbSiteSelectionOption.FormattingEnabled = true;
-            this.cmbSiteSelectionOption.Items.AddRange(new object[] {
-            "Complete tenant (not possible with vanity urls)",
-            "Selected site collections",
-            "CSV file listing sites to scan"});
-            this.cmbSiteSelectionOption.Location = new System.Drawing.Point(171, 16);
-            this.cmbSiteSelectionOption.Name = "cmbSiteSelectionOption";
-            this.cmbSiteSelectionOption.Size = new System.Drawing.Size(299, 21);
-            this.cmbSiteSelectionOption.TabIndex = 1;
-            this.cmbSiteSelectionOption.SelectedIndexChanged += new System.EventHandler(this.cmbSiteSelectionOption_SelectedIndexChanged);
-            // 
-            // lblSiteSelectionOption
-            // 
-            this.lblSiteSelectionOption.AutoSize = true;
-            this.lblSiteSelectionOption.Location = new System.Drawing.Point(15, 16);
-            this.lblSiteSelectionOption.Name = "lblSiteSelectionOption";
-            this.lblSiteSelectionOption.Size = new System.Drawing.Size(105, 13);
-            this.lblSiteSelectionOption.TabIndex = 0;
-            this.lblSiteSelectionOption.Text = "Site selection option:";
-            // 
-            // pnlSiteTenant
-            // 
-            this.pnlSiteTenant.Controls.Add(this.textBox3);
-            this.pnlSiteTenant.Controls.Add(this.textBox2);
-            this.pnlSiteTenant.Controls.Add(this.lblSiteTenantName);
-            this.pnlSiteTenant.Controls.Add(this.txtSitesTenantName);
-            this.pnlSiteTenant.Location = new System.Drawing.Point(462, 199);
-            this.pnlSiteTenant.Name = "pnlSiteTenant";
-            this.pnlSiteTenant.Size = new System.Drawing.Size(458, 49);
-            this.pnlSiteTenant.TabIndex = 2;
-            // 
-            // textBox3
-            // 
-            this.textBox3.Enabled = false;
-            this.textBox3.Location = new System.Drawing.Point(369, 14);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(82, 20);
-            this.textBox3.TabIndex = 3;
-            this.textBox3.Text = ".sharepoint.com";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point(157, 14);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(44, 20);
-            this.textBox2.TabIndex = 2;
-            this.textBox2.Text = "https://";
-            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // lblSiteTenantName
-            // 
-            this.lblSiteTenantName.AutoSize = true;
-            this.lblSiteTenantName.Location = new System.Drawing.Point(6, 17);
-            this.lblSiteTenantName.Name = "lblSiteTenantName";
-            this.lblSiteTenantName.Size = new System.Drawing.Size(94, 13);
-            this.lblSiteTenantName.TabIndex = 1;
-            this.lblSiteTenantName.Text = "Your tenant name:";
-            // 
-            // txtSitesTenantName
-            // 
-            this.txtSitesTenantName.Location = new System.Drawing.Point(204, 14);
-            this.txtSitesTenantName.Name = "txtSitesTenantName";
-            this.txtSitesTenantName.Size = new System.Drawing.Size(161, 20);
-            this.txtSitesTenantName.TabIndex = 0;
-            this.ttAuthentication.SetToolTip(this.txtSitesTenantName, "Tenant name (e.g. contoso). Don\'t add the admin url (contoso-admin) here");
-            // 
-            // pnlSiteWildcard
-            // 
-            this.pnlSiteWildcard.Controls.Add(this.label10);
-            this.pnlSiteWildcard.Controls.Add(this.label9);
-            this.pnlSiteWildcard.Controls.Add(this.txtSitesAdminCenterUrl);
-            this.pnlSiteWildcard.Controls.Add(this.btnSitesClearUrls);
-            this.pnlSiteWildcard.Controls.Add(this.btnSitesRemoveUrl);
-            this.pnlSiteWildcard.Controls.Add(this.btnSitesAddUrl);
-            this.pnlSiteWildcard.Controls.Add(this.lstSitesUrlsToScan);
-            this.pnlSiteWildcard.Controls.Add(this.txtSitesUrlToAdd);
-            this.pnlSiteWildcard.Controls.Add(this.label4);
-            this.pnlSiteWildcard.Controls.Add(this.label3);
-            this.pnlSiteWildcard.Location = new System.Drawing.Point(7, 43);
-            this.pnlSiteWildcard.Name = "pnlSiteWildcard";
-            this.pnlSiteWildcard.Size = new System.Drawing.Size(452, 205);
-            this.pnlSiteWildcard.TabIndex = 3;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 156);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(373, 13);
-            this.label10.TabIndex = 9;
-            this.label10.Text = "Only when using vanity url\'s specify the full SharePoint Online admin center url";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(5, 176);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(75, 13);
-            this.label9.TabIndex = 8;
-            this.label9.Text = "Admin  center:";
-            this.label9.Click += new System.EventHandler(this.label9_Click);
-            // 
-            // txtSitesAdminCenterUrl
-            // 
-            this.txtSitesAdminCenterUrl.Location = new System.Drawing.Point(86, 173);
-            this.txtSitesAdminCenterUrl.Name = "txtSitesAdminCenterUrl";
-            this.txtSitesAdminCenterUrl.Size = new System.Drawing.Size(354, 20);
-            this.txtSitesAdminCenterUrl.TabIndex = 7;
-            this.ttAuthentication.SetToolTip(this.txtSitesAdminCenterUrl, "SPO Admin center url (e.g. https://spoadmin.contoso.com). Only needed when using " +
-        "SPO with vanity urls (= urls that not end on .sharepoint.com)");
-            this.txtSitesAdminCenterUrl.TextChanged += new System.EventHandler(this.txtSitesAdminCenterUrl_TextChanged);
-            // 
-            // btnSitesClearUrls
-            // 
-            this.btnSitesClearUrls.Location = new System.Drawing.Point(365, 100);
-            this.btnSitesClearUrls.Name = "btnSitesClearUrls";
-            this.btnSitesClearUrls.Size = new System.Drawing.Size(75, 23);
-            this.btnSitesClearUrls.TabIndex = 6;
-            this.btnSitesClearUrls.Text = "Clear";
-            this.btnSitesClearUrls.UseVisualStyleBackColor = true;
-            this.btnSitesClearUrls.Click += new System.EventHandler(this.btnSitesClearUrls_Click);
-            // 
-            // btnSitesRemoveUrl
-            // 
-            this.btnSitesRemoveUrl.Location = new System.Drawing.Point(365, 71);
-            this.btnSitesRemoveUrl.Name = "btnSitesRemoveUrl";
-            this.btnSitesRemoveUrl.Size = new System.Drawing.Size(75, 23);
-            this.btnSitesRemoveUrl.TabIndex = 5;
-            this.btnSitesRemoveUrl.Text = "Remove";
-            this.btnSitesRemoveUrl.UseVisualStyleBackColor = true;
-            this.btnSitesRemoveUrl.Click += new System.EventHandler(this.btnSitesRemoveUrl_Click);
-            // 
-            // btnSitesAddUrl
-            // 
-            this.btnSitesAddUrl.Location = new System.Drawing.Point(365, 29);
-            this.btnSitesAddUrl.Name = "btnSitesAddUrl";
-            this.btnSitesAddUrl.Size = new System.Drawing.Size(75, 23);
-            this.btnSitesAddUrl.TabIndex = 4;
-            this.btnSitesAddUrl.Text = "Add";
-            this.btnSitesAddUrl.UseVisualStyleBackColor = true;
-            this.btnSitesAddUrl.Click += new System.EventHandler(this.btnSitesAddUrl_Click);
-            // 
-            // lstSitesUrlsToScan
-            // 
-            this.lstSitesUrlsToScan.FormattingEnabled = true;
-            this.lstSitesUrlsToScan.Location = new System.Drawing.Point(86, 54);
-            this.lstSitesUrlsToScan.Name = "lstSitesUrlsToScan";
-            this.lstSitesUrlsToScan.Size = new System.Drawing.Size(265, 95);
-            this.lstSitesUrlsToScan.TabIndex = 3;
-            this.lstSitesUrlsToScan.SelectedIndexChanged += new System.EventHandler(this.lstSitesUrlsToScan_SelectedIndexChanged);
-            // 
-            // txtSitesUrlToAdd
-            // 
-            this.txtSitesUrlToAdd.Location = new System.Drawing.Point(86, 29);
-            this.txtSitesUrlToAdd.Name = "txtSitesUrlToAdd";
-            this.txtSitesUrlToAdd.Size = new System.Drawing.Size(265, 20);
-            this.txtSitesUrlToAdd.TabIndex = 2;
-            this.ttAuthentication.SetToolTip(this.txtSitesUrlToAdd, "Add one or more (wildcard) urls (e.g. https://contoso.sharepoint.com/sites/a*)");
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(8, 29);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(56, 13);
-            this.label4.TabIndex = 1;
-            this.label4.Text = "Url to add:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(8, 11);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(353, 13);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Add one or more (wildcard) url\'s. Url\'s ending on a * are valid wild card urls";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
-            // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1158,19 +1224,16 @@
             this.commandPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.wizardPageContainer1)).EndInit();
             this.wizardPageContainer1.ResumeLayout(false);
-            this.modePage.ResumeLayout(false);
-            this.modePage.PerformLayout();
-            this.optionsPage.ResumeLayout(false);
-            this.optionsPage.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).EndInit();
             this.authPage.ResumeLayout(false);
             this.authPage.PerformLayout();
-            this.pnlCredentials.ResumeLayout(false);
-            this.pnlCredentials.PerformLayout();
             this.pnlAzureACS.ResumeLayout(false);
             this.pnlAzureACS.PerformLayout();
             this.pnlAzureAD.ResumeLayout(false);
             this.pnlAzureAD.PerformLayout();
+            this.pnlCredentials.ResumeLayout(false);
+            this.pnlCredentials.PerformLayout();
+            this.pnl2FA.ResumeLayout(false);
+            this.pnl2FA.PerformLayout();
             this.scopePage.ResumeLayout(false);
             this.scopePage.PerformLayout();
             this.pnlSiteFiles.ResumeLayout(false);
@@ -1179,6 +1242,11 @@
             this.pnlSiteTenant.PerformLayout();
             this.pnlSiteWildcard.ResumeLayout(false);
             this.pnlSiteWildcard.PerformLayout();
+            this.modePage.ResumeLayout(false);
+            this.modePage.PerformLayout();
+            this.optionsPage.ResumeLayout(false);
+            this.optionsPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nmThreads)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1276,5 +1344,11 @@
         private System.Windows.Forms.ComboBox cmbDateFormat;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.CheckBox tgModeHomePageOnly;
+        private System.Windows.Forms.Panel pnl2FA;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox txtSiteFor2FA;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Button btnLogin;
     }
 }

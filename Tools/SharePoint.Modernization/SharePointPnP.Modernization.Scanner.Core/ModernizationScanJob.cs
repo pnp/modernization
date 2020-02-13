@@ -505,7 +505,7 @@ namespace SharePoint.Modernization.Scanner.Core
             string[] outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
                                                     "ReadyForGroupify", "GroupifyBlockers", "GroupifyWarnings", "GroupMode", "PermissionWarnings",
                                                     "ModernHomePage", "ModernUIWarnings",
-                                                    "WebTemplate", "Office365GroupId", "HasTeamsTeam", "MasterPage", "AlternateCSS", "UserCustomActions",
+                                                    "WebTemplate", "Office365GroupId", "HasTeamsTeam", "MasterPage", "AlternateCSS", "UserCustomActions", "SearchCenterUrl",
                                                     "SubSites", "SubSitesWithBrokenPermissionInheritance", "ModernPageWebFeatureDisabled", "ModernPageFeatureWasEnabledBySPO",
                                                     "ModernListSiteBlockingFeatureEnabled", "ModernListWebBlockingFeatureEnabled", "SitePublishingFeatureEnabled", "WebPublishingFeatureEnabled",
                                                     "ViewsRecent", "ViewsRecentUniqueUsers", "ViewsLifeTime", "ViewsLifeTimeUniqueUsers", "SiteId",
@@ -528,7 +528,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
                                                                                        (groupifyBlockers.Count > 0 ? "FALSE" : "TRUE"), ToCsv(SiteScanResult.FormatList(groupifyBlockers)), ToCsv(SiteScanResult.FormatList(groupifyWarnings)), ToCsv(groupSecurity.Item1), ToCsv(SiteScanResult.FormatList(groupSecurity.Item2)),
                                                                                        item.Value.ModernHomePage, ToCsv(SiteScanResult.FormatList(modernWarnings)),
-                                                                                       ToCsv(item.Value.WebTemplate), ToCsv(item.Value.Office365GroupId != Guid.Empty ? item.Value.Office365GroupId.ToString() : ""), item.Value.IsTeamified(), item.Value.MasterPage, item.Value.AlternateCSS, ((item.Value.SiteUserCustomActions != null && item.Value.SiteUserCustomActions.Count > 0) || (item.Value.WebUserCustomActions != null && item.Value.WebUserCustomActions.Count > 0)),
+                                                                                       ToCsv(item.Value.WebTemplate), ToCsv(item.Value.Office365GroupId != Guid.Empty ? item.Value.Office365GroupId.ToString() : ""), item.Value.IsTeamified(), item.Value.MasterPage, item.Value.AlternateCSS, ((item.Value.SiteUserCustomActions != null && item.Value.SiteUserCustomActions.Count > 0) || (item.Value.WebUserCustomActions != null && item.Value.WebUserCustomActions.Count > 0)), ToCsv(item.Value.SearchCenterUrl),
                                                                                        item.Value.SubSites, item.Value.SubSitesWithBrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO,
                                                                                        item.Value.ModernListSiteBlockingFeatureEnabled, item.Value.ModernListWebBlockingFeatureEnabled, item.Value.SitePublishingFeatureEnabled, item.Value.WebPublishingFeatureEnabled,
                                                                                        (SkipUsageInformation ? 0 : item.Value.ViewsRecent), (SkipUsageInformation ? 0 : item.Value.ViewsRecentUniqueUsers), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTime), (SkipUsageInformation ? 0 : item.Value.ViewsLifeTimeUniqueUsers), ToCsv(item.Value.SiteId),
@@ -545,7 +545,7 @@ namespace SharePoint.Modernization.Scanner.Core
             MemoryStream modernizationWebScanResults = new MemoryStream();
             outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
                                            "WebTemplate", "BrokenPermissionInheritance", "ModernPageWebFeatureDisabled", "ModernPageFeatureWasEnabledBySPO", "WebPublishingFeatureEnabled",
-                                           "MasterPage", "CustomMasterPage", "AlternateCSS", "UserCustomActions",
+                                           "MasterPage", "CustomMasterPage", "AlternateCSS", "UserCustomActions", "SearchCenterUrl",
                                            "Everyone(ExceptExternalUsers)Claim",
                                            "UniqueOwners",
                                            "UniqueMembers",
@@ -557,8 +557,8 @@ namespace SharePoint.Modernization.Scanner.Core
             foreach (var item in this.WebScanResults)
             {
                 outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
-                                                                                       ToCsv(item.Value.WebTemplate), item.Value.BrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO, item.Value.WebPublishingFeatureEnabled,
-                                                                                       ToCsv(item.Value.MasterPage), ToCsv(item.Value.CustomMasterPage), ToCsv(item.Value.AlternateCSS), (item.Value.WebUserCustomActions.Count > 0),
+                                                                                       ToCsv(item.Value.WebTemplate), item.Value.BrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO, item.Value.WebPublishingFeatureEnabled, 
+                                                                                       ToCsv(item.Value.MasterPage), ToCsv(item.Value.CustomMasterPage), ToCsv(item.Value.AlternateCSS), (item.Value.WebUserCustomActions.Count > 0), ToCsv(item.Value.SearchCenterUrl),
                                                                                        item.Value.EveryoneClaimsGranted,
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)),
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Members, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)),

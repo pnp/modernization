@@ -1,4 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
+using Newtonsoft.Json;
 using SharePoint.Modernization.Scanner.Core.Results;
 using System;
 using System.Collections.Generic;
@@ -84,6 +85,26 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 {
                     // We're sure there's no team as there's no group
                     scanResult.HasTeamsTeam = false;
+                }
+
+                // Search for site scoped search center url
+                if (web.AllProperties.FieldValues.ContainsKey("SRCH_ENH_FTR_URL_SITE"))
+                {
+                    scanResult.SearchCenterUrl = web.AllProperties.FieldValues["SRCH_ENH_FTR_URL_SITE"] as string;
+                }
+                else if (web.AllProperties.FieldValues.ContainsKey("SRCH_ENH_FTR_URL_WEB"))
+                {
+                    scanResult.SearchCenterUrl = web.AllProperties.FieldValues["SRCH_ENH_FTR_URL_WEB"] as string;
+                }
+
+                // If no search site override check for a search results page override
+                if (string.IsNullOrEmpty(scanResult.SearchCenterUrl))
+                {
+                    CheckForCustomSearchExperience(web, scanResult, "SRCH_SB_SET_SITE");
+                    if (string.IsNullOrEmpty(scanResult.SearchCenterUrl))
+                    {
+                        CheckForCustomSearchExperience(web, scanResult, "SRCH_SB_SET_WEB");
+                    }
                 }
 
                 // Get security information for this site
@@ -206,6 +227,30 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
             // return the duration of this scan
             return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
+        }
+
+        private static void CheckForCustomSearchExperience(Web web, SiteScanResult scanResult, string searchCenterUrlProperty)
+        {            
+            if (web.AllProperties.FieldValues.ContainsKey(searchCenterUrlProperty))
+            {
+                var searchSettingsValue = web.AllProperties.FieldValues[searchCenterUrlProperty] as string;
+                if (!string.IsNullOrEmpty(searchSettingsValue))
+                {
+                    // Convert the settings into a typed object
+                    var searchSettings = JsonConvert.DeserializeAnonymousType(searchSettingsValue, new
+                    {
+                        Inherit = false,
+                        ResultsPageAddress = String.Empty,
+                        ShowNavigation = false,
+                    });
+
+                    if (searchSettings != null && !searchSettings.Inherit)
+                    {
+                        // Return the search results page URL of the current web
+                        scanResult.SearchCenterUrl = searchSettings?.ResultsPageAddress;
+                    }
+                }
+            }
         }
     }
 }
