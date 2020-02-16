@@ -1215,7 +1215,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return termInfo;
         }
 
-        //Term Transformator
+        #region Term Transformator Caching
+
         /// <summary>
         /// Get Term Path by ID
         /// </summary>
@@ -1224,12 +1225,13 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns></returns>
         public void StoreTermSetTerms(ClientContext context, Guid termSetId)
         {
-            var termCache = Store.GetAndInitialize<ConcurrentDictionary<string, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+            //TODO: Change this whole caching mechanism to avoid storing term set ids or terms in the store, if source and destination is 
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
             var termSetTerms = TermTransformator.GetAllTermsFromTermSet(termSetId, context);
             foreach(var termSetTerm in termSetTerms)
             {
-                termCache.TryAdd(termSetTerm.Key.ToString(), termSetTerm.Value);
-                Store.Set<ConcurrentDictionary<string, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
+                termCache.TryAdd(termSetTerm.Key, termSetTerm.Value);
+                Store.Set<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
             }
         }
 
@@ -1239,9 +1241,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <param name="context"></param>
         /// <param name="termId"></param>
         /// <returns></returns>
-        public TermData GetTransformTermCacheTermById(ClientContext context, string termId)
+        public TermData GetTransformTermCacheTermById(ClientContext context, Guid termId)
         {
-            var termCache = Store.GetAndInitialize<ConcurrentDictionary<string, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
             termCache.TryGetValue(termId, out TermData termInfoFromCache);
             if (termInfoFromCache != default)
             {
@@ -1250,6 +1252,28 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             return default;
         }
+
+        /// <summary>
+        /// Search Cached term by name
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termLabel"></param>
+        /// <param name="termPath"></param>
+        /// <returns></returns>
+        public List<TermData> GetTransformTermCacheTermByName(ClientContext context, string termLabel, string termPath = "")
+        {
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+
+            var candidateTerms = termCache.Where(o => o.Value.TermLabel == termLabel || o.Value.TermPath == termPath);
+            if (candidateTerms.Any())
+            {
+                return candidateTerms.Select(o => o.Value).ToList();
+            }
+            
+            return default(List<TermData>);
+        }
+
+        #endregion
 
         #endregion
 

@@ -56,7 +56,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                     TermTransformator termTransformator = new TermTransformator(pti, sourceClientContext, targetClientContext, null);
 
                     var inputLabel = "pass-through-test";
-                    var inputGuid = Guid.NewGuid().ToString();
+                    var inputGuid = Guid.NewGuid();
                     var result = termTransformator.Transform(new Entities.TermData() { TermGuid = inputGuid, TermLabel = inputLabel });
                     Console.WriteLine(inputLabel + " and " + inputGuid);
 
@@ -223,7 +223,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         }
 
         [TestMethod]
-        public void CacheTermStoreSiteCollectionTest()
+        public void CacheTermStoreSiteCollectionByIdTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
@@ -238,10 +238,37 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
 
                     // Need to have the term store populated values
-                    var result = Cache.CacheManager.Instance.GetTransformTermCacheTermById(sourceClientContext, "ac625b0a-0459-4d23-bc96-0970abd1029d");
+                    var result = Cache.CacheManager.Instance.GetTransformTermCacheTermById(sourceClientContext, new Guid("ac625b0a-0459-4d23-bc96-0970abd1029d"));
                     var expectedLabel = "Announcements";
 
                     Assert.AreEqual(expectedLabel, result.TermLabel);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CacheTermStoreSiteCollectionByNameTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                {
+                    TermTransformator termTransformator = new TermTransformator(null, sourceClientContext, targetClientContext);
+
+                    // Target - Katchup - dc2cca62-cf9a-4a61-b672-4aa7d0b6a179
+                    // Source - Categories - e757dcf5-f443-42e9-98c6-5842861099cb (site collection term set)
+                    termTransformator.CacheTermsFromTermStore(
+                        new Guid("e757dcf5-f443-42e9-98c6-5842861099cb"),
+                        new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
+
+                    // Need to have the term store populated values
+                    var expectedLabel = "Announcements";
+                    var result = Cache.CacheManager.Instance.GetTransformTermCacheTermByName(sourceClientContext, expectedLabel);
+
+                    Assert.IsTrue(result.Count > 0);
+
+                    result.ForEach(o => Console.WriteLine("Cached Term: {0} {1} ", o.TermSetId, o.TermPath, o.TermLabel));
+                                       
                 }
             }
         }
@@ -262,7 +289,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
 
                     // Need to have the term store populated values
-                    var result = Cache.CacheManager.Instance.GetTransformTermCacheTermById(sourceClientContext, "c9cbb11b-77ed-4890-ae24-ee103002c46b");
+                    var result = Cache.CacheManager.Instance.GetTransformTermCacheTermById(sourceClientContext, new Guid("c9cbb11b-77ed-4890-ae24-ee103002c46b"));
                     var expectedLabel = "PnPTransform";
 
                     Assert.AreEqual(expectedLabel, result.TermLabel);

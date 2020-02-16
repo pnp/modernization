@@ -76,7 +76,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             foreach (var fieldValue in taxonomyFieldValueCollection)
             {
-                var result = this.Transform(new TermData() { TermGuid = fieldValue.TermGuid, TermLabel = fieldValue.Label });
+                var result = this.Transform(new TermData() { TermGuid = Guid.Parse(fieldValue.TermGuid), TermLabel = fieldValue.Label });
                 fieldValue.Label = result.TermLabel;
                 fieldValue.TermGuid = result.TermLabel;
             }
@@ -140,10 +140,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
         }
-
-
-
-
+        
         /// <summary>
         /// Extract all the terms from a termset for caching and quicker processing
         /// </summary>
@@ -173,11 +170,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     var termName = term.Name;
                     var termPath = $"{termSetPath}{TermNodeDelimiter}{termName}";
-                    termsCache.Add(term.Id, new TermData() { TermGuid = term.Id.ToString(), TermLabel = termName, TermPath = termPath });
+                    termsCache.Add(term.Id, 
+                        new TermData() { TermGuid = term.Id, TermLabel = termName, TermPath = termPath, TermSetId = termSetId });
 
                     if (term.TermsCount > 0)
                     {
-                        var subTerms = ParseSubTerms(termPath, term, context);
+                        var subTerms = ParseSubTerms(termPath, term, termSetId, context);
                         //termsCache
                         foreach (var foundTerm in subTerms)
                         {
@@ -204,7 +202,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="clientContext"></param>
         /// <returns></returns>
         /// Reference: https://github.com/SharePoint/PnP-Sites-Core/blob/master/Core/OfficeDevPnP.Core/Extensions/TaxonomyExtensions.cs
-        public static Dictionary<Guid, TermData> ParseSubTerms(string subTermPath, Term term, ClientRuntimeContext clientContext)
+        public static Dictionary<Guid, TermData> ParseSubTerms(string subTermPath, Term term, Guid termSetId, ClientRuntimeContext clientContext)
         {
             var items = new Dictionary<Guid, TermData>();
             if (term.ServerObjectIsNull == null || term.ServerObjectIsNull == false)
@@ -218,11 +216,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var termName = subTerm.Name;
                 var termPath = $"{subTermPath}{TermTransformator.TermNodeDelimiter}{termName}{2}";
 
-                items.Add(subTerm.Id, new TermData() { TermGuid = subTerm.Id.ToString(), TermLabel = termName, TermPath = termPath });
+                items.Add(subTerm.Id, new TermData() { TermGuid = subTerm.Id, TermLabel = termName, TermPath = termPath, TermSetId = termSetId });
 
                 if (term.TermsCount > 0)
                 {
-                    var moreSubTerms = ParseSubTerms(termPath, subTerm, clientContext);
+                    var moreSubTerms = ParseSubTerms(termPath, subTerm, termSetId, clientContext);
                     foreach(var foundTerm in moreSubTerms)
                     {
                         items.Add(foundTerm.Key, foundTerm.Value);

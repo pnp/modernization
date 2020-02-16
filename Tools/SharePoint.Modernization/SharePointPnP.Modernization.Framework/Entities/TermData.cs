@@ -12,7 +12,7 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// <summary>
         /// Term Guid
         /// </summary>
-        public string TermGuid { get; set; }
+        public Guid TermGuid { get; set; }
 
         /// <summary>
         /// Term Label
@@ -23,5 +23,10 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// Term Path
         /// </summary>
         public string TermPath { get; set; }
+
+        /// <summary>
+        /// Term Set ID
+        /// </summary>
+        public Guid TermSetId { get; set; }
     }
 }
