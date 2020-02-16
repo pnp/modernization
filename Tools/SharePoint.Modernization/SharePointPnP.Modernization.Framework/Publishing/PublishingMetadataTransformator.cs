@@ -241,7 +241,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                     {
                                                                         var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
                                                                         var label = taxDictionary["Label"].ToString();
-                                                                        var termGuid = (Guid)taxDictionary["TermGuid"];
+                                                                        var termGuid = new Guid(taxDictionary["TermGuid"].ToString());
 
                                                                         //Term Transformator
                                                                         var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
@@ -313,7 +313,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                     var termGuidToSet = (fieldValueToSet as TaxonomyFieldValue).TermGuid;
 
                                                                     //Term Transformator
-                                                                    var termTranform = termTransformator.Transform(new TermData() { TermGuid = Guid.Parse(termGuidToSet), TermLabel = labelToSet });
+                                                                    var termTranform = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuidToSet), TermLabel = labelToSet });
 
                                                                     taxValue.Label = termTranform.TermLabel;
                                                                     taxValue.TermGuid = termTranform.TermGuid.ToString();
@@ -330,7 +330,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                     var termGuid = taxDictionary["TermGuid"].ToString();
 
                                                                     //Term Transformator
-                                                                    var transformTerm = termTransformator.Transform(new TermData() { TermGuid = Guid.Parse(termGuid), TermLabel = label });
+                                                                    var transformTerm = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuid), TermLabel = label });
 
                                                                     taxValue.Label = transformTerm.TermLabel;
                                                                     taxValue.TermGuid = transformTerm.TermGuid.ToString();

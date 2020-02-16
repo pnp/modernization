@@ -15,7 +15,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
     {
         private ClientContext _sourceContext;
         private ClientContext _targetContext;
-        private List<TermMapping> termMapping;
+        private List<TermMapping> termMappings;
         private bool skipDefaultTermStoreMapping;
 
         public const string TermNodeDelimiter = "|";
@@ -57,7 +57,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Load the Term mapping file
             if (!string.IsNullOrEmpty(baseTransformationInformation?.TermMappingFile))
             {
-                this.termMapping = CacheManager.Instance.GetTermMapping(baseTransformationInformation.TermMappingFile, logObservers);
+                this.termMappings = CacheManager.Instance.GetTermMapping(baseTransformationInformation.TermMappingFile, logObservers);
             }
 
             if (baseTransformationInformation != null)
@@ -101,7 +101,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (this.skipDefaultTermStoreMapping)
             {
                 // Mapping mode only
-                if (termMapping != null)
+                if (termMappings != null)
                 {
 
                 }
@@ -112,9 +112,78 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
 
                 // Mapping Mode 
-                if (termMapping != null)
+                if (termMappings != null)
                 {
+                    var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
 
+                    //Check Source Mappings
+                    foreach (var mapping in termMappings) {
+
+                        // Simple Check, if the delimiter is | lets check for that
+                        if (mapping.SourceTerm.Contains("|"))
+                        {
+                            //Term Path
+                            // If found validate against the term cache
+                            if(resolvedInputMapping.TermPath == mapping.SourceTerm)
+                            {
+                                var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mapping.TargetTerm);
+                                if(resolvedTargetMapping != default)
+                                {
+                                    return resolvedTargetMapping;
+                                }
+                                else
+                                {
+                                    //Log Failure in resolving to target mapping
+                                    LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //Guid
+                            if (Guid.TryParse(mapping.SourceTerm, out Guid mappingSourceTermId))
+                            {
+                                //Found 
+                                if (resolvedInputMapping.TermGuid == mappingSourceTermId)
+                                {
+                                    if(Guid.TryParse(mapping.TargetTerm, out Guid mappingTargetTermId))
+                                    {
+                                        var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mappingTargetTermId);
+                                        if (resolvedTargetMapping != default)
+                                        {
+                                            return resolvedTargetMapping;
+                                        }
+                                        else
+                                        {
+                                            //Log Failure in resolving to target mapping
+                                            LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mapping.TargetTerm);
+                                        if (resolvedTargetMapping != default)
+                                        {
+                                            return resolvedTargetMapping;
+                                        }
+                                        else
+                                        {
+                                            //Log Failure in resolving to target mapping
+                                            LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
+                                        }
+                                    }
+                                }                                
+                            }
+                            else
+                            {
+                                // Failure in parsing the Term ID
+                                
+                            }
+                        }
+                    }
+
+                    //Log Failure in mapping
+                    LogWarning(string.Format(LogStrings.Warning_TermMappingFailedMapping, inputSourceTerm.TermGuid,inputSourceTerm.TermLabel), LogStrings.Heading_TermMapping);
                 }
             }
 
@@ -231,19 +300,33 @@ namespace SharePointPnP.Modernization.Framework.Transform
             return items;
         }
 
-        public void ValidateSourceTerm()
+        /// <summary>
+        /// Validate the source term contains the path and is recognised in the term store
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termPath"></param>
+        public TermData ResolveTermInCache(ClientContext context, string termPath)
         {
-            throw new NotImplementedException();
+            //Use the cache
+            var result = CacheManager.Instance.GetTransformTermCacheTermByName(context, termPath);
+            if (result != default && result.Any())
+            {
+                result.First(); // First mapping
+            }
+
+            return default;
         }
 
-        public void ValidateTargetTerm()
+        /// <summary>
+        /// Validate the source term contains the GUID and is recognised in the term store
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termId"></param>
+        public TermData ResolveTermInCache(ClientContext context, Guid termId)
         {
-            throw new NotImplementedException();
+            //Use the cache
+            return CacheManager.Instance.GetTransformTermCacheTermById(context, termId);
         }
 
-        public bool IsValidGuid()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

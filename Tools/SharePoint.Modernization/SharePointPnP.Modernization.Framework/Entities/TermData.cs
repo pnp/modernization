@@ -28,5 +28,10 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// Term Set ID
         /// </summary>
         public Guid TermSetId { get; set; }
+
+        /// <summary>
+        /// Marks the term data validation against the term store
+        /// </summary>
+        public bool IsTermResolved { get; set; }
     }
 }

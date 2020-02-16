@@ -1263,7 +1263,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <param name="termLabel"></param>
         /// <param name="termPath"></param>
         /// <returns></returns>
-        public List<TermData> GetTransformTermCacheTermByName(ClientContext context, string termLabel, string termPath = "")
+        public List<TermData> GetTransformTermCacheTermByName(ClientContext context, string termLabel = "", string termPath = "")
         {
             var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
 

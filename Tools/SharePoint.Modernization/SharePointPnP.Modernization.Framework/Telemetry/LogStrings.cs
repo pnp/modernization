@@ -61,6 +61,7 @@
         public const string Heading_ApplyItemLevelPermissions = "Item level permissions";
         public const string Heading_SwappingPages = "Swapping Pages";
         public const string Heading_GetPrincipal = "Get Principal";
+        public const string Heading_TermMapping = "Term Mapping";
 
         #endregion
 
@@ -350,9 +351,11 @@
         #endregion
 
         #region Term Mapping
-        public const string Heading_TermMapping = "Term Mapping";
+        
         public const string Term_LoadingMappingFile = "Loading term mapping file {0}";
         public const string Term_MappingLoaded = "Mapping Term from {0} to {1} loaded";
+        public const string Warning_TermMappingFailedResolveTarget = "Mapping failed to resolve the target term mapping {0}";
+        public const string Warning_TermMappingFailedMapping = "Mapping failed to match the page metadata term with the mapping ID:{0}|{1}";
         #endregion
 
         #region User Mapping

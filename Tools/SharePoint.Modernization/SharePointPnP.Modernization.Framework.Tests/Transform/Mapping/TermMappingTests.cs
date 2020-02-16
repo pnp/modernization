@@ -323,5 +323,53 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
             }
         }
 
+
+        [TestMethod]
+        public void ValidateTermById_PositiveTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                {
+                    TermTransformator termTransformator = new TermTransformator(null, sourceClientContext, targetClientContext);
+
+                    // Target - Katchup - dc2cca62-cf9a-4a61-b672-4aa7d0b6a179
+                    // Source - Categories - e757dcf5-f443-42e9-98c6-5842861099cb (site collection term set)
+                    termTransformator.CacheTermsFromTermStore(
+                        new Guid("e757dcf5-f443-42e9-98c6-5842861099cb"),
+                        new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
+
+                    // Need to have the term store populated values
+                    var result = termTransformator.ResolveTermInCache(sourceClientContext, new Guid("ac625b0a-0459-4d23-bc96-0970abd1029d"));
+                    var expectedLabel = "Announcements";
+
+                    Assert.AreEqual(expectedLabel, result.TermLabel);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void ValidateTermById_NegativeTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
+                {
+                    TermTransformator termTransformator = new TermTransformator(null, sourceClientContext, targetClientContext);
+
+                    // Target - Katchup - dc2cca62-cf9a-4a61-b672-4aa7d0b6a179
+                    // Source - Categories - e757dcf5-f443-42e9-98c6-5842861099cb (site collection term set)
+                    termTransformator.CacheTermsFromTermStore(
+                        new Guid("e757dcf5-f443-42e9-98c6-5842861099cb"),
+                        new Guid("dc2cca62-cf9a-4a61-b672-4aa7d0b6a179"));
+
+                    // Need to have the term store populated values
+                    // Announcements
+                    var result = termTransformator.ResolveTermInCache(sourceClientContext, new Guid("11111111-2222-3333-4444-0970abd1029d"));
+                    
+                    Assert.IsTrue(result == default);
+                }
+            }
+        }
     }
 }
