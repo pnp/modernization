@@ -1225,13 +1225,16 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <returns></returns>
         public void StoreTermSetTerms(ClientContext context, Guid termSetId)
         {
-            //TODO: Change this whole caching mechanism to avoid storing term set ids or terms in the store, if source and destination is 
-            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
-            var termSetTerms = TermTransformator.GetAllTermsFromTermSet(termSetId, context);
-            foreach(var termSetTerm in termSetTerms)
+            var termsAlreadyInCache = GetTransformTermCacheTermsByTermSet(context, termSetId);
+            if(termsAlreadyInCache == default)
             {
-                termCache.TryAdd(termSetTerm.Key, termSetTerm.Value);
-                Store.Set<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
+                var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+                var termSetTerms = TermTransformator.GetAllTermsFromTermSet(termSetId, context);
+                foreach (var termSetTerm in termSetTerms)
+                {
+                    termCache.TryAdd(termSetTerm.Key, termSetTerm.Value);
+                    Store.Set<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
+                }
             }
         }
 
@@ -1271,6 +1274,25 @@ namespace SharePointPnP.Modernization.Framework.Cache
             }
             
             return default(List<TermData>);
+        }
+
+        /// <summary>
+        /// Get Term by Term Set Id
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termSetId"></param>
+        /// <returns></returns>
+        public Dictionary<Guid, TermData> GetTransformTermCacheTermsByTermSet(ClientContext context, Guid termSetId)
+        {
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+
+            var candidateTerms = termCache.Where(o => o.Value.TermSetId == termSetId);
+            if (candidateTerms.Any())
+            {
+                return candidateTerms.ToDictionary(o=>o.Key, o=>o.Value);
+            }
+
+            return default(Dictionary<Guid, TermData>);
         }
 
         #endregion
