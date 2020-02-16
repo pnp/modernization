@@ -214,7 +214,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             foreach (var subTerm in term.Terms)
             {
                 var termName = subTerm.Name;
-                var termPath = $"{subTermPath}{TermTransformator.TermNodeDelimiter}{termName}{2}";
+                var termPath = $"{subTermPath}{TermTransformator.TermNodeDelimiter}{termName}";
 
                 items.Add(subTerm.Id, new TermData() { TermGuid = subTerm.Id, TermLabel = termName, TermPath = termPath, TermSetId = termSetId });
 
