@@ -15,7 +15,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
     {
 
         // Cache the logs between calls
-        private readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
+        private static readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
         protected bool _includeDebugEntries;
         protected bool _includeVerbose;
         protected DateTime _reportDate;
@@ -69,7 +69,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <summary>
         /// Get the single List<LogEntry> instance, singleton pattern
         /// </summary>
-        public List<Tuple<LogLevel, LogEntry>> Logs
+        public static List<Tuple<LogLevel, LogEntry>> Logs
         {
             get
             {

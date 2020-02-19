@@ -18,6 +18,8 @@
 
 ### Changed
 
+- Fix: Undo #415 change as that breaks the aggregation of logs accross multiple calls #430
+
 ## [February release - version 1.0.2002.0]
 
 ## Added
