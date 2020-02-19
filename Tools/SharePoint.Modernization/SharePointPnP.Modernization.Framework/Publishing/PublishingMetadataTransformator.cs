@@ -222,13 +222,22 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                 {
                                                                     var valueCollectionToCopy = (fieldValueToSet as TaxonomyFieldValueCollection);
                                                                     //Term Transformator
-                                                                    valueCollectionToCopy = termTransformator.TransformCollection(valueCollectionToCopy);
+                                                                    var resultTermTransform = termTransformator.TransformCollection(valueCollectionToCopy);
+                                                                    valueCollectionToCopy = resultTermTransform.Item1;
 
-                                                                    var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
+                                                                    var taxonomyFieldValueArray = valueCollectionToCopy.Except(resultTermTransform.Item2).Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
                                                                     var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), targetTaxField);
                                                                     targetTaxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
                                                                     isDirty = true;
                                                                     LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+
+                                                                    if (resultTermTransform.Item2.Any())
+                                                                    {
+                                                                        resultTermTransform.Item2.ForEach(field =>
+                                                                        {
+                                                                            LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {field.Label}", LogStrings.Heading_CopyingPageMetadata);
+                                                                        });
+                                                                    }
                                                                 }
                                                                 else if (fieldValueToSet is Dictionary<string, object>)
                                                                 {
@@ -246,7 +255,14 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                         //Term Transformator
                                                                         var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
 
-                                                                        taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid}");
+                                                                        if (transformTerm.IsTermResolved)
+                                                                        {
+                                                                            taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid}");
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                                        }
                                                                     }
 
                                                                     if (valueCollectionToCopy.Length > 0)
@@ -314,13 +330,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                                                                     //Term Transformator
                                                                     var termTranform = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuidToSet), TermLabel = labelToSet });
-
-                                                                    taxValue.Label = termTranform.TermLabel;
-                                                                    taxValue.TermGuid = termTranform.TermGuid.ToString();
-                                                                    taxValue.WssId = -1;
-                                                                    targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
-                                                                    isDirty = true;
-                                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                                    if (termTranform.IsTermResolved)
+                                                                    {
+                                                                        taxValue.Label = termTranform.TermLabel;
+                                                                        taxValue.TermGuid = termTranform.TermGuid.ToString();
+                                                                        taxValue.WssId = -1;
+                                                                        targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                                        isDirty = true;
+                                                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {termTranform.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                                    }
+                                                                    
                                                                 }
                                                                 else if ((fieldValueToSet is Dictionary<string, object>))
                                                                 {
@@ -331,13 +354,20 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                                                                     //Term Transformator
                                                                     var transformTerm = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuid), TermLabel = label });
-
-                                                                    taxValue.Label = transformTerm.TermLabel;
-                                                                    taxValue.TermGuid = transformTerm.TermGuid.ToString();
-                                                                    taxValue.WssId = -1;
-                                                                    targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
-                                                                    isDirty = true;
-                                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                                    if (transformTerm.IsTermResolved)
+                                                                    {
+                                                                        taxValue.Label = transformTerm.TermLabel;
+                                                                        taxValue.TermGuid = transformTerm.TermGuid.ToString();
+                                                                        taxValue.WssId = -1;
+                                                                        targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                                        isDirty = true;
+                                                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                                    }
+                                                                
                                                                 }
                                                                 else
                                                                 {

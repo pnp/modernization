@@ -71,17 +71,31 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Transforms a collection of terms in a dictionary
         /// </summary>
-        /// <returns></returns>
-        public TaxonomyFieldValueCollection TransformCollection(TaxonomyFieldValueCollection taxonomyFieldValueCollection)
+        /// <returns>
+        ///     Tuple<TaxonomyFieldValueCollection,List<TaxonomyFieldValue>> 
+        ///     TaxonomyFieldValueCollection - Original Array
+        ///     List<TaxonomyFieldValue> - Items to remove as they are not resolved
+        /// </returns>
+        public Tuple<TaxonomyFieldValueCollection,List<TaxonomyFieldValue>>  TransformCollection(TaxonomyFieldValueCollection taxonomyFieldValueCollection)
         {
+            List<TaxonomyFieldValue> exceptFields = new List<TaxonomyFieldValue>();
+            
             foreach (var fieldValue in taxonomyFieldValueCollection)
             {
                 var result = this.Transform(new TermData() { TermGuid = Guid.Parse(fieldValue.TermGuid), TermLabel = fieldValue.Label });
-                fieldValue.Label = result.TermLabel;
-                fieldValue.TermGuid = result.TermLabel;
+                if (result.IsTermResolved)
+                {
+                    fieldValue.Label = result.TermLabel;
+                    fieldValue.TermGuid = result.TermLabel;
+                }
+                else
+                {
+                    exceptFields.Add(fieldValue);
+                }
             }
-
-            return taxonomyFieldValueCollection;
+            
+            // Return fields to remove by calling code.
+            return new Tuple<TaxonomyFieldValueCollection, List<TaxonomyFieldValue>>(taxonomyFieldValueCollection, exceptFields);
         }
 
         /// <summary>
@@ -97,95 +111,90 @@ namespace SharePointPnP.Modernization.Framework.Transform
             //Scenarios:
             // Term Ids or Term Names
             // Source or Target Term ID/Name may not be found
-
-            if (this.skipDefaultTermStoreMapping)
+                       
+            // Default Mode 
+            if (!this.skipDefaultTermStoreMapping)
             {
-                // Mapping mode only
-                if (termMappings != null)
-                {
 
-                }
+
             }
-            else
+
+            // Mapping Mode 
+            if (termMappings != null)
             {
-                // Default Mode 
+                var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
 
-
-                // Mapping Mode 
-                if (termMappings != null)
+                //Check Source Mappings
+                foreach (var mapping in termMappings)
                 {
-                    var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
 
-                    //Check Source Mappings
-                    foreach (var mapping in termMappings) {
-
-                        // Simple Check, if the delimiter is | lets check for that
-                        if (mapping.SourceTerm.Contains("|"))
+                    // Simple Check, if the delimiter is | lets check for that
+                    if (mapping.SourceTerm.Contains("|"))
+                    {
+                        //Term Path
+                        // If found validate against the term cache
+                        if (resolvedInputMapping.TermPath == mapping.SourceTerm)
                         {
-                            //Term Path
-                            // If found validate against the term cache
-                            if(resolvedInputMapping.TermPath == mapping.SourceTerm)
+                            var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mapping.TargetTerm);
+                            if (resolvedTargetMapping != default)
                             {
-                                var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mapping.TargetTerm);
-                                if(resolvedTargetMapping != default)
+                                return resolvedTargetMapping;
+                            }
+                            else
+                            {
+                                //Log Failure in resolving to target mapping
+                                LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //Guid
+                        if (Guid.TryParse(mapping.SourceTerm, out Guid mappingSourceTermId))
+                        {
+                            //Found 
+                            if (resolvedInputMapping.TermGuid == mappingSourceTermId)
+                            {
+                                if (Guid.TryParse(mapping.TargetTerm, out Guid mappingTargetTermId))
                                 {
-                                    return resolvedTargetMapping;
+                                    var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mappingTargetTermId);
+                                    if (resolvedTargetMapping != default)
+                                    {
+                                        return resolvedTargetMapping;
+                                    }
+                                    else
+                                    {
+                                        //Log Failure in resolving to target mapping
+                                        LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
+                                    }
                                 }
                                 else
                                 {
-                                    //Log Failure in resolving to target mapping
-                                    LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
+                                    var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mapping.TargetTerm);
+                                    if (resolvedTargetMapping != default)
+                                    {
+                                        return resolvedTargetMapping;
+                                    }
+                                    else
+                                    {
+                                        //Log Failure in resolving to target mapping
+                                        LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
+                                    }
                                 }
                             }
                         }
                         else
                         {
-                            //Guid
-                            if (Guid.TryParse(mapping.SourceTerm, out Guid mappingSourceTermId))
-                            {
-                                //Found 
-                                if (resolvedInputMapping.TermGuid == mappingSourceTermId)
-                                {
-                                    if(Guid.TryParse(mapping.TargetTerm, out Guid mappingTargetTermId))
-                                    {
-                                        var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mappingTargetTermId);
-                                        if (resolvedTargetMapping != default)
-                                        {
-                                            return resolvedTargetMapping;
-                                        }
-                                        else
-                                        {
-                                            //Log Failure in resolving to target mapping
-                                            LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var resolvedTargetMapping = ResolveTermInCache(this._targetContext, mapping.TargetTerm);
-                                        if (resolvedTargetMapping != default)
-                                        {
-                                            return resolvedTargetMapping;
-                                        }
-                                        else
-                                        {
-                                            //Log Failure in resolving to target mapping
-                                            LogWarning(string.Format(LogStrings.Warning_TermMappingFailedResolveTarget, mapping.TargetTerm), LogStrings.Heading_TermMapping);
-                                        }
-                                    }
-                                }                                
-                            }
-                            else
-                            {
-                                // Failure in parsing the Term ID
-                                
-                            }
+                            // Failure in parsing the Term ID
+
                         }
                     }
-
-                    //Log Failure in mapping
-                    LogWarning(string.Format(LogStrings.Warning_TermMappingFailedMapping, inputSourceTerm.TermGuid,inputSourceTerm.TermLabel), LogStrings.Heading_TermMapping);
                 }
+
+                //Log Failure in mapping
+                LogWarning(string.Format(LogStrings.Warning_TermMappingFailedMapping, inputSourceTerm.TermGuid, inputSourceTerm.TermLabel), LogStrings.Heading_TermMapping);
             }
+
 
             return inputSourceTerm; //Pass-Through
         }
@@ -209,7 +218,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
         }
-        
+
         /// <summary>
         /// Extract all the terms from a termset for caching and quicker processing
         /// </summary>
@@ -239,7 +248,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     var termName = term.Name;
                     var termPath = $"{termSetPath}{TermNodeDelimiter}{termName}";
-                    termsCache.Add(term.Id, 
+                    termsCache.Add(term.Id,
                         new TermData() { TermGuid = term.Id, TermLabel = termName, TermPath = termPath, TermSetId = termSetId });
 
                     if (term.TermsCount > 0)
@@ -253,7 +262,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 //TODO: Record any failure
             }
@@ -290,7 +299,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (term.TermsCount > 0)
                 {
                     var moreSubTerms = ParseSubTerms(termPath, subTerm, termSetId, clientContext);
-                    foreach(var foundTerm in moreSubTerms)
+                    foreach (var foundTerm in moreSubTerms)
                     {
                         items.Add(foundTerm.Key, foundTerm.Value);
                     }
@@ -328,7 +337,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             //Use the cache
             var cachedTerm = CacheManager.Instance.GetTransformTermCacheTermById(context, termId);
-            if(cachedTerm != default)
+            if (cachedTerm != default)
             {
                 cachedTerm.IsTermResolved = true;
             }
