@@ -115,7 +115,29 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Default Mode 
             if (!this.skipDefaultTermStoreMapping)
             {
+                var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
 
+                if (resolvedInputMapping.IsTermResolved)
+                {
+                    //Check if the source term ID exists in target then map.
+                    var resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, inputSourceTerm.TermGuid);
+                    if (resolvedInputMappingInTarget.IsTermResolved)
+                    {
+                        inputSourceTerm.IsTermResolved = true; //Happy that term ID is the same as source
+                        inputSourceTerm.TermLabel = resolvedInputMappingInTarget.TermLabel; //Just in case the ids are the same and labels are not
+                        return inputSourceTerm;
+                    }
+
+                    //Check if the term labels are the same, ids maybe different - in this scenario, validate if the term paths are the same.
+                    //if so, then auto-map.
+                    resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, resolvedInputMapping.TermPath);
+                    if (resolvedInputMappingInTarget.IsTermResolved)
+                    {
+                        inputSourceTerm.IsTermResolved = true; //Happy that term ID is the same as source
+                        inputSourceTerm.TermGuid = resolvedInputMappingInTarget.TermGuid; //Just in case the ids are the same and labels are not
+                        return inputSourceTerm;
+                    }
+                }
 
             }
 
@@ -219,6 +241,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         }
 
+        #region Called from Cache Manager
+
         /// <summary>
         /// Extract all the terms from a termset for caching and quicker processing
         /// </summary>
@@ -308,6 +332,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             return items;
         }
+
+        #endregion
 
         /// <summary>
         /// Validate the source term contains the path and is recognised in the term store

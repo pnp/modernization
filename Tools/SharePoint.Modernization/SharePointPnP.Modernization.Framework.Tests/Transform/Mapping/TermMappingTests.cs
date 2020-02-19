@@ -47,10 +47,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                         KeepPageSpecificPermissions = true,
 
                         // Term store mapping
-                        TermMappingFile = @"..\..\Transform\Mapping\term_mapping_sample.csv",
-
+                        TermMappingFile = string.Empty,
                         SkipTermStoreMapping = false
-
                     };
 
                     TermTransformator termTransformator = new TermTransformator(pti, sourceClientContext, targetClientContext, null);
@@ -67,18 +65,17 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         }
 
         [TestMethod]
-        public void BasicOnPremPublishingPage_MultiTermTest()
+        public void BasicOnlinePublishingPage_TermDefaultTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
-                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
+                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
                 {
                     var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\onprem-mapping-all-test.xml");
                     //pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder:"News", pageNameStartsWith:"Kitchen");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder: "News", pageNameStartsWith: "Kitchen");
 
                     pages.FailTestIfZero();
 
@@ -92,13 +89,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                             // Don't log test runs
                             SkipTelemetry = true,
 
-                            
-
                             //Permissions are unlikely to work given cross domain
                             KeepPageSpecificPermissions = false,
 
                             // Term store mapping
-                            TermMappingFile = @"..\..\Transform\Mapping\term_mapping_sample.csv",
+                            TermMappingFile = string.Empty,
 
                             SkipTermStoreMapping = false
 
@@ -119,7 +114,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         }
 
         [TestMethod]
-        public void BasicOnlinePublishingPage_TermTest()
+        public void BasicOnlinePublishingPage_TermMappingTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
@@ -152,7 +147,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                             // Term store mapping
                             TermMappingFile = @"..\..\Transform\Mapping\term_mapping_sample.csv",
 
-                            SkipTermStoreMapping = false
+                            SkipTermStoreMapping = true
 
                         };
 

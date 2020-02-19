@@ -121,6 +121,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                 // Taxonomy Field
                                 if (targetFieldData.FieldType == "TaxonomyFieldTypeMulti" || targetFieldData.FieldType == "TaxonomyFieldType")
                                 {
+
+                                    #region Load Library Field Data
+
                                     if (!targetSitePagesLibraryLoaded)
                                     {
                                         var sitePagesServerRelativeUrl = UrlUtility.Combine(targetClientContext.Web.ServerRelativeUrl, "sitepages");
@@ -140,6 +143,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         sourceLibraryLoaded = true;
                                     }
 
+                                    #endregion
 
                                     var targetTaxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.Id.Equals(targetFieldData.FieldId)).FirstOrDefault();
                                     if (targetTaxFieldBeforeCast != null)
@@ -169,6 +173,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                     {
                                                         case "TaxonomyFieldTypeMulti":
                                                             {
+                                                                #region Multiple Valued Taxonomy Field
+
                                                                 if (!string.IsNullOrEmpty(fieldToProcess.Functions))
                                                                 {
                                                                     // execute function
@@ -287,12 +293,15 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                     // Publishing field was empty, so let's skip the metadata copy
                                                                     LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                                 }
-
+                                                                #endregion
                                                             }
                                                             break;
 
                                                         case "TaxonomyFieldType":
                                                             {
+
+                                                                #region Single Valued Taxonomy Field
+
                                                                 if (!string.IsNullOrEmpty(fieldToProcess.Functions))
                                                                 {
                                                                     // execute function
@@ -321,7 +330,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                 }
 
                                                                 TaxonomyFieldValue taxValue = new TaxonomyFieldValue();
-
+                                                                
                                                                 if (fieldValueToSet is TaxonomyFieldValue)
                                                                 {
 
@@ -374,6 +383,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                     // Publishing field was empty, so let's skip the metadata copy
                                                                     LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                                 }
+
+                                                                #endregion
 
                                                                 break;
                                                             }
