@@ -416,10 +416,21 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     // Persist changes
                     if (isDirty)
                     {
-                        this.page.PageListItem.UpdateOverwriteVersion();
-                        targetClientContext.Load(this.page.PageListItem);
-                        targetClientContext.ExecuteQueryRetry();
-                        isDirty = false;
+                        try
+                        {
+                            this.page.PageListItem.UpdateOverwriteVersion();
+                            targetClientContext.Load(this.page.PageListItem);
+                            targetClientContext.ExecuteQueryRetry();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            LogError(LogStrings.Error_CommittingTaxonomyField, LogStrings.Heading_CopyingPageMetadata, ex);
+                        }
+                        finally
+                        {
+                            isDirty = false;
+                        }
                     }
 
                     string bannerImageUrl = null;

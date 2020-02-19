@@ -236,7 +236,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (targetTermSetId != null && targetTermSetId != Guid.Empty)
             {
-                Cache.CacheManager.Instance.StoreTermSetTerms(this._sourceContext, targetTermSetId);
+                Cache.CacheManager.Instance.StoreTermSetTerms(this._targetContext, targetTermSetId);
             }
 
         }

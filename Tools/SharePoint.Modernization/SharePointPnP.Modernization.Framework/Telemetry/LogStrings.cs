@@ -101,6 +101,7 @@
         public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
 
         public const string Error_TransformingTaxonomyField = "Error occurred transforming taxonomy field: {0}";
+        public const string Error_CommittingTaxonomyField = "Error occurred committing taxonomy field data";
 
         #endregion
 

@@ -71,11 +71,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
             {
                 using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
                 {
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\onprem-mapping-all-test.xml");
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\spo-mapping-all-test.xml");
                     //pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
 
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder: "News", pageNameStartsWith: "Kitchen");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", pageNameStartsWith: "Article-PnP-Example");
 
                     pages.FailTestIfZero();
 
@@ -95,6 +95,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                             // Term store mapping
                             TermMappingFile = string.Empty,
 
+                            //Should process default mapping
                             SkipTermStoreMapping = false
 
                         };
