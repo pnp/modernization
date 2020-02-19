@@ -311,7 +311,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             var result = CacheManager.Instance.GetTransformTermCacheTermByName(context, termPath);
             if (result != default && result.Any())
             {
-                result.First(); // First mapping
+                var cachedTerm = result.First();
+                cachedTerm.IsTermResolved = true;
+                return cachedTerm; // First mapping
             }
 
             return default;
@@ -325,7 +327,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public TermData ResolveTermInCache(ClientContext context, Guid termId)
         {
             //Use the cache
-            return CacheManager.Instance.GetTransformTermCacheTermById(context, termId);
+            var cachedTerm = CacheManager.Instance.GetTransformTermCacheTermById(context, termId);
+            if(cachedTerm != default)
+            {
+                cachedTerm.IsTermResolved = true;
+            }
+            return cachedTerm;
         }
 
     }
