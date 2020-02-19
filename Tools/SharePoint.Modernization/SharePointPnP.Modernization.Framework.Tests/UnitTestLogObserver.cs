@@ -46,5 +46,10 @@ namespace SharePointPnP.Modernization.Framework.Tests
         {
             //throw new NotImplementedException();
         }
+
+        public void Flush(bool clearLogData)
+        {
+            //Do nothing
+        }
     }
 }

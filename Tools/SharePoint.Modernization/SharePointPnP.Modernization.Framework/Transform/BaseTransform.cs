@@ -52,9 +52,19 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         public void FlushObservers()
         {
+            int i = 0;
             foreach (ILogObserver observer in _logObservers)
             {
-                observer.Flush();
+                i++;
+
+                if (i == _logObservers.Count)
+                {
+                    observer.Flush(true);
+                }
+                else
+                {
+                    observer.Flush(false);
+                }
             }
         }
 

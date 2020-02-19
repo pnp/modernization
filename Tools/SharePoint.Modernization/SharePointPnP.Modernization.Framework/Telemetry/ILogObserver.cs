@@ -27,9 +27,14 @@
         void Debug(LogEntry entry);
 
         /// <summary>
-        /// Pushes all output to destination
+        /// Pushes all output to destination and clears the cached log information
         /// </summary>
         void Flush();
+
+        /// <summary>
+        /// Pushes all output to destination and clears the cached log information if needed
+        /// </summary>
+        void Flush(bool clearLogData);
 
         /// <summary>
         /// Sets the id of the page that's being transformed

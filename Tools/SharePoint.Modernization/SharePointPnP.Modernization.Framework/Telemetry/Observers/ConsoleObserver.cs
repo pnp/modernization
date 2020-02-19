@@ -66,6 +66,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// </summary>
         public void Flush()
         {
+            Flush(true);
+        }
+
+        /// <summary>
+        /// Output a summary to the console
+        /// </summary>
+        /// <param name="clearLogData">Also clear the log data</param>
+        public void Flush(bool clearLogData)
+        {
             //Output transform duration
             Console.WriteLine("-----------Transformation Summary -------------");
 
@@ -76,9 +85,11 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
 
             Console.WriteLine("-----------------------------------------------");
 
-            var logs = _lazyLogInstance.Value;
-            logs.RemoveRange(0, logs.Count);
-
+            if (clearLogData)
+            {
+                var logs = _lazyLogInstance.Value;
+                logs.RemoveRange(0, logs.Count);
+            }
         }
 
         /// <summary>
@@ -129,6 +140,6 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
             Console.ForegroundColor = color;
             Console.WriteLine(message);
             Console.ForegroundColor = originalColour;
-        }
+        }        
     }
 }
