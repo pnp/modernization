@@ -86,7 +86,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (result.IsTermResolved)
                 {
                     fieldValue.Label = result.TermLabel;
-                    fieldValue.TermGuid = result.TermLabel;
+                    fieldValue.TermGuid = result.TermGuid.ToString();
                 }
                 else
                 {
