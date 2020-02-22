@@ -59,7 +59,8 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <summary>
         /// Write the report to SharePoint
         /// </summary>
-        public override void Flush()
+        /// <param name="clearLogData">Also clear the log data</param>
+        public override void Flush(bool clearLogData)
         {
             try
             {

@@ -154,6 +154,11 @@ namespace SharePoint.Modernization.Scanner.Core.Results
         /// </summary>
         public string SiteId { get; set; }
 
+        /// <summary>
+        /// Search center url for the site
+        /// </summary>
+        public string SearchCenterUrl { get; set; }
+
         #region Cloning
         /// <summary>
         /// Clone this object, keep in sync when new props are added to this class
@@ -194,6 +199,7 @@ namespace SharePoint.Modernization.Scanner.Core.Results
                 ViewsRecent = this.ViewsRecent,
                 ViewsRecentUniqueUsers = this.ViewsRecentUniqueUsers,
                 SiteId = this.SiteId,
+                SearchCenterUrl = this.SearchCenterUrl
             };
         }
         #endregion

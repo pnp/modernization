@@ -87,5 +87,10 @@ namespace SharePoint.Modernization.Scanner.Core.Results
         /// Is the everyone or everyone except external users claim used somewhere on this web
         /// </summary>
         public bool EveryoneClaimsGranted { get; set; }
+
+        /// <summary>
+        /// Search center url at web level
+        /// </summary>
+        public string SearchCenterUrl { get; set; }
     }
 }

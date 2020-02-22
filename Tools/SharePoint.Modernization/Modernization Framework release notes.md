@@ -14,6 +14,15 @@
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+- Fix: Undo #415 change as that breaks the aggregation of logs accross multiple calls #430
+- Fix: New fix for #415 (not clearing logs on first log observer flush call) # 430
+
+## [February release - version 1.0.2002.0]
+
 ## Added
 
 - When transforming publishing page html you can now prefix and/or suffix the publishing html with extra text. This is useful in scenarios where there's hardcoded text in the custom pagelayout. #413
@@ -27,7 +36,8 @@
 - Fix: Empty taxonomy fields are skipped during metadata value copy. Fixes #412
 - Fix: Don't use static log collection as this does not work when using multiple log observers #415 [schnito]
 - Fix: SP2010 web parts in web part zones were not correctly detected and transformation failed #419 [pkbullock]
-- Fix: Some classess where not hooked up to the logging system #420 [pkbullock]
+- Fix: Some classess where not hooked up to the logging system #420 / #422 [pkbullock]
+- Fix: Row normalization should not be done for web part pages as that can break predefined web part page layout to modern layout mapping #426
 
 ## [January release - version 1.0.2001.0]
 

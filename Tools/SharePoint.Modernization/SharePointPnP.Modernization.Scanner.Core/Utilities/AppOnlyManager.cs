@@ -149,7 +149,7 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
         internal bool AppOnlyTokenHasFullControl(Options options, List<string> sites)
         {
             // Skip if not app-only
-            if (options.AuthenticationTypeProvided() == AuthenticationType.Office365 || options.AuthenticationTypeProvided() == AuthenticationType.NetworkCredentials || options.AuthenticationTypeProvided() == AuthenticationType.AppOnly)
+            if (options.AuthenticationTypeProvided() != AuthenticationType.AzureADAppOnly)
             {
                 return true;
             }

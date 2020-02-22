@@ -133,6 +133,10 @@ namespace SharePoint.Modernization.Scanner.Core
             {
                 this.UseOffice365Authentication(options.User, options.Password);
             }
+            else if (options.AuthenticationTypeProvided() == AuthenticationType.AccessToken)
+            {
+                this.UseAccessTokenAuthentication(options.AccessToken);
+            }
 
             // Configure sites to scan
             if (!String.IsNullOrEmpty(this.Tenant))

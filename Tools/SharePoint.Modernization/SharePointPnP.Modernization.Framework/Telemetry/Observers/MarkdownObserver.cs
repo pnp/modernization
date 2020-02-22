@@ -15,7 +15,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
     {
 
         // Cache the logs between calls
-        private readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
+        private static readonly Lazy<List<Tuple<LogLevel, LogEntry>>> _lazyLogInstance = new Lazy<List<Tuple<LogLevel, LogEntry>>>(() => new List<Tuple<LogLevel, LogEntry>>());
         protected bool _includeDebugEntries;
         protected bool _includeVerbose;
         protected DateTime _reportDate;
@@ -69,7 +69,7 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// <summary>
         /// Get the single List<LogEntry> instance, singleton pattern
         /// </summary>
-        public List<Tuple<LogLevel, LogEntry>> Logs
+        public static List<Tuple<LogLevel, LogEntry>> Logs
         {
             get
             {
@@ -500,6 +500,15 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
         /// </summary>
         public virtual void Flush()
         {
+            Flush(true);
+        }
+
+        /// <summary>
+        /// Output the report when flush is called
+        /// </summary>
+        /// <param name="clearLogData">Also clear the log data</param>
+        public virtual void Flush(bool clearLogData)
+        {
             try
             {
                 //var report = GenerateReportWithSummaryAtTop();
@@ -517,20 +526,18 @@ namespace SharePointPnP.Modernization.Framework.Telemetry.Observers
                 }
 
                 // Cleardown all logs
-                var logs = _lazyLogInstance.Value;
-                logs.RemoveRange(0, logs.Count);
+                if (clearLogData)
+                {
+                    var logs = _lazyLogInstance.Value;
+                    logs.RemoveRange(0, logs.Count);
+                }
 
                 Console.WriteLine($"Report saved as: {logFileName}");
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error writing to log file: {0} {1}", ex.Message, ex.StackTrace);
             }
-
         }
-
-
-
     }
 }

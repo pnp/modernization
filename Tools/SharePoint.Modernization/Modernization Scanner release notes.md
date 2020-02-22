@@ -4,6 +4,14 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.9]
+
+## Added
+
+- Site and web search center url setting is included in the ModernizationSiteScanResults.csv and ModernizationWebScanResults.csv files
+- The scanner uses modern username/password auth, there's no dependency anymore on legacy auth being enabled on the tenant
+- The scanner supports multi-factor authentication via an interactive login prompt
+
 ## [Version 2.8]
 
 ## Added
