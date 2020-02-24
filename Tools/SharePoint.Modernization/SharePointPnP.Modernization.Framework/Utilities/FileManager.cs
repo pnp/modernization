@@ -62,7 +62,7 @@ namespace SharePointPnP.Modernization.Framework.Utilities
                             if (!string.IsNullOrEmpty(fromUrl) && !string.IsNullOrEmpty(toUrl))
                             {
                                 urlMappings.Add(new UrlMapping() { SourceUrl = fromUrl, TargetUrl = toUrl });
-                                LogDebug(string.Format(LogStrings.UrlMappingLoaded, fromUrl, toUrl), LogStrings.Heading_UrlRewriter);
+                                //LogDebug(string.Format(LogStrings.UrlMappingLoaded, fromUrl, toUrl), LogStrings.Heading_UrlRewriter);
                             }
                         }
                     }
@@ -109,7 +109,7 @@ namespace SharePointPnP.Modernization.Framework.Utilities
                             if (!string.IsNullOrEmpty(sourceTerm) && !string.IsNullOrEmpty(targetTerm))
                             {
                                 termMappings.Add(new TermMapping() { SourceTerm = sourceTerm, TargetTerm = targetTerm });
-                                LogDebug(string.Format(LogStrings.Term_MappingLoaded, sourceTerm, targetTerm), LogStrings.Heading_TermMapping);
+                                //LogDebug(string.Format(LogStrings.Term_MappingLoaded, sourceTerm, targetTerm), LogStrings.Heading_TermMapping);
                             }
                         }
                     }

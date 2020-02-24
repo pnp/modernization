@@ -16,6 +16,8 @@
 
 ### Added
 
+- Term mapping support #187 #437 [pkbullock]
+
 ### Changed
 
 - Fix: Undo #415 change as that breaks the aggregation of logs accross multiple calls #430

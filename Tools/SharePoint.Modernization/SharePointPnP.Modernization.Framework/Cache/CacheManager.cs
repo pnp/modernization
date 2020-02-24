@@ -1204,7 +1204,6 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             if (loadedTerm != null)
             {
-                //uint lcid = context.Web.EnsureProperty(p => p.Language);
                 termInfo = loadedTerm.Name;
                 
                 // add to cache
@@ -1233,8 +1232,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
                 foreach (var termSetTerm in termSetTerms)
                 {
                     termCache.TryAdd(termSetTerm.Key, termSetTerm.Value);
-                    Store.Set<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
                 }
+                Store.Set<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
             }
         }
 
