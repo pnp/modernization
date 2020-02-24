@@ -228,19 +228,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Sets the cache for contents of the term store to be used when getting terms for fields
         /// </summary>
-        /// <param name="termSetId"></param>
-        /// <param name="isSourceTermStore"></param>
-        public void CacheTermsFromTermStore(Guid sourceTermSetId, Guid targetTermSetId)
+        /// <param name="sourceTermSetId"></param>
+        /// <param name="targetTermSetId"></param>
+        /// <param name="sourceSspId"></param>
+        public void CacheTermsFromTermStore(Guid sourceTermSetId, Guid targetTermSetId, Guid sourceSspId, bool isSP2010)
         {
             // Collect source terms
             if (sourceTermSetId != null && sourceTermSetId != Guid.Empty)
             {
-                Cache.CacheManager.Instance.StoreTermSetTerms(this._sourceContext, sourceTermSetId);
+                Cache.CacheManager.Instance.StoreTermSetTerms(this._sourceContext, sourceTermSetId, sourceSspId, isSP2010);
             }
 
             if (targetTermSetId != null && targetTermSetId != Guid.Empty)
             {
-                Cache.CacheManager.Instance.StoreTermSetTerms(this._targetContext, targetTermSetId);
+                Cache.CacheManager.Instance.StoreTermSetTerms(this._targetContext, targetTermSetId, sourceSspId, isSP2010);
             }
 
         }
@@ -379,7 +380,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="xmlfieldSchema"></param>
         /// <returns></returns>
-        public static string ExtractTermSetIdFromXmlSchema(string xmlfieldSchema)
+        public static string ExtractTermSetIdOrSspIdFromXmlSchema(string xmlfieldSchema, bool findSspId = false)
         {
             //Credit: https://sharepointfieldnotes.blogspot.com/2011/08/sharepoint-2010-code-tips-setting.html
 
@@ -392,10 +393,22 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var name = property.Element("Name");
                 var value = property.Element("Value");
 
-                if (name != null && value != null && name.Value == "TermSetId")
+                if (name != null && value != null)
                 {
-                    return value.Value;
-
+                    if (!findSspId)
+                    {
+                        if (name.Value == "TermSetId")
+                        {
+                            return value.Value;
+                        }
+                    }
+                    else
+                    {
+                        if (name.Value == "SspId")
+                        {
+                            return value.Value;
+                        }
+                    }
                 }
             }
 
@@ -409,7 +422,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="sspId"></param>
         /// <param name="termSetId"></param>
         /// <returns></returns>
-        public Dictionary<Guid, TermData> CallTaxonomyWebServiceFindTermSetId(ClientContext context, Guid sspId, Guid termSetId)
+        public static Dictionary<Guid, TermData> CallTaxonomyWebServiceFindTermSetId(ClientContext context, Guid sspId, Guid termSetId)
         {
             var termsCache = new Dictionary<Guid, TermData>();
 
@@ -533,7 +546,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                             if (term.HasChildren)
                             {
-                                var moreSubTerms = CallTaxonomyWebServiceFindChildTerms(context, sspId, termSetId, Guid.Parse(term.TermGuid), termPath);
+                                var moreSubTerms = TermTransformator.CallTaxonomyWebServiceFindChildTerms(context, sspId, termSetId, Guid.Parse(term.TermGuid), termPath);
                                 foreach (var foundTerm in moreSubTerms)
                                 {
                                     termsCache.Add(foundTerm.Key, foundTerm.Value);
@@ -549,7 +562,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch (WebException ex)
             {
-                LogError("An error occurred calling the web services", LogStrings.Heading_ContentTransform, ex);
+                //LogError("An error occurred calling the web services", LogStrings.Heading_ContentTransform, ex);
 
             }
 
@@ -564,7 +577,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <param name="termSetId"></param>
         /// <param name="termId"></param>
         /// <returns></returns>
-        public Dictionary<Guid, TermData> CallTaxonomyWebServiceFindChildTerms(ClientContext context, Guid sspId, Guid termSetId, Guid termId, string subTermPath)
+        public static Dictionary<Guid, TermData> CallTaxonomyWebServiceFindChildTerms(ClientContext context, Guid sspId, Guid termSetId, Guid termId, string subTermPath)
         {
             var termsCache = new Dictionary<Guid, TermData>();
 
@@ -696,7 +709,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
             catch (WebException ex)
             {
-                LogError("An error occurred calling the web services", LogStrings.Heading_ContentTransform, ex);
+                //LogError("An error occurred calling the web services", LogStrings.Heading_ContentTransform, ex);
 
             }
 

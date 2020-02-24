@@ -541,19 +541,38 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
 
                     var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
-                    var sourceTaxFieldBeforeCast = sourceSitesPagesLibrary?.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
+                    var sourceTaxFieldBeforeCast = sourceSitesPagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
 
                     switch (fieldToCopy.FieldType)
                     {
                         case "TaxonomyFieldTypeMulti":
                             {
-                                if (taxFieldBeforeCast != null)
+                                if (taxFieldBeforeCast != null && sourceTaxFieldBeforeCast != null)
                                 {
                                     var taxField = targetPage.Context.CastTo<TaxonomyField>(taxFieldBeforeCast);
                                     var srcTaxField = this.sourceClientContext.CastTo<TaxonomyField>(sourceTaxFieldBeforeCast);
+                                    var isSP2010 = pageTransformationInformation.SourceVersion == SPVersion.SP2010;
+
+                                    var sourceTermSetId = Guid.Empty;
+                                    var sourceSsdId = Guid.Empty;
+
+                                    if (isSP2010)
+                                    {
+                                        // 2010 doesnt appear to be able to cast this type via CSOM
+                                        var extractedTermSetId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml);
+                                        Guid.TryParse(extractedTermSetId, out sourceTermSetId);
+                                        var extractedSspId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml, true);
+                                        Guid.TryParse(extractedSspId, out sourceSsdId);
+                                    }
+                                    else
+                                    {
+                                        sourceTermSetId = srcTaxField.TermSetId;
+                                        sourceSsdId = srcTaxField.SspId;
+                                    }
+                                                                       
                                     //Gather terms from the term store
                                     //TODO: Refine this, feels clunky implementation
-                                    termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId);
+                                    termTransformator.CacheTermsFromTermStore(sourceTermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
 
                                     if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
                                     {
@@ -626,6 +645,46 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                                 // Field was empty, so let's skip the metadata copy
                                                 LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                             }
+                                        }
+                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Array && isSP2010)
+                                        {
+
+                                            var taxValueArray = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Array);
+                                            
+                                            List<string> taxonomyFieldValueArray = new List<string>();
+                                            foreach (var taxValueItem in taxValueArray)
+                                            {
+                                                var term = taxValueItem.ToString().Split('|');
+
+                                                var label = term[0].ToString();
+                                                var termGuid = new Guid(term[1]);
+
+                                                //Term Transformator
+                                                var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
+
+                                                if (transformTerm.IsTermResolved)
+                                                {
+                                                    taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid.ToString()}");
+                                                }
+                                                else
+                                                {
+                                                    LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                }
+                                            }
+
+                                            if (taxValueArray.Length > 0)
+                                            {
+                                                var valueCollection = new TaxonomyFieldValueCollection(targetPage.Context, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
+                                                isDirty = true;
+                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                            }
+                                            else
+                                            {
+                                                // Field was empty, so let's skip the metadata copy
+                                                LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
+                                            }
+
                                         }
                                         else
                                         {

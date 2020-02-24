@@ -154,6 +154,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                         {
                                             var targetTaxField = this.targetClientContext.CastTo<TaxonomyField>(targetTaxFieldBeforeCast);
                                             var srcTaxField = this.sourceClientContext.CastTo<TaxonomyField>(srcTaxFieldBeforeCast);
+
+                                            
+
+
                                             //Block if the source field is a multi-valued tax field and target is single-valued
                                             if (targetTaxField.AllowMultipleValues != srcTaxField.AllowMultipleValues && srcTaxField.AllowMultipleValues)
                                             {
@@ -165,8 +169,11 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                 {
                                                     //Gather terms from the term store
                                                     //TODO: Refine this, feels clunky implementation
-                                                    termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, targetTaxField.TermSetId);
-                                                    
+                                                    //TODO: 2010 Support
+                                                    if (this.publishingPageTransformationInformation.SourceVersion != SPVersion.SP2010) { 
+                                                        termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, targetTaxField.TermSetId, Guid.Empty, false);
+                                                    }
+
                                                     object fieldValueToSet = null;
 
                                                     switch (targetFieldData.FieldType)
