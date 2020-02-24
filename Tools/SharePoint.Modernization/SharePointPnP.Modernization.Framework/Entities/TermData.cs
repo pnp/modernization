@@ -35,8 +35,9 @@ namespace SharePointPnP.Modernization.Framework.Entities
         public bool IsTermResolved { get; set; }
 
         /// <summary>
-        /// Taxonomy Term Group Id
+        /// Is the term a source term
         /// </summary>
-        public Guid SspId { get; set; }
+        public bool IsSourceTerm { get; set; }
+
     }
 }

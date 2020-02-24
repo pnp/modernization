@@ -10,6 +10,13 @@ namespace SharePointPnP.Modernization.Framework.Tests
 {
     public class UnitTestLogObserver : ILogObserver
     {
+        public bool FailOnNonCritical { get; private set; }
+
+        public UnitTestLogObserver(bool failOnNonCritical = false)
+        {
+            FailOnNonCritical = failOnNonCritical;
+        }
+
         public void Debug(LogEntry entry)
         {
             Console.WriteLine($"DEBUG: {entry.Heading}  - Message: {entry.Message}");
@@ -21,10 +28,12 @@ namespace SharePointPnP.Modernization.Framework.Tests
             Console.WriteLine($"ERROR: {entry.Heading} Message: {entry.Message} \n\t Source: {entry.Source}, Error: { error }");
             Console.WriteLine($"ERROR: Stack Trace: {entry.Exception.StackTrace}");
 
-            if (entry.IsCriticalException)
+            if (entry.IsCriticalException || FailOnNonCritical)
             {
                 Assert.Fail(entry.Message);
             }
+
+
         }
 
         public void Flush()

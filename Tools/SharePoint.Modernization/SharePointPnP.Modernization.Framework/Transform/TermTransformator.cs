@@ -20,7 +20,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private ClientContext _targetContext;
         private List<TermMapping> termMappings;
         private bool skipDefaultTermStoreMapping;
-
+        private BaseTransformationInformation _baseTransformationInformation;
         public const string TermNodeDelimiter = "|";
         public const string TermGroupUnknownName = "FALLBACK";
 
@@ -67,6 +67,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (baseTransformationInformation != null)
             {
                 this.skipDefaultTermStoreMapping = baseTransformationInformation.SkipTermStoreMapping;
+                this._baseTransformationInformation = baseTransformationInformation;
             }
         }
 
@@ -117,13 +118,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Source or Target Term ID/Name may not be found
                        
             // Default Mode 
-            if (!this.skipDefaultTermStoreMapping)
+            if (!this.skipDefaultTermStoreMapping && !_baseTransformationInformation.IsCrossFarmTransformation)
             {
                 var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
 
                 if (resolvedInputMapping.IsTermResolved)
                 {
                     //Check if the source term ID exists in target then map.
+                    //TODO: THe term resolution isnt properly differentiating from source to target.
                     var resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, inputSourceTerm.TermGuid);
                     if (resolvedInputMappingInTarget.IsTermResolved)
                     {
@@ -236,12 +238,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Collect source terms
             if (sourceTermSetId != null && sourceTermSetId != Guid.Empty)
             {
-                Cache.CacheManager.Instance.StoreTermSetTerms(this._sourceContext, sourceTermSetId, sourceSspId, isSP2010);
+                Cache.CacheManager.Instance.StoreTermSetTerms(this._sourceContext, sourceTermSetId, sourceSspId, isSP2010, true);
             }
 
             if (targetTermSetId != null && targetTermSetId != Guid.Empty)
             {
-                Cache.CacheManager.Instance.StoreTermSetTerms(this._targetContext, targetTermSetId, sourceSspId, isSP2010);
+                Cache.CacheManager.Instance.StoreTermSetTerms(this._targetContext, targetTermSetId, sourceSspId, false, false);
             }
 
         }
