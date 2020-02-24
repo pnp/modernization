@@ -91,7 +91,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Load existing available controls
             var componentsToAdd = CacheManager.Instance.GetClientSideComponents(page);
 
-            if (this.transformationInformation.SourcePage != null && this.transformationInformation.SourcePage.PageType().Equals("WikiPage", StringComparison.InvariantCultureIgnoreCase))
+            if (this.transformationInformation.SourcePage != null && !this.transformationInformation.SourcePage.PageType().Equals("WebPartPage", StringComparison.InvariantCultureIgnoreCase))
             {
                 // Normalize row numbers as there can be gaps if the analyzed page contained wiki tables
                 int newRowOrder = 0;

@@ -20,6 +20,7 @@
 
 - Fix: Undo #415 change as that breaks the aggregation of logs accross multiple calls #430
 - Fix: New fix for #415 (not clearing logs on first log observer flush call) # 430
+- Fix: Only prevent row normalization for web part pages, this is still needed for publishing pages #434
 
 ## [February release - version 1.0.2002.0]
 
