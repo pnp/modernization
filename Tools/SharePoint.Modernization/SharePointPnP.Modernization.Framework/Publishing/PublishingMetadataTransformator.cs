@@ -177,7 +177,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                         //TODO: 2010 Support
                                                         if (this.publishingPageTransformationInformation.SourceVersion != SPVersion.SP2010)
                                                         {
-                                                            termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, targetTaxField.TermSetId);
+                                                            termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, targetTaxField.TermSetId, Guid.Empty, false);
                                                         }
                                                     }
 

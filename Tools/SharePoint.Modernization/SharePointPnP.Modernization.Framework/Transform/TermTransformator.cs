@@ -6,6 +6,10 @@ using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace SharePointPnP.Modernization.Framework.Transform
 {

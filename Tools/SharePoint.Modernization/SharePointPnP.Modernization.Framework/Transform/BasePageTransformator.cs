@@ -582,7 +582,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     {
                                         //Gather terms from the term store
                                         //TODO: Refine this, feels clunky implementation
-                                        termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId);
+                                        termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
                                     }
 
                                     if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
@@ -738,6 +738,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     {
                                         var srcTaxField = this.sourceClientContext.CastTo<TaxonomyField>(sourceTaxFieldBeforeCast);
 
+                                        var isSP2010 = pageTransformationInformation.SourceVersion == SPVersion.SP2010;
+
+                                        var sourceTermSetId = Guid.Empty;
+                                        var sourceSsdId = Guid.Empty;
+
+                                        if (isSP2010)
+                                        {
+                                            // 2010 doesnt appear to be able to cast this type via CSOM
+                                            var extractedTermSetId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml);
+                                            Guid.TryParse(extractedTermSetId, out sourceTermSetId);
+                                            var extractedSspId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml, true);
+                                            Guid.TryParse(extractedSspId, out sourceSsdId);
+                                        }
+                                        else
+                                        {
+                                            sourceTermSetId = srcTaxField.TermSetId;
+                                            sourceSsdId = srcTaxField.SspId;
+                                        }
+
                                         // If source and target field point to the same termset then termmapping is not needed
                                         bool skipTermMapping = srcTaxField.TermSetId == taxField.TermSetId;
 
@@ -750,7 +769,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         {
                                             //Gather terms from the term store
                                             //TODO: Refine this, feels clunky implementation
-                                            termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId);
+                                            termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
                                         }
 
                                         if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValue)
