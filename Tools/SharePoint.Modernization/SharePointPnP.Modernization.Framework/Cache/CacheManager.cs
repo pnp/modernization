@@ -1222,16 +1222,20 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// <param name="context"></param>
         /// <param name="termData"></param>
         /// <returns></returns>
-        public void StoreTermSetTerms(ClientContext context, Guid termSetId)
+        public void StoreTermSetTerms(ClientContext context, Guid termSetId, Guid sourceSspId, bool isSP2010, bool isSourceTerm)
         {
             var termsAlreadyInCache = GetTransformTermCacheTermsByTermSet(context, termSetId);
             if(termsAlreadyInCache == default)
             {
                 var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
-                var termSetTerms = TermTransformator.GetAllTermsFromTermSet(termSetId, context);
+                var termSetTerms = isSP2010 ? TermTransformator.CallTaxonomyWebServiceFindTermSetId(context, sourceSspId, termSetId) 
+                    : TermTransformator.GetAllTermsFromTermSet(termSetId, context);
+
                 foreach (var termSetTerm in termSetTerms)
                 {
-                    termCache.TryAdd(termSetTerm.Key, termSetTerm.Value);
+                    var term = termSetTerm.Value;
+                    term.IsSourceTerm = isSourceTerm;
+                    termCache.TryAdd(termSetTerm.Key, term);
                 }
                 Store.Set<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
             }

@@ -29,5 +29,11 @@ namespace SharePointPnP.Modernization.Framework.Entities
         /// Marks the term data validation against the term store
         /// </summary>
         public bool IsTermResolved { get; set; }
+
+        /// <summary>
+        /// Is the term a source term
+        /// </summary>
+        public bool IsSourceTerm { get; set; }
+
     }
 }
