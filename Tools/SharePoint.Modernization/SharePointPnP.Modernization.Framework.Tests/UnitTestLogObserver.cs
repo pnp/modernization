@@ -12,7 +12,7 @@ namespace SharePointPnP.Modernization.Framework.Tests
     {
         public void Debug(LogEntry entry)
         {
-            Console.WriteLine($"DEBUG: {entry.Heading}  - Message: {entry.Message} \n\t Source: {entry.Source}");
+            Console.WriteLine($"DEBUG: {entry.Heading}  - Message: {entry.Message}");
         }
 
         public void Error(LogEntry entry)

@@ -61,6 +61,7 @@
         public const string Heading_ApplyItemLevelPermissions = "Item level permissions";
         public const string Heading_SwappingPages = "Swapping Pages";
         public const string Heading_GetPrincipal = "Get Principal";
+        public const string Heading_TermMapping = "Term Mapping";
 
         #endregion
 
@@ -99,6 +100,9 @@
         public const string Error_ApplyPermissionFailedToApplyPermissions = "Error occurred applying permissions to item {0}";
         public const string CriticalError_ErrorOccurred = "A critical error occurred - transformation did not complete";
 
+        public const string Error_TransformingTaxonomyField = "Error occurred transforming taxonomy field: {0}";
+        public const string Error_CommittingTaxonomyField = "Error occurred committing taxonomy field data";
+
         #endregion
 
         #region Warning messages
@@ -108,6 +112,7 @@
         public const string Warning_PostingAPageAsNewsRequiresPagePublishing = "Posting a page as news requires the page to be published. Turning on the PublishCreatedPage flag.";
         public const string Warning_ContextValidationFailWithKeepPermissionsEnabled = "Keep Specific Permissions was set, however this is not currently supported when contexts are cross-farm/tenant - this feature has been disabled.";
         public const string Warning_FieldNotFoundInSourcePage = "You specified field {0} in your page layout mapping, but that field is not available in the source page.";
+        public const string Warning_FieldNotFoundInTargetPage = "You specified field {0} in your page layout mapping, but that field is not available in the target page.";
         public const string Warning_PageLayoutsCannotBeDetermined = "Page layout could not be determined by the publishing page.";
         public const string Warning_PageHeaderAuthorNotSet = "The page author header could not be set. Error = {0}.";
         public const string Warning_UserIsNotResolving = "User {0} can't be found, skipped assigning this user. Error: {1}";
@@ -162,7 +167,9 @@
         public const string TransformSavedPage = "Saved page";
         public const string TransformCopyingMetaDataField = "Copying field: ";
         public const string TransformCopyingMetaDataTaxFieldEmpty = "Copying taxonomy field {0} skipped because it's empty";
+        public const string TransformCopyingMetaDataTaxFieldValue = "Copying taxonomy field value {0} skipped because it's not part of the target termset";
         public const string TransformCopyingMetaDataFieldSkipped = "Skipped copying field: ";
+        public const string TransformCopyingMetaDataFieldMismatch = "Source or target multi-value setting mis-match";
         public const string TransformCopyingUserMetaDataFieldSkipped = "Skipped copying user field due to a cross farm modernization. Skipped field: ";
         public const string TransformGetItemPermissions = "Item level permissions read";
         public const string TransformCopiedItemPermissions = "Item level permissions copied";
@@ -343,6 +350,14 @@
         public const string LoadingUrlMappingFile = "Loading URL mapping file {0}";
         public const string UrlMappingLoaded = "Mapping from {0} to {1} loaded";
         public const string UrlRewritten = "ULR rewritten from: {0} to: {1}";
+        #endregion
+
+        #region Term Mapping
+        
+        public const string Term_LoadingMappingFile = "Loading term mapping file {0}";
+        public const string Term_MappingLoaded = "Mapping Term from {0} to {1} loaded";
+        public const string Warning_TermMappingFailedResolveTarget = "Mapping failed to resolve the target term mapping {0}";
+        public const string Warning_TermMappingFailedMapping = "Mapping failed to match the page metadata term with the mapping ID:{0}|{1}";
         #endregion
 
         #region User Mapping

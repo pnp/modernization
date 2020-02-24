@@ -105,6 +105,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Url to an URL mapping file
         /// </summary>
         public string UrlMappingFile { get; set; }
+
+        #endregion
+
+        #region Term Mapping Properties
+
+        /// <summary>
+        /// URL to an Term Store Mapping File
+        /// </summary>
+        public string TermMappingFile { get; set; }
+
+        /// <summary>
+        /// Turn off term store mapping
+        /// </summary>
+        public bool SkipTermStoreMapping { get; set; }
         
         #endregion
 

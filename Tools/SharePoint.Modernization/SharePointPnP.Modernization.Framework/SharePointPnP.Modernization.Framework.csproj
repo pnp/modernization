@@ -293,6 +293,8 @@
     <Compile Include="Delve\DelvePageTransformator.cs" />
     <Compile Include="Entities\AssetTransferredEntity.cs" />
     <Compile Include="Entities\ResolvedUser.cs" />
+    <Compile Include="Entities\TermData.cs" />
+    <Compile Include="Entities\TermMapping.cs" />
     <Compile Include="Entities\TransformationLogAnalysis.cs" />
     <Compile Include="Entities\UrlMapping.cs" />
     <Compile Include="Entities\UserEntity.cs" />
@@ -398,6 +400,7 @@
     <Compile Include="Transform\QuickLinksTransformator.cs" />
     <Compile Include="Transform\SPVersion.cs" />
     <Compile Include="Transform\SummaryLinksHtmlTransformator.cs" />
+    <Compile Include="Transform\TermTransformator.cs" />
     <Compile Include="Transform\TokenParser.cs" />
     <Compile Include="Transform\UrlTransformator.cs" />
     <Compile Include="Transform\UserTransformator.cs" />

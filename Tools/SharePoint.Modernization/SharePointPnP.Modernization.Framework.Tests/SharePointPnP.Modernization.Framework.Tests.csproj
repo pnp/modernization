@@ -208,6 +208,7 @@
     <Compile Include="Transform\CommonTests\CommonSPWebPartPageTests.cs" />
     <Compile Include="Transform\CommonTests\CommonSPWikiTests.cs" />
     <Compile Include="TestCategories.cs" />
+    <Compile Include="Transform\Mapping\TermMappingTests.cs" />
     <Compile Include="Transform\Mapping\UserMappingTests.cs" />
     <Compile Include="Transform\OnPremises\OnPremisesPublishingPageTests.cs" />
     <Compile Include="Transform\OnPremises\OnPremisesWebPartPageTests.cs" />
@@ -256,6 +257,7 @@
     </Content>
     <Content Include="Provision\Publishing\ArticleTopic.aspx" />
     <None Include="Provision\Readme.md" />
+    <None Include="Transform\Mapping\term_mapping_sample.csv" />
     <None Include="Transform\Mapping\usermapping_sample.csv" />
     <None Include="Transform\Mapping\urlmapping_sample.csv" />
     <None Include="Transform\Mapping\usermapping_sample2.csv" />

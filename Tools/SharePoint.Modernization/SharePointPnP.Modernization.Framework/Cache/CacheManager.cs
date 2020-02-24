@@ -56,6 +56,9 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private static readonly string keyUserMappings = "userMappings";
         private static readonly string keyMappedUsers = "mappedUsers";
         private static readonly string keyTermCache = "termCache";
+        private static readonly string keyTermMappings = "termMappings";
+
+        private static readonly string keyTermTransformatorCache = "keyTermTransformatorCache";
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -782,14 +785,15 @@ namespace SharePointPnP.Modernization.Framework.Cache
         /// </summary>
         public void ClearAllCaches()
         {
-            //this.assetsTransfered.Clear();
-            this.Store.Remove(StoreOptions.GetKey(keyAssetsTransferred));
             ClearClientSideComponents();
             ClearBaseTemplate();
 
             Store.Remove(StoreOptions.GetKey(keyUrlMapping));
             Store.Remove(StoreOptions.GetKey(keyUserMappings));
             Store.Remove(StoreOptions.GetKey(keyEnsuredUsers));
+            Store.Remove(StoreOptions.GetKey(keyTermMappings));
+            Store.Remove(StoreOptions.GetKey(keyAssetsTransferred));
+            Store.Remove(StoreOptions.GetKey(keyTermTransformatorCache));
 
             ClearFieldsToCopy();
             ClearSharePointVersions();
@@ -1210,6 +1214,89 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
             return termInfo;
         }
+
+        #region Term Transformator Caching
+
+        /// <summary>
+        /// Get Term Path by ID
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termData"></param>
+        /// <returns></returns>
+        public void StoreTermSetTerms(ClientContext context, Guid termSetId)
+        {
+            var termsAlreadyInCache = GetTransformTermCacheTermsByTermSet(context, termSetId);
+            if(termsAlreadyInCache == default)
+            {
+                var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+                var termSetTerms = TermTransformator.GetAllTermsFromTermSet(termSetId, context);
+                foreach (var termSetTerm in termSetTerms)
+                {
+                    termCache.TryAdd(termSetTerm.Key, termSetTerm.Value);
+                    Store.Set<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache), termCache, StoreOptions.EntryOptions);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get Term from Term Cache
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termId"></param>
+        /// <returns></returns>
+        public TermData GetTransformTermCacheTermById(ClientContext context, Guid termId)
+        {
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+            termCache.TryGetValue(termId, out TermData termInfoFromCache);
+            if (termInfoFromCache != default)
+            {
+                return termInfoFromCache;
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// Search Cached term by name
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termLabel"></param>
+        /// <param name="termPath"></param>
+        /// <returns></returns>
+        public List<TermData> GetTransformTermCacheTermByName(ClientContext context, string termLabel = "", string termPath = "")
+        {
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+
+            var candidateTerms = termCache.Where(o => o.Value.TermLabel == termLabel || o.Value.TermPath == termPath);
+            if (candidateTerms.Any())
+            {
+                return candidateTerms.Select(o => o.Value).ToList();
+            }
+            
+            return default(List<TermData>);
+        }
+
+        /// <summary>
+        /// Get Term by Term Set Id
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="termSetId"></param>
+        /// <returns></returns>
+        public Dictionary<Guid, TermData> GetTransformTermCacheTermsByTermSet(ClientContext context, Guid termSetId)
+        {
+            var termCache = Store.GetAndInitialize<ConcurrentDictionary<Guid, TermData>>(StoreOptions.GetKey(keyTermTransformatorCache));
+
+            var candidateTerms = termCache.Where(o => o.Value.TermSetId == termSetId);
+            if (candidateTerms.Any())
+            {
+                return candidateTerms.ToDictionary(o=>o.Key, o=>o.Value);
+            }
+
+            return default(Dictionary<Guid, TermData>);
+        }
+
+        #endregion
+
         #endregion
 
         #region Last used transformator
@@ -1278,6 +1365,27 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return userMappings;
         }
         #endregion
+
+        /// <summary>
+        /// Returns a cached list of mapped items
+        /// </summary>
+        /// <param name="mappingFile"></param>
+        /// <param name="logObservers"></param>
+        /// <returns></returns>
+        public List<TermMapping> GetTermMapping(string mappingFile, IList<ILogObserver> logObservers = null)
+        {
+            var termMapping = Store.GetAndInitialize<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings));
+            if (termMapping != null && termMapping.Count > 0)
+            {
+                return termMapping;
+            }
+
+            FileManager fileManager = new FileManager(logObservers);
+            termMapping = fileManager.LoadTermMappingFile(mappingFile);
+            Store.Set<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings), termMapping, StoreOptions.EntryOptions);
+
+            return termMapping;
+        }
 
         #region Helper methods
 
