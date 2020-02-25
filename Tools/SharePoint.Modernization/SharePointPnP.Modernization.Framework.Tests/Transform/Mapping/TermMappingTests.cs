@@ -93,6 +93,10 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                             //Permissions are unlikely to work given cross domain
                             KeepPageSpecificPermissions = false,
 
+                            SkipUserMapping = true,
+                            SkipDefaultUrlRewrite = true,
+                            SkipUrlRewrite = true,
+
                             // Term store mapping
                             TermMappingFile = @"..\..\Transform\Mapping\term_mapping_sample.csv",
 

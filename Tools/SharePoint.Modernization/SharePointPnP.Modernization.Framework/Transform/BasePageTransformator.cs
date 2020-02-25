@@ -881,7 +881,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 #region all other metadata except for taxonomy fields
 
                 // This is all other metadata except for taxonomy fields
-                foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType != "TaxonomyFieldTypeMulti" && p.FieldType != "TaxonomyFieldType"))
+                foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType != "TaxonomyFieldTypeMulti" && p.FieldType != "TaxonomyFieldType"
+                    && p.FieldName != "A2ODMountCount"))
                 {
                     var targetField = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
 
