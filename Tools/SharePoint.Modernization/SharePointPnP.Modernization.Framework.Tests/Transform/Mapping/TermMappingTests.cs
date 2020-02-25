@@ -324,58 +324,6 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         }
 
         [TestMethod]
-        public void BasicOnlineSitePage_TermTest()
-        {
-            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
-            {
-                using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOPublishingSite")))
-                {
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\onprem-mapping-all-test.xml");
-                    //pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
-                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
-
-
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder: "News", pageNameStartsWith: "Kitchen");
-
-                    pages.FailTestIfZero();
-
-                    foreach (var page in pages)
-                    {
-                        PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation(page)
-                        {
-                            // If target page exists, then overwrite it
-                            Overwrite = true,
-
-                            // Don't log test runs
-                            SkipTelemetry = true,
-
-
-
-                            //Permissions are unlikely to work given cross domain
-                            KeepPageSpecificPermissions = false,
-
-                            // Term store mapping
-                            TermMappingFile = @"..\..\Transform\Mapping\term_mapping_sample.csv",
-
-                            SkipTermStoreMapping = false
-
-                        };
-
-                        Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
-
-                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
-                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
-
-                        var result = pageTransformator.Transform(pti);
-                    }
-
-                    pageTransformator.FlushObservers();
-
-                }
-            }
-        }
-
-        [TestMethod]
         public void CacheTermStoreSiteCollectionByIdTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
