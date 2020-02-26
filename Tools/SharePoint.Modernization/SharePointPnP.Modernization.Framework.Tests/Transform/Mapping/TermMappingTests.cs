@@ -282,12 +282,14 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
             {
                 using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext())
                 {
-                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\onprem-mapping-all-test.xml");
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, @"C:\temp\onprem-mapping-test-taxonomy.xml");
                     //pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
-                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver(true));
 
-
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder: "News", pageNameStartsWith: "Our-new-IT-suite-is-mint");
+                    //2013
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", folder: "News", pageNameStartsWith: "Our-new-IT-suite-is-mint");
+                    //2010
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", pageNameStartsWith: "Article-2010-Taxonomy");
 
                     pages.FailTestIfZero();
 
@@ -301,16 +303,12 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
                             // Don't log test runs
                             SkipTelemetry = true,
 
-
-
                             //Permissions are unlikely to work given cross domain
                             KeepPageSpecificPermissions = false,
 
                             // Term store mapping
-                            TermMappingFile = @"..\..\Transform\Mapping\term_mapping_sample.csv",
-
-                            SkipTermStoreMapping = true
-
+                            TermMappingFile = @"..\..\Transform\Mapping\term_mapping_sample.csv"                            
+                           
                         };
 
                         Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);

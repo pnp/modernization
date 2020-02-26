@@ -571,18 +571,14 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     }
 
                                     // If source and target field point to the same termset then termmapping is not needed
-                                    bool skipTermMapping = srcTaxField.TermSetId == taxField.TermSetId;
+                                    bool skipTermMapping = (sourceTermSetId == taxField.TermSetId);
 
                                     if (!skipTermMapping)
                                     {
                                         skipTermMapping = !pageTransformationInformation.IsCrossSiteTransformation;
-                                    }
-
-                                    if (!skipTermMapping)
-                                    {
+                                    
                                         //Gather terms from the term store
-                                        //TODO: Refine this, feels clunky implementation
-                                        termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
+                                        termTransformator.CacheTermsFromTermStore(sourceTermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
                                     }
 
                                     if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
@@ -758,7 +754,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         }
 
                                         // If source and target field point to the same termset then termmapping is not needed
-                                        bool skipTermMapping = srcTaxField.TermSetId == taxField.TermSetId;
+                                        bool skipTermMapping = (sourceTermSetId == taxField.TermSetId);
 
                                         if (!skipTermMapping)
                                         {
@@ -769,7 +765,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         {
                                             //Gather terms from the term store
                                             //TODO: Refine this, feels clunky implementation
-                                            termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
+                                            termTransformator.CacheTermsFromTermStore(sourceTermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
                                         }
 
                                         if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValue)
@@ -882,7 +878,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 // This is all other metadata except for taxonomy fields
                 foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType != "TaxonomyFieldTypeMulti" && p.FieldType != "TaxonomyFieldType"
-                    && p.FieldName != "A2ODMountCount"))
+    && p.FieldName != "A2ODMountCount"))
                 {
                     var targetField = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
 
