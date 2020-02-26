@@ -290,6 +290,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
                     AddFieldRef(sitePagesInBaseTemplate.FieldRefs, new Guid("3a6b296c-3f50-445c-a13f-9c679ea9dda3"), "ComplianceAssetId");
                     AddFieldRef(sitePagesInBaseTemplate.FieldRefs, new Guid("9de685c5-fdf5-4319-b987-3edf55efb36f"), "_SPSitePageFlags");
                     AddFieldRef(sitePagesInBaseTemplate.FieldRefs, new Guid("1a53ab5a-11f9-4b92-a377-8cfaaf6ba7be"), "_DisplayName");
+                    AddFieldRef(sitePagesInBaseTemplate.FieldRefs, new Guid("3a8ee3f8-166b-4394-b3e2-e98dcf86a847"), "A2ODMountCount");
                 }
             }
 
