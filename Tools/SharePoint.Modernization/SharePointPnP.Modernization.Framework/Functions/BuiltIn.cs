@@ -155,6 +155,11 @@ namespace SharePointPnP.Modernization.Framework.Functions
                 return "";
             }
 
+            if (path.Equals("/_layouts/15/clientbin/mediaplaceholder.mp4"))
+            {
+                throw new MediaWebpartConfigurationException("Media web part configuration did not allow to read it's settings. Did you check if there was a preview image set?");
+            }
+
             return Path.GetFileName(path);
         }
 

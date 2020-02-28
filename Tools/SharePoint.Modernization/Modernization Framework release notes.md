@@ -24,6 +24,7 @@
 - Fix: New fix for #415 (not clearing logs on first log observer flush call) # 430
 - Fix: Only prevent row normalization for web part pages, this is still needed for publishing pages #434
 - Fix: Exclude the A2ODMountCount from the list of fields to process when copying metadata #439
+- Fix: When media web part settings can not be retrieved then simply skip the media web part
 
 ## [February release - version 1.0.2002.0]
 
