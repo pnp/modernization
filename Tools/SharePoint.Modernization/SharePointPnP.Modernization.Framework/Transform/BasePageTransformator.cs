@@ -510,234 +510,47 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
                 #region Taxonomy Fields
-                
+
                 foreach (var fieldToCopy in fieldsToCopy.Where(p => p.FieldType == "TaxonomyFieldTypeMulti" || p.FieldType == "TaxonomyFieldType"))
                 {
-                    if (!listItemWasReloaded)
+                    try
                     {
-                        // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
-                        targetPage.Context.Load(targetPage.PageListItem);
-                        targetPage.Context.ExecuteQueryRetry();
-                        listItemWasReloaded = true;
-                    }
-
-                    
-                    if (!isSourceInitialized)
-                    {
-                        if (pageTransformationInformation.IsCrossSiteTransformation)
+                        if (!listItemWasReloaded)
                         {
-
-                            //TODO: Check if there is a scenario where the source page may origniate from another library on same site/web
-                            // This is needed to get the field term set id
-                            sourceSitesPagesLibrary = pageTransformationInformation.SourcePage.ParentList;
-                            this.sourceClientContext.Load(sourceSitesPagesLibrary, l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required));
-                            this.sourceClientContext.ExecuteQueryRetry();
+                            // Load the target page list item, needs to be loaded as it was previously saved and we need to avoid version conflicts
+                            targetPage.Context.Load(targetPage.PageListItem);
+                            targetPage.Context.ExecuteQueryRetry();
+                            listItemWasReloaded = true;
                         }
 
-                        InitializeTermMapping(pageTransformationInformation);
-
-                        isSourceInitialized = true;
-                    }
-
-
-                    var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
-                    var sourceTaxFieldBeforeCast = sourceSitesPagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
-
-                    switch (fieldToCopy.FieldType)
-                    {
-                        case "TaxonomyFieldTypeMulti":
+                        if (!isSourceInitialized)
+                        {
+                            if (pageTransformationInformation.IsCrossSiteTransformation)
                             {
-                                if (taxFieldBeforeCast != null && sourceTaxFieldBeforeCast != null)
-                                {
-                                    var taxField = targetPage.Context.CastTo<TaxonomyField>(taxFieldBeforeCast);
-                                    var srcTaxField = this.sourceClientContext.CastTo<TaxonomyField>(sourceTaxFieldBeforeCast);
-                                    var isSP2010 = pageTransformationInformation.SourceVersion == SPVersion.SP2010;
 
-                                    var sourceTermSetId = Guid.Empty;
-                                    var sourceSsdId = Guid.Empty;
-
-                                    if (isSP2010)
-                                    {
-                                        // 2010 doesnt appear to be able to cast this type via CSOM
-                                        var extractedTermSetId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml);
-                                        Guid.TryParse(extractedTermSetId, out sourceTermSetId);
-                                        var extractedSspId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml, true);
-                                        Guid.TryParse(extractedSspId, out sourceSsdId);
-                                    }
-                                    else
-                                    {
-                                        sourceTermSetId = srcTaxField.TermSetId;
-                                        sourceSsdId = srcTaxField.SspId;
-                                    }
-
-                                    // If source and target field point to the same termset then termmapping is not needed
-                                    bool skipTermMapping = srcTaxField.TermSetId == taxField.TermSetId;
-
-                                    if (!skipTermMapping)
-                                    {
-                                        skipTermMapping = !pageTransformationInformation.IsCrossSiteTransformation;
-                                    }
-
-                                    if (!skipTermMapping)
-                                    {
-                                        //Gather terms from the term store
-                                        //TODO: Refine this, feels clunky implementation
-                                        termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
-                                    }
-
-                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
-                                    {
-                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValueCollection)
-                                        {
-                                            var valueCollectionToCopy = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValueCollection);
-                                            if (!skipTermMapping)
-                                            {
-                                                //Term Transformator
-                                                var resultTermTransform = termTransformator.TransformCollection(valueCollectionToCopy);
-                                                valueCollectionToCopy = resultTermTransform.Item1;
-
-                                                var taxonomyFieldValueArray = valueCollectionToCopy.Except(resultTermTransform.Item2).Select(taxonomyFieldValue => $"{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
-
-                                                //If not multi-valued exception is thrown
-                                                if (taxonomyFieldValueArray.Count() == 1)
-                                                {
-                                                    taxField.SetFieldValueByValue(targetPage.PageListItem, valueCollectionToCopy[0]);
-                                                }
-                                                else
-                                                {
-                                                    taxField.SetFieldValueByLabelGuidPair(targetPage.PageListItem, string.Join(";", taxonomyFieldValueArray));
-                                                }
-
-                                                isDirty = true;
-                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-
-                                                if (resultTermTransform.Item2.Any())
-                                                {
-                                                    resultTermTransform.Item2.ForEach(field =>
-                                                    {
-                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {field.Label}", LogStrings.Heading_CopyingPageMetadata);
-                                                    });
-                                                }
-                                            }
-                                            else
-                                            {
-                                                var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
-                                                var valueCollection = new TaxonomyFieldValueCollection(targetPage.Context, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                                taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
-                                                isDirty = true;
-                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                            }
-                                        }
-                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
-                                        {
-                                            var taxDictionaryList = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
-                                            var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
-
-                                            List<string> taxonomyFieldValueArray = new List<string>();
-                                            for (int i = 0; i < valueCollectionToCopy.Length; i++)
-                                            {
-                                                var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
-                                                var label = taxDictionary["Label"].ToString();
-                                                var termGuid = new Guid(taxDictionary["TermGuid"].ToString());
-
-                                                if (!skipTermMapping)
-                                                {
-                                                    //Term Transformator
-                                                    var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
-
-                                                    if (transformTerm.IsTermResolved)
-                                                    {
-                                                        taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
-                                                    }
-                                                    else
-                                                    {
-                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    taxonomyFieldValueArray.Add($"-1;#{label}|{termGuid}");
-                                                }
-                                            }
-
-                                            if (valueCollectionToCopy.Length > 0)
-                                            {
-                                                var valueCollection = new TaxonomyFieldValueCollection(targetPage.Context, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                                taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
-                                                isDirty = true;
-                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                            }
-                                            else
-                                            {
-                                                // Field was empty, so let's skip the metadata copy
-                                                LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
-                                            }
-                                        }
-                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Array && isSP2010)
-                                        {
-
-                                            var taxValueArray = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Array);
-                                            
-                                            List<string> taxonomyFieldValueArray = new List<string>();
-                                            foreach (var taxValueItem in taxValueArray)
-                                            {
-                                                var term = taxValueItem.ToString().Split('|');
-
-                                                var label = term[0].ToString();
-                                                var termGuid = new Guid(term[1]);
-
-                                                //Term Transformator
-                                                var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
-
-                                                if (transformTerm.IsTermResolved)
-                                                {
-                                                    taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid.ToString()}");
-                                                }
-                                                else
-                                                {
-                                                    LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
-                                                }
-                                            }
-
-                                            if (taxValueArray.Length > 0)
-                                            {
-                                                var valueCollection = new TaxonomyFieldValueCollection(targetPage.Context, string.Join(";#", taxonomyFieldValueArray), taxField);
-                                                taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
-                                                isDirty = true;
-                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                            }
-                                            else
-                                            {
-                                                // Field was empty, so let's skip the metadata copy
-                                                LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            // Field was empty, so let's skip the metadata copy
-                                            LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                    break;
-                                }
-                                break;
+                                //TODO: Check if there is a scenario where the source page may origniate from another library on same site/web
+                                // This is needed to get the field term set id
+                                sourceSitesPagesLibrary = pageTransformationInformation.SourcePage.ParentList;
+                                this.sourceClientContext.Load(sourceSitesPagesLibrary, l => l.Fields.IncludeWithDefaultProperties(f => f.Id, f => f.Title, f => f.Hidden, f => f.InternalName, f => f.DefaultValue, f => f.Required));
+                                this.sourceClientContext.ExecuteQueryRetry();
                             }
-                        case "TaxonomyFieldType":
-                            {
-                                if (taxFieldBeforeCast != null)
+
+                            InitializeTermMapping(pageTransformationInformation);
+
+                            isSourceInitialized = true;
+                        }
+
+                        var taxFieldBeforeCast = targetSitePagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
+                        var sourceTaxFieldBeforeCast = sourceSitesPagesLibrary.Fields.Where(p => p.StaticName.Equals(fieldToCopy.FieldName)).FirstOrDefault();
+
+                        switch (fieldToCopy.FieldType)
+                        {
+                            case "TaxonomyFieldTypeMulti":
                                 {
-                                    var taxField = targetPage.Context.CastTo<TaxonomyField>(taxFieldBeforeCast);
-                                    var taxValue = new TaxonomyFieldValue();
-
-                                    if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
+                                    if (taxFieldBeforeCast != null && sourceTaxFieldBeforeCast != null)
                                     {
+                                        var taxField = targetPage.Context.CastTo<TaxonomyField>(taxFieldBeforeCast);
                                         var srcTaxField = this.sourceClientContext.CastTo<TaxonomyField>(sourceTaxFieldBeforeCast);
-
                                         var isSP2010 = pageTransformationInformation.SourceVersion == SPVersion.SP2010;
 
                                         var sourceTermSetId = Guid.Empty;
@@ -758,101 +571,290 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         }
 
                                         // If source and target field point to the same termset then termmapping is not needed
-                                        bool skipTermMapping = srcTaxField.TermSetId == taxField.TermSetId;
+                                        bool skipTermMapping = (sourceTermSetId == taxField.TermSetId);
 
                                         if (!skipTermMapping)
                                         {
                                             skipTermMapping = !pageTransformationInformation.IsCrossSiteTransformation;
-                                        }
 
-                                        if (!skipTermMapping)
-                                        {
                                             //Gather terms from the term store
-                                            //TODO: Refine this, feels clunky implementation
-                                            termTransformator.CacheTermsFromTermStore(srcTaxField.TermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
+                                            termTransformator.CacheTermsFromTermStore(sourceTermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
                                         }
 
-                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValue)
+                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
                                         {
-                                            var labelToSet = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).Label;
-                                            var termGuidToSet = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).TermGuid;
-
-                                            if (!skipTermMapping)
+                                            if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValueCollection)
                                             {
-                                                //Term Transformator
-                                                var termTranform = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuidToSet), TermLabel = labelToSet });
-                                                if (termTranform.IsTermResolved)
+                                                var valueCollectionToCopy = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValueCollection);
+                                                if (!skipTermMapping)
                                                 {
-                                                    taxValue.Label = termTranform.TermLabel;
-                                                    taxValue.TermGuid = termTranform.TermGuid.ToString();
-                                                    taxValue.WssId = -1;
-                                                    taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
+                                                    //Term Transformator
+                                                    var resultTermTransform = termTransformator.TransformCollection(valueCollectionToCopy);
+                                                    valueCollectionToCopy = resultTermTransform.Item1;
+
+                                                    var taxonomyFieldValueArray = valueCollectionToCopy.Except(resultTermTransform.Item2).Select(taxonomyFieldValue => $"{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
+
+                                                    //If not multi-valued exception is thrown
+                                                    if (taxonomyFieldValueArray.Count() == 1)
+                                                    {
+                                                        taxField.SetFieldValueByValue(targetPage.PageListItem, valueCollectionToCopy[0]);
+                                                    }
+                                                    else
+                                                    {
+                                                        taxField.SetFieldValueByLabelGuidPair(targetPage.PageListItem, string.Join(";", taxonomyFieldValueArray));
+                                                    }
+
+                                                    isDirty = true;
+                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+
+                                                    if (resultTermTransform.Item2.Any())
+                                                    {
+                                                        resultTermTransform.Item2.ForEach(field =>
+                                                        {
+                                                            LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {field.Label}", LogStrings.Heading_CopyingPageMetadata);
+                                                        });
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    var taxonomyFieldValueArray = valueCollectionToCopy.Select(taxonomyFieldValue => $"-1;#{taxonomyFieldValue.Label}|{taxonomyFieldValue.TermGuid}");
+                                                    var valueCollection = new TaxonomyFieldValueCollection(targetPage.Context, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                    taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
+                                                    isDirty = true;
+                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                }
+                                            }
+                                            else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
+                                            {
+                                                var taxDictionaryList = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
+                                                var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
+
+                                                List<string> taxonomyFieldValueArray = new List<string>();
+                                                for (int i = 0; i < valueCollectionToCopy.Length; i++)
+                                                {
+                                                    var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
+                                                    var label = taxDictionary["Label"].ToString();
+                                                    var termGuid = new Guid(taxDictionary["TermGuid"].ToString());
+
+                                                    if (!skipTermMapping)
+                                                    {
+                                                        //Term Transformator
+                                                        var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
+
+                                                        if (transformTerm.IsTermResolved)
+                                                        {
+                                                            taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
+                                                        }
+                                                        else
+                                                        {
+                                                            LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        taxonomyFieldValueArray.Add($"-1;#{label}|{termGuid}");
+                                                    }
+                                                }
+
+                                                if (valueCollectionToCopy.Length > 0)
+                                                {
+                                                    var valueCollection = new TaxonomyFieldValueCollection(targetPage.Context, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                    taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
                                                     isDirty = true;
                                                     LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                 }
                                                 else
                                                 {
-                                                    LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {termTranform.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                    // Field was empty, so let's skip the metadata copy
+                                                    LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                 }
                                             }
-                                            else
+                                            else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Array && isSP2010)
                                             {
-                                                taxValue.Label = labelToSet;
-                                                taxValue.TermGuid = termGuidToSet;
-                                                taxValue.WssId = -1;
-                                                taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
-                                                isDirty = true;
-                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
-                                            }
-                                        }
-                                        else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
-                                        {
-                                            var taxDictionary = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
-                                            var label = taxDictionary["Label"].ToString();
-                                            var termGuid = taxDictionary["TermGuid"].ToString();
 
-                                            if (!skipTermMapping)
-                                            {
-                                                //Term Transformator
-                                                var transformTerm = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuid), TermLabel = label });
-                                                if (transformTerm.IsTermResolved)
+                                                var taxValueArray = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Array);
+
+                                                List<string> taxonomyFieldValueArray = new List<string>();
+                                                foreach (var taxValueItem in taxValueArray)
                                                 {
-                                                    taxValue.Label = transformTerm.TermLabel;
-                                                    taxValue.TermGuid = transformTerm.TermGuid.ToString();
-                                                    taxValue.WssId = -1;
-                                                    taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
+                                                    var term = taxValueItem.ToString().Split('|');
+
+                                                    var label = term[0].ToString();
+                                                    var termGuid = new Guid(term[1]);
+
+                                                    //Term Transformator
+                                                    var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
+
+                                                    if (transformTerm.IsTermResolved)
+                                                    {
+                                                        taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid.ToString()}");
+                                                    }
+                                                    else
+                                                    {
+                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                    }
+                                                }
+
+                                                if (taxValueArray.Length > 0)
+                                                {
+                                                    var valueCollection = new TaxonomyFieldValueCollection(targetPage.Context, string.Join(";#", taxonomyFieldValueArray), taxField);
+                                                    taxField.SetFieldValueByValueCollection(targetPage.PageListItem, valueCollection);
                                                     isDirty = true;
                                                     LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
                                                 }
                                                 else
                                                 {
-                                                    LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                    // Field was empty, so let's skip the metadata copy
+                                                    LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                 }
+
                                             }
                                             else
                                             {
-                                                taxValue.Label = label;
-                                                taxValue.TermGuid = termGuid;
-                                                taxValue.WssId = -1;
-                                                taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
-                                                isDirty = true;
-                                                LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                // Field was empty, so let's skip the metadata copy
+                                                LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                             }
-                                        }
-                                        else
-                                        {
-                                            // Field was empty, so let's skip the metadata copy
-                                            LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                    else
+                                    {
+                                        LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                        break;
+                                    }
                                     break;
                                 }
-                                break;
-                            }
+                            case "TaxonomyFieldType":
+                                {
+                                    if (taxFieldBeforeCast != null)
+                                    {
+                                        var taxField = targetPage.Context.CastTo<TaxonomyField>(taxFieldBeforeCast);
+                                        var taxValue = new TaxonomyFieldValue();
+
+                                        if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] != null)
+                                        {
+                                            var srcTaxField = this.sourceClientContext.CastTo<TaxonomyField>(sourceTaxFieldBeforeCast);
+
+                                            var isSP2010 = pageTransformationInformation.SourceVersion == SPVersion.SP2010;
+
+                                            var sourceTermSetId = Guid.Empty;
+                                            var sourceSsdId = Guid.Empty;
+
+                                            if (isSP2010)
+                                            {
+                                                // 2010 doesnt appear to be able to cast this type via CSOM
+                                                var extractedTermSetId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml);
+                                                Guid.TryParse(extractedTermSetId, out sourceTermSetId);
+                                                var extractedSspId = TermTransformator.ExtractTermSetIdOrSspIdFromXmlSchema(sourceTaxFieldBeforeCast.SchemaXml, true);
+                                                Guid.TryParse(extractedSspId, out sourceSsdId);
+                                            }
+                                            else
+                                            {
+                                                sourceTermSetId = srcTaxField.TermSetId;
+                                                sourceSsdId = srcTaxField.SspId;
+                                            }
+
+                                            // If source and target field point to the same termset then termmapping is not needed
+                                            bool skipTermMapping = (sourceTermSetId == taxField.TermSetId);
+
+                                            if (!skipTermMapping)
+                                            {
+                                                skipTermMapping = !pageTransformationInformation.IsCrossSiteTransformation;
+                                            }
+
+                                            if (!skipTermMapping)
+                                            {
+                                                //Gather terms from the term store
+                                                //TODO: Refine this, feels clunky implementation
+                                                termTransformator.CacheTermsFromTermStore(sourceTermSetId, taxField.TermSetId, sourceSsdId, isSP2010);
+                                            }
+
+                                            if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is TaxonomyFieldValue)
+                                            {
+                                                var labelToSet = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).Label;
+                                                var termGuidToSet = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as TaxonomyFieldValue).TermGuid;
+
+                                                if (!skipTermMapping)
+                                                {
+                                                    //Term Transformator
+                                                    var termTranform = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuidToSet), TermLabel = labelToSet });
+                                                    if (termTranform.IsTermResolved)
+                                                    {
+                                                        taxValue.Label = termTranform.TermLabel;
+                                                        taxValue.TermGuid = termTranform.TermGuid.ToString();
+                                                        taxValue.WssId = -1;
+                                                        taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
+                                                        isDirty = true;
+                                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                    }
+                                                    else
+                                                    {
+                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {termTranform.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    taxValue.Label = labelToSet;
+                                                    taxValue.TermGuid = termGuidToSet;
+                                                    taxValue.WssId = -1;
+                                                    taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
+                                                    isDirty = true;
+                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                }
+                                            }
+                                            else if (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] is Dictionary<string, object>)
+                                            {
+                                                var taxDictionary = (pageTransformationInformation.SourcePage[fieldToCopy.FieldName] as Dictionary<string, object>);
+                                                var label = taxDictionary["Label"].ToString();
+                                                var termGuid = taxDictionary["TermGuid"].ToString();
+
+                                                if (!skipTermMapping)
+                                                {
+                                                    //Term Transformator
+                                                    var transformTerm = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuid), TermLabel = label });
+                                                    if (transformTerm.IsTermResolved)
+                                                    {
+                                                        taxValue.Label = transformTerm.TermLabel;
+                                                        taxValue.TermGuid = transformTerm.TermGuid.ToString();
+                                                        taxValue.WssId = -1;
+                                                        taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
+                                                        isDirty = true;
+                                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                    }
+                                                    else
+                                                    {
+                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    taxValue.Label = label;
+                                                    taxValue.TermGuid = termGuid;
+                                                    taxValue.WssId = -1;
+                                                    taxField.SetFieldValueByValue(targetPage.PageListItem, taxValue);
+                                                    isDirty = true;
+                                                    LogInfo($"{LogStrings.TransformCopyingMetaDataField} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // Field was empty, so let's skip the metadata copy
+                                                LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        LogWarning($"{LogStrings.TransformCopyingMetaDataFieldSkipped} {fieldToCopy.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                        break;
+                                    }
+                                    break;
+                                }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError(string.Format(LogStrings.Error_TransformingTaxonomyField, fieldToCopy.FieldName), LogStrings.Heading_CopyingPageMetadata, ex);
                     }
                 }
 

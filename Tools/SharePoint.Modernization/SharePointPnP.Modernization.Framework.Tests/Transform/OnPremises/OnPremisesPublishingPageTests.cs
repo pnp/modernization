@@ -201,7 +201,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
         {
             using (var context = TestCommon.CreateOnPremisesClientContext())
             {
-                var pages = context.Web.GetPagesFromList("Pages");
+                var pages = context.Web.GetPagesFromList("Pages", pageNameStartsWith: "Article-2010-Taxonomy.aspx");
                 var analyzer = new PageLayoutAnalyser(context);
                 int errorCount = 0;
                 foreach (var page in pages)
@@ -219,7 +219,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
 
                 Console.WriteLine("Error Count {0}", errorCount);
                 Assert.IsTrue((errorCount == 0));
-                analyzer.GenerateMappingFile("c:\\temp", "onprem-mapping-test.xml");
+                analyzer.GenerateMappingFile("c:\\temp", "onprem-mapping-test-taxonomy.xml");
             }
         }
 
