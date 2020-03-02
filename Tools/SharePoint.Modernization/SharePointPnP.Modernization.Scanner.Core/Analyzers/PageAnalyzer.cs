@@ -171,7 +171,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                                 if (!siteWasGroupified)
                                                 {
                                                     // Check for master page url
-                                                    if (web.MasterUrl.EndsWith("seattle.master", StringComparison.InvariantCultureIgnoreCase))
+                                                    if (web.MasterUrl.EndsWith("_catalogs/masterpage/seattle.master", StringComparison.InvariantCultureIgnoreCase))
                                                     {
 
                                                         // Check for home page name, only "default sts#0 home pages" should be considered, so 
