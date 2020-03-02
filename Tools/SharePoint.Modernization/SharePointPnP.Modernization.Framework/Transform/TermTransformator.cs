@@ -349,7 +349,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         public TermData ResolveTermInCache(ClientContext context, string termPath)
         {
             //Use the cache
-            var result = CacheManager.Instance.GetTransformTermCacheTermByName(context, termPath);
+            var result = CacheManager.Instance.GetTransformTermCacheTermByName(context, termPath:termPath);
             if (result != default && result.Any())
             {
                 var cachedTerm = result.First();
