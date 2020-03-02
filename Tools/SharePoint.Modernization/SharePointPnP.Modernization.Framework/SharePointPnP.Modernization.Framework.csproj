@@ -304,6 +304,7 @@
     <Compile Include="Extensions\FileFolderExtensions.cs" />
     <Compile Include="Extensions\HttpWebRequestExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Functions\MediaWebpartConfigurationException.cs" />
     <Compile Include="Pages\DelvePage.cs" />
     <Compile Include="Pages\PublishingPageOnPremises.cs" />
     <Compile Include="Pages\WebPartPageOnPremises.cs" />

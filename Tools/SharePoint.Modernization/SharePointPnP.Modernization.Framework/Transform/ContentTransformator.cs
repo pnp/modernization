@@ -158,6 +158,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             continue;
                         }
 
+                        if (ex.InnerException is MediaWebpartConfigurationException)
+                        {
+                            LogError(LogStrings.Error_MediaWebpartConfiguration, LogStrings.Heading_MappingWebParts, ex, true);
+                            continue;
+                        }
+
                         LogError($"{LogStrings.Error_AnErrorOccurredFunctions} - {ex.Message}", LogStrings.Heading_MappingWebParts, ex);
                         throw;                          
                     }
