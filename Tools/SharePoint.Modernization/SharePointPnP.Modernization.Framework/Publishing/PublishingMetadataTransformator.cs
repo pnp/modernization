@@ -185,7 +185,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                         sourceSsdId = srcTaxField.SspId;
                                                     }
 
-                                                    bool skipTermMapping = (sourceTermSetId == targetTaxField.TermSetId);
+                                                    bool skipTermMapping = ((sourceTermSetId == targetTaxField.TermSetId) && this.publishingPageTransformationInformation.SkipTermStoreMapping);
 
                                                     if (!skipTermMapping)
                                                     {
@@ -290,37 +290,70 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                 else if (fieldValueToSet is Dictionary<string, object>)
                                                                 {
                                                                     var taxDictionaryList = (fieldValueToSet as Dictionary<string, object>);
-
-                                                                    var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
-
                                                                     List<string> taxonomyFieldValueArray = new List<string>();
-                                                                    for (int i = 0; i < valueCollectionToCopy.Length; i++)
+                                                                    
+                                                                    if (taxDictionaryList.ContainsKey("_Child_Items_"))
                                                                     {
-                                                                        var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
-                                                                        var label = taxDictionary["Label"].ToString();
-                                                                        var termGuid = new Guid(taxDictionary["TermGuid"].ToString());
 
-                                                                        if (!skipTermMapping)
+                                                                        var valueCollectionToCopy = taxDictionaryList["_Child_Items_"] as Object[];
+
+                                                                        for (int i = 0; i < valueCollectionToCopy.Length; i++)
                                                                         {
-                                                                            //Term Transformator
-                                                                            var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
+                                                                            var taxDictionary = valueCollectionToCopy[i] as Dictionary<string, object>;
+                                                                            var label = taxDictionary["Label"].ToString();
+                                                                            var termGuid = new Guid(taxDictionary["TermGuid"].ToString());
 
-                                                                            if (transformTerm.IsTermResolved)
+                                                                            if (!skipTermMapping)
                                                                             {
-                                                                                taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid}");
+                                                                                //Term Transformator
+                                                                                var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
+
+                                                                                if (transformTerm.IsTermResolved)
+                                                                                {
+                                                                                    taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid}");
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                                                }
                                                                             }
                                                                             else
                                                                             {
-                                                                                LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                                                taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
                                                                             }
                                                                         }
-                                                                        else
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        // Single Value into Multiple Value Field Scenario
+                                                                        if (taxDictionaryList.ContainsKey("Label") && taxDictionaryList.ContainsKey("TermGuid"))
                                                                         {
-                                                                            taxonomyFieldValueArray.Add($"-1;#{taxDictionary["Label"].ToString()}|{taxDictionary["TermGuid"].ToString()}");
+                                                                            var label = taxDictionaryList["Label"].ToString();
+                                                                            var termGuid = new Guid(taxDictionaryList["TermGuid"].ToString());
+
+                                                                            if (!skipTermMapping)
+                                                                            {
+                                                                                //Term Transformator
+                                                                                var transformTerm = termTransformator.Transform(new TermData() { TermGuid = termGuid, TermLabel = label });
+
+                                                                                if (transformTerm.IsTermResolved)
+                                                                                {
+                                                                                    taxonomyFieldValueArray.Add($"-1;#{transformTerm.TermLabel}|{transformTerm.TermGuid}");
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                taxonomyFieldValueArray.Add($"-1;#{taxDictionaryList["Label"].ToString()}|{taxDictionaryList["TermGuid"].ToString()}");
+                                                                            }
                                                                         }
                                                                     }
 
-                                                                    if (valueCollectionToCopy.Length > 0)
+                                                                    if (taxonomyFieldValueArray.Any())
                                                                     {
                                                                         var valueCollection = new TaxonomyFieldValueCollection(this.targetClientContext, string.Join(";#", taxonomyFieldValueArray), targetTaxField);
                                                                         targetTaxField.SetFieldValueByValueCollection(this.page.PageListItem, valueCollection);
@@ -332,6 +365,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                         // Publishing field was empty, so let's skip the metadata copy
                                                                         LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                                     }
+                                                                   
                                                                 }
                                                                 else if (fieldValueToSet is Array && isSP2010)
                                                                 {
