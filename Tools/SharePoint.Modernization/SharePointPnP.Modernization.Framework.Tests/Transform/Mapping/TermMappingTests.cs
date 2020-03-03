@@ -229,6 +229,59 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Mapping
         }
 
         [TestMethod]
+        public void BasicOnPremWikiPage_TermMappingPathsOnlyTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesClientContext(TestCommon.AppSetting("SPOnPremTeamSiteUrl")))
+                {
+                    var pageTransformator = new PageTransformator(sourceClientContext, targetClientContext);
+                    //pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
+
+                    //SP2010
+                    var pages = sourceClientContext.Web.GetPagesFromList("Site Pages", pageNameStartsWith: "WKP-2010-Quantum");
+
+                    pages.FailTestIfZero();
+
+                    foreach (var page in pages)
+                    {
+                        PageTransformationInformation pti = new PageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                            //Permissions are unlikely to work given cross domain
+                            KeepPageSpecificPermissions = false,
+
+                            // Term store mapping
+                            TermMappingFile = @"..\..\Transform\Mapping\term_mapping_paths_sample.csv",
+
+                            //Should process default mapping
+                            SkipTermStoreMapping = false,
+
+                            CopyPageMetadata = true
+
+                        };
+
+                        Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
+
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                        var result = pageTransformator.Transform(pti);
+                    }
+
+                    pageTransformator.FlushObservers();
+
+                }
+            }
+        }
+
+        [TestMethod]
         public void BasicOnlinePublishingPage_TermDefaultTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
