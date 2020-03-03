@@ -754,7 +754,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                             }
 
                                             // If source and target field point to the same termset then termmapping is not needed
-                                            bool skipTermMapping = (sourceTermSetId == taxField.TermSetId);
+                                            bool skipTermMapping = ((sourceTermSetId == taxField.TermSetId) && string.IsNullOrEmpty(pageTransformationInformation.TermMappingFile));
 
                                             if (!skipTermMapping)
                                             {
