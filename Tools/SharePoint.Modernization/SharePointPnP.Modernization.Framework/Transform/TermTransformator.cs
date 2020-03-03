@@ -124,9 +124,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if (resolvedInputMapping.IsTermResolved)
                 {
                     //Check if the source term ID exists in target then map.
-                    //TODO: THe term resolution isnt properly differentiating from source to target.
                     var resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, inputSourceTerm.TermGuid);
-                    if (resolvedInputMappingInTarget.IsTermResolved)
+                    if (resolvedInputMappingInTarget.IsTermResolved && !resolvedInputMapping.IsSourceTerm)
                     {
                         inputSourceTerm.IsTermResolved = true; //Happy that term ID is the same as source
                         inputSourceTerm.TermLabel = resolvedInputMappingInTarget.TermLabel; //Just in case the ids are the same and labels are not
@@ -136,7 +135,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     //Check if the term labels are the same, ids maybe different - in this scenario, validate if the term paths are the same.
                     //if so, then auto-map.
                     resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, resolvedInputMapping.TermPath);
-                    if (resolvedInputMappingInTarget.IsTermResolved)
+                    if (resolvedInputMappingInTarget.IsTermResolved && !resolvedInputMapping.IsSourceTerm)
                     {
                         inputSourceTerm.IsTermResolved = true; //Happy that term ID is the same as source
                         inputSourceTerm.TermGuid = resolvedInputMappingInTarget.TermGuid; //Just in case the ids are the same and labels are not
