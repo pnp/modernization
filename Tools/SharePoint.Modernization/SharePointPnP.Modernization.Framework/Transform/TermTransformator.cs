@@ -18,10 +18,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private ClientContext _sourceContext;
         private ClientContext _targetContext;
         private List<TermMapping> termMappings;
-        private bool skipDefaultTermStoreMapping;
+        private bool skipTermStoreMapping;
         private BaseTransformationInformation _baseTransformationInformation;
         public const string TermNodeDelimiter = "|";
-        public const string TermGroupUnknownName = "FALLBACK";
+        public const string TermGroupUnknownName = "DEFAULT";
 
         #region Construction        
 
@@ -65,7 +65,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (baseTransformationInformation != null)
             {
-                this.skipDefaultTermStoreMapping = baseTransformationInformation.SkipTermStoreMapping;
+                this.skipTermStoreMapping = baseTransformationInformation.SkipTermStoreMapping;
                 this._baseTransformationInformation = baseTransformationInformation;
             }
         }
@@ -117,7 +117,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Source or Target Term ID/Name may not be found
                        
             // Default Mode 
-            if (!this.skipDefaultTermStoreMapping && !_baseTransformationInformation.IsCrossFarmTransformation)
+            if (!this.skipTermStoreMapping && !_baseTransformationInformation.IsCrossFarmTransformation)
             {
                 var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
 
