@@ -185,7 +185,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                         sourceSsdId = srcTaxField.SspId;
                                                     }
 
-                                                    bool skipTermMapping = ((sourceTermSetId == targetTaxField.TermSetId) && this.publishingPageTransformationInformation.SkipTermStoreMapping);
+                                                    bool skipTermMapping = ((sourceTermSetId == targetTaxField.TermSetId));
 
                                                     if (!skipTermMapping)
                                                     {
