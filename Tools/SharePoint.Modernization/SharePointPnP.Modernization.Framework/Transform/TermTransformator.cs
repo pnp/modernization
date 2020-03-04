@@ -18,10 +18,10 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private ClientContext _sourceContext;
         private ClientContext _targetContext;
         private List<TermMapping> termMappings;
-        private bool skipDefaultTermStoreMapping;
+        private bool skipTermStoreMapping;
         private BaseTransformationInformation _baseTransformationInformation;
         public const string TermNodeDelimiter = "|";
-        public const string TermGroupUnknownName = "FALLBACK";
+        public const string TermGroupUnknownName = "DEFAULT";
 
         #region Construction        
 
@@ -65,7 +65,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             if (baseTransformationInformation != null)
             {
-                this.skipDefaultTermStoreMapping = baseTransformationInformation.SkipTermStoreMapping;
+                this.skipTermStoreMapping = baseTransformationInformation.SkipTermStoreMapping;
                 this._baseTransformationInformation = baseTransformationInformation;
             }
         }
@@ -117,16 +117,15 @@ namespace SharePointPnP.Modernization.Framework.Transform
             // Source or Target Term ID/Name may not be found
                        
             // Default Mode 
-            if (!this.skipDefaultTermStoreMapping && !_baseTransformationInformation.IsCrossFarmTransformation)
+            if (!this.skipTermStoreMapping && !_baseTransformationInformation.IsCrossFarmTransformation)
             {
                 var resolvedInputMapping = ResolveTermInCache(this._sourceContext, inputSourceTerm.TermGuid);
 
                 if (resolvedInputMapping.IsTermResolved)
                 {
                     //Check if the source term ID exists in target then map.
-                    //TODO: THe term resolution isnt properly differentiating from source to target.
                     var resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, inputSourceTerm.TermGuid);
-                    if (resolvedInputMappingInTarget.IsTermResolved)
+                    if (resolvedInputMappingInTarget.IsTermResolved && !resolvedInputMapping.IsSourceTerm)
                     {
                         inputSourceTerm.IsTermResolved = true; //Happy that term ID is the same as source
                         inputSourceTerm.TermLabel = resolvedInputMappingInTarget.TermLabel; //Just in case the ids are the same and labels are not
@@ -136,7 +135,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     //Check if the term labels are the same, ids maybe different - in this scenario, validate if the term paths are the same.
                     //if so, then auto-map.
                     resolvedInputMappingInTarget = ResolveTermInCache(this._targetContext, resolvedInputMapping.TermPath);
-                    if (resolvedInputMappingInTarget.IsTermResolved)
+                    if (resolvedInputMappingInTarget.IsTermResolved && !resolvedInputMapping.IsSourceTerm)
                     {
                         inputSourceTerm.IsTermResolved = true; //Happy that term ID is the same as source
                         inputSourceTerm.TermGuid = resolvedInputMappingInTarget.TermGuid; //Just in case the ids are the same and labels are not
