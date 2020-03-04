@@ -405,6 +405,43 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                                                                         LogInfo(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldEmpty, targetFieldData.FieldName), LogStrings.Heading_CopyingPageMetadata);
                                                                     }
                                                                 }
+                                                                else if (fieldValueToSet is TaxonomyFieldValue)
+                                                                {
+
+                                                                    var labelToSet = (fieldValueToSet as TaxonomyFieldValue).Label;
+                                                                    var termGuidToSet = (fieldValueToSet as TaxonomyFieldValue).TermGuid;
+                                                                    TaxonomyFieldValue taxValue = new TaxonomyFieldValue();
+
+                                                                    if (!skipTermMapping)
+                                                                    {
+                                                                        //Term Transformator
+                                                                        var termTranform = termTransformator.Transform(new TermData() { TermGuid = new Guid(termGuidToSet), TermLabel = labelToSet });
+                                                                        if (termTranform.IsTermResolved)
+                                                                        {
+                                                                            taxValue.Label = termTranform.TermLabel;
+                                                                            taxValue.TermGuid = termTranform.TermGuid.ToString();
+                                                                            taxValue.WssId = -1;
+                                                                            targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                                            isDirty = true;
+                                                                            LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {termTranform.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        taxValue.Label = labelToSet;
+                                                                        taxValue.TermGuid = termGuidToSet;
+                                                                        taxValue.WssId = -1;
+                                                                        targetTaxField.SetFieldValueByValue(this.page.PageListItem, taxValue);
+                                                                        isDirty = true;
+                                                                        LogInfo($"{LogStrings.TransformCopyingMetaDataField} {targetFieldData.FieldName}", LogStrings.Heading_CopyingPageMetadata);
+                                                                    }
+
+                                                                }
+
                                                                 else
                                                                 {
                                                                     // Publishing field was empty, so let's skip the metadata copy
