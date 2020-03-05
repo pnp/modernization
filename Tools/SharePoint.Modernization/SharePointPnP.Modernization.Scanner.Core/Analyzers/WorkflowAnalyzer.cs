@@ -116,7 +116,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 // We've found SP2013 site scoped workflows
                 if (siteDefinitions != null && siteDefinitions.Count() > 0)
                 {
-                    foreach (var siteDefinition in siteDefinitions.Where(p=>p.RestrictToType.Equals("site", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase)))
+                    foreach (var siteDefinition in siteDefinitions.Where(p => p.RestrictToType != null && (p.RestrictToType.Equals("site", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase))))
                     {
                         // Check if this workflow is also in use
                         var siteWorkflowSubscriptions = siteSubscriptions.Where(p => p.DefinitionId.Equals(siteDefinition.Id));
@@ -217,7 +217,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 // We've found SP2013 list scoped workflows
                 if (siteDefinitions != null && siteDefinitions.Count() > 0)
                 {
-                    foreach (var listDefinition in siteDefinitions.Where(p => p.RestrictToType.Equals("list", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase)))
+                    foreach (var listDefinition in siteDefinitions.Where(p => p.RestrictToType != null && (p.RestrictToType.Equals("list", StringComparison.InvariantCultureIgnoreCase) || p.RestrictToType.Equals("universal", StringComparison.InvariantCultureIgnoreCase))))
                     {
                         // Check if this workflow is also in use
                         var listWorkflowSubscriptions = siteSubscriptions.Where(p => p.DefinitionId.Equals(listDefinition.Id));

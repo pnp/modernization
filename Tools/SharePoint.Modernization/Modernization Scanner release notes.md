@@ -4,6 +4,16 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Unreleased]
+
+## Added
+
+## Changed
+
+- Fix: Checking for home.aspx now takes in account the locale of the site
+- The definition of an uncustomized home page changed, added the check on publishing features and master page
+- Fix crash in workflow scanning component #432
+
 ## [Version 2.9]
 
 ## Added
