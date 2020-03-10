@@ -67,10 +67,12 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
                             
                             PostAsNews = true,
 
+                            //TermMappingFile = @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Mapping\termmapping_sample2.csv",
+
                             //UserMappingFile = @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Mapping\usermapping_sample2.csv",
 
                             //PublishCreatedPage = true,
-                            
+
                             //RemoveEmptySectionsAndColumns = false,
 
                             // Configure the page header, empty value means ClientSidePageHeaderType.None
