@@ -1,7 +1,7 @@
 ﻿<PublishingPageTransformation xmlns="http://schemas.dev.office.com/PnP/2019/03/PublishingPageTransformationSchema">
   <AddOns>
     <!-- Assembly can contain either a fully qualified path or just the dll name. In the latter case we depend on .Net assembly resolving to find the assembly -->
-    <!-- <AddOn Name="Custom" Type="SharePoint.Modernization.Framework.SampleAddOn.MyCustomFunctions" Assembly="C:\github\BertPnPTools\Solutions\SharePoint.Modernization\SharePoint.Modernization.Framework\bin\Debug\SharePoint.Modernization.Framework.SampleAddOn.dll" />-->
+    <!-- <AddOn Name="Custom" Type="SharePointPnP.Modernization.Framework.SampleAddOn.MyCustomFunctions" Assembly="SharePointPnP.Modernization.Framework.SampleAddOn.dll" />-->
   </AddOns>
   <PageLayouts>
     <!-- To test contentype handling, set AssociatedContentType to CustomPage1 + adjust the metadata -->

@@ -26,5 +26,12 @@ namespace SharePointPnP.Modernization.Framework.SampleAddOn
             }
         }
 
+        public string SplitInput(string input, string sectionNumber)
+        {
+            // Parse the received html content and return the part you need
+            return $"Part {sectionNumber}";
+        }
+
+
     }
 }
