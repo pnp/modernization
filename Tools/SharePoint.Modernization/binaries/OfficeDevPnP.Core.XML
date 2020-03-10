@@ -682,7 +682,7 @@
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.FileFolderExtensions_UploadFile_The_argument_must_be_a_single_file_name_and_cannot_contain_path_characters_">
             <summary>
-              Looks up a localized string similar to The argument must be a single file name and cannot contain path characters..
+              Looks up a localized string similar to The argument must be a single file name and cannot contain path characters. Value:&apos;{0}&apos;.
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.FileFolderExtensions_UploadFile0ToFolder1">
@@ -1145,9 +1145,9 @@
               Looks up a localized string similar to Updating existing Content Type: {0} - {1}.
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_Updating_existing_Content_Type_Sealed">
+        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_Updating_existing_Content_Type_SealedOrReadOnly">
             <summary>
-              Looks up a localized string similar to Existing content type with Id {0} and name {1} will not be updated because it&apos;s marked as sealed and the template is not changing the sealed value..
+              Looks up a localized string similar to Existing content type with Id {0} and name {1} will not be updated because it&apos;s marked as sealed or read only and the template is not changing the value..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_CustomActions_Adding_custom_action___0___to_scope_Site">
@@ -60026,7 +60026,9 @@
         </member>
         <member name="M:Microsoft.SharePoint.Client.WebExtensions.IsNoScriptSite(Microsoft.SharePoint.Client.Site)">
              <summary>
-             Detects if the site in question has no script enabled or not. Detection is done by verifying if the AddAndCustomizePages permission is missing.
+             Performs a best effort detection of if the site in question has no script enabled or not.
+             Detection is done by verifying if the authenticated user has AddAndCustomizePages permission on the web.
+             Detection will return a false positive if the current user does not have the AddAndCustomizePages permission. 
             
              See https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
              for the effects of NoScript
@@ -60037,8 +60039,10 @@
         </member>
         <member name="M:Microsoft.SharePoint.Client.WebExtensions.IsNoScriptSite(Microsoft.SharePoint.Client.Web)">
              <summary>
-             Detects if the site in question has no script enabled or not. Detection is done by verifying if the AddAndCustomizePages permission is missing.
-            
+             Performs a best effort detection of if the site in question has no script enabled or not.
+             Detection is done by verifying if the authenticated user has AddAndCustomizePages permission on the web.
+             Detection will return a false positive if the current user does not have the AddAndCustomizePages permission. 
+             
              See https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
              for the effects of NoScript
             

@@ -682,7 +682,7 @@
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.FileFolderExtensions_UploadFile_The_argument_must_be_a_single_file_name_and_cannot_contain_path_characters_">
             <summary>
-              Looks up a localized string similar to The argument must be a single file name and cannot contain path characters..
+              Looks up a localized string similar to The argument must be a single file name and cannot contain path characters. Value:&apos;{0}&apos;.
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.FileFolderExtensions_UploadFile0ToFolder1">
@@ -1145,9 +1145,9 @@
               Looks up a localized string similar to Updating existing Content Type: {0} - {1}.
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_Updating_existing_Content_Type_Sealed">
+        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_Updating_existing_Content_Type_SealedOrReadOnly">
             <summary>
-              Looks up a localized string similar to Existing content type with Id {0} and name {1} will not be updated because it&apos;s marked as sealed and the template is not changing the sealed value..
+              Looks up a localized string similar to Existing content type with Id {0} and name {1} will not be updated because it&apos;s marked as sealed or read only and the template is not changing the value..
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_CustomActions_Adding_custom_action___0___to_scope_Site">
@@ -1930,6 +1930,11 @@
         <member name="P:OfficeDevPnP.Core.CoreResources.TimerJob_AddSite_InvalidUrl">
             <summary>
               Looks up a localized string similar to Site URL ({0}) contains invalid characters.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.TimerJob_Authentication_AccessToken">
+            <summary>
+              Looks up a localized string similar to Timer job authentication set to type AccessToken.
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.TimerJob_Authentication_AppOnly">
@@ -47288,6 +47293,11 @@
             Azure Active Directory Apps-Only Authentication.
             </summary>
         </member>
+        <member name="F:OfficeDevPnP.Core.Framework.TimerJobs.Enums.AuthenticationType.AccessToken">
+            <summary>
+            Consumer provides a valid access token
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.TimerJobs.TimerJobRunHandler">
             <summary>
             TimerJobRun delegate
@@ -47410,6 +47420,11 @@
             be needed when did an override of ResolveAddedSites and specify your sites.
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.TimerJobs.TimerJob.AzureEnvironment">
+            <summary>
+            Azure environment that will be used
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Framework.TimerJobs.TimerJob.TenantAdminSite">
             <summary>
             Option to specify the tenant admin site. For MT this typically is not needed since we can detect the tenant admin site, but for on premises and DvNext this is needed
@@ -47519,6 +47534,13 @@
             <param name="clientId">Client ID of the app</param>
             <param name="azureTenant">The Azure tenant name, like contoso.com</param>
             <param name="certificate">The X.509 Certificate to use for AppOnly Authentication</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.TimerJobs.TimerJob.UseAccessTokenAuthentication(System.String)">
+            <summary>
+             Prepares the TimerJob to operate against SharePoint Only with a provided access token. Sets AuthenticationType 
+            to AuthenticationType.AccessToken
+            </summary>
+            <param name="accessToken">Provided access token</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.TimerJobs.TimerJob.Clone(OfficeDevPnP.Core.Framework.TimerJobs.TimerJob)">
             <summary>
@@ -51608,31 +51630,34 @@
             </param>
             <returns>Authenticated SharePoint ClientContext</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.Security.SecureString)">
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.Security.SecureString,OfficeDevPnP.Core.AzureEnvironment)">
             <summary>
             Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app being registered in your Azure AD.
             </summary>
             <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
             <param name="userPrincipalName">The user id</param>
             <param name="userPassword">The user's password as a secure string</param>
+            <param name="environment">SharePoint environment being used</param>
             <returns>Client context object</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.String,OfficeDevPnP.Core.AzureEnvironment)">
             <summary>
             Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app being registered in your Azure AD.
             </summary>
             <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
             <param name="userPrincipalName">The user id</param>
             <param name="userPassword">The user's password as a string</param>
+            <param name="environment">SharePoint environment being used</param>
             <returns>Client context object</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.AcquireTokenAsync(System.String,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.AcquireTokenAsync(System.String,System.String,System.String,OfficeDevPnP.Core.AzureEnvironment)">
             <summary>
             Acquires an access token using Azure AD credential flow. This depends on the SPO Management Shell app being registered in your Azure AD.
             </summary>
             <param name="resourceUri">Resouce to request access for</param>
             <param name="username">User id</param>
             <param name="password">Password</param>
+            <param name="environment">SharePoint environment being used</param>
             <returns>Acces token</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADNativeApplicationAuthenticatedContext(System.String,System.String,System.String,Microsoft.IdentityModel.Clients.ActiveDirectory.TokenCache,OfficeDevPnP.Core.AzureEnvironment)">
@@ -60001,7 +60026,9 @@
         </member>
         <member name="M:Microsoft.SharePoint.Client.WebExtensions.IsNoScriptSite(Microsoft.SharePoint.Client.Site)">
              <summary>
-             Detects if the site in question has no script enabled or not. Detection is done by verifying if the AddAndCustomizePages permission is missing.
+             Performs a best effort detection of if the site in question has no script enabled or not.
+             Detection is done by verifying if the authenticated user has AddAndCustomizePages permission on the web.
+             Detection will return a false positive if the current user does not have the AddAndCustomizePages permission. 
             
              See https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
              for the effects of NoScript
@@ -60012,8 +60039,10 @@
         </member>
         <member name="M:Microsoft.SharePoint.Client.WebExtensions.IsNoScriptSite(Microsoft.SharePoint.Client.Web)">
              <summary>
-             Detects if the site in question has no script enabled or not. Detection is done by verifying if the AddAndCustomizePages permission is missing.
-            
+             Performs a best effort detection of if the site in question has no script enabled or not.
+             Detection is done by verifying if the authenticated user has AddAndCustomizePages permission on the web.
+             Detection will return a false positive if the current user does not have the AddAndCustomizePages permission. 
+             
              See https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
              for the effects of NoScript
             
