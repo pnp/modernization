@@ -69,7 +69,11 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Publishing
 
                             //TermMappingFile = @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Mapping\termmapping_sample2.csv",
 
+                            //UrlMappingFile = @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Mapping\urlmapping_sample.csv",
+
                             //UserMappingFile = @"C:\github\sp-dev-modernization\Tools\SharePoint.Modernization\SharePointPnP.Modernization.Framework.Tests\Transform\Mapping\usermapping_sample2.csv",
+
+                            //DisablePageComments = true,
 
                             //PublishCreatedPage = true,
 
