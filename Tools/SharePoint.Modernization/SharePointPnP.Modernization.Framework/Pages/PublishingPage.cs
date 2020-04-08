@@ -210,7 +210,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     // Loop over the fields that are defined to be shown in the page properties and that have a target field name set
                     foreach (var fieldToProcess in fieldsToProcess)
                     {
-                        var targetFieldInstance = targetContext.Web.GetFieldByInternalName(fieldToProcess.TargetFieldName, true);
+                        var targetFieldInstance = targetContext.Web.GetFieldByInternalName(fieldToProcess.TargetFieldName, true) ??
+                            targetContext.Web.GetListByUrl("SitePages").Fields.GetFieldByInternalName(fieldToProcess.TargetFieldName);
+
                         if (targetFieldInstance != null)
                         {
                             if (!pagePropertiesFields.Contains(targetFieldInstance.Id.ToString()))
