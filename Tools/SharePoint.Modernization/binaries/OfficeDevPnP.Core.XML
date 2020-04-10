@@ -1090,11 +1090,6 @@
               Looks up a localized string similar to Creating new Content Type: {0} - {1}.
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_DocumentSet_DeltaHandling_OnHold">
-            <summary>
-              Looks up a localized string similar to Content Type {0} with ID {1} cannot be updated because delta handling for DocumentSets is on hold..
-            </summary>
-        </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.Provisioning_ObjectHandlers_ContentTypes_ErrorDocumentTemplate">
             <summary>
               Looks up a localized string similar to Failed to add &apos;{1}&apos; as DocumentTemplate to ContentType &apos;{0}&apos;.
@@ -2425,6 +2420,11 @@
         <member name="P:OfficeDevPnP.Core.Entities.UnifiedGroupEntity.Visibility">
             <summary>
             Visibility of the Office 365 group
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Entities.UnifiedGroupEntity.HasTeam">
+            <summary>
+            Indication if the Office 365 Group has a Microsoft Team provisioned for it
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Entities.AreaNavigationEntity">
@@ -5878,7 +5878,7 @@
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUnifiedGroup(System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Boolean)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUnifiedGroup(System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Get an Office 365 Group (i.e. Unified Group) by Id
             </summary>
@@ -5887,9 +5887,10 @@
             <param name="includeSite">Defines whether to return details about the Modern SharePoint Site backing the group. Default is true.</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
-            <param name="includeClassification">Defines whether to return classification value of the unified group. Default is true.</param>
+            <param name="includeClassification">Defines whether to return classification value of the unified group. Default is false.</param>
+            <param name="includeHasTeam">Defines whether to check for each unified group if it has a Microsoft Team provisioned for it. Default is false.</param>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.ListUnifiedGroups(System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,System.Int32,System.Boolean)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.ListUnifiedGroups(System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,System.Int32,System.Boolean,System.Boolean)">
             <summary>
             Returns all the Office 365 Groups in the current Tenant based on a startIndex. IncludeSite adds additional properties about the Modern SharePoint Site backing the group
             </summary>
@@ -5902,6 +5903,7 @@
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <param name="includeClassification">Defines whether or not to return details about the Modern Site classification value.</param>
+            <param name="includeHasTeam">Defines whether to check for each unified group if it has a Microsoft Team provisioned for it. Default is false.</param>
             <returns>An IList of SiteEntity objects</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUnifiedGroupMembers(OfficeDevPnP.Core.Entities.UnifiedGroupEntity,System.String,System.Int32,System.Int32)">
@@ -9246,6 +9248,11 @@
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.TeamChannel.ID">
             <summary>
             Declares the ID for the Channel
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.TeamChannel.Private">
+            <summary>
+            Declares whether the Channel is private or not
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.TeamChannel.#ctor">
@@ -20737,6 +20744,9 @@
             <remarks/>
         </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.V202002.TeamChannel.ID">
+            <remarks/>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.V202002.TeamChannel.Private">
             <remarks/>
         </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.Providers.Xml.V202002.TeamChannelTabsTab">
@@ -52798,7 +52808,7 @@
             <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Boolean)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.Create(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Boolean,System.String)">
             <summary>
             Creates a new Team Site Collection and waits for it to be created
             </summary>
@@ -52806,6 +52816,7 @@
             <param name="siteCollectionCreationInformation">information about the site to create</param>
             <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
             <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
+            <param name="graphAccessToken">An optional Access Token for Microsoft Graph to use for creeating the site within an App-Only context</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation,System.Int32,System.Boolean)">
@@ -52828,7 +52839,7 @@
             <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32,System.Boolean)">
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32,System.Boolean,System.String)">
             <summary>
             Creates a new Modern Team Site Collection (so with an Office 365 group connected)
             </summary>
@@ -52838,6 +52849,32 @@
             <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
             <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
             <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
+            <param name="graphAccessToken">An optional Access Token for Microsoft Graph to use for creeating the site within an App-Only context</param>
+            <returns>ClientContext object for the created site collection</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateTeamSiteViaSPOAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Private method to create a new Modern Team Site Collection (so with an Office 365 group connected) using SPO REST
+            </summary>
+            <param name="clientContext">ClientContext object of a regular site</param>
+            <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
+            <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
+            <returns>ClientContext object for the created site collection</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateTeamSiteViaGraphAsync(Microsoft.SharePoint.Client.ClientContext,OfficeDevPnP.Core.Sites.TeamSiteCollectionCreationInformation,System.Int32,System.Int32,System.Int32,System.Boolean,System.String)">
+            <summary>
+            Creates a new Modern Team Site Collection (so with an Office 365 group connected) using Microsoft Graph
+            </summary>
+            <param name="clientContext">ClientContext object of a regular site</param>
+            <param name="siteCollectionCreationInformation">information about the site to create</param>
+            <param name="delayAfterCreation">Defines the number of seconds to wait after creation</param>
+            <param name="maxRetryCount">Maximum number of retries for a pending site provisioning. Default 12 retries.</param>
+            <param name="retryDelay">Delay between retries for a pending site provisioning. Default 10 seconds.</param>
+            <param name="noWait">If specified the site will be created and the process will be finished asynchronously</param>
+            <param name="graphAccessToken">An optional Access Token for Microsoft Graph to use for creeating the site within an App-Only context</param>
             <returns>ClientContext object for the created site collection</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.CreateAsync(Microsoft.SharePoint.Client.ClientContext,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Int32,System.Int32,System.Int32,System.Boolean)">
@@ -59696,6 +59733,17 @@
             <param name="wait">Wait for the site to be created before continuing processing</param>
             <param name="timeoutFunction">An optional function that will be called while waiting for the site to be created. If set will override the wait variable. Return true to cancel the wait loop.</param>
             <returns>Guid of the created site collection and Guid.Empty is the wait parameter is specified as false. Returns Guid.Empty if the wait is cancelled.</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.EnsureAppCatalogAsync(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Creates a new App Catalog and registers the app catalog site as the tenant App Catalog.
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="url">The Full Site Url, e.g. https://yourtenant.sharepoint.com/sites/appcatalog</param>
+            <param name="ownerLogin">The username of the owner of the appcatalog, e.g. user@domain.com</param>
+            <param name="timeZoneId">TimeZoneId for the appcatalog site. "(UTC+01:00) Brussels, Copenhagen, Madrid, Paris" = 3"</param>
+            <param name="force">If true, and an appcatalog is already registered and present, the new appcatalog will be created. If the same URL is provided and the site is present the current one will be deleted and a new one will be created.</param>
+            <returns></returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.CheckIfSiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String)">
             <summary>
