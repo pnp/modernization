@@ -166,8 +166,8 @@
         public const string TransformSavedPageInCrossSiteCollection = "Saved page in cross-site collection";
         public const string TransformSavedPage = "Saved page";
         public const string TransformCopyingMetaDataField = "Copying field: ";
-        public const string TransformCopyingMetaDataTaxFieldEmpty = "Copying taxonomy field {0} skipped because it's empty";
-        public const string TransformCopyingMetaDataTaxFieldValue = "Copying taxonomy field value {0} skipped because it's not part of the target termset";
+        public const string TransformCopyingMetaDataTaxFieldEmpty = "Copying taxonomy field '{0}' skipped because it's empty";
+        public const string TransformCopyingMetaDataTaxFieldValue = "Copying taxonomy field value '{0}' skipped because it's not part of the target termset";
         public const string TransformCopyingMetaDataFieldSkipped = "Skipped copying field: ";
         public const string TransformCopyingMetaDataFieldMismatch = "Source or target multi-value setting mis-match";
         public const string TransformCopyingUserMetaDataFieldSkipped = "Skipped copying user field due to a cross farm modernization. Skipped field: ";

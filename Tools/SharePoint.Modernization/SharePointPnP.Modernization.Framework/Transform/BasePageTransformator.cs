@@ -611,7 +611,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                                     {
                                                         resultTermTransform.Item2.ForEach(field =>
                                                         {
-                                                            LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {field.Label}", LogStrings.Heading_CopyingPageMetadata);
+                                                            LogWarning(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldValue, field.Label), LogStrings.Heading_CopyingPageMetadata);
                                                         });
                                                     }
                                                 }
@@ -647,7 +647,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                                         }
                                                         else
                                                         {
-                                                            LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                            LogWarning(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldValue, label), LogStrings.Heading_CopyingPageMetadata);
                                                         }
                                                     }
                                                     else
@@ -691,7 +691,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                                     }
                                                     else
                                                     {
-                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                        LogWarning(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldValue, label), LogStrings.Heading_CopyingPageMetadata);
                                                     }
                                                 }
 
@@ -788,7 +788,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                                     }
                                                     else
                                                     {
-                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {termTranform.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                        LogWarning(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldValue, labelToSet), LogStrings.Heading_CopyingPageMetadata);
                                                     }
                                                 }
                                                 else
@@ -822,7 +822,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                                     }
                                                     else
                                                     {
-                                                        LogWarning($"{LogStrings.TransformCopyingMetaDataTaxFieldValue} {transformTerm.TermLabel}", LogStrings.Heading_CopyingPageMetadata);
+                                                        LogWarning(string.Format(LogStrings.TransformCopyingMetaDataTaxFieldValue, label), LogStrings.Heading_CopyingPageMetadata);
                                                     }
                                                 }
                                                 else
