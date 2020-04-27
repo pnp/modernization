@@ -39,34 +39,19 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
 
         private static readonly string SitesInformationListUrl = "DO_NOT_DELETE_SPLIST_TENANTADMIN_AGGREGATED_SITECO";
         private static readonly string SitesInformationListAllUrl = "DO_NOT_DELETE_SPLIST_TENANTADMIN_ALL_SITES_AGGREGA";
-        private static readonly string SitesListAllQuery = @"<View Scope=""RecursiveAll"">
-                                                            <Query>
-                                                               <Where>
-                                                                  <IsNull>
-                                                                     <FieldRef Name='TimeDeleted' />
-                                                                  </IsNull>
-                                                               </Where>
-                                                               <OrderBy>
-                                                                  <FieldRef Name='SiteUrl' Ascending='False' />
-                                                               </OrderBy>
-                                                            </Query>
+
+        // Removed query part to avoid running into list view threshold errors
+        private static readonly string SitesListAllQuery = @"<View Scope='RecursiveAll'>
                                                             <ViewFields>
                                                                <FieldRef Name='SiteUrl' />
                                                                <FieldRef Name='TemplateName' />
+                                                               <FieldRef Name='TimeDeleted' />
                                                             </ViewFields>
-                                                            <RowLimit Paged=""TRUE"">1000</RowLimit>
+                                                            <RowLimit Paged='TRUE'>1000</RowLimit>
                                                           </View>";
-        private static readonly string SitesListQuery = @"<View Scope=""RecursiveAll"">
-                                                            <Query>
-                                                               <Where>
-                                                                  <IsNull>
-                                                                     <FieldRef Name='TimeDeleted' />
-                                                                  </IsNull>
-                                                               </Where>
-                                                               <OrderBy>
-                                                                  <FieldRef Name='SiteUrl' Ascending='False' />
-                                                               </OrderBy>
-                                                            </Query>
+
+        // Removed query part to avoid running into list view threshold errors
+        private static readonly string SitesListQuery = @"<View Scope='RecursiveAll'>
                                                             <ViewFields>
                                                                <FieldRef Name='SiteUrl' />
                                                                <FieldRef Name='Title' />
@@ -77,8 +62,9 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
                                                                <FieldRef Name='LastActivityOn' />
                                                                <FieldRef Name='PageViews' />
                                                                <FieldRef Name='PagesVisited' />
+                                                               <FieldRef Name='TimeDeleted' />
                                                             </ViewFields>
-                                                            <RowLimit Paged=""TRUE"">1000</RowLimit>
+                                                            <RowLimit Paged='TRUE'>1000</RowLimit>
                                                           </View>";
 
         #region Construction
@@ -219,8 +205,6 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
             var sitesList = tenantAdminClientContext.Web.GetList($"{tenantAdminClientContext.Web.Url}/Lists/{SitesInformationListUrl}");
             tenantAdminClientContext.ExecuteQueryRetry();
 
-            //bool containsWildCardUrl = ContainsWildCardUrl(addedSites);
-
             // Query the list to obtain the sites to return
             CamlQuery camlQuery = new CamlQuery
             {
@@ -234,6 +218,12 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
                 sitesList.Context.ExecuteQueryRetry();
                 foreach (var site in sites)
                 {
+                    // Only keep which are not deleted
+                    if (site["TimeDeleted"] != null)
+                    {
+                        continue;
+                    }
+
                     // No point in keeping this data in memory if we're sure there's no site that will use it
                     //if (!containsWildCardUrl)
                     //{
@@ -313,6 +303,12 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
                 sitesList.Context.ExecuteQueryRetry();
                 foreach (var site in sites)
                 {
+                    // Only keep which are not deleted
+                    if (site["TimeDeleted"] != null)
+                    {
+                        continue;
+                    }
+
                     if (!foundSites.Contains(site["SiteUrl"].ToString().ToLower()))
                     {
                         if (excludeOD4B)

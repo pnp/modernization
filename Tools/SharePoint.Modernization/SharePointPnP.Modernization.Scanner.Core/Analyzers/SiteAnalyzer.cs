@@ -165,6 +165,10 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                             }
                         }
                     }
+                    else
+                    {
+                        scanResult.SharingCapabilities = "Unknown";
+                    }
                 }
                 else
                 {
