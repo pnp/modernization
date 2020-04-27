@@ -338,12 +338,61 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.OnPremises
             }
 
         }
-    
 
-}
+        [TestMethod]
+        public void BasicOnPremPublishingPageEnterpriseWikiTest()
+        {
+            using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
+            {
+                using (var sourceClientContext = TestCommon.CreateOnPremisesEnterpriseWikiClientContext())
+                {
+                    var mapping = "c:\\temp\\custompagelayoutmapping-enterprisewiki-home.xml";
+                    var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext, mapping);
+                    pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose: true));
+                    pageTransformator.RegisterObserver(new UnitTestLogObserver());
+
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "home");
+
+                    pages.FailTestIfZero();
+
+                    foreach (var page in pages)
+                    {
+                        PublishingPageTransformationInformation pti = new PublishingPageTransformationInformation(page)
+                        {
+                            // If target page exists, then overwrite it
+                            Overwrite = true,
+
+                            // Don't log test runs
+                            SkipTelemetry = true,
+
+                            //Permissions are unlikely to work given cross domain
+                            KeepPageSpecificPermissions = false,
+
+                            // Not the home page, its just annoying to have to roll back that page or target
+                            TargetPageName = "EnterpriseWikiPage.aspx",
+                                                       
+                        };
+
+                        Console.WriteLine("SharePoint Version: {0}", pti.SourceVersion);
+
+                        pti.MappingProperties["SummaryLinksToQuickLinks"] = "true";
+                        pti.MappingProperties["UseCommunityScriptEditor"] = "true";
+
+                        var result = pageTransformator.Transform(pti);
+                    }
+
+                    pageTransformator.FlushObservers();
+
+                }
+            }
+        }
 
 
-public class TestBasePage : BasePage
+
+    }
+
+
+    public class TestBasePage : BasePage
 {
     public TestBasePage(ListItem item, File file, PageTransformation pt, IList<ILogObserver> logObservers) : base(item, file, pt, logObservers)
     {

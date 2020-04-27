@@ -30,7 +30,9 @@
     <add key="SPODevTeamSiteUrl" value="https://tenant.sharepoint.com/sites/sourceteamsite" />
     <add key="SPOnPremDevTeamSiteUrl" value="http://spserver/sites/sourcesite" />
     <add key="SPOTenantRootSiteUrl" value="https://tenant.sharepoint.com" />
-      
+    <add key="SPOnPremEnterpriseWikiUrl"  value="http://spserver/sites/wiki" />
+    
+    
     <!-- Source Publishing Portal -->
 
     <!-- SharePoint Online -->

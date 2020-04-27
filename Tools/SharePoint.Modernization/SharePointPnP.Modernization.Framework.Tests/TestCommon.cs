@@ -80,6 +80,11 @@ namespace SharePointPnP.Modernization.Framework.Tests
             return InternalCreateContext(AppSetting("SPOnPremDevSiteUrl"), SourceContextMode.OnPremises);
         }
 
+        public static ClientContext CreateOnPremisesEnterpriseWikiClientContext()
+        {
+            return InternalCreateContext(AppSetting("SPOnPremEnterpriseWikiUrl"), SourceContextMode.OnPremises);
+        }
+
         public static ClientContext CreateOnPremisesClientContext(string url)
         {
             return InternalCreateContext(url, SourceContextMode.OnPremises);
