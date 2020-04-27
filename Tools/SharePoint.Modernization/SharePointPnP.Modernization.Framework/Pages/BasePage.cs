@@ -1107,7 +1107,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 xmlBlock = xmlBlock
                     .Replace("__designer:", "Designer")
                     .Replace("<asp:","<")
-                    .Replace("</asp:","</"); // Remove asp prefixes from xml document
+                    .Replace("</asp:","</")
+                    .Replace("<spsswc:","<")
+                    .Replace("</spsswc:", "</");// Remove asp prefixes from xml document
 
                 foreach (var prefix in prefixesAndNameSpaces)
                 {
