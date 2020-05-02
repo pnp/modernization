@@ -12,11 +12,14 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [Unreleased]
+## [May release - unreleased]
 
 ### Added
 
 ### Changed
+
+- Fix: Correctly format term store log messages #468 [pkbullock]
+- Fix: Enterprise WIKI fails transform from SharePoint 2013 #467 [pkbullock]
 
 ## [April release - version 1.0.2004.0]
 
