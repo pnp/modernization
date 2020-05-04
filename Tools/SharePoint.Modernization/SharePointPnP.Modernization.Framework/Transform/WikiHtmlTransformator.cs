@@ -206,11 +206,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                                 // Check if this image tag is wrapped inside an Anchor
                                 string anchorTag = null;
+                                string captionHtml = "";
                                 if (element.ParentElement != null && element.ParentElement.TagName.Equals("A", StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     if (element.ParentElement.HasAttribute("href"))
                                     {
                                         anchorTag = element.ParentElement.GetAttribute("href");
+                                    }
+
+                                    if (!string.IsNullOrEmpty(element.ParentElement.TextContent))
+                                    {
+                                        captionHtml = element.ParentElement.TextContent;
                                     }
                                 }
 
@@ -224,7 +230,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     props.Add("Width", (element as IHtmlImageElement).DisplayWidth.ToString());
                                     props.Add("Height", (element as IHtmlImageElement).DisplayHeight.ToString());
                                     props.Add("Anchor", anchorTag ?? "");
-                                    props.Add("Caption", "");
+                                    props.Add("Caption", captionHtml ?? "");
                                 }
 
                                 var alt = (element as IElement).Attributes.Where(p => p.Name.Equals("alt", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();

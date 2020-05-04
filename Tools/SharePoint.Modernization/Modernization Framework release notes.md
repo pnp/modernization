@@ -20,6 +20,7 @@
 
 - Fix: Correctly format term store log messages #468 [pkbullock]
 - Fix: Enterprise WIKI fails transform from SharePoint 2013 #467 [pkbullock]
+- Fix: Retain image caption when the caption is provided via an embedded anchor tag
 
 ## [April release - version 1.0.2004.0]
 
