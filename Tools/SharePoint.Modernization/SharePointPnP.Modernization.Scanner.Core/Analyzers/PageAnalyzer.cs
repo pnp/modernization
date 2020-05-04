@@ -151,57 +151,78 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
                                     // Determine if this site contains a default "uncustomized" home page
                                     bool isUncustomizedHomePage = false;
+
+                                    // Try to use the new API: might not be fully rolled out yet + fails at Sites.Read.All permission level
+                                    bool canModernizeHomePageWorked = false;
                                     try
                                     {
-                                        string pageName = "";
-                                        if (page.FieldValues.ContainsKey(Field_FileLeafRef) && !String.IsNullOrEmpty(page[Field_FileLeafRef].ToString()))
-                                        {
-                                            pageName = page[Field_FileLeafRef].ToString();
-                                        }
+                                        var canModernizeHomepage = web.CanModernizeHomepage;
+                                        web.Context.Load(canModernizeHomepage);
+                                        web.Context.ExecuteQueryRetry();
 
-                                        if (pageResult.HomePage && web.WebTemplate == "STS" && web.Configuration == 0)
+                                        isUncustomizedHomePage = canModernizeHomepage.CanModernizeHomepage;
+                                        canModernizeHomePageWorked = true;
+                                        pageResult.UncustomizedHomePage = isUncustomizedHomePage;
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        
+                                    }
+                                    // If for some reason the API did not work, then let's fall back to the old approach
+                                    if (!canModernizeHomePageWorked)
+                                    {
+                                        try
                                         {
-                                            bool publishingWebFeatureEnabled = web.Features.Where(f => f.DefinitionId == WebAnalyzer.FeatureId_Web_Publishing).Count() > 0;
-                                            bool publishingSiteFeatureEnabled = site.Features.Where(f => f.DefinitionId == SiteAnalyzer.FeatureId_Site_Publishing).Count() > 0;
-                                            bool homePageModernizationOptedOut = web.Features.Where(f => f.DefinitionId == FeatureId_Web_HomePage).Count() > 0;
-
-                                            if (!homePageModernizationOptedOut && !publishingSiteFeatureEnabled && !publishingWebFeatureEnabled)
+                                            string pageName = "";
+                                            if (page.FieldValues.ContainsKey(Field_FileLeafRef) && !String.IsNullOrEmpty(page[Field_FileLeafRef].ToString()))
                                             {
-                                                bool siteWasGroupified = web.Features.Where(f => f.DefinitionId == FeatureId_Web_GroupHomepage).Count() > 0;
-                                                if (!siteWasGroupified)
+                                                pageName = page[Field_FileLeafRef].ToString();
+                                            }
+
+                                            if (pageResult.HomePage && web.WebTemplate == "STS" && web.Configuration == 0)
+                                            {
+                                                bool publishingWebFeatureEnabled = web.Features.Where(f => f.DefinitionId == WebAnalyzer.FeatureId_Web_Publishing).Count() > 0;
+                                                bool publishingSiteFeatureEnabled = site.Features.Where(f => f.DefinitionId == SiteAnalyzer.FeatureId_Site_Publishing).Count() > 0;
+                                                bool homePageModernizationOptedOut = web.Features.Where(f => f.DefinitionId == FeatureId_Web_HomePage).Count() > 0;
+
+                                                if (!homePageModernizationOptedOut && !publishingSiteFeatureEnabled && !publishingWebFeatureEnabled)
                                                 {
-                                                    // Check for master page url
-                                                    if (web.MasterUrl.EndsWith("_catalogs/masterpage/seattle.master", StringComparison.InvariantCultureIgnoreCase))
+                                                    bool siteWasGroupified = web.Features.Where(f => f.DefinitionId == FeatureId_Web_GroupHomepage).Count() > 0;
+                                                    if (!siteWasGroupified)
                                                     {
-
-                                                        // Check for home page name, only "default sts#0 home pages" should be considered, so 
-                                                        // home.aspx or the translated versions
-                                                        var homePageName = this.ScanJob.Store.Get<string>(this.ScanJob.StoreOptions.GetKey(keyWikiHomePageName));
-                                                        if (homePageName == null)
+                                                        // Check for master page url
+                                                        if (web.MasterUrl.EndsWith("_catalogs/masterpage/seattle.master", StringComparison.InvariantCultureIgnoreCase))
                                                         {
-                                                            ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(web.Context, "$Resources:WikiPageHomePageName", "core", (int)web.Language);
-                                                            web.Context.ExecuteQueryRetry();
-                                                            homePageName = $"{new Regex(@"['´`]").Replace(result.Value, "")}.aspx";
-                                                            this.ScanJob.Store.Set<string>(this.ScanJob.StoreOptions.GetKey(keyWikiHomePageName), homePageName, this.ScanJob.StoreOptions.EntryOptions);
-                                                        }
 
-                                                        if (pageName.Equals(homePageName, StringComparison.InvariantCultureIgnoreCase))
-                                                        {
-                                                            var wiki = page.FieldValues[Field_WikiField].ToString();
-                                                            if (!string.IsNullOrEmpty(wiki))
+                                                            // Check for home page name, only "default sts#0 home pages" should be considered, so 
+                                                            // home.aspx or the translated versions
+                                                            var homePageName = this.ScanJob.Store.Get<string>(this.ScanJob.StoreOptions.GetKey(keyWikiHomePageName));
+                                                            if (homePageName == null)
                                                             {
-                                                                var isHtmlUncustomized = IsHtmlUncustomized(wiki);
+                                                                ClientResult<string> result = Microsoft.SharePoint.Client.Utilities.Utility.GetLocalizedString(web.Context, "$Resources:WikiPageHomePageName", "core", (int)web.Language);
+                                                                web.Context.ExecuteQueryRetry();
+                                                                homePageName = $"{new Regex(@"['´`]").Replace(result.Value, "")}.aspx";
+                                                                this.ScanJob.Store.Set<string>(this.ScanJob.StoreOptions.GetKey(keyWikiHomePageName), homePageName, this.ScanJob.StoreOptions.EntryOptions);
+                                                            }
 
-                                                                if (isHtmlUncustomized)
+                                                            if (pageName.Equals(homePageName, StringComparison.InvariantCultureIgnoreCase))
+                                                            {
+                                                                var wiki = page.FieldValues[Field_WikiField].ToString();
+                                                                if (!string.IsNullOrEmpty(wiki))
                                                                 {
-                                                                    string pageType = GetPageWebPartInfo(pageResult.WebParts);
+                                                                    var isHtmlUncustomized = IsHtmlUncustomized(wiki);
 
-                                                                    if (pageType == TeamSiteDefaultWebParts)
+                                                                    if (isHtmlUncustomized)
                                                                     {
-                                                                        page.ContentType.EnsureProperty(p => p.DisplayFormTemplateName);
-                                                                        if (page.ContentType.DisplayFormTemplateName == "WikiEditForm")
+                                                                        string pageType = GetPageWebPartInfo(pageResult.WebParts);
+
+                                                                        if (pageType == TeamSiteDefaultWebParts)
                                                                         {
-                                                                            isUncustomizedHomePage = true;
+                                                                            page.ContentType.EnsureProperty(p => p.DisplayFormTemplateName);
+                                                                            if (page.ContentType.DisplayFormTemplateName == "WikiEditForm")
+                                                                            {
+                                                                                isUncustomizedHomePage = true;
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -211,14 +232,14 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                                 }
                                             }
                                         }
-                                    }
-                                    catch(Exception ex)
-                                    {
-                                        // no point in failing the scan if something goes wrong here
-                                    }
-                                    finally
-                                    {
-                                        pageResult.UncustomizedHomePage = isUncustomizedHomePage;
+                                        catch (Exception ex)
+                                        {
+                                            // no point in failing the scan if something goes wrong here
+                                        }
+                                        finally
+                                        {
+                                            pageResult.UncustomizedHomePage = isUncustomizedHomePage;
+                                        }
                                     }
 
                                     // Get page change information
