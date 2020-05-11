@@ -5678,6 +5678,66 @@
             The default classification to use. Notice that when applying or updating the value specified should be present in the Classifications list of values.
             </summary>
         </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Graph.Model.User">
+            <summary>
+            Defines a Microsoft Graph user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.BusinessPhones">
+            <summary>
+            Business phone numbers for the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.DisplayName">
+            <summary>
+            Display name for the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.GivenName">
+            <summary>
+            Given name of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.JobTitle">
+            <summary>
+            Job title of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.Mail">
+            <summary>
+            Primary e-mail address of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.MobilePhone">
+            <summary>
+            Mobile phone number of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.OfficeLocation">
+            <summary>
+            Office location of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.PreferredLanguage">
+            <summary>
+            Preferred language of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.Surname">
+            <summary>
+            Surname of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.UserPrincipalName">
+            <summary>
+            User Principal Name (UPN) of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.Id">
+            <summary>
+            Unique identifier of the user
+            </summary>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.GraphHttpClient.MakeGetRequestForString(System.String,System.String)">
             <summary>
             This helper method makes an HTTP GET request and returns the result as a String
@@ -5755,6 +5815,47 @@
             <typeparam name="TResult">The type of the result, if any</typeparam>
             <returns>The value of the result, if any</returns>
         </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Graph.UsersUtility">
+            <summary>
+            Provides access to user operations in Microsoft Graph
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.GetUser(System.String,System.Guid,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the user with the provided userId from Azure Active Directory
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="userId">The unique identifier of the user in Azure Active Directory to return</param>        
+            <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
+            <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
+            <returns>List with User objects</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.ListUsers(System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns all the Users in the current domain
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>        
+            <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
+            <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
+            <returns>List with User objects</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.ListUsers(System.String,System.String,System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns all the Users in the current domain filtered out with a custom OData filter
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="filter">OData filter to apply to retrieval of the users from the Microsoft Graph</param>
+            <param name="orderby">OData orderby instruction</param>
+            <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
+            <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
+            <returns>List with User objects</returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Graph.PnPHttpProvider">
             <summary>
              Class that deals with PnPHttpProvider methods
@@ -5818,6 +5919,15 @@
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>The just created Office 365 Group</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.RenewUnifiedGroup(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Renews the Office 365 Group by extending its expiration with the number of days defined in the group expiration policy set on the Azure Active Directory
+            </summary>
+            <param name="groupId">The ID of the Office 365 Group</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.UpdateUnifiedGroup(System.String,System.String,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.IO.Stream,System.Nullable{System.Boolean},System.Boolean)">
             <summary>
@@ -5916,6 +6026,16 @@
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>Members of an Office 365 group as a list of UnifiedGroupUser entity</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetNestedUnifiedGroupMembers(OfficeDevPnP.Core.Entities.UnifiedGroupEntity,System.String,System.Int32,System.Int32)">
+            <summary>
+            Returns all the Members of an Office 365 group (including nested groups).
+            </summary>
+            <param name="group"></param>
+            <param name="accessToken"></param>
+            <param name="retryCount"></param>
+            <param name="delay"></param>
+            <returns></returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUnifiedGroupOwners(OfficeDevPnP.Core.Entities.UnifiedGroupEntity,System.String,System.Int32,System.Int32)">
             <summary>
             Returns all the Owners of an Office 365 group.
@@ -5933,6 +6053,24 @@
             <param name="page"></param>
             <param name="unifiedGroupGraphUsers"></param>
             <returns>Returns a collection of Microsoft.Graph.User entity</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GenerateNestedGraphUserCollection(System.Collections.Generic.IList{Microsoft.Graph.DirectoryObject},System.Collections.Generic.List{Microsoft.Graph.User},System.Collections.Generic.List{OfficeDevPnP.Core.Entities.UnifiedGroupUser},System.String)">
+            <summary>
+            Helper method. Generates a neseted collection of Microsoft.Graph.User entity from directory objects.
+            </summary>
+            <param name="page"></param>
+            <param name="unifiedGroupGraphUsers"></param>
+            <param name="unifiedGroupUsers"></param>
+            <param name="accessToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GenerateGraphGroupCollection(System.Collections.Generic.IList{Microsoft.Graph.DirectoryObject},System.Collections.Generic.List{Microsoft.Graph.Group})">
+            <summary>
+            Helper method. Generates a collection of Microsoft.Graph.Group entity from directory objects.
+            </summary>
+            <param name="page"></param>
+            <param name="unifiedGroupGraphGroups"></param>
+            <returns></returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUsers(Microsoft.Graph.GraphServiceClient,System.String[])">
             <summary>
