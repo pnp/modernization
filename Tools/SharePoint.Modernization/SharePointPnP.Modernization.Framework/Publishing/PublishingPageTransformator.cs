@@ -434,6 +434,12 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 #endif
                 #endregion
 
+                #region Replay
+
+                ReplayPageLayout replayPageLayout = new ReplayPageLayout(publishingPageTransformationInformation as BaseTransformationInformation, targetClientContext, base.RegisteredLogObservers);
+
+                #endregion
+
                 #region Content transformation
 
                 LogDebug(LogStrings.PreparingContentTransformation, LogStrings.Heading_ArticlePageHandling);
@@ -442,7 +448,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 Start();
 #endif
                 // Use the default content transformator
-                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers);
+                IContentTransformator contentTransformator = new ContentTransformator(sourceClientContext, targetPage, pageTransformation, publishingPageTransformationInformation as BaseTransformationInformation, base.RegisteredLogObservers, replayPageLayout);
 
                 // Do we have an override?
                 if (publishingPageTransformationInformation.ContentTransformatorOverride != null)
@@ -537,6 +543,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     var targetPageFile = context.Web.GetFileByServerRelativeUrl(serverRelativePathForModernPage);
                     context.Load(targetPageFile, p => p.Properties);
                     targetPageFile.Properties["sharepointpnp_pagemodernization"] = this.version;
+
+                    // For replay mode, mark the target file with the original layout
+                    targetPageFile.Properties["sharepointpnp_pagelayoutmappingmodel"] = pageLayoutMappingModel.Name;
                     targetPageFile.Update();
 
                     // In case of KeepPageCreationModificationInformation and PostAsNews the publishing is handled at the very end of the flow, so skip it right here

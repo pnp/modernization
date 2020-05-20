@@ -26,6 +26,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private Dictionary<string, string> globalTokens;
         private bool isCrossSiteTransfer;
         private BaseTransformationInformation transformationInformation;
+        private ReplayPageLayout replayPageLayout;
 
         class CombinedMapping
         {
@@ -40,7 +41,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// </summary>
         /// <param name="page">Client side page that will be updates</param>
         /// <param name="pageTransformation">Transformation information</param>
-        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, BaseTransformationInformation transformationInformation, IList<ILogObserver> logObservers = null) : base()
+        public ContentTransformator(ClientContext sourceClientContext, ClientSidePage page, PageTransformation pageTransformation, BaseTransformationInformation transformationInformation, IList<ILogObserver> logObservers = null, ReplayPageLayout replayPageLayout = null) : base()
         {
             
             //Register any existing observers
@@ -60,7 +61,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             this.sourceClientContext = sourceClientContext;
             this.isCrossSiteTransfer = IsCrossSiteTransfer();
-
+            this.replayPageLayout = replayPageLayout;
             
         }
         #endregion
@@ -264,10 +265,22 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         {
                             Text = TokenParser.ReplaceTokens(map.ClientSideText.Text, webPart)
                         };
-
+                        
+                        //TODO: Adapt for Replay - Check if the storing of the locations has moved
                         page.AddControl(text, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
                         LogInfo(LogStrings.AddedClientSideTextWebPart, LogStrings.Heading_AddingWebPartsToPage);
-                        
+
+                        replayPageLayout?.StoreLocation(new ReplayWebPartLocation()
+                        {
+                            TargetWebPartTypeId = ReplayPageLayout.TextWebPart,
+                            TargetWebPartInstanceId = text.InstanceId,
+                            Row = webPart.Row - 1,
+                            Column = webPart.Column - 1,
+                            Order = order,
+                            SourceWebPartId = webPart.Id,
+                            SourceWebPartType = webPart.Type
+                        });
+
                     }
                     else if (map.ClientSideWebPart != null)
                     {
@@ -526,8 +539,20 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 PropertiesJson = jsonDecoded
                             };
 
+                            //TODO: Adapt for Replay - Check if the storing of the locations has moved
                             page.AddControl(myWebPart, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
                             LogInfo($"{LogStrings.ContentAdded} '{ myWebPart.Title }' {LogStrings.ContentClientToTargetPage}", LogStrings.Heading_AddingWebPartsToPage);
+
+                            replayPageLayout?.StoreLocation(new ReplayWebPartLocation()
+                            {
+                                TargetWebPartTypeId = myWebPart.WebPartId,
+                                TargetWebPartInstanceId = myWebPart.InstanceId,
+                                Row = webPart.Row - 1,
+                                Column = webPart.Column - 1,
+                                Order = order,
+                                SourceWebPartId = webPart.Id,
+                                SourceWebPartType = webPart.Type
+                            });
                         }
                         else
                         {

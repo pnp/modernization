@@ -119,7 +119,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// Turn off term store mapping
         /// </summary>
         public bool SkipTermStoreMapping { get; set; }
+
+        /// <summary>
+        /// Replays the layout changes based on this file
+        /// </summary>
+        public string ReplayLayoutChangeBasedOn { get; set; }
         
+        /// <summary>
+        /// Mark page for replay capture
+        /// </summary>
+        public bool IsReplayCapture { get; set; }
+
         #endregion
 
         #region User Mapping Properties

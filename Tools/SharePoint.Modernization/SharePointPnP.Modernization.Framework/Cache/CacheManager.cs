@@ -30,6 +30,7 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate baseTemplate;
         // Needs to be refactored together with the logging system
         private BasePageTransformator lastUsedTransformator;
+        private BasePageTransformator replayReferenceTransformator;
 
         private static readonly string Publishing = "publishing";
         private static readonly string Blog = "blog";
@@ -57,8 +58,8 @@ namespace SharePointPnP.Modernization.Framework.Cache
         private static readonly string keyMappedUsers = "mappedUsers";
         private static readonly string keyTermCache = "termCache";
         private static readonly string keyTermMappings = "termMappings";
-
         private static readonly string keyTermTransformatorCache = "keyTermTransformatorCache";
+        private static readonly string keyReplayPageCache = "keyReplayPageCache";
 
         /// <summary>
         /// Get's the single cachemanager instance, singleton pattern
@@ -795,10 +796,21 @@ namespace SharePointPnP.Modernization.Framework.Cache
             Store.Remove(StoreOptions.GetKey(keyTermMappings));
             Store.Remove(StoreOptions.GetKey(keyAssetsTransferred));
             Store.Remove(StoreOptions.GetKey(keyTermTransformatorCache));
+            Store.Remove(StoreOptions.GetKey(keyReplayPageCache));
 
             ClearFieldsToCopy();
             ClearSharePointVersions();
             ClearGeneratedPageLayoutMappings();
+            ClearReplayPageCache();
+        }
+
+        /// <summary>
+        /// Clears the replay information from the cache
+        /// </summary>
+        public void ClearReplayPageCache()
+        {
+            Store.Remove(StoreOptions.GetKey(keyReplayPageCache));
+
         }
 
         /// <summary>
@@ -1299,6 +1311,27 @@ namespace SharePointPnP.Modernization.Framework.Cache
             return default(Dictionary<Guid, TermData>);
         }
 
+        /// <summary>
+        /// Returns a cached list of mapped items
+        /// </summary>
+        /// <param name="mappingFile"></param>
+        /// <param name="logObservers"></param>
+        /// <returns></returns>
+        public List<TermMapping> GetTermMapping(string mappingFile, IList<ILogObserver> logObservers = null)
+        {
+            var termMapping = Store.GetAndInitialize<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings));
+            if (termMapping != null && termMapping.Count > 0)
+            {
+                return termMapping;
+            }
+
+            FileManager fileManager = new FileManager(logObservers);
+            termMapping = fileManager.LoadTermMappingFile(mappingFile);
+            Store.Set<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings), termMapping, StoreOptions.EntryOptions);
+
+            return termMapping;
+        }
+
         #endregion
 
         #endregion
@@ -1370,26 +1403,49 @@ namespace SharePointPnP.Modernization.Framework.Cache
         }
         #endregion
 
+        #region Replay
+
         /// <summary>
-        /// Returns a cached list of mapped items
+        /// Gets web part locations stored in cache.
         /// </summary>
-        /// <param name="mappingFile"></param>
-        /// <param name="logObservers"></param>
+        /// <param name="pageUrl"></param>
         /// <returns></returns>
-        public List<TermMapping> GetTermMapping(string mappingFile, IList<ILogObserver> logObservers = null)
+        public List<ReplayWebPartLocation> GetWebPartLocationsForTargetPage(string pageUrl)
         {
-            var termMapping = Store.GetAndInitialize<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings));
-            if (termMapping != null && termMapping.Count > 0)
+            var replayWebPartLocations = Store.GetAndInitialize<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache));
+            var pageWebPartLocations = replayWebPartLocations.Where(o => o.PageUrl == pageUrl);
+            if (pageWebPartLocations.Any())
             {
-                return termMapping;
+                return pageWebPartLocations.ToList();
             }
 
-            FileManager fileManager = new FileManager(logObservers);
-            termMapping = fileManager.LoadTermMappingFile(mappingFile);
-            Store.Set<List<TermMapping>>(StoreOptions.GetKey(keyTermMappings), termMapping, StoreOptions.EntryOptions);
-
-            return termMapping;
+            return default;
         }
+
+        /// <summary>
+        /// Store the web part locations into the cache
+        /// </summary>
+        /// <param name="webPartLocation"></param>
+        public void StoreWebPartLocationsForTargetPage(ReplayWebPartLocation webPartLocation)
+        {
+            var replayWebPartLocations = Store.GetAndInitialize<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache));
+            var pageWebPartLocation = replayWebPartLocations.Where(o => o.PageUrl == webPartLocation.PageUrl 
+                && o.TargetWebPartInstanceId == webPartLocation.TargetWebPartInstanceId).FirstOrDefault();
+            if (pageWebPartLocation != default)
+            {
+                pageWebPartLocation = webPartLocation;
+            }
+            else
+            {
+                //Check this exists and overwrite
+                replayWebPartLocations.Add(webPartLocation);
+            }
+
+            Store.Set<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache), replayWebPartLocations, StoreOptions.EntryOptions);
+
+        }
+
+        #endregion
 
         #region Helper methods
 
