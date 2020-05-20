@@ -218,6 +218,7 @@
     <Compile Include="Transform\Publishing\PublishingFunctionProcessorTests.cs" />
     <Compile Include="Transform\Publishing\PublishingPageTests.cs" />
     <Compile Include="Transform\Publishing\PublishingPageTransformationInformationTests.cs" />
+    <Compile Include="Transform\Replay\ReplayPublishingPageTests.cs" />
     <Compile Include="Transform\ReportingTests.cs" />
     <Compile Include="Transform\ContextTests.cs" />
     <Compile Include="Transform\Mapping\UrlMappingTests.cs" />
