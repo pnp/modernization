@@ -4,11 +4,20 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.11]
+
+### Added
+
+### Changed
+
+- Fix: Fixed list view threshold error when using Sites.Read.All permissions in combination with a tenant having a lot of sites
+- Fix: Use the CanModernizeHomepage API call to understand whether a home page will be modernized automatically by the planned home page modernization effort
+
 ## [Version 2.10]
 
-## Added
+### Added
 
-## Changed
+### Changed
 
 - Fix: Checking for home.aspx now takes in account the locale of the site
 - The definition of an uncustomized home page changed, added the check on publishing features and master page
@@ -16,7 +25,7 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ## [Version 2.9]
 
-## Added
+### Added
 
 - Site and web search center url setting is included in the ModernizationSiteScanResults.csv and ModernizationWebScanResults.csv files
 - The scanner uses modern username/password auth, there's no dependency anymore on legacy auth being enabled on the tenant
@@ -24,24 +33,24 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ## [Version 2.8]
 
-## Added
+### Added
 
 - Home page only page scan mode
 - Creation of a SitesWithUncustomizedHomePages.csv file listing all the home pages which are uncustomized
 
-## Changed
+### Changed
 
 - Bumped to .Net 4.6.1 as minimal .Net runtime version
 
 ## [Version 2.7]
 
-## Added
+### Added
 
 - Delve blogs are scanned as part of the blog scan component
 - Added option to use a certificate stored in certificate store (next to the already existing option of providing via pfx)
 - Office 365 Group connection report and csv's will now also list if a site has a Teams team (only when using Azure AD auth and when the Groups.Read.All permission was granted)
 
-## Changed
+### Changed
 
 - Refactored the scanner into a core scanner library and a consumer (.exe). Core scanner library uses streams for all the file manipulation, the consumer is responsible for providing/persisting files. This will make the core scan component easier to re-use
 

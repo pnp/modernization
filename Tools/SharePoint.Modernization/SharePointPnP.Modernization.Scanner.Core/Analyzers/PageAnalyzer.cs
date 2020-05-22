@@ -152,7 +152,6 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                     // Determine if this site contains a default "uncustomized" home page
                                     bool isUncustomizedHomePage = false;
 
-                                    // Try to use the new API: might not be fully rolled out yet + fails at Sites.Read.All permission level
                                     bool canModernizeHomePageWorked = false;
                                     try
                                     {
