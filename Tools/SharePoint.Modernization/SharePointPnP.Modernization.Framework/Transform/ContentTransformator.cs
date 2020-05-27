@@ -270,7 +270,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         page.AddControl(text, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
                         LogInfo(LogStrings.AddedClientSideTextWebPart, LogStrings.Heading_AddingWebPartsToPage);
 
-                        replayPageLayout?.StoreLocation(new ReplayWebPartLocation()
+                        replayPageLayout?.StoreInitialWebPartLocations(new ReplayWebPartLocation()
                         {
                             TargetWebPartTypeId = ReplayPageLayout.TextWebPart,
                             TargetWebPartInstanceId = text.InstanceId,
@@ -543,7 +543,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             page.AddControl(myWebPart, page.Sections[webPart.Row - 1].Columns[webPart.Column - 1], order);
                             LogInfo($"{LogStrings.ContentAdded} '{ myWebPart.Title }' {LogStrings.ContentClientToTargetPage}", LogStrings.Heading_AddingWebPartsToPage);
 
-                            replayPageLayout?.StoreLocation(new ReplayWebPartLocation()
+                            replayPageLayout?.StoreInitialWebPartLocations(new ReplayWebPartLocation()
                             {
                                 TargetWebPartTypeId = myWebPart.WebPartId,
                                 TargetWebPartInstanceId = myWebPart.InstanceId,

@@ -1405,44 +1405,67 @@ namespace SharePointPnP.Modernization.Framework.Cache
 
         #region Replay
 
-        /// <summary>
-        /// Gets web part locations stored in cache.
-        /// </summary>
-        /// <param name="pageUrl"></param>
-        /// <returns></returns>
-        public List<ReplayWebPartLocation> GetWebPartLocationsForTargetPage(string pageUrl)
-        {
-            var replayWebPartLocations = Store.GetAndInitialize<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache));
-            var pageWebPartLocations = replayWebPartLocations.Where(o => o.PageUrl == pageUrl);
-            if (pageWebPartLocations.Any())
-            {
-                return pageWebPartLocations.ToList();
-            }
 
-            return default;
+        //TODO: Cleanup
+
+        ///// <summary>
+        ///// Gets web part locations stored in cache.
+        ///// </summary>
+        ///// <param name="pageUrl"></param>
+        ///// <returns></returns>
+        //public List<ReplayWebPartLocation> GetWebPartLocationsForTargetPage(string pageUrl)
+        //{
+        //    var replayWebPartLocations = Store.GetAndInitialize<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache));
+        //    var pageWebPartLocations = replayWebPartLocations.Where(o => o.PageUrl == pageUrl);
+        //    if (pageWebPartLocations.Any())
+        //    {
+        //        return pageWebPartLocations.ToList();
+        //    }
+
+        //    return default;
+        //}
+
+        ///// <summary>
+        ///// Store the web part locations into the cache
+        ///// </summary>
+        ///// <param name="webPartLocation"></param>
+        //public void StoreWebPartLocationsForTargetPage(ReplayWebPartLocation webPartLocation)
+        //{
+        //    var replayWebPartLocations = Store.GetAndInitialize<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache));
+        //    var pageWebPartLocation = replayWebPartLocations.Where(o => o.PageUrl == webPartLocation.PageUrl 
+        //        && o.TargetWebPartInstanceId == webPartLocation.TargetWebPartInstanceId).FirstOrDefault();
+        //    if (pageWebPartLocation != default)
+        //    {
+        //        pageWebPartLocation = webPartLocation;
+        //    }
+        //    else
+        //    {
+        //        //Check this exists and overwrite
+        //        replayWebPartLocations.Add(webPartLocation);
+        //    }
+
+        //    Store.Set<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache), replayWebPartLocations, StoreOptions.EntryOptions);
+
+        //}
+
+        /// <summary>
+        /// Sets the page in which replay capture is referenced
+        /// </summary>
+        /// <param name="transformator"></param>
+        public void SetReplayCaptureData(ReplayPageCaptureData captureData)
+        {
+            var replayPageCaptureData = Store.GetAndInitialize<ReplayPageCaptureData>(StoreOptions.GetKey(keyReplayPageCache));
+            replayPageCaptureData = captureData;
+            Store.Set<ReplayPageCaptureData>(StoreOptions.GetKey(keyReplayPageCache), replayPageCaptureData, StoreOptions.EntryOptions);
         }
 
         /// <summary>
-        /// Store the web part locations into the cache
+        /// Get the page in which replay capture is referenced
         /// </summary>
-        /// <param name="webPartLocation"></param>
-        public void StoreWebPartLocationsForTargetPage(ReplayWebPartLocation webPartLocation)
+        /// <param name="transformator"></param>
+        public ReplayPageCaptureData GetReplayCaptureData()
         {
-            var replayWebPartLocations = Store.GetAndInitialize<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache));
-            var pageWebPartLocation = replayWebPartLocations.Where(o => o.PageUrl == webPartLocation.PageUrl 
-                && o.TargetWebPartInstanceId == webPartLocation.TargetWebPartInstanceId).FirstOrDefault();
-            if (pageWebPartLocation != default)
-            {
-                pageWebPartLocation = webPartLocation;
-            }
-            else
-            {
-                //Check this exists and overwrite
-                replayWebPartLocations.Add(webPartLocation);
-            }
-
-            Store.Set<List<ReplayWebPartLocation>>(StoreOptions.GetKey(keyReplayPageCache), replayWebPartLocations, StoreOptions.EntryOptions);
-
+            return Store.GetAndInitialize<ReplayPageCaptureData>(StoreOptions.GetKey(keyReplayPageCache)); ;
         }
 
         #endregion

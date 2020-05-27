@@ -123,7 +123,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// Replays the layout changes based on this file
         /// </summary>
-        public string ReplayLayoutChangeBasedOn { get; set; }
+        public bool IsReplayLayout { get; set; }
         
         /// <summary>
         /// Mark page for replay capture

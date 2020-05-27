@@ -292,6 +292,7 @@
     <Compile Include="Delve\DelvePageTransformationInformation.cs" />
     <Compile Include="Delve\DelvePageTransformator.cs" />
     <Compile Include="Entities\AssetTransferredEntity.cs" />
+    <Compile Include="Entities\ReplayPageCaptureData.cs" />
     <Compile Include="Entities\ReplayWebPartLocation.cs" />
     <Compile Include="Entities\ResolvedUser.cs" />
     <Compile Include="Entities\TermData.cs" />

@@ -389,5 +389,11 @@
 
         #endregion
 
+        #region Replay Page Layout
+
+        public const string Heading_ReplayPageLayout = "Replay Page Layout";
+
+        #endregion
+
     }
 }

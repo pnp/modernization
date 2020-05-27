@@ -436,7 +436,8 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 #region Replay
 
-                ReplayPageLayout replayPageLayout = new ReplayPageLayout(publishingPageTransformationInformation as BaseTransformationInformation, targetClientContext, base.RegisteredLogObservers);
+                ReplayPageLayout replayPageLayout = new ReplayPageLayout(publishingPageTransformationInformation as BaseTransformationInformation, targetClientContext, pageLayoutMappingModel.Name, base.RegisteredLogObservers);
+                replayPageLayout.CheckAndLoadCaptureDataFromCache();
 
                 #endregion
 
@@ -629,6 +630,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 #endregion
 
                 #region Closing
+
+                replayPageLayout.StoreCaptureData();
+
                 CacheManager.Instance.SetLastUsedTransformator(this);
                 LogInfo($"{serverRelativePathForModernPage}", LogStrings.Heading_Summary, LogEntrySignificance.TargetPage);
                 return Uri.EscapeUriString(serverRelativePathForModernPage);

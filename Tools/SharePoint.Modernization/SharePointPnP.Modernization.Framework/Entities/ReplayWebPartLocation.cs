@@ -16,6 +16,8 @@ namespace SharePointPnP.Modernization.Framework.Entities
 
         public ReplayWebPartLocation()
         {
+            SourceWebPartId = Guid.Empty;
+            TargetWebPartInstanceId = Guid.Empty;
             Row = int.MinValue;
             Column = int.MinValue;
             Order = int.MinValue;
@@ -24,8 +26,6 @@ namespace SharePointPnP.Modernization.Framework.Entities
             MovedToRow = int.MinValue;
         }
 
-        public string PageUrl { get; set; }
-        
         public Guid SourceWebPartId { get; set; }
         
         public string SourceWebPartType { get; set; }
@@ -45,6 +45,12 @@ namespace SharePointPnP.Modernization.Framework.Entities
         public int MovedToColumn { get; set; }
 
         public int MovedToOrder { get; set; }
+
+        public int MovedToColumnFactor { get; set; }
+
+        public bool MovedToIsVerticalColumn { get; set; }
+
+        public int MovedToRowZoneEmphesis { get; set; }
 
     }
 }
