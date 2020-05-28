@@ -80,18 +80,50 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                         PageUrl = "News/Hot-Off-The-Press-New-Chilling-Truth-About-Sauce.aspx",
                         ReplayWebPartLocations =
                     {
-                        new ReplayWebPartLocation() { Row = 0, Column = 0, Order = 0,
+                        new ReplayWebPartLocation() { Row = 0, Column = 0, Order = 0, ColumnFactor = 12,
                             SourceWebPartId = System.Guid.Empty,
                             SourceWebPartType = "SharePointPnP.Modernization.WikiTextPart",
                             TargetWebPartInstanceId = System.Guid.Parse("{dd6cd4ff-1b62-4d3c-9d3e-5348a3fa5403}"),
                             TargetWebPartTypeId = "Text"
                         },
-                        new ReplayWebPartLocation() {  Column = 0, Order= 1, Row= 0,
+                        new ReplayWebPartLocation() {  Column = 0, Order= 1, Row= 0, ColumnFactor = 12,
                             SourceWebPartId = System.Guid.Parse("{d4dfc251-980c-4ddf-9ca4-64838ffed864}"),
                             SourceWebPartType = "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c",
                             TargetWebPartInstanceId = System.Guid.Parse("{234bf1bc-8f62-4586-9e75-24225007767e}"),
                             TargetWebPartTypeId = "c70391ea-0b10-4ee9-b2b4-006d3fcad0cd"
                         },
+                        new ReplayWebPartLocation()
+                        {
+                            Column = 0, Order= 2, Row= 0, ColumnFactor = 12,
+                            SourceWebPartId = System.Guid.Empty,
+                            SourceWebPartType =  "SharePointPnP.Modernization.WikiTextPart",
+                            TargetWebPartInstanceId = System.Guid.Parse("{59428fed-7970-4f49-bcfa-417a62eb7f97}"),
+                            TargetWebPartTypeId = "Text"
+                        },
+                        new ReplayWebPartLocation()
+                        {
+                            Column = 0, Order= 3, Row= 0, ColumnFactor = 12,
+                            SourceWebPartId = System.Guid.Empty,
+                            SourceWebPartType = "SharePointPnP.Modernization.WikiImagePart",
+                            TargetWebPartInstanceId = System.Guid.Parse("{c285e17b-fdff-49be-993a-2f40a958140f}"),
+                            TargetWebPartTypeId = "d1d91016-032f-456d-98a4-721247c305e8"
+                        },
+                        new ReplayWebPartLocation()
+                        {
+                            Column = 0, Order= 4, Row= 0, ColumnFactor = 12,
+                            SourceWebPartId = System.Guid.Empty,
+                            SourceWebPartType = "SharePointPnP.Modernization.WikiTextPart",
+                            TargetWebPartInstanceId = System.Guid.Parse("{a163884e-ab4d-408e-a1ee-1421dd290b71}"),
+                            TargetWebPartTypeId = "Text"
+                        },
+                        new ReplayWebPartLocation()
+                        {
+                            Column = 0, Order= 5, Row= 0, ColumnFactor = 12,
+                            SourceWebPartId = System.Guid.Empty,
+                            SourceWebPartType = "SharePointPnP.Modernization.WikiImagePart",
+                            TargetWebPartInstanceId = System.Guid.Parse("{59096ab7-8a9f-442b-8d62-e5b06b18aeca}"),
+                            TargetWebPartTypeId = "d1d91016-032f-456d-98a4-721247c305e8"
+                        }
                     }
                     };
                     CacheManager.Instance.SetReplayCaptureData(captureData);
