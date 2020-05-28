@@ -22,6 +22,23 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private bool _isPageCapture;
         private bool _isPageReplay;
         private ReplayPageCaptureData _replayPageCaptureData;
+        private bool _hasLayoutChangedFromPrevious;
+
+        /// <summary>
+        /// Check if the layout has changed from previous
+        /// </summary>
+        public bool HasLayoutChangedFromPrevious { get {
+                return _hasLayoutChangedFromPrevious;
+            } 
+        }
+
+        /// <summary>
+        /// Is in Page Replay Mode
+        /// </summary>
+        public bool IsPageReplayMode { get {
+                return _isPageReplay;
+            } 
+        }
 
         /// <summary>
         /// Constructor for the replay page layout class
@@ -63,6 +80,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 if(captureData != null && !string.IsNullOrEmpty(captureData.PageUrl))
                 {
                     this._replayPageCaptureData = ScanTargetPageWebPartLocationsForChanges(captureData);
+
+                    if(this._replayPageCaptureData.ReplayWebPartLocations.Any(o=>o.ColumnFactor != o.MovedToColumnFactor))
+                    {
+                        this._hasLayoutChangedFromPrevious = true;
+                    }
                 }
                 else
                 {
@@ -196,6 +218,54 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             return default;
 
+        }
+
+
+        /// <summary>
+        /// Duplicates the page layout based on the previous page
+        /// </summary>
+        /// <param name="previousReplayCaptureData"></param>
+        /// <param name="currentPage"></param>
+        /// <returns>If the page has been duplicated</returns>
+        public bool DuplicatePageLayout(ClientSidePage currentPage)
+        {
+            if (this._isPageReplay)
+            {
+
+                var previousReplayCaptureData = this._replayPageCaptureData;
+
+                if (previousReplayCaptureData != null && !string.IsNullOrEmpty(previousReplayCaptureData.PageUrl))
+                {
+                    if (previousReplayCaptureData.PageLayoutName == this._replayPageCaptureData.PageLayoutName)
+                    {
+                        // Get the page
+                        // TODO: Check the scenario where the page is in a folder
+                        ClientSidePage previousClientSidepage = ClientSidePage.Load(this._targetContext, previousReplayCaptureData.PageUrl);
+
+                        // First drop all sections, ensure the sections are gone
+                        currentPage.Sections.Clear();
+
+                        foreach (var section in previousClientSidepage.Sections)
+                        {
+                            currentPage.AddSection(section);
+                        }
+
+                        return true;
+                    }
+                    else
+                    {
+                        //Previous capture data page layout incorrect, the position could be different, therefore reject
+                        LogWarning("Cannot duplicate page - previous capture data page layout incorrect, the position could be different", LogStrings.Heading_ReplayPageLayout);
+                    }
+                }
+                else
+                {
+                    //Log that you cannot replay without first recording the referenced transform
+                    LogWarning("Cannot duplicate page - you cannot replay without first recording the capture transform", LogStrings.Heading_ReplayPageLayout);
+                }
+            }
+
+            return false;
         }
     }
 }

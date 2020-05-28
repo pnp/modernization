@@ -406,34 +406,6 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 #if DEBUG && MEASURE
                 Start();
 #endif
-                // Use the default layout transformator
-                ILayoutTransformator layoutTransformator = new LayoutTransformator(targetPage);
-
-                // Do we have an override?
-                bool useCustomLayoutTransformator = false;
-                if (publishingPageTransformationInformation.LayoutTransformatorOverride != null)
-                {
-                    LogInfo(LogStrings.TransformLayoutTransformatorOverride, LogStrings.Heading_ArticlePageHandling);
-                    layoutTransformator = publishingPageTransformationInformation.LayoutTransformatorOverride(targetPage);
-                    useCustomLayoutTransformator = true;
-                }
-
-                // Apply the layout to the page
-                layoutTransformator.Transform(pageData);
-
-                // If needed call the specific publishing page layout transformator
-                if ((pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetect || pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetectWithVerticalColumn) && !useCustomLayoutTransformator)
-                {
-                    // Call out the specific publishing layout transformator implementation
-                    PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage, pageLayoutMappingModel, base.RegisteredLogObservers);
-                    publishingLayoutTransformator.Transform(pageData);
-                }
-
-#if DEBUG && MEASURE
-                Stop("Page layout");
-#endif
-                #endregion
-
                 #region Replay
 
                 ReplayPageLayout replayPageLayout = new ReplayPageLayout(publishingPageTransformationInformation as BaseTransformationInformation, targetClientContext, pageLayoutMappingModel.Name, base.RegisteredLogObservers);
@@ -441,6 +413,49 @@ namespace SharePointPnP.Modernization.Framework.Publishing
 
                 #endregion
 
+                bool useOriginalLayoutMechanism = true;
+
+                if (replayPageLayout.IsPageReplayMode)
+                {
+                    var result = replayPageLayout.DuplicatePageLayout(targetPage);
+                    if (result)
+                    {
+                        useOriginalLayoutMechanism = false;
+                    }
+                }
+
+                if(useOriginalLayoutMechanism)
+                {
+                    // Use the default layout transformator
+                    ILayoutTransformator layoutTransformator = new LayoutTransformator(targetPage);
+
+                    // Do we have an override?
+                    bool useCustomLayoutTransformator = false;
+                    if (publishingPageTransformationInformation.LayoutTransformatorOverride != null)
+                    {
+                        LogInfo(LogStrings.TransformLayoutTransformatorOverride, LogStrings.Heading_ArticlePageHandling);
+                        layoutTransformator = publishingPageTransformationInformation.LayoutTransformatorOverride(targetPage);
+                        useCustomLayoutTransformator = true;
+                    }
+
+                    // Apply the layout to the page
+                    layoutTransformator.Transform(pageData);
+
+                    // If needed call the specific publishing page layout transformator
+                    if ((pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetect || pageData.Item1 == Pages.PageLayout.PublishingPage_AutoDetectWithVerticalColumn) && !useCustomLayoutTransformator)
+                    {
+                        // Call out the specific publishing layout transformator implementation
+                        PublishingLayoutTransformator publishingLayoutTransformator = new PublishingLayoutTransformator(targetPage, pageLayoutMappingModel, base.RegisteredLogObservers);
+                        publishingLayoutTransformator.Transform(pageData);
+                    }
+                }
+
+
+#if DEBUG && MEASURE
+                Stop("Page layout");
+#endif
+                #endregion
+                
                 #region Content transformation
 
                 LogDebug(LogStrings.PreparingContentTransformation, LogStrings.Heading_ArticlePageHandling);
