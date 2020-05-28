@@ -72,8 +72,29 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                 using (var sourceClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPODevSiteUrl")))
                 {
 
-                    // TODO This test may require so tweaking of the cache to fake a read from the source page
-
+                    // This test may require so tweaking of the cache to fake a read from the source page
+                    var captureData = new ReplayPageCaptureData()
+                    {
+                        PageLayoutName = "NewsPageLayout",
+                        PageName = "Hot-Off-The-Press-New-Chilling-Truth-About-Sauce.aspx",
+                        PageUrl = "News/Hot-Off-The-Press-New-Chilling-Truth-About-Sauce.aspx",
+                        ReplayWebPartLocations =
+                    {
+                        new ReplayWebPartLocation() { Row = 0, Column = 0, Order = 0,
+                            SourceWebPartId = System.Guid.Empty,
+                            SourceWebPartType = "SharePointPnP.Modernization.WikiTextPart",
+                            TargetWebPartInstanceId = System.Guid.Parse("{dd6cd4ff-1b62-4d3c-9d3e-5348a3fa5403}"),
+                            TargetWebPartTypeId = "Text"
+                        },
+                        new ReplayWebPartLocation() {  Column = 0, Order= 1, Row= 0,
+                            SourceWebPartId = System.Guid.Parse("{d4dfc251-980c-4ddf-9ca4-64838ffed864}"),
+                            SourceWebPartType = "Microsoft.SharePoint.Publishing.WebControls.SummaryLinkWebPart, Microsoft.SharePoint.Publishing, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c",
+                            TargetWebPartInstanceId = System.Guid.Parse("{234bf1bc-8f62-4586-9e75-24225007767e}"),
+                            TargetWebPartTypeId = "c70391ea-0b10-4ee9-b2b4-006d3fcad0cd"
+                        },
+                    }
+                    };
+                    CacheManager.Instance.SetReplayCaptureData(captureData);
 
                     var pageTransformator = new PublishingPageTransformator(sourceClientContext, targetClientContext);
                     //pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
@@ -135,7 +156,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
 
 
         [TestMethod]
-        public void ScanTargetPageWebPartLayoutForChangesTest()
+        public void ScanTargetPageWebPartLocationsForChangesTest()
         {
             using (var targetClientContext = TestCommon.CreateClientContext(TestCommon.AppSetting("SPOTargetSiteUrl")))
             {
@@ -186,7 +207,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                 // Observers
                 var observers = new List<ILogObserver>() { new UnitTestLogObserver() };
                 ReplayPageLayout rpl = new ReplayPageLayout(pti, targetClientContext, "NewsPageLayout", observers);
-                var result = rpl.ScanTargetPageWebPartLayoutForChanges(captureData);
+                var result = rpl.ScanTargetPageWebPartLocationsForChanges(captureData);
 
                 Assert.IsNotNull(result);
                 Assert.IsTrue(result != default);

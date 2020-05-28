@@ -38,6 +38,8 @@ namespace SharePointPnP.Modernization.Framework.Entities
         
         public int Column { get; set; }
         
+        public int ColumnFactor { get; set; }
+
         public int Order { get; set; }
 
         public int MovedToRow { get; set; }
@@ -51,6 +53,22 @@ namespace SharePointPnP.Modernization.Framework.Entities
         public bool MovedToIsVerticalColumn { get; set; }
 
         public int MovedToRowZoneEmphesis { get; set; }
+
+        /// <summary>
+        /// Can use move to location information
+        /// </summary>
+        public bool CanUseMoveToLocation
+        {
+            get
+            {
+                if(MovedToRow != int.MinValue && MovedToColumn != int.MinValue && MovedToOrder != int.MinValue)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
 
     }
 }

@@ -62,7 +62,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var captureData = CacheManager.Instance.GetReplayCaptureData();
                 if(captureData != null && !string.IsNullOrEmpty(captureData.PageUrl))
                 {
-                    this._replayPageCaptureData = ScanTargetPageWebPartLayoutForChanges(captureData);
+                    this._replayPageCaptureData = ScanTargetPageWebPartLocationsForChanges(captureData);
                 }
                 else
                 {
@@ -110,7 +110,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         ///     If we limit the transform to only the source page layout, tag the file, then we can protect against other layouts 
         ///     or vastly different combinations of pages.
         /// </remarks>
-        public ReplayPageCaptureData ScanTargetPageWebPartLayoutForChanges(ReplayPageCaptureData previousReplayCaptureData)
+        public ReplayPageCaptureData ScanTargetPageWebPartLocationsForChanges(ReplayPageCaptureData previousReplayCaptureData)
         {
             
             // Connect to target page - this action must happen AFTER save and user has updated the page
@@ -133,6 +133,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     foreach (var section in previousClientSidepage.Sections)
                     {   
                         int columnIndex = 0;
+                        
 
                         foreach(var column in section.Columns)
                         {
@@ -178,17 +179,22 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// This method will check for changes in the layout by the user and adjust the planned mapped locations
         /// </summary>
-        public void GetLayoutUpdatedPositionForWebPart(string sourceWebPartType, string targetTypeId, int plannedRow, int plannedColumn, int plannedOrder)
+        public ReplayWebPartLocation GetLayoutUpdatedPositionForWebPart(string sourceWebPartType, string targetTypeId, int plannedRow, int plannedColumn, int plannedOrder)
         {
             if (this._isPageReplay)
             {
                 // Use the next page web part source type, and target type, transform co-ordinates, if there is an adjustment then
                 // New Replay Target page may need sections built prior to adjusting the web part locations
                 // return the adjusted co-ordinates.
+                var location = this._replayPageCaptureData.ReplayWebPartLocations.Where(o => o.TargetWebPartTypeId == targetTypeId &&
+                    o.SourceWebPartType == sourceWebPartType && o.Order == plannedOrder && o.Row == plannedRow && o.Column == plannedColumn).FirstOrDefault();
 
+                //TODO: Switch out the location data
+
+                return location;
             }
 
-            throw new NotImplementedException();
+            return default;
 
         }
     }
