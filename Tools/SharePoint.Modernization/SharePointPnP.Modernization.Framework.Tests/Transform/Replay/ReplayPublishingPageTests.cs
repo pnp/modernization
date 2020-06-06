@@ -105,6 +105,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                             Column = 0, Order= 3, Row= 0, ColumnFactor = 12,
                             SourceWebPartId = System.Guid.Empty,
                             SourceWebPartType = "SharePointPnP.Modernization.WikiImagePart",
+                            SourceWebPartTitle = "PublishingPageImage",
                             TargetWebPartInstanceId = System.Guid.Parse("{c285e17b-fdff-49be-993a-2f40a958140f}"),
                             TargetWebPartTypeId = "d1d91016-032f-456d-98a4-721247c305e8"
                         },
@@ -121,6 +122,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                             Column = 0, Order= 5, Row= 0, ColumnFactor = 12,
                             SourceWebPartId = System.Guid.Empty,
                             SourceWebPartType = "SharePointPnP.Modernization.WikiImagePart",
+                            SourceWebPartTitle = "Image",
                             TargetWebPartInstanceId = System.Guid.Parse("{59096ab7-8a9f-442b-8d62-e5b06b18aeca}"),
                             TargetWebPartTypeId = "d1d91016-032f-456d-98a4-721247c305e8"
                         }
@@ -132,7 +134,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                     //pageTransformator.RegisterObserver(new MarkdownObserver(folder: "c:\\temp", includeVerbose:true));
                     pageTransformator.RegisterObserver(new UnitTestLogObserver());
                     
-                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Hot-Off-The-Press-New-Chilling-Truth-About-Sauce", "News");
+                    //var pages = sourceClientContext.Web.GetPagesFromList("Pages", "Hot-Off-The-Press-New-Chilling-Truth-About-Sauce", "News");
+                    var pages = sourceClientContext.Web.GetPagesFromList("Pages", "The-Cherry-on-the-Cake", "News");
 
                     foreach (var page in pages)
                     {
@@ -146,7 +149,8 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
 
                             KeepPageCreationModificationInformation = false,
 
-                            TargetPageName = "New-Layout-Hot-Off-The-Press.aspx",
+                            //TargetPageName = "New-Layout-Hot-Off-The-Press.aspx",
+                            TargetPageName = "New-The-Cherry-on-the-Cake.aspx",
 
                             // Callout to your custom layout handler
                             //LayoutTransformatorOverride = layoutOverride,

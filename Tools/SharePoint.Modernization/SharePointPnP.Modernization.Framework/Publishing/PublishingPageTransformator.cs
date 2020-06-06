@@ -502,7 +502,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 RemoveEmptyTextParts(targetPage);
 
                 // Remove empty sections and columns to optimize screen real estate
-                if (publishingPageTransformationInformation.RemoveEmptySectionsAndColumns)
+                if (publishingPageTransformationInformation.RemoveEmptySectionsAndColumns && !replayPageLayout.IsPageReplayMode)
                 {
                     RemoveEmptySectionsAndColumns(targetPage);
                 }

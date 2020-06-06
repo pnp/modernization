@@ -201,7 +201,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// This method will check for changes in the layout by the user and adjust the planned mapped locations
         /// </summary>
-        public ReplayWebPartLocation GetLayoutUpdatedPositionForWebPart(string sourceWebPartType, string targetTypeId, int plannedRow, int plannedColumn, int plannedOrder)
+        public ReplayWebPartLocation GetLayoutUpdatedPositionForWebPart(string sourceWebPartType, string targetTypeId, int plannedRow, int plannedColumn, int plannedOrder, string sourceWebPartTitle)
         {
             if (this._isPageReplay)
             {
@@ -211,6 +211,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 var location = this._replayPageCaptureData.ReplayWebPartLocations.Where(o => o.TargetWebPartTypeId == targetTypeId &&
                     o.SourceWebPartType == sourceWebPartType && o.Order == plannedOrder && o.Row == plannedRow && o.Column == plannedColumn).FirstOrDefault();
 
+                //TODO: This needs to be smarter to encounter a block similar to this. e.g. Instance of if order not exact...
+                // This implementation is likely to be unstable
+                if(location == null)
+                {
+                    location = this._replayPageCaptureData.ReplayWebPartLocations.Where(o => o.TargetWebPartTypeId == targetTypeId &&
+                        o.SourceWebPartType == sourceWebPartType && o.Row == plannedRow && o.Column == plannedColumn && o.SourceWebPartTitle == sourceWebPartTitle).FirstOrDefault();
+                }
                 //TODO: Switch out the location data
 
                 return location;
@@ -241,15 +248,16 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // Get the page
                         // TODO: Check the scenario where the page is in a folder
                         ClientSidePage previousClientSidepage = ClientSidePage.Load(this._targetContext, previousReplayCaptureData.PageUrl);
-
+                        
                         // First drop all sections, ensure the sections are gone
                         currentPage.Sections.Clear();
 
                         foreach (var section in previousClientSidepage.Sections)
                         {
-                            currentPage.AddSection(section);
+                            //Ensure an empty layout
+                            currentPage.AddSection(section.Type, section.Order, section.ZoneEmphasis, section.VerticalSectionColumn?.VerticalSectionEmphasis);
                         }
-
+                                                
                         return true;
                     }
                     else

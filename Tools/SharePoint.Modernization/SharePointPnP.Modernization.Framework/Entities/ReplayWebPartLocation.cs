@@ -29,6 +29,8 @@ namespace SharePointPnP.Modernization.Framework.Entities
         public Guid SourceWebPartId { get; set; }
         
         public string SourceWebPartType { get; set; }
+
+        public string SourceWebPartTitle { get; set; }
         
         public string TargetWebPartTypeId { get; set; }
         
