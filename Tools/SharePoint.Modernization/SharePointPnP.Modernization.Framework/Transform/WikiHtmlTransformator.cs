@@ -191,7 +191,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     replacedWebParts.Add(new WebPartEntity()
                                     {
                                         Type = WebParts.WikiText,
-                                        Title = "Wiki text",
+                                        Title = "WikiText",
                                         Row = lastRow,
                                         Column = lastColum,
                                         Order = extraWebPartCounter,
@@ -296,7 +296,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     replacedWebParts.Add(new WebPartEntity()
                                     {
                                         Type = WebParts.WikiText,
-                                        Title = "Wiki text",
+                                        Title = "WikiText",
                                         Row = lastRow,
                                         Column = lastColum,
                                         Order = extraWebPartCounter,
@@ -376,7 +376,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         replacedWebParts.Add(new WebPartEntity()
                         {
                             Type = WebParts.WikiText,
-                            Title = "Wiki text",
+                            Title = "WikiText",
                             Row = lastRow,
                             Column = lastColum,
                             Order = extraWebPartCounter,
