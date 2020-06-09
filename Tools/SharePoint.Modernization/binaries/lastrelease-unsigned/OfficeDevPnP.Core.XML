@@ -3809,6 +3809,101 @@
             Represents yammer user has yammer now or not
             </summary>
         </member>
+        <member name="T:OfficeDevPnP.Core.Enums.GraphSubscriptionChangeType">
+            <summary>
+            Supported Microsoft Graph Change Types on Subscriptions. Documentation at: https://docs.microsoft.com/graph/api/resources/subscription#properties
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.GraphSubscriptionChangeType.Created">
+            <summary>
+            Something got created
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.GraphSubscriptionChangeType.Updated">
+            <summary>
+            Something existing got updated
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.GraphSubscriptionChangeType.Deleted">
+            <summary>
+            Something got deleted
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Enums.GraphSubscriptionTlsVersion">
+            <summary>
+            Defines the TLS versions a Microsoft Graph subscription supports calling into when an event for which a subscription exists gets triggered
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Enums.Office365Geography">
+            <summary>
+            Defines the codes of geographies in which there is Office 365 presence. Used for multi-geo enabled tenants. List with available geographies is available at https://docs.microsoft.com/office365/enterprise/multi-geo-add-group-with-pdl#geo-location-codes.
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.APC">
+            <summary>
+            Asia-Pacific
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.AUS">
+            <summary>
+            Australia
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.CAN">
+            <summary>
+            Canada
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.EUR">
+            <summary>
+            Europe / Middle East / Africa
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.FRA">
+            <summary>
+            France
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.IND">
+            <summary>
+            India
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.JPN">
+            <summary>
+            Japan
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.KOR">
+            <summary>
+            Korea
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.NAM">
+            <summary>
+            North America
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.ZAF">
+            <summary>
+            South Africa
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.CHE">
+            <summary>
+            Switzerland
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.ARE">
+            <summary>
+            United Arab Emirates
+            </summary>
+        </member>
+        <member name="F:OfficeDevPnP.Core.Enums.Office365Geography.GRB">
+            <summary>
+            United Kingdom
+            </summary>
+        </member>
         <member name="F:OfficeDevPnP.Core.Enums.BuiltInFieldId.ContentTypeId">
             <summary>
             Returns a GUID that represents the content type identifier of the specified Windows SharePoint Services object.
@@ -5678,6 +5773,71 @@
             The default classification to use. Notice that when applying or updating the value specified should be present in the Classifications list of values.
             </summary>
         </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Graph.Model.Subscription">
+            <summary>
+            Defines a Microsoft Graph Subscription
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.ChangeType">
+            <summary>
+            Indicates the type(s) of change(s) in the subscribed resource that will raise a notification
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.NotificationUrl">
+            <summary>
+            The URL of the endpoint that will receive the notifications. This URL must make use of the HTTPS protocol.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.Resource">
+            <summary>
+            Specifies the resource that will be monitored for changes. Do not include the base URL (https://graph.microsoft.com/v1.0/). See the possible resource path values for each supported resource.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.ApplicationId">
+            <summary>
+            Identifier of the application used to create the subscription
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.ExpirationDateTime">
+            <summary>
+            Specifies the date and time when the webhook subscription expires. The time is in UTC, and can be an amount of time from subscription creation that varies for the resource subscribed to. See https://docs.microsoft.com/graph/api/resources/subscription#maximum-length-of-subscription-per-resource-type for maximum supported subscription length of time.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.Id">
+            <summary>
+            	Unique identifier for the subscription
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.ClientState">
+            <summary>
+            Specifies the value of the clientState property sent by the service in each notification. The maximum length is 128 characters. The client can check that the notification came from the service by comparing the value of the clientState property sent with the subscription with the value of the clientState property received with each notification.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.CreatorId">
+            <summary>
+            Identifier of the user or service principal that created the subscription. If the app used delegated permissions to create the subscription, this field contains the id of the signed-in user the app called on behalf of. If the app used application permissions, this field contains the id of the service principal corresponding to the app
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Subscription.LatestSupportedTlsVersion">
+            <summary>
+            Specifies the latest version of Transport Layer Security (TLS) that the notification endpoint, specified by notificationUrl, supports. The possible values are: v1_0, v1_1, v1_2, v1_3. For subscribers whose notification endpoint supports a version lower than the currently recommended version(TLS 1.2), specifying this property by a set timeline allows them to temporarily use their deprecated version of TLS before completing their upgrade to TLS 1.2. For these subscribers, not setting this property per the timeline would result in subscription operations failing.
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Graph.Model.Group">
+            <summary>
+            Defines a Microsoft Graph Group
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Group.HideFromAddressLists">
+            <summary>
+            True if the group is not displayed in certain parts of the Outlook UI: the Address Book, address lists for selecting message recipients, and the Browse Groups dialog for searching groups; otherwise, false. Default value is false.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.Group.HideFromOutlookClients">
+            <summary>
+            True if the group is not displayed in Outlook clients, such as Outlook for Windows and Outlook on the web; otherwise, false. Default value is false.
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Graph.Model.User">
             <summary>
             Defines a Microsoft Graph user
@@ -5736,6 +5896,36 @@
         <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.Id">
             <summary>
             Unique identifier of the user
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.AccountEnabled">
+            <summary>
+            Indicates if the account is currently enabled
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.User.AdditionalProperties">
+            <summary>
+            Additional properties requested regarding the user and included in the response
+            </summary>
+        </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Graph.Model.UserDelta">
+            <summary>
+            Defines a Microsoft Graph user delta
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.UserDelta.Users">
+            <summary>
+            User objects with changes or all users if no SkipToken has been provided
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.UserDelta.DeltaToken">
+            <summary>
+            The DeltaToken which can be used when querying for changes to request changes made to User objects since this DeltaToken has been given out
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Graph.Model.UserDelta.NextLink">
+            <summary>
+            The NextLink which indicates there are more results
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.GraphHttpClient.MakeGetRequestForString(System.String,System.String)">
@@ -5815,41 +6005,142 @@
             <typeparam name="TResult">The type of the result, if any</typeparam>
             <returns>The value of the result, if any</returns>
         </member>
+        <member name="T:OfficeDevPnP.Core.Framework.Graph.SubscriptionsUtility">
+            <summary>
+            Class that deals with Microsoft Graph Subscriptions
+            </summary>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SubscriptionsUtility.GetSubscription(System.String,System.Guid,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the subscription with the provided subscriptionId from Microsoft Graph
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="subscriptionId">The unique identifier of the subscription to return from Microsoft Graph</param>        
+            <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
+            <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
+            <returns>Subscription object</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SubscriptionsUtility.ListSubscriptions(System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns all the active Microsoft Graph subscriptions
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
+            <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
+            <returns>List with Subscription objects</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SubscriptionsUtility.CreateSubscription(OfficeDevPnP.Core.Enums.GraphSubscriptionChangeType,System.String,System.String,System.DateTimeOffset,System.String,System.String,OfficeDevPnP.Core.Enums.GraphSubscriptionTlsVersion,System.Int32,System.Int32)">
+            <summary>
+            Creates a new Microsoft Graph Subscription
+            </summary>
+            <param name="changeType">The event(s) the subscription should trigger on</param>
+            <param name="notificationUrl">The URL that should be called when an event matching this subscription occurs</param>
+            <param name="resource">The resource to monitor for changes. See https://docs.microsoft.com/graph/api/subscription-post-subscriptions#permissions for the list with supported options.</param>
+            <param name="expirationDateTime">The datetime defining how long this subscription should stay alive before which it needs to get extended to stay alive. See https://docs.microsoft.com/graph/api/resources/subscription#maximum-length-of-subscription-per-resource-type for the supported maximum lifetime of the subscriber endpoints.</param>
+            <param name="clientState">Specifies the value of the clientState property sent by the service in each notification. The maximum length is 128 characters. The client can check that the notification came from the service by comparing the value of the clientState property sent with the subscription with the value of the clientState property received with each notification.</param>
+            <param name="latestSupportedTlsVersion">Specifies the latest version of Transport Layer Security (TLS) that the notification endpoint, specified by <paramref name="notificationUrl"/>, supports. If not provided, TLS 1.2 will be assumed.</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <returns>The just created Microsoft Graph subscription</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SubscriptionsUtility.UpdateSubscription(System.String,System.DateTimeOffset,System.String,System.Int32,System.Int32)">
+            <summary>
+            Updates an existing Microsoft Graph Subscription
+            </summary>
+            <param name="subscriptionId">Unique identifier of the Microsoft Graph subscription</param>
+            <param name="expirationDateTime">The datetime defining how long this subscription should stay alive before which it needs to get extended to stay alive. See https://docs.microsoft.com/graph/api/resources/subscription#maximum-length-of-subscription-per-resource-type for the supported maximum lifetime of the subscriber endpoints.</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <returns>The just updated Microsoft Graph subscription</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SubscriptionsUtility.DeleteSubscription(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Deletes an existing Microsoft Graph Subscription
+            </summary>
+            <param name="subscriptionId">Unique identifier of the Microsoft Graph subscription</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.SubscriptionsUtility.MapGraphEntityToModel(Microsoft.Graph.Subscription)">
+            <summary>
+            Maps an entity returned by Microsoft Graph to its equivallent Model maintained within this library
+            </summary>
+            <param name="subscription">Microsoft Graph Subscription entity</param>
+            <returns>Subscription Model</returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Graph.UsersUtility">
             <summary>
             Provides access to user operations in Microsoft Graph
             </summary>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.GetUser(System.String,System.Guid,System.Int32,System.Int32,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.GetUser(System.String,System.Guid,System.String[],System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>
             Returns the user with the provided userId from Azure Active Directory
             </summary>
             <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
-            <param name="userId">The unique identifier of the user in Azure Active Directory to return</param>        
+            <param name="userId">The unique identifier of the user in Azure Active Directory to return</param>    
+            <param name="selectProperties">Allows providing the names of properties to return regarding the users. If not provided, the standard properties will be returned.</param>
             <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
             <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
             <returns>List with User objects</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.ListUsers(System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.GetUser(System.String,System.String,System.String[],System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the user with the provided <paramref name="userPrincipalName"/> from Azure Active Directory
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="userPrincipalName">The User Principal Name of the user in Azure Active Directory to return</param>
+            <param name="selectProperties">Allows providing the names of properties to return regarding the users. If not provided, the standard properties will be returned.</param>
+            <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
+            <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
+            <returns>User object</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.ListUsers(System.String,System.String[],System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>
             Returns all the Users in the current domain
             </summary>
-            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>        
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param> 
+            <param name="additionalProperties">Allows providing the names of additional properties to return regarding the users</param>
             <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
             <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
             <returns>List with User objects</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.ListUsers(System.String,System.String,System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.ListUsers(System.String,System.String,System.String,System.String[],System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>
             Returns all the Users in the current domain filtered out with a custom OData filter
             </summary>
             <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
             <param name="filter">OData filter to apply to retrieval of the users from the Microsoft Graph</param>
             <param name="orderby">OData orderby instruction</param>
+            <param name="selectProperties">Allows providing the names of properties to return regarding the users. If not provided, the standard properties will be returned.</param>
+            <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
+            <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry.</param>
+            <returns>List with User objects</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UsersUtility.ListUserDelta(System.String,System.String,System.String,System.String,System.String[],System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the users delta in the current domain filtered out with a custom OData filter. If no <paramref name="deltaToken"/> has been provided, all users will be returned with a deltatoken for a next run. If a <paramref name="deltaToken"/> has been provided, all users which were modified after the deltatoken has been generated will be returned.
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="deltaToken">DeltaToken to indicate requesting changes since this deltatoken has been created. Leave NULL to retrieve all users with a deltatoken to use for subsequent queries.</param>
+            <param name="filter">OData filter to apply to retrieval of the users from the Microsoft Graph</param>
+            <param name="orderby">OData orderby instruction</param>
+            <param name="selectProperties">Allows providing the names of properties to return regarding the users. If not provided, the standard properties will be returned.</param>
             <param name="startIndex">First item in the results returned by Microsoft Graph to return</param>
             <param name="endIndex">Last item in the results returned by Microsoft Graph to return</param>
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
@@ -5919,6 +6210,15 @@
             <param name="retryCount">Number of times to retry the request in case of throttling</param>
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>The just created Office 365 Group</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.SetUnifiedGroupVisibility(System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>
+            Sets the visibility of a Group
+            </summary>
+            <param name="groupId">Id of the Microsoft 365 Group to set the visibility state for</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="hideFromAddressLists">True if the group should not be displayed in certain parts of the Outlook UI: the Address Book, address lists for selecting message recipients, and the Browse Groups dialog for searching groups; otherwise, false. Default value is false.</param>
+            <param name="hideFromOutlookClients">True if the group should not be displayed in Outlook clients, such as Outlook for Windows and Outlook on the web; otherwise, false. Default value is false.</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.RenewUnifiedGroup(System.String,System.String,System.Int32,System.Int32)">
             <summary>
@@ -6014,6 +6314,23 @@
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <param name="includeClassification">Defines whether or not to return details about the Modern Site classification value.</param>
             <param name="includeHasTeam">Defines whether to check for each unified group if it has a Microsoft Team provisioned for it. Default is false.</param>
+            <returns>An IList of SiteEntity objects</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUnifiedGroups(System.String,System.String,System.String,System.Int32,System.Nullable{System.Int32},System.Boolean,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Int32)">
+            <summary>
+            Returns all the Office 365 Groups in the current Tenant based on a startIndex. IncludeSite adds additional properties about the Modern SharePoint Site backing the group
+            </summary>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="displayName">The DisplayName of the Office 365 Group</param>
+            <param name="mailNickname">The MailNickname of the Office 365 Group</param>
+            <param name="startIndex">If not specified, method will start with the first group.</param>
+            <param name="endIndex">If not specified, method will return all groups.</param>
+            <param name="includeSite">Defines whether to return details about the Modern SharePoint Site backing the group. Default is true.</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+            <param name="includeClassification">Defines whether or not to return details about the Modern Site classification value.</param>
+            <param name="includeHasTeam">Defines whether to check for each unified group if it has a Microsoft Team provisioned for it. Default is false.</param>
+            <param name="pageSize">Page size used for the individual requests to Micrsoft Graph. Defaults to 999 which is currently the maximum value.</param>
             <returns>An IList of SiteEntity objects</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUnifiedGroupMembers(OfficeDevPnP.Core.Entities.UnifiedGroupEntity,System.String,System.Int32,System.Int32)">
@@ -48021,6 +48338,41 @@
             <param name="startRow">Row as of which we want to see the results</param>
             <returns>Total result rows of the query</returns>
         </member>
+        <member name="T:OfficeDevPnP.Core.Pages.HeaderControlData">
+            <summary>
+            Json header control data that will be included in each client side web part (de-)serialization (data-sp-controldata)
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.HeaderControlData.Id">
+            <summary>
+            Gets or sets JsonProperty "id"
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.HeaderControlData.InstanceId">
+            <summary>
+            Gets or sets JsonProperty "instanceId"
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.HeaderControlData.Title">
+            <summary>
+            Gets or sets JsonProperty "title"
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.HeaderControlData.Description">
+            <summary>
+            Gets or sets JsonProperty "description"
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.HeaderControlData.DataVersion">
+            <summary>
+            Gets or sets JsonProperty "dataVersion"
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.HeaderControlData.Properties">
+            <summary>
+            Gets or sets JsonProperty "properties"
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Pages.TranslationStatusCollection">
             <summary>
             Translation status of a page
@@ -48489,6 +48841,11 @@
             Collection of all control that exist on this client side page
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.HeaderControls">
+            <summary>
+            Collection of all header control that exist on this client side page
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.LayoutType">
             <summary>
             Layout type of the client side page
@@ -48537,6 +48894,21 @@
         <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.SpaceContent">
             <summary>
             Space content field (JSON) for spaces pages
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.EntityId">
+            <summary>
+            Entity id field for topic pages
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.EntityRelations">
+            <summary>
+            Entity relations field for topic pages
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.EntityType">
+            <summary>
+            Entity type field for topic pages
             </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Pages.ClientSidePage.SupportedUILanguages">
@@ -48633,6 +49005,13 @@
             </summary>
             <param name="control"><see cref="T:OfficeDevPnP.Core.Pages.CanvasControl"/> to add</param>
             <param name="column"><see cref="T:OfficeDevPnP.Core.Pages.CanvasColumn"/> that will hold the control</param>    
+            <param name="order">Order of the control in the given section</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.AddHeaderControl(OfficeDevPnP.Core.Pages.CanvasControl,System.Int32)">
+            <summary>
+            Adds a new header control to your client side page with a given order
+            </summary>
+            <param name="control"><see cref="T:OfficeDevPnP.Core.Pages.CanvasControl"/> to add</param>
             <param name="order">Order of the control in the given section</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSidePage.Delete">
@@ -49029,6 +49408,11 @@
             Page is a spaces page
             </summary>
         </member>
+        <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.Topic">
+            <summary>
+            Page is a topic page (Cortex)
+            </summary>
+        </member>
         <member name="F:OfficeDevPnP.Core.Pages.ClientSidePageLayoutType.RepostPage">
             <summary>
             Page is a repost / link page
@@ -49178,6 +49562,11 @@
         <member name="P:OfficeDevPnP.Core.Pages.ClientSideWebPart.UsingSpControlDataOnly">
             <summary>
             Indicates that this control is persisted/read using the data-sp-controldata attribute only
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Pages.ClientSideWebPart.IsHeaderControl">
+            <summary>
+            This control lives in the page header (not removable control)
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Pages.ClientSideWebPart.Import(OfficeDevPnP.Core.Pages.ClientSideComponent,System.Func{System.String,System.String})">
@@ -53069,6 +53458,22 @@
             <param name="mimeType">Image mime type</param>
             <returns>true if succeeded</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GetIsAliasAvailableAsync(Microsoft.SharePoint.Client.ClientContext,System.String)">
+            <summary>
+            Allows validation if the provided <paramref name="alias"/> is valid to be used to create a new site collection
+            </summary>
+            <param name="context">SharePoint ClientContext to use to communicate with SharePoint</param>
+            <param name="alias">The alias to check for availability</param>
+            <returns>True if the provided alias is available to be used, false if it is not</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GetValidSiteUrlFromAliasAsync(Microsoft.SharePoint.Client.ClientContext,System.String)">
+            <summary>
+            Checks if the provided <paramref name="alias"/> is valid to be used to create a new site collection and will return an alternative available proposal if it is not. Use <see cref="M:OfficeDevPnP.Core.Sites.SiteCollection.GetIsAliasAvailableAsync(Microsoft.SharePoint.Client.ClientContext,System.String)"/> instead if you are just intered in knowing whether or not a certain alias is still available to be used.
+            </summary>
+            <param name="context">SharePoint ClientContext to use to communicate with SharePoint</param>
+            <param name="alias">The alias to check for availability</param>
+            <returns>The full SharePoint URL proposed to be used. If that URL ends with the alias you provided, it means it is still available. If its not available, it will return an alternative proposal to use.</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.TeamifySiteAsync(Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             Enable Microsoft Teams team in an O365 group connected team site
@@ -53106,6 +53511,14 @@
             <param name="designPackageId">Design package id to be applied, 96c933ac-3698-44c7-9f4a-5fd17d71af9e (Topic = default), 6142d2a0-63a5-4ba0-aede-d9fefca2c767 (Showcase) or f6cc5403-0d63-442e-96c0-285923709ffc (Blank)</param>
             <returns></returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GetSensitivityLabelId(Microsoft.SharePoint.Client.ClientContext,System.String)">
+            <summary>
+            Get sensitivity label id for a given Label
+            </summary>
+            <param name="context">Client context</param>
+            <param name="sensitiveLabelString">Sensitive Label string value</param>
+            <returns></returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation">
             <summary>
             Class for communication site creation information
@@ -53124,6 +53537,11 @@
         <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.HubSiteId">
             <summary>
             The Guid of the hub site to be used. If specified will associate the communication site to the hub site
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.SensitivityLabel">
+            <summary>
+            The Sensitivity label to use. For instance 'Top Secret'. See https://www.youtube.com/watch?v=NxvUXBiPFcw for more information.
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation.#ctor">
@@ -53205,6 +53623,11 @@
         <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.WebTemplate">
             <summary>
             The Web template to use for the site.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationInformation.PreferredDataLocation">
+            <summary>
+            The geography in which to create the site collection. Only applicable to multi-geo enabled tenants.
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.Sites.TeamSiteCollectionGroupifyInformation">
@@ -53296,6 +53719,16 @@
         <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.HubSiteId">
             <summary>
             The Guid of the hub site to be used. If specified will associate the modern team site to the hub site.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.SensitivityLabel">
+            <summary>
+            The Sensitivity label to use. For instance 'Top Secret'. See https://www.youtube.com/watch?v=NxvUXBiPFcw for more information.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Sites.SiteCreationGroupInformation.PreferredDataLocation">
+            <summary>
+            The geography in which to create the site collection. Only applicable to multi-geo enabled tenants.
             </summary>
         </member>
         <member name="T:OfficeDevPnP.Core.UPAWebService.UserProfileService">
@@ -54701,6 +55134,21 @@
             Gets a boolean if the current request contains the FedAuth and rtFa cookies.
             </summary>
             <param name="clientContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.GetCookieCollection(Microsoft.SharePoint.Client.ClientRuntimeContext)">
+            <summary>
+            Gets the CookieCollection by cookie name = FedAuth or rtFa
+            </summary>
+            <param name="clientContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.GetCookieCollection(Microsoft.SharePoint.Client.ClientRuntimeContext,System.Collections.Generic.IReadOnlyCollection{System.String})">
+            <summary>
+            Gets the CookieCollection by the cookie name. If no cookieNames are passed in it returns all cookies
+            </summary>
+            <param name="clientContext"></param>
+            <param name="cookieNames"></param>
             <returns></returns>
         </member>
         <member name="T:Microsoft.SharePoint.Client.ClientContextExtensions.MaximumRetryAttemptedException">
@@ -58226,6 +58674,50 @@
             </summary>
             <param name="web">Site to be processed - can be root web or sub site</param>
             <returns>Collection of NavigationNode instances</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.LoadFooterNavigation(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Returns the navigation elements shown in the footer
+            </summary>
+            <param name="web">Web instance to return the footer navigation of</param>
+            <returns>NavigationNodeCollection containing the navigation elements shown in the footer or NULL if no navigation has been set on the footer</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.GetFooterTitle(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Returns the title shown in the footer
+            </summary>
+            <param name="web">Web instance to return the footer title of</param>
+            <returns>Title shown in the footer or NULL if no title has been set</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.SetFooterTitle(Microsoft.SharePoint.Client.Web,System.String)">
+            <summary>
+            Sets the title shown in the footer
+            </summary>
+            <param name="web">Web instance to set the footer title of</param>
+            <param name="title">Title to show in the footer</param>
+            <returns>Boolean indicating if setting the title succeeded</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.GetFooterLogoUrl(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Returns the server relative URL of the logo shown in the footer
+            </summary>
+            <param name="web">Web instance to return the footer logo url of</param>
+            <returns>Server relative URL of the logo shown in the footer or NULL if no footer has been set</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.SetFooterLogoUrl(Microsoft.SharePoint.Client.Web,System.String)">
+            <summary>
+            Sets the logo shown in the footer
+            </summary>
+            <param name="web">Web instance to set the footer logo url of</param>
+            <param name="logoUrl">Server relative path to the logo to show in the footer</param>
+            <returns>Boolean indicating if setting the logo succeeded</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.RemoveFooterLogoUrl(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Removes the logo shown in the footer
+            </summary>
+            <param name="web">Web instance to remove the footer of</param>
+            <returns>Boolean indicating if removing the logo succeeded</returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.NavigationExtensions.AddCustomAction(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Entities.CustomActionEntity)">
             <summary>
