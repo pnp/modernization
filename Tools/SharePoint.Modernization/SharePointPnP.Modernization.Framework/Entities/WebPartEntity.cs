@@ -95,5 +95,10 @@ namespace SharePointPnP.Modernization.Framework.Entities
         {
             return JsonConvert.SerializeObject(this);
         }
+
+        /// <summary>
+        /// Used to identify groups of web parts e.g. multiple parts within a HTML field.
+        /// </summary>
+        public string SourceGroupName { get; set; }
     }
 }

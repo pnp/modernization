@@ -72,5 +72,7 @@ namespace SharePointPnP.Modernization.Framework.Entities
             }
         }
 
+        public string SourceGroupName { get; set; }
+
     }
 }

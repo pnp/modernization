@@ -302,6 +302,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             SourceWebPartId = webPart.Id,
                             SourceWebPartType = webPart.Type,
                             SourceWebPartTitle = webPart.Title,
+                            SourceGroupName = webPart.SourceGroupName
                         });
 
                         //Move
@@ -611,7 +612,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 SourceWebPartId = webPart.Id,
                                 SourceWebPartType = webPart.Type,
                                 SourceWebPartTitle = webPart.Title,
-                                ColumnFactor = page.Sections[row].Columns[column].ColumnFactor
+                                ColumnFactor = page.Sections[row].Columns[column].ColumnFactor,
+                                SourceGroupName = webPart.SourceGroupName
                             });
 
                             var result = replayPageLayout.GetLayoutUpdatedPositionForWebPart(webPart.Type, myWebPart.WebPartId, row, column, currentOrder, webPart.Title);

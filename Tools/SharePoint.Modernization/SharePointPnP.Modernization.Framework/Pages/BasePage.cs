@@ -38,6 +38,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
             public ClientResult<string> WebPartXml { get; set; }
 
             public string WebPartType { get; set; }
+
+            public string SourceGroupName { get; set; }
         }
 
         internal HtmlParser parser;
@@ -112,7 +114,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             return type;
         }
 
-        internal void AnalyzeWikiContentBlock(List<WebPartEntity> webparts, IHtmlDocument htmlDoc, List<WebPartPlaceHolder> webPartsToRetrieve, int rowCount, int colCount, int startOrder, IElement content)
+        internal void AnalyzeWikiContentBlock(List<WebPartEntity> webparts, IHtmlDocument htmlDoc, List<WebPartPlaceHolder> webPartsToRetrieve, int rowCount, int colCount, int startOrder, IElement content, string sourceGroupName = "")
         {
             // Drop elements which we anyhow can't transform and/or which are stripped out from RTE
             CleanHtml(content, htmlDoc);
@@ -151,7 +153,9 @@ namespace SharePointPnP.Modernization.Framework.Pages
                     if (!string.IsNullOrEmpty(textContent.ToString()))
                     {
                         order++;
-                        webparts.Add(CreateWikiTextPart(textContent.ToString(), rowCount, colCount, order));
+                        var textWebPart = CreateWikiTextPart(textContent.ToString(), rowCount, colCount, order);
+                        textWebPart.SourceGroupName = sourceGroupName;
+                        webparts.Add(textWebPart);
                         textContent.Clear();
                     }
 
@@ -165,7 +169,8 @@ namespace SharePointPnP.Modernization.Framework.Pages
                             // Store the web part we need, will be retrieved afterwards to optimize performance
                             string serverSideControlId = webPartMatch.Groups["ControlId"].Value;
                             var serverSideControlIdToSearchFor = $"g_{serverSideControlId.Replace("-", "_")}";
-                            webPartsToRetrieve.Add(new WebPartPlaceHolder() { ControlId = serverSideControlIdToSearchFor, Id = serverSideControlId, Row = rowCount, Column = colCount, Order = order });
+                            webPartsToRetrieve.Add(new WebPartPlaceHolder() { ControlId = serverSideControlIdToSearchFor, Id = serverSideControlId, Row = rowCount, 
+                                Column = colCount, Order = order, SourceGroupName = sourceGroupName });
                         }
                     }
 
@@ -217,7 +222,10 @@ namespace SharePointPnP.Modernization.Framework.Pages
             {
                 // insert text part to the web part collection
                 order++;
-                webparts.Add(CreateWikiTextPart(textContent.ToString(), rowCount, colCount, order));
+                
+                var textWebPart = CreateWikiTextPart(textContent.ToString(), rowCount, colCount, order);
+                textWebPart.SourceGroupName = sourceGroupName;
+                webparts.Add(textWebPart);
             }
         }
 
@@ -317,6 +325,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         IsClosed = webPartToRetrieve.WebPartDefinition.WebPart.IsClosed,
                         Hidden = webPartToRetrieve.WebPartDefinition.WebPart.Hidden,
                         Properties = Properties(webPartToRetrieve.WebPartDefinition.WebPart.Properties.FieldValues, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXml == null ? "" : webPartToRetrieve.WebPartXml.Value),
+                        SourceGroupName = webPartToRetrieve.SourceGroupName
                     });
                 }
             }
@@ -461,6 +470,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                         IsClosed = webPartToRetrieve.WebPartDefinition.WebPart.IsClosed,
                         Hidden = webPartToRetrieve.WebPartDefinition.WebPart.Hidden,
                         Properties = Properties(webPartProperties, webPartToRetrieve.WebPartType, webPartToRetrieve.WebPartXmlOnPremises),
+                        SourceGroupName = webPartToRetrieve.SourceGroupName
                     });
                 }
             }

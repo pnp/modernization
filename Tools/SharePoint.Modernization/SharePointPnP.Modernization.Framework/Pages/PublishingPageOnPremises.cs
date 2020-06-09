@@ -108,7 +108,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                         // Analyze the html block (which is a wiki block)
                         var content = htmlDoc.FirstElementChild.LastElementChild;
-                        AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, GetNextOrder(wikiTextPart.Row, wikiTextPart.Column, wikiTextPart.Order, webparts), content);
+                        AnalyzeWikiContentBlock(webparts, htmlDoc, webPartsToRetrieve, wikiTextPart.Row, wikiTextPart.Column, GetNextOrder(wikiTextPart.Row, wikiTextPart.Column, wikiTextPart.Order, webparts), content, wikiTextPart.Name);
                     }
                     else
                     {

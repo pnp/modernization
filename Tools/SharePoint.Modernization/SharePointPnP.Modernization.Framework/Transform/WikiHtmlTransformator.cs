@@ -195,7 +195,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         Row = lastRow,
                                         Column = lastColum,
                                         Order = extraWebPartCounter,
-                                        Properties = props
+                                        Properties = props,
+                                        SourceGroupName = wp.SourceGroupName
                                     });
                                     extraWebPartCounter++;
                                 }
@@ -249,7 +250,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         Row = split ? lastRow : lastRow2,
                                         Column = split ? lastColum : lastColum2,
                                         Order = split ? extraWebPartCounter : extraWebPartCounter2,
-                                        Properties = props
+                                        Properties = props,
+                                        SourceGroupName = wp.SourceGroupName
                                     });
                                 }
 
@@ -298,7 +300,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                         Row = lastRow,
                                         Column = lastColum,
                                         Order = extraWebPartCounter,
-                                        Properties = props
+                                        Properties = props,
+                                        SourceGroupName = wp.SourceGroupName
                                     });
                                     extraWebPartCounter++;
                                 }
@@ -342,7 +345,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                     Row = split ? lastRow : lastRow2,
                                     Column = split ? lastColum : lastColum2,
                                     Order = split ? extraWebPartCounter : extraWebPartCounter2,
-                                    Properties = props
+                                    Properties = props,
+                                    SourceGroupName = wp.SourceGroupName
                                 });
 
                                 if (split)
@@ -376,7 +380,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             Row = lastRow,
                             Column = lastColum,
                             Order = extraWebPartCounter,
-                            Properties = props2
+                            Properties = props2,
+                            SourceGroupName = wp.SourceGroupName
                         });
                         extraWebPartCounter++;
 
