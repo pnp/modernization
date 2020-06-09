@@ -285,19 +285,17 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                         var row = webPart.Row - 1;
                         var column = webPart.Column - 1;
-                        var currentOrder = order;
-
                         
-
                         page.AddControl(text, page.Sections[row].Columns[column], order);
                         LogInfo(LogStrings.AddedClientSideTextWebPart, LogStrings.Heading_AddingWebPartsToPage);
 
+                        // Only runs in Replay Capture Mode
                         replayPageLayout?.StoreInitialWebPartLocations(new ReplayWebPartLocation()
                         {
                             TargetWebPartTypeId = ReplayPageLayout.TextWebPart,
                             TargetWebPartInstanceId = text.InstanceId,
-                            Row = webPart.Row - 1,
-                            Column = webPart.Column - 1,
+                            Row = row,
+                            Column = column,
                             Order = order,
                             SourceWebPartId = webPart.Id,
                             SourceWebPartType = webPart.Type,
@@ -305,33 +303,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             SourceGroupName = webPart.SourceGroupName
                         });
 
-                        //Move
-                        var result = replayPageLayout.GetLayoutUpdatedPositionForWebPart(webPart.Type, "Text", row, column, currentOrder, webPart.Title);
-                        if (result != null && result.CanUseMoveToLocation)
-                        {
-                            row = result.MovedToRow;
-                            column = result.MovedToColumn;
-                            //currentOrder = result.MovedToOrder;
-                            ////var lastColumnOrder = LastColumnOrder(row, column);
-                            currentOrder = LastColumnOrder(row, column);
-                            var control = page.Controls.FirstOrDefault(c => c.InstanceId == text.InstanceId);
-                            if (control != null)
-
-                            {
-                                var section = page.Sections[row];
-                                if (section != control.Section)
-                                {
-                                    control.Move(section);
-                                }
-                                var canvasColumn = section.Columns[column];
-                                if (canvasColumn != control.Column)
-                                {
-                                    control.Move(canvasColumn);
-                                }
-                            }
-                        }
-
-
+                        // Only runs in Replay Mode
+                        replayPageLayout?.StoreReplayWebParts(webPart.Type, "Text", text.InstanceId, row, column, order, webPart.Title, webPart.SourceGroupName);
                     }
                     else if (map.ClientSideWebPart != null)
                     {
@@ -592,12 +565,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                             var row = webPart.Row - 1;
                             var column = webPart.Column - 1;
-                            var currentOrder = order;
-
-                            //Move
                             
-
-                            //TODO: Adapt for Replay - Check if the storing of the locations has moved
                             page.AddControl(myWebPart, page.Sections[row].Columns[column], order);
                             LogInfo($"{LogStrings.ContentAdded} '{ myWebPart.Title }' {LogStrings.ContentClientToTargetPage}", LogStrings.Heading_AddingWebPartsToPage);
 
@@ -616,32 +584,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 SourceGroupName = webPart.SourceGroupName
                             });
 
-                            var result = replayPageLayout.GetLayoutUpdatedPositionForWebPart(webPart.Type, myWebPart.WebPartId, row, column, currentOrder, webPart.Title);
-                            if (result != null && result.CanUseMoveToLocation)
-                            {
-                                row = result.MovedToRow;
-                                column = result.MovedToColumn;
-                                //currentOrder = result.MovedToOrder;
-                                //var lastColumnOrder = LastColumnOrder(row, column);
-                                currentOrder = LastColumnOrder(row, column);
-                                var control = page.Controls.FirstOrDefault(c => c.InstanceId == myWebPart.InstanceId);
-                                if (control != null)
-                                {
-                                    var section = page.Sections[row];
-                                    if (section != control.Section)
-                                    {
-                                        control.Move(section);
-                                    }
-                                    var canvasColumn = section.Columns[column];
-                                    if (canvasColumn != control.Column)
-                                    {
-                                        control.Move(canvasColumn);
-                                    }
-                                }
-                            }
-
-                            
-
+                            // Only runs in Replay Mode
+                            replayPageLayout?.StoreReplayWebParts(webPart.Type, myWebPart.WebPartId, myWebPart.InstanceId, row, column, order, webPart.Title, webPart.SourceGroupName);
                         }
                         else
                         {

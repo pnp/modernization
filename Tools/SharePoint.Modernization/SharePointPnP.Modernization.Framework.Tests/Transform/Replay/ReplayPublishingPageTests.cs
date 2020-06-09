@@ -104,7 +104,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                             SourceWebPartId = System.Guid.Empty,
                             SourceWebPartType =  "SharePointPnP.Modernization.WikiTextPart",
                             SourceGroupName = "PublishingPageContent",
-                            SourceWebPartTitle = "Wiki text",
+                            SourceWebPartTitle = "WikiText",
                             //Warning these change in the source when running InitialPublishingPage test
                             TargetWebPartInstanceId = System.Guid.Parse("{6734bc50-8e09-49d4-8a2c-fc49855c01f1}"),
                             TargetWebPartTypeId = "Text"
@@ -125,7 +125,7 @@ namespace SharePointPnP.Modernization.Framework.Tests.Transform.Replay
                             Column = 0, Order= 4, Row= 0, ColumnFactor = 12,
                             SourceWebPartId = System.Guid.Empty,
                             SourceWebPartType = "SharePointPnP.Modernization.WikiTextPart",
-                            SourceWebPartTitle = "Wiki text",
+                            SourceWebPartTitle = "WikiText",
                             SourceGroupName = "PublishingPageContent",
                             //Warning these change in the source when running InitialPublishingPage test
                             TargetWebPartInstanceId = System.Guid.Parse("{674b3a46-61c9-45bf-bb0e-153a014789bc}"),

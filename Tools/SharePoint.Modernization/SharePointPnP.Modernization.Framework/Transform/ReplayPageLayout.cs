@@ -22,6 +22,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         private bool _isPageCapture;
         private bool _isPageReplay;
         private ReplayPageCaptureData _replayPageCaptureData;
+        private List<ReplayWebPartLocation> _currentPageLocations;
         private bool _hasLayoutChangedFromPrevious;
 
         /// <summary>
@@ -67,6 +68,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 PageUrl = $"{this._transformationInformation.Folder}{this._transformationInformation.TargetPageName}",
                 PageLayoutName = pageLayoutName
             };
+
+            _currentPageLocations = new List<ReplayWebPartLocation>();
         }
 
         /// <summary>
@@ -107,6 +110,31 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 //Store the capture data in memory
                 CacheManager.Instance.SetReplayCaptureData(this._replayPageCaptureData);
             }
+        }
+
+        /// <summary>
+        /// Temporary store current transformation web part locations
+        /// </summary>
+        /// <param name="sourceWebPartType"></param>
+        /// <param name="targetTypeId"></param>
+        /// <param name="plannedRow"></param>
+        /// <param name="plannedColumn"></param>
+        /// <param name="plannedOrder"></param>
+        /// <param name="sourceWebPartTitle"></param>
+        /// <param name="sourceWebPartGroup"></param>
+        public void StoreReplayWebParts(string sourceWebPartType, string targetTypeId, Guid targetInstanceId, int plannedRow, int plannedColumn, int plannedOrder, string sourceWebPartTitle, string sourceWebPartGroup)
+        {
+            _currentPageLocations.Add(new ReplayWebPartLocation
+            {
+                SourceWebPartType = sourceWebPartType,
+                TargetWebPartTypeId = targetTypeId,
+                Row = plannedRow,
+                Column = plannedColumn,
+                Order = plannedOrder,
+                SourceWebPartTitle = sourceWebPartTitle,
+                SourceGroupName = sourceWebPartGroup,
+                TargetWebPartInstanceId = targetInstanceId
+            });
         }
 
         /// <summary>
@@ -201,24 +229,33 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <summary>
         /// This method will check for changes in the layout by the user and adjust the planned mapped locations
         /// </summary>
-        public ReplayWebPartLocation GetLayoutUpdatedPositionForWebPart(string sourceWebPartType, string targetTypeId, int plannedRow, int plannedColumn, int plannedOrder, string sourceWebPartTitle)
+        public ReplayWebPartLocation GetLayoutUpdatedPositionForWebPart(List<ReplayWebPartLocation> availableLocations, string sourceWebPartType, string targetTypeId, int plannedRow, int plannedColumn, int plannedOrder, string sourceWebPartTitle, string sourceGroupName)
         {
             if (this._isPageReplay)
             {
                 // Use the next page web part source type, and target type, transform co-ordinates, if there is an adjustment then
                 // New Replay Target page may need sections built prior to adjusting the web part locations
                 // return the adjusted co-ordinates.
-                var location = this._replayPageCaptureData.ReplayWebPartLocations.Where(o => o.TargetWebPartTypeId == targetTypeId &&
-                    o.SourceWebPartType == sourceWebPartType && o.Order == plannedOrder && o.Row == plannedRow && o.Column == plannedColumn).FirstOrDefault();
+                var location = availableLocations.Where(
+                    o => o.TargetWebPartTypeId == targetTypeId &&
+                    o.SourceWebPartType == sourceWebPartType && 
+                    o.Order == plannedOrder && 
+                    o.Row == plannedRow && 
+                    o.Column == plannedColumn && o.SourceWebPartTitle == sourceWebPartTitle && o.SourceGroupName == sourceGroupName).FirstOrDefault();
 
                 //TODO: This needs to be smarter to encounter a block similar to this. e.g. Instance of if order not exact...
                 // This implementation is likely to be unstable
                 if(location == null)
                 {
-                    location = this._replayPageCaptureData.ReplayWebPartLocations.Where(o => o.TargetWebPartTypeId == targetTypeId &&
-                        o.SourceWebPartType == sourceWebPartType && o.Row == plannedRow && o.Column == plannedColumn && o.SourceWebPartTitle == sourceWebPartTitle).FirstOrDefault();
+                    location = availableLocations.Where(
+                        o => o.TargetWebPartTypeId == targetTypeId &&
+                        o.SourceWebPartType == sourceWebPartType && 
+                        o.Row == plannedRow && 
+                        o.Column == plannedColumn && 
+                        o.SourceGroupName == sourceGroupName && o.SourceWebPartTitle == sourceWebPartTitle).FirstOrDefault();
                 }
-                //TODO: Switch out the location data
+                
+                
 
                 return location;
             }
@@ -227,6 +264,52 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         }
 
+        /// <summary>
+        /// Apply any changes made to the captured page an apply this to the current transform
+        /// </summary>
+        public void ApplyLocationChanges(ClientSidePage clientSidePage)
+        {
+            if (this._isPageReplay) {
+
+                var availableLocations = this._replayPageCaptureData.ReplayWebPartLocations;
+
+                foreach (var location in _currentPageLocations)
+                {
+                    var result = GetLayoutUpdatedPositionForWebPart(availableLocations, location.SourceWebPartType, location.TargetWebPartTypeId, location.Row, location.Column, 
+                        location.Order, location.SourceWebPartTitle, location.SourceGroupName);
+                    if (result != null && result.CanUseMoveToLocation)
+                    {
+                        // This web part is found, remove from the left over web parts to detect changes to
+                        availableLocations.Remove(result);
+                       
+
+                        var row = result.MovedToRow;
+                        var column = result.MovedToColumn;
+                        //currentOrder = result.MovedToOrder;
+                        //var lastColumnOrder = LastColumnOrder(row, column);
+                        var currentOrder = LastColumnOrder(clientSidePage, row, column);
+                        var control = clientSidePage.Controls.FirstOrDefault(c => c.InstanceId == location.TargetWebPartInstanceId);
+                        if (control != null)
+                        {
+                            var section = clientSidePage.Sections[row];
+                            if (section != control.Section)
+                            {
+                                control.Move(section);
+                            }
+                            var canvasColumn = section.Columns[column];
+                            if (canvasColumn != control.Column)
+                            {
+                                control.Move(canvasColumn);
+                            }
+                        }
+                    }
+                }
+
+            }
+
+
+            
+        }
 
         /// <summary>
         /// Duplicates the page layout based on the previous page
@@ -274,6 +357,25 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Get the last column order
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <returns></returns>
+        private Int32 LastColumnOrder(ClientSidePage page, int row, int col)
+        {
+            var lastControl = page.Sections[row].Columns[col].Controls.OrderBy(p => p.Order).LastOrDefault();
+            if (lastControl != null)
+            {
+                return lastControl.Order;
+            }
+            else
+            {
+                return -1;
+            }
         }
     }
 }

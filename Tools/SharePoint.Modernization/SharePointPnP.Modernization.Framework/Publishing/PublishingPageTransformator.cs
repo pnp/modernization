@@ -480,6 +480,10 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 contentTransformator.Transform(pageData.Item2.Where(c => !c.IsClosed).ToList());
 
                 LogInfo(LogStrings.TransformingContentEnd, LogStrings.Heading_ArticlePageHandling);
+
+                // Apply page layout changes in page replay mode
+                replayPageLayout.ApplyLocationChanges(targetPage);
+
 #if DEBUG && MEASURE
                 Stop("Content transformation");
 #endif
