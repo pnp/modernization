@@ -45,6 +45,11 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 Web web = cc.Web;
                 cc.Web.EnsureProperties(p => p.WebTemplate, p => p.Configuration);
 
+                if (cc.Web.WebTemplate.Equals("TEAMCHANNEL", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
+                }
+
                 SiteScanResult scanResult = new SiteScanResult()
                 {
                     SiteColUrl = this.SiteCollectionUrl,
