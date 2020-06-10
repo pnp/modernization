@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OfficeDevPnP.Core.Entities;
+using System;
 using System.Collections.Generic;
 
 namespace SharePoint.Modernization.Scanner.Core.Results
@@ -101,5 +102,15 @@ namespace SharePoint.Modernization.Scanner.Core.Results
         public DateTime LastSubscriptionEdit { get; set; }
 
         public DateTime LastDefinitionEdit { get; set; }
+
+        /// <summary>
+        /// Site administrators
+        /// </summary>
+        public List<UserEntity> Admins { get; set; }
+        /// <summary>
+        /// Site owners
+        /// </summary>
+        public List<UserEntity> Owners { get; set; }
+
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.SharePoint.Client.WorkflowServices;
 using SharePoint.Modernization.Scanner.Core.Results;
 using SharePoint.Modernization.Scanner.Core.Workflow;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -586,6 +587,19 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
             // return the duration of this scan
             return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
+        }
+
+        internal static void PopulateAdminAndOwnerColumns(ConcurrentDictionary<string, SiteScanResult> siteScanResults, ConcurrentDictionary<string, WorkflowScanResult> workflowScanResults)
+        {
+            foreach(var workflowScanResult in workflowScanResults)
+            {
+                if (siteScanResults.ContainsKey(workflowScanResult.Value.SiteColUrl))
+                {
+                    var siteScanResult = siteScanResults[workflowScanResult.Value.SiteColUrl];
+                    workflowScanResult.Value.Admins = siteScanResult.Admins;
+                    workflowScanResult.Value.Owners = siteScanResult.Owners;
+                }
+            }
         }
         #endregion
 

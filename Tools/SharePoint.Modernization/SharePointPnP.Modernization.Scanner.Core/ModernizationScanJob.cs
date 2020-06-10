@@ -917,6 +917,8 @@ namespace SharePoint.Modernization.Scanner.Core
 
             if (Options.IncludeWorkflow(this.Mode))
             {
+                WorkflowAnalyzer.PopulateAdminAndOwnerColumns(this.SiteScanResults, this.WorkflowScanResults);
+
                 // Telemetry
                 if (this.ScannerTelemetry != null)
                 {
@@ -927,7 +929,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "Definition Name", "Migration to Flow recommended", "Version", "Scope", "Has subscriptions", "Enabled", "Is OOB",
                                                "List Title", "List Url", "List Id", "ContentType Name", "ContentType Id",
                                                "Restricted To", "Definition description", "Definition Id", "Subscription Name", "Subscription Id",
-                                               "Definition Changed On", "Subscription Changed On",
+                                               "Definition Changed On", "Subscription Changed On", "Admins", "Owners",
                                                "Action Count", "Used Actions", "Used Triggers", "Flow upgradability", "Incompatible Action Count", "Incompatible Actions",
                                                "Change Year", "Change Quarter", "Change Month" };
 
@@ -941,7 +943,7 @@ namespace SharePoint.Modernization.Scanner.Core
                     outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(workflow.Value.SiteURL), ToCsv(workflow.Value.SiteColUrl), ToCsv(workflow.Value.DefinitionName), workflow.Value.ConsiderUpgradingToFlow, ToCsv(workflow.Value.Version), ToCsv(workflow.Value.Scope), workflow.Value.HasSubscriptions, workflow.Value.Enabled, workflow.Value.IsOOBWorkflow,
                                                                                            ToCsv(workflow.Value.ListTitle), ToCsv(workflow.Value.ListUrl), workflow.Value.ListId.ToString(), ToCsv(workflow.Value.ContentTypeName), ToCsv(workflow.Value.ContentTypeId),
                                                                                            ToCsv(workflow.Value.RestrictToType), ToCsv(workflow.Value.DefinitionDescription), workflow.Value.DefinitionId.ToString(), ToCsv(workflow.Value.SubscriptionName), workflow.Value.SubscriptionId.ToString(),
-                                                                                           ToDateString(workflow.Value.LastDefinitionEdit, this.DateFormat), ToDateString(workflow.Value.LastSubscriptionEdit, this.DateFormat),
+                                                                                           ToDateString(workflow.Value.LastDefinitionEdit, this.DateFormat), ToDateString(workflow.Value.LastSubscriptionEdit, this.DateFormat), ToCsv(SiteScanResult.FormatUserList(workflow.Value.Admins, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)), ToCsv(SiteScanResult.FormatUserList(workflow.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)),
                                                                                            workflow.Value.ActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedActions)), ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UsedTriggers)), workflow.Value.ToFLowMappingPercentage, workflow.Value.UnsupportedActionCount, ToCsv(PublishingPageScanResult.FormatList(workflow.Value.UnsupportedActionsInFlow)),
                                                                                            ToYearString(workflow.Value.LastDefinitionEdit), ToQuarterString(workflow.Value.LastDefinitionEdit), ToMonthString(workflow.Value.LastDefinitionEdit)
                                                      )));
@@ -953,6 +955,8 @@ namespace SharePoint.Modernization.Scanner.Core
 
             if (Options.IncludeInfoPath(this.Mode))
             {
+                InfoPathAnalyzer.PopulateAdminAndOwnerColumns(this.SiteScanResults, this.InfoPathScanResults);
+
                 // Telemetry
                 if (this.ScannerTelemetry != null)
                 {
@@ -962,7 +966,8 @@ namespace SharePoint.Modernization.Scanner.Core
                 MemoryStream modernizationInfoPathScanResults = new MemoryStream();
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "InfoPath Usage", "Enabled", "Last user modified date", "Item count",
                                                "List Title", "List Url", "List Id", "Template",
-                                               "Change Year", "Change Quarter", "Change Month"  };
+                                               "Change Year", "Change Quarter", "Change Month",
+                                               "Admins", "Owners" };
 
                 outStream = new StreamWriter(modernizationInfoPathScanResults);
 
@@ -971,7 +976,8 @@ namespace SharePoint.Modernization.Scanner.Core
                 {
                     outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(infoPath.Value.SiteURL), ToCsv(infoPath.Value.SiteColUrl), ToCsv(infoPath.Value.InfoPathUsage), infoPath.Value.Enabled, ToDateString(infoPath.Value.LastItemUserModifiedDate, this.DateFormat), infoPath.Value.ItemCount,
                                                                                            ToCsv(infoPath.Value.ListTitle), ToCsv(infoPath.Value.ListUrl), infoPath.Value.ListId.ToString(), ToCsv(infoPath.Value.InfoPathTemplate),
-                                                                                           ToYearString(infoPath.Value.LastItemUserModifiedDate), ToQuarterString(infoPath.Value.LastItemUserModifiedDate), ToMonthString(infoPath.Value.LastItemUserModifiedDate)
+                                                                                           ToYearString(infoPath.Value.LastItemUserModifiedDate), ToQuarterString(infoPath.Value.LastItemUserModifiedDate), ToMonthString(infoPath.Value.LastItemUserModifiedDate),
+                                                                                           ToCsv(SiteScanResult.FormatUserList(infoPath.Value.Admins, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)), ToCsv(SiteScanResult.FormatUserList(infoPath.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim))
                                                      )));
                 }
                 outStream.Flush();

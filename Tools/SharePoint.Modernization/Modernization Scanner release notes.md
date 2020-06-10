@@ -4,6 +4,17 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.12]
+
+### Added
+
+- Workflow and InfoPath reports now also contain the Admins and Owners of the site collection (copy from the information of the sitescan results) #483
+
+### Changed
+
+- Skip site collections created for Team private channels, no point in scanning those #487
+
+
 ## [Version 2.11]
 
 ### Added
