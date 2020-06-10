@@ -128,6 +128,7 @@ namespace SharePoint.Modernization.Scanner.Forms
             }
             else if (cmbSiteSelectionOption.SelectedIndex == 2)
             {
+                options.TenantAdminSite = txtSitesAdminCenterUrl2.Text;
                 // CSV file
                 options.CsvFile = txtSitesCSVFile.Text;
             }

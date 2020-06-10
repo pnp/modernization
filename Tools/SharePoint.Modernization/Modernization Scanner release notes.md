@@ -9,11 +9,11 @@ See https://aka.ms/sppnp-modernizationscanner
 ### Added
 
 - Workflow and InfoPath reports now also contain the Admins and Owners of the site collection (copy from the information of the sitescan results) #483
+- Add option to wizard to specify tenant admin center url when using a CSV file input
 
 ### Changed
 
 - Skip site collections created for Team private channels, no point in scanning those #487
-
 
 ## [Version 2.11]
 
