@@ -393,6 +393,13 @@
 
         public const string Heading_ReplayPageLayout = "Replay Page Layout";
 
+        public const string Warning_CannotReplayWithoutRecordingCapture = "You cannot replay without first recording the capture transform";
+        public const string Warning_PreviousCapturePageLayoutIncorrect = "Previous capture data page layout incorrect, the position could be different";
+        public const string ScanningCapturePage = "Scanning capture page for changes by user";
+        public const string ApplyingLayoutChanges = "Applying layout changes";
+        public const string DuplicatingSectionLayout = "Duplicating section layout from capture page";
+        public const string Warning_CannotDuplicatePagePreviousCapturePageLayoutIncorrect = "Cannot duplicate page - previous capture data page layout incorrect, the position could be different";
+        public const string Warning_CannotDuplicatePageCannotReplayWithoutRecordingCapture = "Cannot duplicate page - you cannot replay without first recording the capture transform";
         #endregion
 
     }

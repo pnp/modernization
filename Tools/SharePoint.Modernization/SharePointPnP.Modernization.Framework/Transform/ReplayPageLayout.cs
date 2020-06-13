@@ -93,7 +93,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     //Cancel replay mode
                     this._isPageReplay = false;
-                    LogWarning("You cannot replay without first recording the capture transform", LogStrings.Heading_ReplayPageLayout);
+                    LogWarning(LogStrings.Warning_CannotReplayWithoutRecordingCapture, LogStrings.Heading_ReplayPageLayout);
                 }
             }
         }
@@ -170,6 +170,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             {
                 if(previousReplayCaptureData.PageLayoutName == this._replayPageCaptureData.PageLayoutName)
                 {
+
+                    LogInfo(LogStrings.ScanningCapturePage, LogStrings.Heading_ReplayPageLayout);
+
                     // Get the page
                     // TODO: Check the scenario where the page is in a folder
                     ClientSidePage previousClientSidepage = ClientSidePage.Load(this._targetContext, previousReplayCaptureData.PageUrl);
@@ -214,13 +217,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 else
                 {
                     //Previous capture data page layout incorrect, the position could be different, therefore reject
-                    LogWarning("Previous capture data page layout incorrect, the position could be different", LogStrings.Heading_ReplayPageLayout);
+                    LogWarning(LogStrings.Warning_PreviousCapturePageLayoutIncorrect, LogStrings.Heading_ReplayPageLayout);
                 }
             }
             else
             {
                 //Log that you cannot replay without first recording the referenced transform
-                LogWarning("You cannot replay without first recording the capture transform", LogStrings.Heading_ReplayPageLayout);
+                LogWarning(LogStrings.Warning_CannotReplayWithoutRecordingCapture, LogStrings.Heading_ReplayPageLayout);
             }
 
             return default;
@@ -255,8 +258,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         o.SourceGroupName == sourceGroupName && o.SourceWebPartTitle == sourceWebPartTitle).FirstOrDefault();
                 }
                 
-                
-
                 return location;
             }
 
@@ -272,6 +273,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
             if (this._isPageReplay) {
 
                 var availableLocations = this._replayPageCaptureData.ReplayWebPartLocations;
+
+                LogInfo(LogStrings.ApplyingLayoutChanges, LogStrings.Heading_ReplayPageLayout);
 
                 foreach (var location in _currentPageLocations)
                 {
@@ -306,9 +309,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 }
 
             }
-
-
-            
         }
 
         /// <summary>
@@ -328,6 +328,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 {
                     if (previousReplayCaptureData.PageLayoutName == this._replayPageCaptureData.PageLayoutName)
                     {
+
+                        LogInfo(LogStrings.DuplicatingSectionLayout, LogStrings.Heading_ReplayPageLayout);
+
                         // Get the page
                         // TODO: Check the scenario where the page is in a folder
                         ClientSidePage previousClientSidepage = ClientSidePage.Load(this._targetContext, previousReplayCaptureData.PageUrl);
@@ -346,13 +349,13 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     else
                     {
                         //Previous capture data page layout incorrect, the position could be different, therefore reject
-                        LogWarning("Cannot duplicate page - previous capture data page layout incorrect, the position could be different", LogStrings.Heading_ReplayPageLayout);
+                        LogWarning(LogStrings.Warning_CannotDuplicatePagePreviousCapturePageLayoutIncorrect, LogStrings.Heading_ReplayPageLayout);
                     }
                 }
                 else
                 {
                     //Log that you cannot replay without first recording the referenced transform
-                    LogWarning("Cannot duplicate page - you cannot replay without first recording the capture transform", LogStrings.Heading_ReplayPageLayout);
+                    LogWarning(LogStrings.Warning_CannotDuplicatePageCannotReplayWithoutRecordingCapture, LogStrings.Heading_ReplayPageLayout);
                 }
             }
 
