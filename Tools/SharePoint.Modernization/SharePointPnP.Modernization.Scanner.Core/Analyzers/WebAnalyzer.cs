@@ -71,6 +71,11 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 Web web = cc.Web;
                 web.EnsureProperties(p => p.UserCustomActions, p => p.AlternateCssUrl, p => p.CustomMasterUrl, p => p.MasterUrl, p => p.Features, p => p.WebTemplate, p => p.Configuration, p => p.HasUniqueRoleAssignments, p => p.AllProperties);
 
+                if (cc.Web.WebTemplate.Equals("TEAMCHANNEL", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
+                }
+
                 // Log in Site scan data that the scanned web is a sub site
                 if (web.IsSubSite())
                 {

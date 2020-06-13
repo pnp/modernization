@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using Microsoft.SharePoint.Client;
@@ -192,6 +193,20 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
             // return the duration of this scan
             return new TimeSpan((this.StopTime.Subtract(this.StartTime).Ticks));
         }
+
+        internal static void PopulateAdminAndOwnerColumns(ConcurrentDictionary<string, SiteScanResult> siteScanResults, ConcurrentDictionary<string, InfoPathScanResult> infoPathScanResults)
+        {
+            foreach (var infoPathScanResult in infoPathScanResults)
+            {
+                if (siteScanResults.ContainsKey(infoPathScanResult.Value.SiteColUrl))
+                {
+                    var siteScanResult = siteScanResults[infoPathScanResult.Value.SiteColUrl];
+                    infoPathScanResult.Value.Admins = siteScanResult.Admins;
+                    infoPathScanResult.Value.Owners = siteScanResult.Owners;
+                }
+            }
+        }
+
         #endregion
 
     }
