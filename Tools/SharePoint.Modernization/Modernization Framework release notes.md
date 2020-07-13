@@ -14,7 +14,9 @@
 
 ## [Unreleased]
 
+## [July release - version 1.0.2007.0]
 
+- No changes done
 
 ## [June release - version 1.0.2006.0]
 

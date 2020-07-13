@@ -1815,8 +1815,42 @@
               Looks up a localized string similar to Scope of template does not match target.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI" -->
-        <!-- Badly formed XML comment ignored for member "P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI_CSS" -->
+        <member name="P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI">
+             <summary>
+               Looks up a localized string similar to  /* SP-Responsive-UI.js
+            
+            512 characters to avoid compiler warnings inside the summary
+            
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            1234567890123 [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI_CSS">
+             <summary>
+               Looks up a localized string similar to  /* SP-Responsive-UI_CSS.css
+            
+            512 characters to avoid compiler warnings inside the summary
+            
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+            12345678 [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI_CSS_min">
+            <summary>
+              Looks up a localized string similar to .mobile-only{display:none}#contentRow,#sideNavBox,#siteIcon{-webkit-transition:all .4s ease;-moz-transition:all .4s ease;-ms-transition:all .4s ease;-o-transition:all .4s ease;transition:all .4s ease}#contentBox,#s4-bodyContainer .contentwrapper{min-width:auto}.ms-dialog #contentRow{margin-left:0}.ms-dialog #contentBox{margin-top:0}.ms-dialog #s4-bodyContainer{min-width:0;font-size:1em}#s4-bodyContainer .contentwrapper{min-width:0;margin-top:0}#suiteBar #suiteBarLeft #PnP_MainLink_Hamburger{min-width:30px;p [rest of string was truncated]&quot;;.
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.CoreResources.SP_Responsive_UI_min">
+            <summary>
+              Looks up a localized string similar to function responsiveStartup(){var e=PnPResponsiveApp.Main.getInstance();e.addViewport(),e.init()}window.hasOwnProperty(&quot;Type&quot;)?Type.registerNamespace(&quot;PnPResponsiveApp&quot;):window.PnPResponsiveApp=window.PnPResponsiveApp||{},PnPResponsiveApp.Main=function(){function e(e,n){if(t(e,n)){var i=new RegExp(&quot;(\\s|^)&quot;+n+&quot;(\\s|$)&quot;);e.className=e.className.replace(i,&quot; &quot;)}else e.className=e.className+&quot; &quot;+n}function t(e,t){try{return-1!==(&quot; &quot;+e.className+&quot; &quot;).indexOf(&quot; &quot;+t+&quot; &quot;)}catch(e){return!1}}function n(e){var t=docume [rest of string was truncated]&quot;;.
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.CoreResources.TaxonomyExtension_CreateTerm01UnderParent2">
             <summary>
               Looks up a localized string similar to Creating term &apos;{0}|{1}&apos; under parent &apos;{2}&apos;..
@@ -6211,6 +6245,24 @@
             <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
             <returns>The just created Office 365 Group</returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.UpdateMembers(System.String[],Microsoft.Graph.GraphServiceClient,System.String,System.Boolean)">
+            <summary>
+            Updates the members of a Microsoft 365 Group
+            </summary>
+            <param name="members">UPNs of users that need to be added as a member to the group</param>
+            <param name="graphClient">GraphClient instance to use to communicate with the Microsoft Graph</param>
+            <param name="groupId">Id of the group which needs the owners added</param>
+            <param name="removeOtherMembers">If set to true, all existing members which are not specified through <paramref name="members"/> will be removed as a member from the group</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.UpdateOwners(System.String[],Microsoft.Graph.GraphServiceClient,System.String,System.Boolean)">
+            <summary>
+            Updates the owners of a Microsoft 365 Group
+            </summary>
+            <param name="owners">UPNs of users that need to be added as a owner to the group</param>
+            <param name="graphClient">GraphClient instance to use to communicate with the Microsoft Graph</param>
+            <param name="groupId">Id of the group which needs the owners added</param>
+            <param name="removeOtherOwners">If set to true, all existing owners which are not specified through <paramref name="owners"/> will be removed as an owner from the group</param>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.SetUnifiedGroupVisibility(System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
             <summary>
             Sets the visibility of a Group
@@ -6352,6 +6404,66 @@
             <param name="retryCount"></param>
             <param name="delay"></param>
             <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.AddUnifiedGroupOwners(System.String,System.String[],System.String,System.Boolean,System.Int32,System.Int32)">
+            <summary>
+            Adds owners to a Microsoft 365 group
+            </summary>
+            <param name="groupId">Id of the Microsoft 365 group to add the owners to</param>
+            <param name="owners">String array with the UPNs of the users that need to be added as owners to the group</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="removeExistingOwners">If true, all existing owners will be removed and only those provided will become owners. If false, existing owners will remain and the ones provided will be added to the list with existing owners.</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.AddUnifiedGroupMembers(System.String,System.String[],System.String,System.Boolean,System.Int32,System.Int32)">
+            <summary>
+            Adds members to a Microsoft 365 group
+            </summary>
+            <param name="groupId">Id of the Microsoft 365 group to add the members to</param>
+            <param name="members">String array with the UPNs of the users that need to be added as members to the group</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="removeExistingMembers">If true, all existing members will be removed and only those provided will become members. If false, existing members will remain and the ones provided will be added to the list with existing members.</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.RemoveUnifiedGroupMembers(System.String,System.String[],System.String,System.Int32,System.Int32)">
+            <summary>
+            Removes members from a Microsoft 365 group
+            </summary>
+            <param name="groupId">Id of the Microsoft 365 group to remove the members from</param>
+            <param name="members">String array with the UPNs of the users that need to be removed as members from the group</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.RemoveUnifiedGroupOwners(System.String,System.String[],System.String,System.Int32,System.Int32)">
+            <summary>
+            Removes owners from a Microsoft 365 group
+            </summary>
+            <param name="groupId">Id of the Microsoft 365 group to remove the owners from</param>
+            <param name="owners">String array with the UPNs of the users that need to be removed as owners from the group</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.ClearUnifiedGroupOwners(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Removes all owners of a Microsoft 365 group
+            </summary>
+            <param name="groupId">Id of the Microsoft 365 group to remove all the current owners of</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.ClearUnifiedGroupMembers(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Removes all members of a Microsoft 365 group
+            </summary>
+            <param name="groupId">Id of the Microsoft 365 group to remove all the current members of</param>
+            <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="retryCount">Number of times to retry the request in case of throttling</param>
+            <param name="delay">Milliseconds to wait before retrying the request. The delay will be increased (doubled) every retry</param>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetUnifiedGroupOwners(OfficeDevPnP.Core.Entities.UnifiedGroupEntity,System.String,System.Int32,System.Int32)">
             <summary>
@@ -6632,6 +6744,14 @@
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionRuleSiteBase">
             <summary>
             Base class to test if the Provisioning Template can be provisioned on the target SharePoint Site
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionRuleSiteBase.TenantAdminSiteUrl">
+            <summary>
+            The TenantAdminSiteUrl contains the tenant admin site url. 
+            <remarks>
+            This value is only relevant for onpremesis environments (SP2013, SP2016, SP2019)
+            </remarks>
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.CanProvisionRules.CanProvisionRuleSiteBase.CanProvision(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateApplyingInformation)">
@@ -10799,14 +10919,6 @@
             Defines the Server Notification URL of the Webhook, required attribute.
             </summary>
         </member>
-        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.SiteWebhook.ExpiresInDays">
-            <summary>
-            Defines the expire days for the subscription of the Webhook, required attribute.
-            </summary>
-            <remarks>
-            The maximum value is 6 months (i.e. 180 days)
-            </remarks>
-        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.SiteWebhook.GetHashCode">
             <summary>
             Gets the hash code
@@ -11904,6 +12016,16 @@
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRef.UpdateChildren">
             <summary>
             Declares whether the current field reference has to be udpated on inherited content types
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRef.ShowInDisplayForm">
+            <summary>
+            Gets or sets if the field is shown in the display form
+            </summary>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRef.ReadOnly">
+            <summary>
+            Gets or sets if the field is read only
             </summary>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Model.FieldRef.#ctor">
@@ -16345,11 +16467,12 @@
             <param name="archived">A flag to declare to archive or unarchive the Team</param>
             <param name="accessToken">The OAuth 2.0 Access Token</param>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetGroupSecurity(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.Team,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetGroupSecurity(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.Team,System.String,System.String)">
             <summary>
             Synchronizes Owners and Members with Team settings
             </summary>
             <param name="scope">The PnP Provisioning Scope</param>
+            <param name="parser">The PnP Token Parser</param>
             <param name="team">The Team settings, including security settings</param>
             <param name="teamId">The ID of the target Team</param>
             <param name="accessToken">The OAuth 2.0 Access Token</param>
@@ -55879,6 +56002,23 @@
             <param name="listTitle">Title of the list to be updated</param>
             <param name="contentType">Content type to make default</param>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.SetAllowDeletion(Microsoft.SharePoint.Client.Field,System.Nullable{System.Boolean})">
+            <summary>
+            Sets the AllowDeletion property on a field.
+            Note 1: This method will load <paramref name="field"/>.SchemaXmlWithResourceTokens if it's not already loaded by the caller.
+            Note 2: This method does not update the field nor execute the query.
+            </summary>
+            <param name="field">Field to be processed</param>
+            <param name="AllowDeletion">False blocks field deletion, True enables field deletion. Null uses field default behavior.</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.GetAllowDeletion(Microsoft.SharePoint.Client.Field)">
+            <summary>
+            Gets the AllowDeletion property from a field.
+            Note 1: This method will load <paramref name="field"/>.SchemaXmlWithResourceTokens if not any of the properties <paramref name="field"/>.SchemaXmlWithResourceTokens or <paramref name="field"/>.SchemaXml is already loaded by the caller.
+            </summary>
+            <param name="field">Field to be processed</param>
+            <returns>Returns false if field deletion is not allowed, true if field deletion is allowed, and null if the field default behavior is used to determine if field deletion is allowed.</returns>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.CreateField(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Entities.FieldCreationInformation,System.Boolean)">
             <summary>
             Create field to web remotely
@@ -56223,7 +56363,7 @@
             <param name="contentType">Content type to add to the list</param>
             <param name="defaultContent">If set true, content type is updated to be default content type for the list</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -56232,8 +56372,10 @@
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
             <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
+            <param name="showInDisplayForm">Optionally show this field in the display form.</param>
+            <param name="readOnly">Optionally make this a read only field.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.Guid,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldById(Microsoft.SharePoint.Client.ContentType,System.Guid,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -56242,8 +56384,10 @@
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
             <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
+            <param name="showInDisplayForm">Optionally show this field in the display form.</param>
+            <param name="readOnly">Optionally make this a read only field.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldByName(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldByName(Microsoft.SharePoint.Client.ContentType,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -56252,8 +56396,10 @@
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
             <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
+            <param name="showInDisplayForm">Optionally show this field in the display form.</param>
+            <param name="readOnly">Optionally make this a read only field.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeById(Microsoft.SharePoint.Client.Web,System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeById(Microsoft.SharePoint.Client.Web,System.String,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -56263,8 +56409,10 @@
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
             <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
+            <param name="showInDisplayForm">Optionally show this field in the display form.</param>
+            <param name="readOnly">Optionally make this a read only field.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeByName(Microsoft.SharePoint.Client.Web,System.String,System.Guid,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentTypeByName(Microsoft.SharePoint.Client.Web,System.String,System.Guid,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -56274,8 +56422,10 @@
             <param name="required">True if the field is required</param>
             <param name="hidden">True if the field is hidden</param>
             <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
+            <param name="showInDisplayForm">Optionally show this field in the display form.</param>
+            <param name="readOnly">Optionally make this a read only field.</param>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentType(Microsoft.SharePoint.Client.Web,Microsoft.SharePoint.Client.ContentType,Microsoft.SharePoint.Client.Field,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.AddFieldToContentType(Microsoft.SharePoint.Client.Web,Microsoft.SharePoint.Client.ContentType,Microsoft.SharePoint.Client.Field,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Associates field to content type
             </summary>
@@ -56285,6 +56435,8 @@
             <param name="required">Optionally make this a required field</param>
             <param name="hidden">Optionally make this a hidden field</param>
             <param name="updateChildren">True to update content types that inherit from the content type; otherwise, false.</param>
+            <param name="showInDisplayForm">Optionally show this field in the display form.</param>
+            <param name="readOnly">Optionally make this a read only field.</param>
         </member>
         <member name="M:Microsoft.SharePoint.Client.FieldAndContentTypeExtensions.BestMatchContentTypeId(Microsoft.SharePoint.Client.List,System.String)">
             <summary>
@@ -60375,40 +60527,6 @@
             <param name="force">If true, and an appcatalog is already registered and present, the new appcatalog will be created. If the same URL is provided and the site is present the current one will be deleted and a new one will be created.</param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.CheckIfSiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String)">
-            <summary>
-            Returns if a site collection is in a particular status. If the URL contains a sub site then returns true is the sub site exists, false if not. 
-            Status is irrelevant for sub sites
-            </summary>
-            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
-            <param name="siteFullUrl">Url to the site collection</param>
-            <param name="status">Status to check (Active, Creating, Recycled)</param>
-            <returns>True if in status, false if not in status</returns>
-        </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.IsSiteActive(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
-            <summary>
-            Checks if a site collection is Active
-            </summary>
-            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
-            <param name="siteFullUrl">URL to the site collection</param>
-            <returns>True if active, false if not</returns>
-        </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SiteExistsAnywhere(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
-            <summary>
-            Checks if a site collection exists, relies on tenant admin API. Sites that are recycled also return as existing sites, but with a different flag
-            </summary>
-            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
-            <param name="siteFullUrl">URL to the site collection</param>
-            <returns>An enumerated type that can be: No, Yes, Recycled</returns>
-        </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SubSiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
-            <summary>
-            Checks if a sub site exists
-            </summary>
-            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
-            <param name="siteFullUrl">URL to the sub site</param>
-            <returns>True if existing, false if not</returns>
-        </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.DeleteSiteCollection(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
             <summary>
             Deletes a site collection
@@ -60583,6 +60701,40 @@
             </summary>
             <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
             <param name="siteUrl">Root site url of your tenant</param>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.CheckIfSiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String)">
+            <summary>
+            Returns if a site collection is in a particular status. If the URL contains a sub site then returns true is the sub site exists, false if not. 
+            Status is irrelevant for sub sites
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="siteFullUrl">Url to the site collection</param>
+            <param name="status">Status to check (Active, Creating, Recycled)</param>
+            <returns>True if in status, false if not in status</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.IsSiteActive(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
+            <summary>
+            Checks if a site collection is Active
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="siteFullUrl">URL to the site collection</param>
+            <returns>True if active, false if not</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SiteExistsAnywhere(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
+            <summary>
+            Checks if a site collection exists, relies on tenant admin API. Sites that are recycled also return as existing sites, but with a different flag
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="siteFullUrl">URL to the site collection</param>
+            <returns>An enumerated type that can be: No, Yes, Recycled</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SubSiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
+            <summary>
+            Checks if a sub site exists
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="siteFullUrl">URL to the sub site</param>
+            <returns>True if existing, false if not</returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.GetAppCatalog(Microsoft.Online.SharePoint.TenantAdministration.Tenant)">
             <summary>
