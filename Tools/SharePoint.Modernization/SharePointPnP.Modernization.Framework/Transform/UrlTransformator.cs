@@ -157,14 +157,21 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     input = RewriteUrl(input, pagesSourceWebUrl, sitePagesTargetWebUrl);
                 }
 
+                //Ensure the trailing slash
+                if (input != sourceSiteUrl)
+                {
+                    sourceWebUrl = $"{sourceWebUrl.TrimEnd('/')}/";
+                    targetWebUrl = $"{targetWebUrl.TrimEnd('/')}/";
+                }
+
                 // Rewrite web urls
                 if (sourceWebUrl.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase) || sourceWebUrl.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase))
                 {
                     input = RewriteUrl(input, sourceWebUrl, targetWebUrl);
 
                     // Make relative for next replacement attempt
-                    sourceWebUrl = MakeRelative(sourceWebUrl);
-                    targetWebUrl = MakeRelative(targetWebUrl);
+                    sourceWebUrl = $"{MakeRelative(sourceWebUrl).TrimEnd('/')}/";
+                    targetWebUrl = $"{MakeRelative(targetWebUrl).TrimEnd('/')}/";
                 }
 
                 input = RewriteUrl(input, sourceWebUrl, targetWebUrl);
@@ -199,8 +206,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         input = RewriteUrl(input, sourceSiteUrl, targetWebUrl);
 
                         // Make relative for next replacement attempt
-                        sourceSiteUrl = MakeRelative(sourceSiteUrl);
-                        targetWebUrl = MakeRelative(targetWebUrl);
+                        sourceSiteUrl = $"{MakeRelative(sourceSiteUrl).TrimEnd('/')}/";
+                        targetWebUrl = $"{MakeRelative(targetWebUrl).TrimEnd('/')}/";
                     }
 
                     input = RewriteUrl(input, sourceSiteUrl, targetWebUrl);
