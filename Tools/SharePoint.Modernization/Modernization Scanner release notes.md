@@ -4,6 +4,12 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## Unreleased
+
+### Changed
+
+- Change urls parameter help #500 [KoenZomers]
+
 ## [Version 2.12]
 
 ### Added

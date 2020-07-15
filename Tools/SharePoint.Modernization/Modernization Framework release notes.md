@@ -14,6 +14,8 @@
 
 ## [Unreleased]
 
+- Fixed bug with replacement of URLs + tests #499 (fixes #495) [pkbullock]
+
 ## [July release - version 1.0.2007.0]
 
 - No changes done
