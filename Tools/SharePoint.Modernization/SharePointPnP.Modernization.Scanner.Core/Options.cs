@@ -79,7 +79,7 @@ namespace SharePoint.Modernization.Scanner.Core
         [Option('t', "tenant", HelpText = "Tenant name, e.g. contoso when your sites are under https://contoso.sharepoint.com/sites. This is the recommended model for SharePoint Online MT as this way all site collections will be scanned")]
         public string Tenant { get; set; }
 
-        [OptionList('r', "urls", HelpText = "List of (wildcard) urls (e.g. https://contoso.sharepoint.com/*,https://contoso-my.sharepoint.com,https://contoso-my.sharepoint.com/personal/*) that you want to get scanned", Separator = ',')]
+        [OptionList('r', "urls", HelpText = "List of (wildcard) urls (e.g. https://contoso.sharepoint.com/*,https://contoso-my.sharepoint.com,https://contoso-my.sharepoint.com/personal/*) that you want to get scanned. Ignored if -t or --tenant are provided.", Separator = ',')]
         public virtual IList<string> Urls { get; set; }
 
         [Option('o', "includeod4b", HelpText = "Include OD4B sites in the scan", DefaultValue = false)]
