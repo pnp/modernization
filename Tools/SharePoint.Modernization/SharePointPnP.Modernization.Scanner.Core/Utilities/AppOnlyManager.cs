@@ -178,7 +178,7 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
             if (options.AzureCert != null)
             {
                 var certificate = new ClientAssertionCertificate(options.ClientID, options.AzureCert);
-                string authority = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/", "https://login.microsoftonline.com", options.AzureTenant);
+                string authority = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/", new AuthenticationManager().GetAzureADLoginEndPoint(options.AzureEnvironment), options.AzureTenant);
                 AuthenticationContext context = new AuthenticationContext(authority);
                 string resource = "https://graph.microsoft.com";
                 AuthenticationResult authenticationResult = context.AcquireTokenAsync(resource, certificate).GetAwaiter().GetResult();
@@ -263,12 +263,12 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
                             }
                         }
 
-                        if (site["ShareByEmailEnabled"] != null)
+                        if (site.IsPropertyAvailable("ShareByEmailEnabled") && site["ShareByEmailEnabled"] != null)
                         {
                             siteInfo.ShareByEmailEnabled = bool.Parse(site["ShareByEmailEnabled"].ToString());
                         }
 
-                        if (site["ShareByLinkEnabled"] != null)
+                        if (site.IsPropertyAvailable("ShareByLinkEnabled") && site["ShareByLinkEnabled"] != null)
                         {
                             siteInfo.ShareByLinkEnabled = bool.Parse(site["ShareByLinkEnabled"].ToString());
                         }
@@ -327,11 +327,11 @@ namespace SharePoint.Modernization.Scanner.Core.Utilities
             } while (camlQuery.ListItemCollectionPosition != null);
         }
 
-        private string GetAzureADAppOnlyToken(Options options, string siteUrl, AzureEnvironment environment = AzureEnvironment.Production)
+        private string GetAzureADAppOnlyToken(Options options, string siteUrl)
         {
             var clientContext = new ClientContext(siteUrl);
 
-            string authority = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/", new AuthenticationManager().GetAzureADLoginEndPoint(environment), options.AzureTenant);
+            string authority = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/", new AuthenticationManager().GetAzureADLoginEndPoint(options.AzureEnvironment), options.AzureTenant);
 
             var authContext = new AuthenticationContext(authority);
 
