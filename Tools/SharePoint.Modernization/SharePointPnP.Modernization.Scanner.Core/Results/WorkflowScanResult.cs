@@ -55,7 +55,7 @@ namespace SharePoint.Modernization.Scanner.Core.Results
             get
             {
                 if ((Scope == "List" || Scope == "ContentType" || Scope == "Site") &&
-                    Enabled && !IsOOBWorkflow && HasSubscriptions)
+                    Enabled && HasSubscriptions)
                 {
                     return true;
                 }
