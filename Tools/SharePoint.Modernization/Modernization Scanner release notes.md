@@ -6,6 +6,10 @@ See https://aka.ms/sppnp-modernizationscanner
 
 ## Unreleased
 
+### Added
+
+- Support to use Azure AD based authentication in US Government, Germany and China clouds
+
 ### Changed
 
 - Change urls parameter help #500 [KoenZomers]

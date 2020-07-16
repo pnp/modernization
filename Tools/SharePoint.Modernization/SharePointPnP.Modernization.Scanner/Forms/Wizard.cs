@@ -43,6 +43,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 options.AzureTenant = txtAuthAzureADDomainName.Text;
                 options.CertificatePfx = txtAuthAzureADCert.Text;
                 options.CertificatePfxPassword = txtAuthAzureADCertPassword.Text;
+                ProcessAuthenticationRegion(cmbAuthenticationRegionCert.SelectedIndex);
             }
             else if (cmbAuthOption.SelectedIndex == 1)
             {
@@ -55,6 +56,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 // Username + pwd
                 options.User = txtCredentialsUser.Text;
                 options.Password = txtCredentialsPassword.Text;
+                ProcessAuthenticationRegion(cmbAuthenticationRegionUsername.SelectedIndex);
             }
 
             // Mode
@@ -163,6 +165,9 @@ namespace SharePoint.Modernization.Scanner.Forms
 
         private void authPage_Initialize(object sender, AeroWizard.WizardPageInitEventArgs e)
         {
+            this.cmbAuthenticationRegionCert.SelectedIndex = 0;
+            this.cmbAuthenticationRegionUsername.SelectedIndex = 0;
+
             if (this.cmbAuthOption.SelectedIndex < 0)
             {
                 this.cmbAuthOption.SelectedIndex = 0;
@@ -696,6 +701,26 @@ namespace SharePoint.Modernization.Scanner.Forms
 
             options.AccessToken = authenticationResult.AccessToken;
             accessTokenObtained = true;
+        }
+
+        private void ProcessAuthenticationRegion(int index)
+        {
+            if (index == 0)
+            {
+                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.Production;
+            }
+            else if (index == 1)
+            {
+                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.USGovernment;
+            }
+            else if (index == 2)
+            {
+                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.Germany;
+            }
+            else if (index == 3)
+            {
+                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.China;
+            }
         }
 
     }

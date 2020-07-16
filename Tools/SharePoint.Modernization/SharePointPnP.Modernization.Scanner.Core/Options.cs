@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CommandLine.Text;
+using OfficeDevPnP.Core;
 using OfficeDevPnP.Core.Framework.TimerJobs.Enums;
 using SharePoint.Modernization.Scanner.Core.Telemetry;
 using System;
@@ -47,7 +48,7 @@ namespace SharePoint.Modernization.Scanner.Core
 
 
         // Important:
-        // Still available: w
+        // Still available: l
 
         #region Security related options
         [Option('i', "clientid", HelpText = "Client ID of the app-only principal used to scan your site collections", MutuallyExclusiveSet = "A")]
@@ -64,6 +65,9 @@ namespace SharePoint.Modernization.Scanner.Core
 
         [Option('z', "azuretenant", HelpText = "Azure tenant (e.g. contoso.microsoftonline.com)")]
         public string AzureTenant { get; set; }
+
+        [Option('y', "azureenvironment", HelpText = "Azure environment. Possible values: Production, USGovernment, Germany, China", DefaultValue = AzureEnvironment.Production, Required = false)]
+        public AzureEnvironment AzureEnvironment { get; set; }
 
         [Option('f', "certificatepfx", HelpText = "Path + name of the pfx file holding the certificate to authenticate")]
         public string CertificatePfx { get; set; }

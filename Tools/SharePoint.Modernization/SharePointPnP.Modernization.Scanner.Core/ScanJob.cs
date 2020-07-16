@@ -69,6 +69,8 @@ namespace SharePoint.Modernization.Scanner.Core
             this.ClientTag = ConstructClientTag(jobName);
 
             // Authentication setup
+            this.AzureEnvironment = options.AzureEnvironment;
+
             if (options.AuthenticationTypeProvided() == AuthenticationType.AppOnly)
             {
                 this.UseAppOnlyAuthentication(options.ClientID, options.ClientSecret);

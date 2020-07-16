@@ -46,12 +46,9 @@
             this.llblScannerInfo = new System.Windows.Forms.LinkLabel();
             this.llblAzureACSHelp = new System.Windows.Forms.LinkLabel();
             this.llblAzureADAuth = new System.Windows.Forms.LinkLabel();
-            this.pnlAzureACS = new System.Windows.Forms.Panel();
-            this.txtAzureADClientSecret = new System.Windows.Forms.TextBox();
-            this.txtAzureACSClientId = new System.Windows.Forms.TextBox();
-            this.lblAzureACSSecret = new System.Windows.Forms.Label();
-            this.lblAzureACSClientId = new System.Windows.Forms.Label();
             this.pnlAzureAD = new System.Windows.Forms.Panel();
+            this.label19 = new System.Windows.Forms.Label();
+            this.cmbAuthenticationRegionCert = new System.Windows.Forms.ComboBox();
             this.txtAuthAzureADCertPassword = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.txtAuthAzureADId = new System.Windows.Forms.TextBox();
@@ -61,7 +58,14 @@
             this.lblAzureADDomainName = new System.Windows.Forms.Label();
             this.txtAuthAzureADDomainName = new System.Windows.Forms.TextBox();
             this.lblAzureADCertificateFile = new System.Windows.Forms.Label();
+            this.pnlAzureACS = new System.Windows.Forms.Panel();
+            this.txtAzureADClientSecret = new System.Windows.Forms.TextBox();
+            this.txtAzureACSClientId = new System.Windows.Forms.TextBox();
+            this.lblAzureACSSecret = new System.Windows.Forms.Label();
+            this.lblAzureACSClientId = new System.Windows.Forms.Label();
             this.pnlCredentials = new System.Windows.Forms.Panel();
+            this.label20 = new System.Windows.Forms.Label();
+            this.cmbAuthenticationRegionUsername = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
             this.lblAuthCreds2FAWarning = new System.Windows.Forms.Label();
             this.txtCredentialsPassword = new System.Windows.Forms.TextBox();
@@ -78,6 +82,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.scopePage = new AeroWizard.WizardPage();
             this.pnlSiteFiles = new System.Windows.Forms.Panel();
+            this.txtSitesAdminCenterUrl2 = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
             this.llblCSV = new System.Windows.Forms.LinkLabel();
             this.btnSelectCSVFile = new System.Windows.Forms.Button();
             this.txtSitesCSVFile = new System.Windows.Forms.TextBox();
@@ -127,17 +134,14 @@
             this.nmThreads = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
             this.ttAuthentication = new System.Windows.Forms.ToolTip(this.components);
-            this.label16 = new System.Windows.Forms.Label();
-            this.label18 = new System.Windows.Forms.Label();
-            this.txtSitesAdminCenterUrl2 = new System.Windows.Forms.TextBox();
             this.headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.headerImage)).BeginInit();
             this.commandPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.wizardPageContainer1)).BeginInit();
             this.wizardPageContainer1.SuspendLayout();
             this.authPage.SuspendLayout();
-            this.pnlAzureACS.SuspendLayout();
             this.pnlAzureAD.SuspendLayout();
+            this.pnlAzureACS.SuspendLayout();
             this.pnlCredentials.SuspendLayout();
             this.pnl2FA.SuspendLayout();
             this.scopePage.SuspendLayout();
@@ -296,8 +300,8 @@
             this.authPage.Controls.Add(this.llblScannerInfo);
             this.authPage.Controls.Add(this.llblAzureACSHelp);
             this.authPage.Controls.Add(this.llblAzureADAuth);
-            this.authPage.Controls.Add(this.pnlAzureACS);
             this.authPage.Controls.Add(this.pnlAzureAD);
+            this.authPage.Controls.Add(this.pnlAzureACS);
             this.authPage.Controls.Add(this.pnlCredentials);
             this.authPage.Controls.Add(this.pnl2FA);
             this.authPage.Controls.Add(this.cmbAuthOption);
@@ -338,7 +342,7 @@
             // 
             this.llblAzureACSHelp.AutoSize = true;
             this.llblAzureACSHelp.LinkArea = new System.Windows.Forms.LinkArea(6, 4);
-            this.llblAzureACSHelp.Location = new System.Drawing.Point(27, 311);
+            this.llblAzureACSHelp.Location = new System.Drawing.Point(27, 321);
             this.llblAzureACSHelp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.llblAzureACSHelp.Name = "llblAzureACSHelp";
             this.llblAzureACSHelp.Size = new System.Drawing.Size(594, 24);
@@ -352,7 +356,7 @@
             // 
             this.llblAzureADAuth.AutoSize = true;
             this.llblAzureADAuth.LinkArea = new System.Windows.Forms.LinkArea(6, 4);
-            this.llblAzureADAuth.Location = new System.Drawing.Point(27, 285);
+            this.llblAzureADAuth.Location = new System.Drawing.Point(27, 295);
             this.llblAzureADAuth.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.llblAzureADAuth.Name = "llblAzureADAuth";
             this.llblAzureADAuth.Size = new System.Drawing.Size(583, 24);
@@ -362,58 +366,10 @@
             this.llblAzureADAuth.UseCompatibleTextRendering = true;
             this.llblAzureADAuth.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblAzureADAuth_LinkClicked);
             // 
-            // pnlAzureACS
-            // 
-            this.pnlAzureACS.Controls.Add(this.txtAzureADClientSecret);
-            this.pnlAzureACS.Controls.Add(this.txtAzureACSClientId);
-            this.pnlAzureACS.Controls.Add(this.lblAzureACSSecret);
-            this.pnlAzureACS.Controls.Add(this.lblAzureACSClientId);
-            this.pnlAzureACS.Location = new System.Drawing.Point(9, 65);
-            this.pnlAzureACS.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.pnlAzureACS.Name = "pnlAzureACS";
-            this.pnlAzureACS.Size = new System.Drawing.Size(704, 115);
-            this.pnlAzureACS.TabIndex = 10;
-            // 
-            // txtAzureADClientSecret
-            // 
-            this.txtAzureADClientSecret.Location = new System.Drawing.Point(252, 62);
-            this.txtAzureADClientSecret.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.txtAzureADClientSecret.Name = "txtAzureADClientSecret";
-            this.txtAzureADClientSecret.Size = new System.Drawing.Size(436, 26);
-            this.txtAzureADClientSecret.TabIndex = 3;
-            this.ttAuthentication.SetToolTip(this.txtAzureADClientSecret, "Secret (long string) of the created app principal");
-            // 
-            // txtAzureACSClientId
-            // 
-            this.txtAzureACSClientId.Location = new System.Drawing.Point(252, 20);
-            this.txtAzureACSClientId.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.txtAzureACSClientId.Name = "txtAzureACSClientId";
-            this.txtAzureACSClientId.Size = new System.Drawing.Size(436, 26);
-            this.txtAzureACSClientId.TabIndex = 2;
-            this.ttAuthentication.SetToolTip(this.txtAzureACSClientId, "Client ID (guid) of the created app principal");
-            // 
-            // lblAzureACSSecret
-            // 
-            this.lblAzureACSSecret.AutoSize = true;
-            this.lblAzureACSSecret.Location = new System.Drawing.Point(20, 66);
-            this.lblAzureACSSecret.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblAzureACSSecret.Name = "lblAzureACSSecret";
-            this.lblAzureACSSecret.Size = new System.Drawing.Size(187, 20);
-            this.lblAzureACSSecret.TabIndex = 1;
-            this.lblAzureACSSecret.Text = "Azure ACS Client Secret:";
-            // 
-            // lblAzureACSClientId
-            // 
-            this.lblAzureACSClientId.AutoSize = true;
-            this.lblAzureACSClientId.Location = new System.Drawing.Point(20, 20);
-            this.lblAzureACSClientId.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblAzureACSClientId.Name = "lblAzureACSClientId";
-            this.lblAzureACSClientId.Size = new System.Drawing.Size(157, 20);
-            this.lblAzureACSClientId.TabIndex = 0;
-            this.lblAzureACSClientId.Text = "Azure ACS Client ID:";
-            // 
             // pnlAzureAD
             // 
+            this.pnlAzureAD.Controls.Add(this.label19);
+            this.pnlAzureAD.Controls.Add(this.cmbAuthenticationRegionCert);
             this.pnlAzureAD.Controls.Add(this.txtAuthAzureADCertPassword);
             this.pnlAzureAD.Controls.Add(this.label8);
             this.pnlAzureAD.Controls.Add(this.txtAuthAzureADId);
@@ -423,11 +379,35 @@
             this.pnlAzureAD.Controls.Add(this.lblAzureADDomainName);
             this.pnlAzureAD.Controls.Add(this.txtAuthAzureADDomainName);
             this.pnlAzureAD.Controls.Add(this.lblAzureADCertificateFile);
-            this.pnlAzureAD.Location = new System.Drawing.Point(9, 65);
+            this.pnlAzureAD.Location = new System.Drawing.Point(3, 64);
             this.pnlAzureAD.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pnlAzureAD.Name = "pnlAzureAD";
-            this.pnlAzureAD.Size = new System.Drawing.Size(704, 189);
+            this.pnlAzureAD.Size = new System.Drawing.Size(704, 225);
             this.pnlAzureAD.TabIndex = 9;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(18, 191);
+            this.label19.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(164, 20);
+            this.label19.TabIndex = 12;
+            this.label19.Text = "Authentication region:";
+            // 
+            // cmbAuthenticationRegionCert
+            // 
+            this.cmbAuthenticationRegionCert.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbAuthenticationRegionCert.FormattingEnabled = true;
+            this.cmbAuthenticationRegionCert.Items.AddRange(new object[] {
+            "Production",
+            "USGovernment",
+            "China",
+            "Germany"});
+            this.cmbAuthenticationRegionCert.Location = new System.Drawing.Point(252, 189);
+            this.cmbAuthenticationRegionCert.Name = "cmbAuthenticationRegionCert";
+            this.cmbAuthenticationRegionCert.Size = new System.Drawing.Size(436, 28);
+            this.cmbAuthenticationRegionCert.TabIndex = 11;
             // 
             // txtAuthAzureADCertPassword
             // 
@@ -518,24 +498,100 @@
             this.lblAzureADCertificateFile.TabIndex = 4;
             this.lblAzureADCertificateFile.Text = "Certificate (PFX) file:";
             // 
+            // pnlAzureACS
+            // 
+            this.pnlAzureACS.Controls.Add(this.txtAzureADClientSecret);
+            this.pnlAzureACS.Controls.Add(this.txtAzureACSClientId);
+            this.pnlAzureACS.Controls.Add(this.lblAzureACSSecret);
+            this.pnlAzureACS.Controls.Add(this.lblAzureACSClientId);
+            this.pnlAzureACS.Location = new System.Drawing.Point(3, 64);
+            this.pnlAzureACS.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.pnlAzureACS.Name = "pnlAzureACS";
+            this.pnlAzureACS.Size = new System.Drawing.Size(704, 115);
+            this.pnlAzureACS.TabIndex = 10;
+            // 
+            // txtAzureADClientSecret
+            // 
+            this.txtAzureADClientSecret.Location = new System.Drawing.Point(252, 62);
+            this.txtAzureADClientSecret.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtAzureADClientSecret.Name = "txtAzureADClientSecret";
+            this.txtAzureADClientSecret.Size = new System.Drawing.Size(436, 26);
+            this.txtAzureADClientSecret.TabIndex = 3;
+            this.ttAuthentication.SetToolTip(this.txtAzureADClientSecret, "Secret (long string) of the created app principal");
+            // 
+            // txtAzureACSClientId
+            // 
+            this.txtAzureACSClientId.Location = new System.Drawing.Point(252, 20);
+            this.txtAzureACSClientId.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtAzureACSClientId.Name = "txtAzureACSClientId";
+            this.txtAzureACSClientId.Size = new System.Drawing.Size(436, 26);
+            this.txtAzureACSClientId.TabIndex = 2;
+            this.ttAuthentication.SetToolTip(this.txtAzureACSClientId, "Client ID (guid) of the created app principal");
+            // 
+            // lblAzureACSSecret
+            // 
+            this.lblAzureACSSecret.AutoSize = true;
+            this.lblAzureACSSecret.Location = new System.Drawing.Point(20, 66);
+            this.lblAzureACSSecret.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAzureACSSecret.Name = "lblAzureACSSecret";
+            this.lblAzureACSSecret.Size = new System.Drawing.Size(187, 20);
+            this.lblAzureACSSecret.TabIndex = 1;
+            this.lblAzureACSSecret.Text = "Azure ACS Client Secret:";
+            // 
+            // lblAzureACSClientId
+            // 
+            this.lblAzureACSClientId.AutoSize = true;
+            this.lblAzureACSClientId.Location = new System.Drawing.Point(20, 20);
+            this.lblAzureACSClientId.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAzureACSClientId.Name = "lblAzureACSClientId";
+            this.lblAzureACSClientId.Size = new System.Drawing.Size(157, 20);
+            this.lblAzureACSClientId.TabIndex = 0;
+            this.lblAzureACSClientId.Text = "Azure ACS Client ID:";
+            // 
             // pnlCredentials
             // 
+            this.pnlCredentials.Controls.Add(this.label20);
+            this.pnlCredentials.Controls.Add(this.cmbAuthenticationRegionUsername);
             this.pnlCredentials.Controls.Add(this.label12);
             this.pnlCredentials.Controls.Add(this.lblAuthCreds2FAWarning);
             this.pnlCredentials.Controls.Add(this.txtCredentialsPassword);
             this.pnlCredentials.Controls.Add(this.txtCredentialsUser);
             this.pnlCredentials.Controls.Add(this.lblCredsPassword);
             this.pnlCredentials.Controls.Add(this.lblCredsUserName);
-            this.pnlCredentials.Location = new System.Drawing.Point(9, 65);
+            this.pnlCredentials.Location = new System.Drawing.Point(5, 64);
             this.pnlCredentials.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pnlCredentials.Name = "pnlCredentials";
-            this.pnlCredentials.Size = new System.Drawing.Size(704, 154);
+            this.pnlCredentials.Size = new System.Drawing.Size(704, 219);
             this.pnlCredentials.TabIndex = 11;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(17, 97);
+            this.label20.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(164, 20);
+            this.label20.TabIndex = 14;
+            this.label20.Text = "Authentication region:";
+            // 
+            // cmbAuthenticationRegionUsername
+            // 
+            this.cmbAuthenticationRegionUsername.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbAuthenticationRegionUsername.FormattingEnabled = true;
+            this.cmbAuthenticationRegionUsername.Items.AddRange(new object[] {
+            "Production",
+            "USGovernment",
+            "China",
+            "Germany"});
+            this.cmbAuthenticationRegionUsername.Location = new System.Drawing.Point(251, 95);
+            this.cmbAuthenticationRegionUsername.Name = "cmbAuthenticationRegionUsername";
+            this.cmbAuthenticationRegionUsername.Size = new System.Drawing.Size(436, 28);
+            this.cmbAuthenticationRegionUsername.TabIndex = 13;
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(15, 94);
+            this.label12.Location = new System.Drawing.Point(15, 144);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(598, 20);
@@ -546,7 +602,7 @@
             // lblAuthCreds2FAWarning
             // 
             this.lblAuthCreds2FAWarning.AutoSize = true;
-            this.lblAuthCreds2FAWarning.Location = new System.Drawing.Point(60, 122);
+            this.lblAuthCreds2FAWarning.Location = new System.Drawing.Point(60, 172);
             this.lblAuthCreds2FAWarning.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAuthCreds2FAWarning.Name = "lblAuthCreds2FAWarning";
             this.lblAuthCreds2FAWarning.Size = new System.Drawing.Size(429, 20);
@@ -711,6 +767,36 @@
             this.pnlSiteFiles.Name = "pnlSiteFiles";
             this.pnlSiteFiles.Size = new System.Drawing.Size(694, 197);
             this.pnlSiteFiles.TabIndex = 4;
+            // 
+            // txtSitesAdminCenterUrl2
+            // 
+            this.txtSitesAdminCenterUrl2.Location = new System.Drawing.Point(133, 158);
+            this.txtSitesAdminCenterUrl2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtSitesAdminCenterUrl2.Name = "txtSitesAdminCenterUrl2";
+            this.txtSitesAdminCenterUrl2.Size = new System.Drawing.Size(529, 26);
+            this.txtSitesAdminCenterUrl2.TabIndex = 12;
+            this.ttAuthentication.SetToolTip(this.txtSitesAdminCenterUrl2, "SPO Admin center url (e.g. https://spoadmin.contoso.com). Only needed when using " +
+        "SPO with vanity urls (= urls that not end on .sharepoint.com)");
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(14, 161);
+            this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(111, 20);
+            this.label18.TabIndex = 11;
+            this.label18.Text = "Admin  center:";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(14, 132);
+            this.label16.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(553, 20);
+            this.label16.TabIndex = 10;
+            this.label16.Text = "Only when using vanity url\'s specify the full SharePoint Online admin center url";
             // 
             // llblCSV
             // 
@@ -1295,36 +1381,6 @@
             this.label7.TabIndex = 0;
             this.label7.Text = "Number of parallel threads to use:";
             // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(14, 132);
-            this.label16.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(553, 20);
-            this.label16.TabIndex = 10;
-            this.label16.Text = "Only when using vanity url\'s specify the full SharePoint Online admin center url";
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(14, 161);
-            this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(111, 20);
-            this.label18.TabIndex = 11;
-            this.label18.Text = "Admin  center:";
-            // 
-            // txtSitesAdminCenterUrl2
-            // 
-            this.txtSitesAdminCenterUrl2.Location = new System.Drawing.Point(133, 158);
-            this.txtSitesAdminCenterUrl2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.txtSitesAdminCenterUrl2.Name = "txtSitesAdminCenterUrl2";
-            this.txtSitesAdminCenterUrl2.Size = new System.Drawing.Size(529, 26);
-            this.txtSitesAdminCenterUrl2.TabIndex = 12;
-            this.ttAuthentication.SetToolTip(this.txtSitesAdminCenterUrl2, "SPO Admin center url (e.g. https://spoadmin.contoso.com). Only needed when using " +
-        "SPO with vanity urls (= urls that not end on .sharepoint.com)");
-            // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -1350,10 +1406,10 @@
             this.wizardPageContainer1.ResumeLayout(false);
             this.authPage.ResumeLayout(false);
             this.authPage.PerformLayout();
-            this.pnlAzureACS.ResumeLayout(false);
-            this.pnlAzureACS.PerformLayout();
             this.pnlAzureAD.ResumeLayout(false);
             this.pnlAzureAD.PerformLayout();
+            this.pnlAzureACS.ResumeLayout(false);
+            this.pnlAzureACS.PerformLayout();
             this.pnlCredentials.ResumeLayout(false);
             this.pnlCredentials.PerformLayout();
             this.pnl2FA.ResumeLayout(false);
@@ -1477,5 +1533,9 @@
         private System.Windows.Forms.TextBox txtSitesAdminCenterUrl2;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.ComboBox cmbAuthenticationRegionCert;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.ComboBox cmbAuthenticationRegionUsername;
     }
 }
