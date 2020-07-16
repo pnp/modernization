@@ -165,9 +165,14 @@ namespace SharePoint.Modernization.Scanner.Forms
 
         private void authPage_Initialize(object sender, AeroWizard.WizardPageInitEventArgs e)
         {
-            this.cmbAuthenticationRegionCert.SelectedIndex = 0;
-            this.cmbAuthenticationRegionUsername.SelectedIndex = 0;
-
+            if (this.cmbAuthenticationRegionCert.SelectedIndex < 0)
+            {
+                this.cmbAuthenticationRegionCert.SelectedIndex = 0;
+            }
+            if (this.cmbAuthenticationRegionUsername.SelectedIndex < 0)
+            {
+                this.cmbAuthenticationRegionUsername.SelectedIndex = 0;
+            }
             if (this.cmbAuthOption.SelectedIndex < 0)
             {
                 this.cmbAuthOption.SelectedIndex = 0;
@@ -715,13 +720,33 @@ namespace SharePoint.Modernization.Scanner.Forms
             }
             else if (index == 2)
             {
-                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.Germany;
+                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.China;
             }
             else if (index == 3)
             {
-                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.China;
+                options.AzureEnvironment = OfficeDevPnP.Core.AzureEnvironment.Germany;
             }
         }
 
+        private void cmbAuthenticationRegionCert_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if ((sender as ComboBox).SelectedIndex == 0)
+            {
+                textBox3.Text = ".sharepoint.com";
+            }
+            else if ((sender as ComboBox).SelectedIndex == 1)
+            {
+                textBox3.Text = ".sharepoint.us";
+            }
+            else if ((sender as ComboBox).SelectedIndex == 2)
+            {
+                textBox3.Text = ".sharepoint.cn";
+            }
+            else if ((sender as ComboBox).SelectedIndex == 3)
+            {
+                textBox3.Text = ".sharepoint.de";
+            }
+
+        }
     }
 }

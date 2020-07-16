@@ -408,6 +408,7 @@
             this.cmbAuthenticationRegionCert.Name = "cmbAuthenticationRegionCert";
             this.cmbAuthenticationRegionCert.Size = new System.Drawing.Size(436, 28);
             this.cmbAuthenticationRegionCert.TabIndex = 11;
+            this.cmbAuthenticationRegionCert.SelectedIndexChanged += new System.EventHandler(this.cmbAuthenticationRegionCert_SelectedIndexChanged);
             // 
             // txtAuthAzureADCertPassword
             // 
@@ -587,6 +588,7 @@
             this.cmbAuthenticationRegionUsername.Name = "cmbAuthenticationRegionUsername";
             this.cmbAuthenticationRegionUsername.Size = new System.Drawing.Size(436, 28);
             this.cmbAuthenticationRegionUsername.TabIndex = 13;
+            this.cmbAuthenticationRegionUsername.SelectedIndexChanged += new System.EventHandler(this.cmbAuthenticationRegionCert_SelectedIndexChanged);
             // 
             // label12
             // 
@@ -963,7 +965,8 @@
             this.txtSitesAdminCenterUrl.Size = new System.Drawing.Size(529, 26);
             this.txtSitesAdminCenterUrl.TabIndex = 7;
             this.ttAuthentication.SetToolTip(this.txtSitesAdminCenterUrl, "SPO Admin center url (e.g. https://spoadmin.contoso.com). Only needed when using " +
-        "SPO with vanity urls (= urls that not end on .sharepoint.com)");
+        "SPO with vanity urls (= urls that not end on standard SharePoint online urls lik" +
+        "e .sharepoint.com, .sharepoint.us,...)");
             this.txtSitesAdminCenterUrl.TextChanged += new System.EventHandler(this.txtSitesAdminCenterUrl_TextChanged);
             // 
             // btnSitesClearUrls

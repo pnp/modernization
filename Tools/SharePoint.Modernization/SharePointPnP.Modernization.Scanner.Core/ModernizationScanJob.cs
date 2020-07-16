@@ -350,7 +350,7 @@ namespace SharePoint.Modernization.Scanner.Core
                     this.Tenant = new Uri(addedSites[0]).DnsSafeHost.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[0];
                 }
 
-                tenantAdmin = $"https://{this.Tenant}-admin.sharepoint.com";
+                tenantAdmin = $"https://{this.Tenant}-admin.sharepoint.{SharePointDomain}";
             }
 
             List<string> sites = null;

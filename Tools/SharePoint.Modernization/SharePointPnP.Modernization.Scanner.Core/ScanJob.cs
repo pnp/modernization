@@ -143,8 +143,8 @@ namespace SharePoint.Modernization.Scanner.Core
             // Configure sites to scan
             if (!String.IsNullOrEmpty(this.Tenant))
             {
-                this.AddSite(string.Format("https://{0}.sharepoint.com*", this.Tenant));
-                this.AddSite(string.Format("https://{0}-my.sharepoint.com*", this.Tenant));
+                this.AddSite($"https://{this.Tenant}.sharepoint.{SharePointDomain}*");
+                this.AddSite($"https://{this.Tenant}-my.sharepoint.{SharePointDomain}*");
             }
             else if (this.Urls != null && this.Urls.Count > 0)
             {
@@ -168,6 +168,31 @@ namespace SharePoint.Modernization.Scanner.Core
             this.StartTime = DateTime.Now;
         }
         #endregion
+
+        internal string SharePointDomain
+        {
+            get
+            {
+                if (AzureEnvironment == OfficeDevPnP.Core.AzureEnvironment.Production)
+                {
+                    return "com";
+                }
+                else if (AzureEnvironment == OfficeDevPnP.Core.AzureEnvironment.USGovernment)
+                {
+                    return "us";
+                }
+                else if (AzureEnvironment == OfficeDevPnP.Core.AzureEnvironment.Germany)
+                {
+                    return "de";
+                }
+                else if (AzureEnvironment == OfficeDevPnP.Core.AzureEnvironment.China)
+                {
+                    return "cn";
+                }
+
+                return "com";
+            }
+        }
 
         #region Logging handling
         protected virtual void Log(string message, LogSeverity severity = LogSeverity.Information)
