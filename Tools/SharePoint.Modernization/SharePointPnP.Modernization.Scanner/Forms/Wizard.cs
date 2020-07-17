@@ -56,7 +56,6 @@ namespace SharePoint.Modernization.Scanner.Forms
                 // Username + pwd
                 options.User = txtCredentialsUser.Text;
                 options.Password = txtCredentialsPassword.Text;
-                ProcessAuthenticationRegion(cmbAuthenticationRegionUsername.SelectedIndex);
             }
 
             // Mode
@@ -168,10 +167,6 @@ namespace SharePoint.Modernization.Scanner.Forms
             if (this.cmbAuthenticationRegionCert.SelectedIndex < 0)
             {
                 this.cmbAuthenticationRegionCert.SelectedIndex = 0;
-            }
-            if (this.cmbAuthenticationRegionUsername.SelectedIndex < 0)
-            {
-                this.cmbAuthenticationRegionUsername.SelectedIndex = 0;
             }
             if (this.cmbAuthOption.SelectedIndex < 0)
             {

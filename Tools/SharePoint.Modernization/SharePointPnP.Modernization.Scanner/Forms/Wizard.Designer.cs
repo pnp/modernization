@@ -65,7 +65,6 @@
             this.lblAzureACSClientId = new System.Windows.Forms.Label();
             this.pnlCredentials = new System.Windows.Forms.Panel();
             this.label20 = new System.Windows.Forms.Label();
-            this.cmbAuthenticationRegionUsername = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
             this.lblAuthCreds2FAWarning = new System.Windows.Forms.Label();
             this.txtCredentialsPassword = new System.Windows.Forms.TextBox();
@@ -552,7 +551,6 @@
             // pnlCredentials
             // 
             this.pnlCredentials.Controls.Add(this.label20);
-            this.pnlCredentials.Controls.Add(this.cmbAuthenticationRegionUsername);
             this.pnlCredentials.Controls.Add(this.label12);
             this.pnlCredentials.Controls.Add(this.lblAuthCreds2FAWarning);
             this.pnlCredentials.Controls.Add(this.txtCredentialsPassword);
@@ -574,21 +572,6 @@
             this.label20.Size = new System.Drawing.Size(164, 20);
             this.label20.TabIndex = 14;
             this.label20.Text = "Authentication region:";
-            // 
-            // cmbAuthenticationRegionUsername
-            // 
-            this.cmbAuthenticationRegionUsername.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbAuthenticationRegionUsername.FormattingEnabled = true;
-            this.cmbAuthenticationRegionUsername.Items.AddRange(new object[] {
-            "Production",
-            "USGovernment",
-            "China",
-            "Germany"});
-            this.cmbAuthenticationRegionUsername.Location = new System.Drawing.Point(251, 95);
-            this.cmbAuthenticationRegionUsername.Name = "cmbAuthenticationRegionUsername";
-            this.cmbAuthenticationRegionUsername.Size = new System.Drawing.Size(436, 28);
-            this.cmbAuthenticationRegionUsername.TabIndex = 13;
-            this.cmbAuthenticationRegionUsername.SelectedIndexChanged += new System.EventHandler(this.cmbAuthenticationRegionCert_SelectedIndexChanged);
             // 
             // label12
             // 
@@ -1539,6 +1522,5 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.ComboBox cmbAuthenticationRegionCert;
         private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.ComboBox cmbAuthenticationRegionUsername;
     }
 }

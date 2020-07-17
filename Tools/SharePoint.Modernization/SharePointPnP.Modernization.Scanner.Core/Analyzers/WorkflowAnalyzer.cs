@@ -42,6 +42,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
         private List<SP2010WorkFlowAssociation> sp2010WorkflowAssociations;
         private List workflowList;
+        private List wfpubList;
 
         #region Construction
         /// <summary>
@@ -78,6 +79,8 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 cc.Load(web, w => w.Id, w => w.ServerRelativeUrl, w => w.Url, w => w.WorkflowTemplates, w => w.WorkflowAssociations);
                 cc.Load(web, p => p.ContentTypes.Include(ct => ct.WorkflowAssociations, ct => ct.Name, ct => ct.StringId));
                 cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate , li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations));
+                cc.Load(cc.Site, p => p.RootWeb);
+                cc.Load(cc.Site.RootWeb, p => p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations));
                 cc.ExecuteQueryRetry();
 
                 var lists = web.Lists;
@@ -650,7 +653,15 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
             }
             catch (Exception ex)
             {
+            }
 
+            try
+            {
+                LoadWfPubLibrary(cc);
+                return GetFileInformation(cc.Site.RootWeb, $"{this.wfpubList.RootFolder.ServerRelativeUrl}/{workflowAssociation.Name}/{workflowAssociation.Name}.xoml");
+            }
+            catch (Exception ex)
+            {
             }
 
             return null;
@@ -668,8 +679,17 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 }
                 catch(Exception ex)
                 {
-
                 }
+
+                try
+                {
+                    LoadWfPubLibrary(cc);
+                    return GetFileInformation(cc.Site.RootWeb, $"{this.wfpubList.RootFolder.ServerRelativeUrl}/{workflowTemplate.Name}/{workflowTemplate.Name}.xoml");
+                }
+                catch (Exception ex)
+                {
+                }
+
             }
 
             return null;
@@ -723,11 +743,29 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
             var baseExpressions = new List<Expression<Func<List, object>>> { l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, l => l.Hidden, l=>l.RootFolder.ServerRelativeUrl };
             var query = cc.Web.Lists.IncludeWithDefaultProperties(baseExpressions.ToArray());
-            var lists = cc.Web.Context.LoadQuery(query.Where(l => l.Title == "Workflows"));
+            //var lists = cc.Web.Context.LoadQuery(query.Where(l => l.Title == "Workflows"));
+            var lists = cc.Web.Context.LoadQuery(query.Where(l => l.BaseTemplate == 117));
             cc.ExecuteQueryRetry();
             this.workflowList = lists.FirstOrDefault();
 
             return this.workflowList;
+        }
+
+        private List LoadWfPubLibrary(ClientContext cc)
+        {
+            if (this.wfpubList != null)
+            {
+                return this.wfpubList;
+            }
+
+            var baseExpressions = new List<Expression<Func<List, object>>> { l => l.DefaultViewUrl, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, l => l.Hidden, l => l.RootFolder.ServerRelativeUrl };
+            var query = cc.Site.RootWeb.Lists.IncludeWithDefaultProperties(baseExpressions.ToArray());
+            //var lists = cc.Web.Context.LoadQuery(query.Where(l => l.Title == "Workflows"));
+            var lists = cc.LoadQuery(query.Where(l => l.BaseTemplate == 122));
+            cc.ExecuteQueryRetry();
+            this.wfpubList = lists.FirstOrDefault();
+
+            return this.wfpubList;
         }
 
         #region Not used code

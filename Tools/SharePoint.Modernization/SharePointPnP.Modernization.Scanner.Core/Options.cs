@@ -66,7 +66,7 @@ namespace SharePoint.Modernization.Scanner.Core
         [Option('z', "azuretenant", HelpText = "Azure tenant (e.g. contoso.microsoftonline.com)")]
         public string AzureTenant { get; set; }
 
-        [Option('y', "azureenvironment", HelpText = "Azure environment. Possible values: Production, USGovernment, Germany, China", DefaultValue = AzureEnvironment.Production, Required = false)]
+        [Option('y', "azureenvironment", HelpText = "Azure environment (only works for Azure AD Cert auth!). Possible values: Production, USGovernment, Germany, China", DefaultValue = AzureEnvironment.Production, Required = false)]
         public AzureEnvironment AzureEnvironment { get; set; }
 
         [Option('f', "certificatepfx", HelpText = "Path + name of the pfx file holding the certificate to authenticate")]
