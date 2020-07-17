@@ -550,7 +550,6 @@
             // 
             // pnlCredentials
             // 
-            this.pnlCredentials.Controls.Add(this.label20);
             this.pnlCredentials.Controls.Add(this.label12);
             this.pnlCredentials.Controls.Add(this.lblAuthCreds2FAWarning);
             this.pnlCredentials.Controls.Add(this.txtCredentialsPassword);
@@ -562,16 +561,6 @@
             this.pnlCredentials.Name = "pnlCredentials";
             this.pnlCredentials.Size = new System.Drawing.Size(704, 219);
             this.pnlCredentials.TabIndex = 11;
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(17, 97);
-            this.label20.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(164, 20);
-            this.label20.TabIndex = 14;
-            this.label20.Text = "Authentication region:";
             // 
             // label12
             // 
