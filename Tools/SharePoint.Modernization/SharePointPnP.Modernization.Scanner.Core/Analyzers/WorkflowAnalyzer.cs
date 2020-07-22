@@ -126,8 +126,13 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                         var siteWorkflowSubscriptions = siteSubscriptions.Where(p => p.DefinitionId.Equals(siteDefinition.Id));
 
                         // Perform workflow analysis
-                        var workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(siteDefinition.Xaml, WorkflowTypes.SP2013);
-                        var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartOnCreate"), GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartOnChange"), GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartManually"));
+                        WorkflowActionAnalysis workFlowAnalysisResult = null;
+                        WorkflowTriggerAnalysis workFlowTriggerAnalysisResult = null;
+                        if (Options.IncludeWorkflowWithDetails(this.ScanJob.Mode))
+                        {
+                            workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(siteDefinition.Xaml, WorkflowTypes.SP2013);
+                            workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartOnCreate"), GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartOnChange"), GetWorkflowPropertyBool(siteDefinition.Properties, "SPDConfig.StartManually"));
+                        }
 
                         if (siteWorkflowSubscriptions.Count() > 0)
                         {
@@ -227,8 +232,13 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                         var listWorkflowSubscriptions = siteSubscriptions.Where(p => p.DefinitionId.Equals(listDefinition.Id));
 
                         // Perform workflow analysis
-                        var workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(listDefinition.Xaml, WorkflowTypes.SP2013);
-                        var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartOnCreate"), GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartOnChange"), GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartManually"));
+                        WorkflowActionAnalysis workFlowAnalysisResult = null;
+                        WorkflowTriggerAnalysis workFlowTriggerAnalysisResult = null;
+                        if (Options.IncludeWorkflowWithDetails(this.ScanJob.Mode))
+                        {
+                            workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(listDefinition.Xaml, WorkflowTypes.SP2013);
+                            workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartOnCreate"), GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartOnChange"), GetWorkflowPropertyBool(listDefinition.Properties, "SPDConfig.StartManually"));
+                        }
 
                         if (listWorkflowSubscriptions.Count() > 0)
                         {
@@ -382,10 +392,15 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                             // Perform workflow analysis
                             // If returning null than this workflow template was an OOB workflow one
                             WorkflowActionAnalysis workFlowAnalysisResult = null;
-                            var loadedWorkflow = LoadWorkflowDefinition(cc, workflowTemplate);
-                            if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                            Tuple<string, DateTime> loadedWorkflow = null;
+
+                            if (Options.IncludeWorkflowWithDetails(this.ScanJob.Mode))
                             {
-                                workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                                loadedWorkflow = LoadWorkflowDefinition(cc, workflowTemplate);
+                                if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                                {
+                                    workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                                }
                             }
 
                             foreach (var associatedWorkflow in associatedWorkflows)
@@ -399,7 +414,11 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                                     continue;
                                 }
 
-                                var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(associatedWorkflow.WorkflowAssociation.AutoStartCreate, associatedWorkflow.WorkflowAssociation.AutoStartChange, associatedWorkflow.WorkflowAssociation.AllowManual);
+                                WorkflowTriggerAnalysis workFlowTriggerAnalysisResult = null;
+                                if (Options.IncludeWorkflowWithDetails(this.ScanJob.Mode))
+                                {
+                                    workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(associatedWorkflow.WorkflowAssociation.AutoStartCreate, associatedWorkflow.WorkflowAssociation.AutoStartChange, associatedWorkflow.WorkflowAssociation.AllowManual);
+                                }
 
                                 WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
@@ -450,14 +469,18 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                             {
                                 // Perform workflow analysis
                                 WorkflowActionAnalysis workFlowAnalysisResult = null;
-                                var loadedWorkflow = LoadWorkflowDefinition(cc, workflowTemplate);
-                                if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                                WorkflowTriggerAnalysis workFlowTriggerAnalysisResult = null;
+                                Tuple<string, DateTime> loadedWorkflow = null;
+
+                                if (Options.IncludeWorkflowWithDetails(this.ScanJob.Mode))
                                 {
-                                    workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                                    loadedWorkflow = LoadWorkflowDefinition(cc, workflowTemplate);
+                                    if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                                    {
+                                        workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                                    }
+                                    workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(workflowTemplate.AutoStartCreate, workflowTemplate.AutoStartChange, workflowTemplate.AllowManual);
                                 }
-
-
-                                var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(workflowTemplate.AutoStartCreate, workflowTemplate.AutoStartChange, workflowTemplate.AllowManual);
 
                                 WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                                 {
@@ -515,13 +538,18 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
                         // Perform workflow analysis
                         WorkflowActionAnalysis workFlowAnalysisResult = null;
-                        var loadedWorkflow = LoadWorkflowDefinition(cc, associatedWorkflow.WorkflowAssociation);
-                        if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
-                        {
-                            workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
-                        }
+                        WorkflowTriggerAnalysis workFlowTriggerAnalysisResult = null;
+                        Tuple<string, DateTime> loadedWorkflow = null;
 
-                        var workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(associatedWorkflow.WorkflowAssociation.AutoStartCreate, associatedWorkflow.WorkflowAssociation.AutoStartChange, associatedWorkflow.WorkflowAssociation.AllowManual);
+                        if (Options.IncludeWorkflowWithDetails(this.ScanJob.Mode))
+                        {
+                            loadedWorkflow = LoadWorkflowDefinition(cc, associatedWorkflow.WorkflowAssociation);
+                            if (!string.IsNullOrEmpty(loadedWorkflow?.Item1))
+                            {
+                                workFlowAnalysisResult = WorkflowManager.Instance.ParseWorkflowDefinition(loadedWorkflow.Item1, WorkflowTypes.SP2010);
+                            }
+                            workFlowTriggerAnalysisResult = WorkflowManager.Instance.ParseWorkflowTriggers(associatedWorkflow.WorkflowAssociation.AutoStartCreate, associatedWorkflow.WorkflowAssociation.AutoStartChange, associatedWorkflow.WorkflowAssociation.AllowManual);
+                        }
 
                         WorkflowScanResult workflowScanResult = new WorkflowScanResult()
                         {

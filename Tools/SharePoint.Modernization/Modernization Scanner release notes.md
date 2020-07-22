@@ -4,7 +4,17 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
-## Unreleased
+## [Version 2.14]
+
+## Added
+
+- Option to scan for workflows without analyzing the workflows (increases performance)
+
+## Changed
+
+- Scanner now outputs CSV results each minute
+
+## [Version 2.13]
 
 ### Added
 

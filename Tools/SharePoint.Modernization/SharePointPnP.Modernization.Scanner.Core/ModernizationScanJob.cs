@@ -19,6 +19,8 @@ using SharePointPnP.Modernization.Scanner.Core;
 using Microsoft.Extensions.Caching.Distributed;
 using SharePointPnP.Modernization.Framework.Cache;
 using System.Net;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace SharePoint.Modernization.Scanner.Core
 {
@@ -63,7 +65,8 @@ namespace SharePoint.Modernization.Scanner.Core
         public Tenant SPOTenant;
         public PageTransformation PageTransformation;
         public ScannerTelemetry ScannerTelemetry;
-
+        
+        public string WorkingFolder { get; set; }
         public IDistributedCache Store { get; set; }
         public ICacheOptions StoreOptions { get; set; }
         #endregion
@@ -477,10 +480,36 @@ namespace SharePoint.Modernization.Scanner.Core
             this.PageTransformation = new PageTransformationManager().LoadPageTransformationModel();
 
             // Load the workflow models
-            if (Options.IncludeWorkflow(this.Mode) && this.AppOnlyHasFullControl)
+            if ((Options.IncludeWorkflow(this.Mode) || Options.IncludeWorkflowWithDetails(this.Mode)) && this.AppOnlyHasFullControl)
             {
                 WorkflowManager.Instance.LoadWorkflowDefaultActions();
             }
+
+            // Queue the logwriter thread
+            ThreadPool.QueueUserWorkItem(work =>
+            {
+                bool busy = true;
+                while (busy)
+                {
+                    // wait 1 minute between invocations
+                    Thread.Sleep(60 * 1000);
+                    var streams = this.OutputToStreams(false);
+                    Directory.CreateDirectory(this.WorkingFolder);
+                    foreach (var csvStream in streams)
+                    {
+                        // Move pointer to start 
+                        csvStream.Value.Position = 0;
+                        string outputfile = $"{this.WorkingFolder}\\{csvStream.Key}";
+
+                        Console.WriteLine("Outputting scan results to {0}", outputfile);
+                        using (var fileStream = System.IO.File.Create(outputfile))
+                        {
+                            CopyStream(csvStream.Value, fileStream);
+                            csvStream.Value.Dispose();
+                        }
+                    }
+                }
+            });
 
             return sites;
         }
@@ -494,8 +523,23 @@ namespace SharePoint.Modernization.Scanner.Core
             // Triggers the run of the scanning...will result in ModernizationScanJob_TimerJobRun being called per site collection
             var start = base.Execute();
 
+            OutputToStreams(true);
+
+            VersionWarning();
+
+            Log("=====================================================");
+            Log($"All done. Took {(DateTime.Now - start).ToString()} for {this.ScannedSites} sites");
+            Log("=====================================================");
+
+            return start;
+        }
+
+        private Dictionary<string, Stream> OutputToStreams(bool final)
+        {
+            Dictionary<string, Stream> streams = new Dictionary<string, Stream>();
+
             // Telemetry
-            if (this.ScannerTelemetry != null)
+            if (this.ScannerTelemetry != null && final)
             {
                 this.ScannerTelemetry.LogGroupConnectScan(this.SiteScanResults, this.WebScanResults, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim);
             }
@@ -540,7 +584,14 @@ namespace SharePoint.Modernization.Scanner.Core
                                                 )));
             }
             outStream.Flush();
-            this.GeneratedFileStreams.Add("ModernizationSiteScanResults.csv", modernizationSiteScanResults);
+            if (final)
+            {
+                this.GeneratedFileStreams.Add("ModernizationSiteScanResults.csv", modernizationSiteScanResults);
+            }
+            else
+            {
+                streams.Add("ModernizationSiteScanResults.csv", modernizationSiteScanResults);
+            }
 
             MemoryStream modernizationWebScanResults = new MemoryStream();
             outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
@@ -557,7 +608,7 @@ namespace SharePoint.Modernization.Scanner.Core
             foreach (var item in this.WebScanResults)
             {
                 outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(item.Value.SiteColUrl), ToCsv(item.Value.SiteURL),
-                                                                                       ToCsv(item.Value.WebTemplate), item.Value.BrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO, item.Value.WebPublishingFeatureEnabled, 
+                                                                                       ToCsv(item.Value.WebTemplate), item.Value.BrokenPermissionInheritance, item.Value.ModernPageWebFeatureDisabled, item.Value.ModernPageFeatureWasEnabledBySPO, item.Value.WebPublishingFeatureEnabled,
                                                                                        ToCsv(item.Value.MasterPage), ToCsv(item.Value.CustomMasterPage), ToCsv(item.Value.AlternateCSS), (item.Value.WebUserCustomActions.Count > 0), ToCsv(item.Value.SearchCenterUrl),
                                                                                        item.Value.EveryoneClaimsGranted,
                                                                                        ToCsv(SiteScanResult.FormatUserList(item.Value.Owners, this.EveryoneClaim, this.EveryoneExceptExternalUsersClaim)),
@@ -567,7 +618,14 @@ namespace SharePoint.Modernization.Scanner.Core
             }
 
             outStream.Flush();
-            this.GeneratedFileStreams.Add("ModernizationWebScanResults.csv", modernizationWebScanResults);
+            if (final)
+            {
+                this.GeneratedFileStreams.Add("ModernizationWebScanResults.csv", modernizationWebScanResults);
+            }
+            else
+            {
+                streams.Add("ModernizationWebScanResults.csv", modernizationWebScanResults);
+            }
 
             MemoryStream modernizationUserCustomActionScanResults = new MemoryStream();
             outputHeaders = new string[] { "SiteCollectionUrl", "SiteUrl",
@@ -607,12 +665,19 @@ namespace SharePoint.Modernization.Scanner.Core
             }
 
             outStream.Flush();
-            this.GeneratedFileStreams.Add("ModernizationUserCustomActionScanResults.csv", modernizationUserCustomActionScanResults);
+            if (final)
+            {
+                this.GeneratedFileStreams.Add("ModernizationUserCustomActionScanResults.csv", modernizationUserCustomActionScanResults);
+            }
+            else
+            {
+                streams.Add("ModernizationUserCustomActionScanResults.csv", modernizationUserCustomActionScanResults);
+            }
 
             if (Options.IncludeLists(this.Mode))
             {
                 // Telemetry
-                if (this.ScannerTelemetry != null)
+                if (this.ScannerTelemetry != null && final)
                 {
                     this.ScannerTelemetry.LogListScan(this.ScannedSites, this.ScannedWebs, this.ListScanResults, this.ScannedLists);
                 }
@@ -640,7 +705,14 @@ namespace SharePoint.Modernization.Scanner.Core
                                                     )));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("ModernizationListScanResults.csv", modernizationListScanResults);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationListScanResults.csv", modernizationListScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationListScanResults.csv", modernizationListScanResults);
+                }
 
                 // Analyze the lists that and export the site collections that use classic customizations
                 var sitesWithCodeCustomizations = ListAnalyzer.GenerateSitesWithCodeCustomizationsResults(this.ListScanResults);
@@ -652,14 +724,21 @@ namespace SharePoint.Modernization.Scanner.Core
                     outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(siteWithCustomizations))));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("SitesWithCustomizations.csv", sitesWithCustomizations);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("SitesWithCustomizations.csv", sitesWithCustomizations);
+                }
+                else
+                {
+                    streams.Add("SitesWithCustomizations.csv", sitesWithCustomizations);
+                }
 
             }
 
             if (Options.IncludePage(this.Mode))
             {
                 // Telemetry
-                if (this.ScannerTelemetry != null)
+                if (this.ScannerTelemetry != null && final)
                 {
                     this.ScannerTelemetry.LogPageScan(this.ScannedSites, this.ScannedWebs, this.PageScanResults, this.PageTransformation);
                 }
@@ -740,7 +819,14 @@ namespace SharePoint.Modernization.Scanner.Core
                 }
 
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("PageScanResults.csv", pageScanResults);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("PageScanResults.csv", pageScanResults);
+                }
+                else
+                {
+                    streams.Add("PageScanResults.csv", pageScanResults);
+                }
 
                 MemoryStream uniqueWebParts = new MemoryStream();
                 outStream = new StreamWriter(uniqueWebParts);
@@ -751,7 +837,14 @@ namespace SharePoint.Modernization.Scanner.Core
                     outStream.Write(string.Format("{0}\r\n", $"{ToCsv(type)}{this.Separator}{found != null}"));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("UniqueWebParts.csv", uniqueWebParts);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("UniqueWebParts.csv", uniqueWebParts);
+                }
+                else
+                {
+                    streams.Add("UniqueWebParts.csv", uniqueWebParts);
+                }
 
                 // Analyze the pages and export the sites that have uncustomized home pages
                 var sitesWithUncustomizedHomePages = PageAnalyzer.GenerateSitesWithUncustomizedHomePages(this.PageScanResults);
@@ -763,7 +856,14 @@ namespace SharePoint.Modernization.Scanner.Core
                     outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(siteWithUncustomizedHomePage))));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("SitesWithUncustomizedHomePages.csv", uncustomizedHomePageSites);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("SitesWithUncustomizedHomePages.csv", uncustomizedHomePageSites);
+                }
+                else
+                {
+                    streams.Add("SitesWithUncustomizedHomePages.csv", uncustomizedHomePageSites);
+                }
             }
 
             if (Options.IncludePublishing(this.Mode))
@@ -772,7 +872,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 this.PublishingSiteScanResults = PublishingAnalyzer.GeneratePublishingSiteResults(this.Mode, this.PublishingWebScanResults, this.PublishingPageScanResults);
 
                 // Telemetry
-                if (this.ScannerTelemetry != null)
+                if (this.ScannerTelemetry != null && final)
                 {
                     this.ScannerTelemetry.LogPublishingScan(this.PublishingSiteScanResults, this.PublishingWebScanResults, this.PublishingPageScanResults, this.PageTransformation);
                 }
@@ -797,7 +897,14 @@ namespace SharePoint.Modernization.Scanner.Core
                     }
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("ModernizationPublishingSiteScanResults.csv", modernizationPublishingSiteScanResults);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationPublishingSiteScanResults.csv", modernizationPublishingSiteScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationPublishingSiteScanResults.csv", modernizationPublishingSiteScanResults);
+                }
 
                 // Export the web publishing data
                 MemoryStream modernizationPublishingWebScanResults = new MemoryStream();
@@ -833,7 +940,14 @@ namespace SharePoint.Modernization.Scanner.Core
                                                     )));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("ModernizationPublishingWebScanResults.csv", modernizationPublishingWebScanResults);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationPublishingWebScanResults.csv", modernizationPublishingWebScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationPublishingWebScanResults.csv", modernizationPublishingWebScanResults);
+                }
 
                 if (Options.IncludePublishingWithPages(this.Mode))
                 {
@@ -911,16 +1025,23 @@ namespace SharePoint.Modernization.Scanner.Core
                         outStream.Write(string.Format("{0}\r\n", part1 + (!string.IsNullOrEmpty(part2) ? part2 : "")));
                     }
                     outStream.Flush();
-                    this.GeneratedFileStreams.Add("ModernizationPublishingPageScanResults.csv", modernizationPublishingPageScanResults);
+                    if (final)
+                    {
+                        this.GeneratedFileStreams.Add("ModernizationPublishingPageScanResults.csv", modernizationPublishingPageScanResults);
+                    }
+                    else
+                    {
+                        streams.Add("ModernizationPublishingPageScanResults.csv", modernizationPublishingPageScanResults);
+                    }
                 }
             }
 
-            if (Options.IncludeWorkflow(this.Mode))
+            if (Options.IncludeWorkflow(this.Mode) || Options.IncludeWorkflowWithDetails(this.Mode))
             {
                 WorkflowAnalyzer.PopulateAdminAndOwnerColumns(this.SiteScanResults, this.WorkflowScanResults);
 
                 // Telemetry
-                if (this.ScannerTelemetry != null)
+                if (this.ScannerTelemetry != null && final)
                 {
                     this.ScannerTelemetry.LogWorkflowScan(this.WorkflowScanResults);
                 }
@@ -950,7 +1071,14 @@ namespace SharePoint.Modernization.Scanner.Core
                 }
 
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("ModernizationWorkflowScanResults.csv", modernizationWorkflowScanResults);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationWorkflowScanResults.csv", modernizationWorkflowScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationWorkflowScanResults.csv", modernizationWorkflowScanResults);
+                }
             }
 
             if (Options.IncludeInfoPath(this.Mode))
@@ -958,7 +1086,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 InfoPathAnalyzer.PopulateAdminAndOwnerColumns(this.SiteScanResults, this.InfoPathScanResults);
 
                 // Telemetry
-                if (this.ScannerTelemetry != null)
+                if (this.ScannerTelemetry != null && final)
                 {
                     this.ScannerTelemetry.LogInfoPathScan(this.InfoPathScanResults);
                 }
@@ -981,13 +1109,20 @@ namespace SharePoint.Modernization.Scanner.Core
                                                      )));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("ModernizationInfoPathScanResults.csv", modernizationInfoPathScanResults);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationInfoPathScanResults.csv", modernizationInfoPathScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationInfoPathScanResults.csv", modernizationInfoPathScanResults);
+                }
             }
 
             if (Options.IncludeBlog(this.Mode))
             {
                 // Telemetry
-                if (this.ScannerTelemetry != null)
+                if (this.ScannerTelemetry != null && final)
                 {
                     this.ScannerTelemetry.LogBlogScan(this.BlogWebScanResults, this.BlogPageScanResults);
                 }
@@ -1007,8 +1142,14 @@ namespace SharePoint.Modernization.Scanner.Core
                                                      )));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("ModernizationBlogWebScanResults.csv", modernizationBlogWebScanResults);
-
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationBlogWebScanResults.csv", modernizationBlogWebScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationBlogWebScanResults.csv", modernizationBlogWebScanResults);
+                }
 
                 MemoryStream modernizationBlogPageScanResults = new MemoryStream();
                 outputHeaders = new string[] { "Site Url", "Site Collection Url", "Web Relative Url", "Blog Type", "Page Relative Url", "Page Title",
@@ -1018,21 +1159,78 @@ namespace SharePoint.Modernization.Scanner.Core
                 outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
                 foreach (var blogPage in this.BlogPageScanResults)
                 {
-                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), blogPage.Value.BlogType ,ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(blogPage.Value.SiteURL), ToCsv(blogPage.Value.SiteColUrl), ToCsv(blogPage.Value.WebRelativeUrl), blogPage.Value.BlogType, ToCsv(blogPage.Value.PageRelativeUrl), ToCsv(blogPage.Value.PageTitle),
                                                                                            ToDateString(blogPage.Value.ModifiedAt, this.DateFormat), ToCsv(blogPage.Value.ModifiedBy), ToDateString(blogPage.Value.PublishedDate, this.DateFormat)
                                                      )));
                 }
                 outStream.Flush();
-                this.GeneratedFileStreams.Add("ModernizationBlogPageScanResults.csv", modernizationBlogPageScanResults);
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationBlogPageScanResults.csv", modernizationBlogPageScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationBlogPageScanResults.csv", modernizationBlogPageScanResults);
+                }
             }
 
-            VersionWarning();
+            #region Errors
+            MemoryStream errors = new MemoryStream();
+            outputHeaders = new string[] { "Site Url", "Site Collection Url", "Error", "Field1", "Field2", "Field3" };
+            outStream = new StreamWriter(errors);
+            outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+            ScanError error;
+            while (this.ScanErrors.TryPop(out error))
+            {
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(error.SiteURL), ToCsv(error.SiteColUrl), ToCsv(error.Error), ToCsv(error.Field1), ToCsv(error.Field2), ToCsv(error.Field3))));
+            }
+            outStream.Flush();
+            if (final)
+            {
+                this.GeneratedFileStreams.Add("Errors.csv", errors);
+            }
+            else
+            {
+                streams.Add("Errors.csv", errors);
+            }
+            #endregion
 
-            Log("=====================================================");
-            Log($"All done. Took {(DateTime.Now - start).ToString()} for {this.ScannedSites} sites");
-            Log("=====================================================");
+            #region Scanner data
+            MemoryStream scannerSummary = new MemoryStream();
+            outStream = new StreamWriter(scannerSummary);
+            outputHeaders = new string[] { "Site collections scanned", "Webs scanned", "List scanned", "Scan duration", "Scanner version" };
+            outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+            string version = "";
+            try
+            {
+                Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Options.UrlToFileName(assembly.EscapedCodeBase));
+                version = fvi.FileVersion;
+            }
+            catch { }
+            TimeSpan ts = DateTime.Now.Subtract(this.StartTime);
+            outStream.Write(string.Format("{0}\r\n", ToCsv(string.Join(this.Separator, this.ScannedSites, this.ScannedWebs, this.ScannedLists, $"{ts.Days} days - {ts.Hours} hours - {ts.Minutes} minutes and {ts.Seconds} seconds", version))));
+            outStream.Flush();
+            if (final)
+            {
+                this.GeneratedFileStreams.Add("ScannerSummary.csv", scannerSummary);
+            }
+            else
+            {
+                streams.Add("ScannerSummary.csv", scannerSummary);
+            }
+            #endregion
 
-            return start;
+
+            if (final)
+            {
+                return this.GeneratedFileStreams;
+            }
+            else
+            {
+                return streams;
+            }
+
         }
 
         private void VersionWarning()
@@ -1103,6 +1301,15 @@ namespace SharePoint.Modernization.Scanner.Core
             return null;
         }
 
+        private static void CopyStream(Stream input, Stream output)
+        {
+            byte[] buffer = new byte[8 * 1024];
+            int len;
+            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, len);
+            }
+        }
         #endregion
 
     }

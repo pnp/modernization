@@ -231,6 +231,7 @@ namespace SharePoint.Modernization.Scanner.Core
             Log("Scanning is done...now dump the results to a CSV file");
             Log("=====================================================");
 
+/*
             // Export the common CSV's (like errors)
             string[] outputHeaders = null;
 
@@ -266,7 +267,7 @@ namespace SharePoint.Modernization.Scanner.Core
             outStream.Flush();
             this.GeneratedFileStreams.Add("ScannerSummary.csv", scannerSummary);
             #endregion
-
+*/
             return start;
         }
 
