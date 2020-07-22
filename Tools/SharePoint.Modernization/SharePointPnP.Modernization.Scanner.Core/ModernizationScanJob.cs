@@ -492,7 +492,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 while (busy)
                 {
                     // wait 1 minute between invocations
-                    Thread.Sleep(60 * 1000);
+                    Thread.Sleep(5 * 1000);
                     var streams = this.OutputToStreams(false);
                     Directory.CreateDirectory(this.WorkingFolder);
                     foreach (var csvStream in streams)
@@ -1180,9 +1180,32 @@ namespace SharePoint.Modernization.Scanner.Core
             outStream = new StreamWriter(errors);
             outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
             ScanError error;
-            while (this.ScanErrors.TryPop(out error))
+
+            if (final)
             {
-                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(error.SiteURL), ToCsv(error.SiteColUrl), ToCsv(error.Error), ToCsv(error.Field1), ToCsv(error.Field2), ToCsv(error.Field3))));
+                while (this.ScanErrors.TryPop(out error))
+                {
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(error.SiteURL), ToCsv(error.SiteColUrl), ToCsv(error.Error), ToCsv(error.Field1), ToCsv(error.Field2), ToCsv(error.Field3))));
+                }
+            }
+            else
+            {
+                var count = this.ScanErrors.Count;
+
+                try
+                {
+                    // Copy errors to array to not loose the stack 
+                    ScanError[] scanErrors = new ScanError[count];
+                    this.ScanErrors.CopyTo(scanErrors, 0);
+                    foreach (var scanError in scanErrors)
+                    {
+                        outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(scanError.SiteURL), ToCsv(scanError.SiteColUrl), ToCsv(scanError.Error), ToCsv(scanError.Field1), ToCsv(scanError.Field2), ToCsv(scanError.Field3))));
+                    }
+                }
+                catch(Exception ex)
+                {
+
+                }
             }
             outStream.Flush();
             if (final)
