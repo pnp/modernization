@@ -492,7 +492,7 @@ namespace SharePoint.Modernization.Scanner.Core
                 while (busy)
                 {
                     // wait 1 minute between invocations
-                    Thread.Sleep(5 * 1000);
+                    Thread.Sleep(60 * 1000);
                     var streams = this.OutputToStreams(false);
                     Directory.CreateDirectory(this.WorkingFolder);
                     foreach (var csvStream in streams)
