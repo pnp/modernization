@@ -42,6 +42,7 @@ namespace SharePoint.Modernization.Scanner.Core
         public string ClientTag;
         public IList<string> Urls;
         public Dictionary<string, Stream> GeneratedFileStreams;
+        private static readonly Guid localSharePointResultsSourceId = new Guid("8413cd39-2156-4e00-b54d-11efd9abdb89");
 
         // Result stacks
         public ConcurrentStack<ScanError> ScanErrors = new ConcurrentStack<ScanError>();
@@ -467,7 +468,8 @@ namespace SharePoint.Modernization.Scanner.Core
                 List<Dictionary<string, string>> sites = new List<Dictionary<string, string>>();
 
                 KeywordQuery keywordQuery = new KeywordQuery(web.Context);
-                keywordQuery.TrimDuplicates = trimDuplicates;                
+                keywordQuery.TrimDuplicates = trimDuplicates;
+                keywordQuery.SourceId = localSharePointResultsSourceId;
 
                 //property IndexDocId is required, so add it if not yet present
                 if (!propertiesToRetrieve.Contains("IndexDocId"))
@@ -482,6 +484,8 @@ namespace SharePoint.Modernization.Scanner.Core
                 Log($"Found {totalRows} rows...");
                 if (totalRows > 0)
                 {
+                    string previousLastIndexDocId = null;
+
                     while (totalRows > 0)
                     {
                         string lastIndexDocIdString = "";
@@ -489,9 +493,19 @@ namespace SharePoint.Modernization.Scanner.Core
 
                         if (sites.Last().TryGetValue("IndexDocId", out lastIndexDocIdString))
                         {
+                            // Leave the loop if for some reason we're getting the same lastIndexDocId --> should not happen, this is an 
+                            // extra safety to prevent from getting stuck in an infinite loop.
+                            if (previousLastIndexDocId != null && previousLastIndexDocId.Equals(lastIndexDocIdString))
+                            {
+                                Log($"Breaking loop, lastIndexDocId was {previousLastIndexDocId}");
+                                break;
+                            }
+
                             lastIndexDocId = double.Parse(lastIndexDocIdString);
                             Log($"Retrieving a batch of up to 500 search results");
+                            keywordQuery.SourceId = localSharePointResultsSourceId;
                             totalRows = this.ProcessQuery(web, keywordQueryValue + " AND IndexDocId >" + lastIndexDocId, propertiesToRetrieve, sites, keywordQuery);// From the second Query get the next set (rowlimit) of search result based on IndexDocId
+                            previousLastIndexDocId = lastIndexDocIdString;
                         }
                     }
                 }
@@ -509,7 +523,7 @@ namespace SharePoint.Modernization.Scanner.Core
         {
             int totalRows = 0;
             keywordQuery.QueryText = keywordQueryValue;
-            keywordQuery.RowLimit = 500;
+            keywordQuery.RowLimit = 500;            
 
             // Make the query return the requested properties
             foreach (var property in propertiesToRetrieve)

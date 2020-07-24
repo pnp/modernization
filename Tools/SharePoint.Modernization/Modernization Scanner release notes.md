@@ -4,6 +4,14 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.15]
+
+## Added
+
+## Changed
+
+- Fixed bug in search code that resulted in an infinite search loop [Chipzter]
+
 ## [Version 2.14]
 
 ## Added
