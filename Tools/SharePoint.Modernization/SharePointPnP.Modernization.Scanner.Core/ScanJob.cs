@@ -42,6 +42,7 @@ namespace SharePoint.Modernization.Scanner.Core
         public string ClientTag;
         public IList<string> Urls;
         public Dictionary<string, Stream> GeneratedFileStreams;
+        private static readonly Guid localSharePointResultsSourceId = new Guid("8413cd39-2156-4e00-b54d-11efd9abdb89");
 
         // Result stacks
         public ConcurrentStack<ScanError> ScanErrors = new ConcurrentStack<ScanError>();
@@ -468,7 +469,7 @@ namespace SharePoint.Modernization.Scanner.Core
 
                 KeywordQuery keywordQuery = new KeywordQuery(web.Context);
                 keywordQuery.TrimDuplicates = trimDuplicates; 
-                keywordQuery.SourceId = Guid.Parse("8413cd39-2156-4e00-b54d-11efd9abdb89");
+                keywordQuery.SourceId = localSharePointResultsSourceId;
 
                 //property IndexDocId is required, so add it if not yet present
                 if (!propertiesToRetrieve.Contains("IndexDocId"))
@@ -492,7 +493,7 @@ namespace SharePoint.Modernization.Scanner.Core
                         {
                             lastIndexDocId = double.Parse(lastIndexDocIdString);
                             Log($"Retrieving a batch of up to 500 search results");
-                            keywordQuery.SourceId = Guid.Parse("8413cd39-2156-4e00-b54d-11efd9abdb89");
+                            keywordQuery.SourceId = localSharePointResultsSourceId;
                             totalRows = this.ProcessQuery(web, keywordQueryValue + " AND IndexDocId >" + lastIndexDocId, propertiesToRetrieve, sites, keywordQuery);// From the second Query get the next set (rowlimit) of search result based on IndexDocId
                         }
                     }
