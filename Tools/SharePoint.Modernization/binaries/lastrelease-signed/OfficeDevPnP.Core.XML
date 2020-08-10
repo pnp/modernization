@@ -17078,6 +17078,11 @@
             <param name="web">Web being used</param>
             <returns>tokenized url as String</returns>
         </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectListInstance.ListInfo.TokenParser">
+            <summary>
+            List specific TokenParser containing additional references to list elements such as list fields
+            </summary>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningMessageType">
             <summary>
             Types of provisioning messages
@@ -17302,6 +17307,13 @@
             </summary>
             <param name="tokenDefinition">A TokenDefinition object</param>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser.#ctor(Microsoft.SharePoint.Client.Web,System.Collections.Generic.List{OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.TokenDefinition})">
+            <summary>
+            Creates a new TokenParser. Only to be used by Clone().
+            </summary>
+            <param name="tokens">The list with TokenDefinitions to copy over</param>
+            <param name="web">The Web context to copy over</param>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser.#ctor(Microsoft.SharePoint.Client.Web,OfficeDevPnP.Core.Framework.Provisioning.Model.ProvisioningTemplate)">
             <summary>
             Constructor
@@ -17362,6 +17374,12 @@
             <param name="web">The current Web</param>
             <param name="name">The title of the list in the current user's language</param>
             <returns>The title of the list in the main language of the site</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser.Clone">
+            <summary>
+            Clones the current TokenParser instance into a new instance
+            </summary>
+            <returns>New cloned instance of the TokenParser</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.Providers.ITemplateFormatterWithValidation.GetValidationResults(System.IO.Stream)">
             <summary>
@@ -52066,7 +52084,7 @@
             Enum to identify the supported Office 365 hosting environments
             </summary>
         </member>
-        <member name="T:OfficeDevPnP.Core.AuthenticationManager">
+        <member name="T:OfficeDevPnP.Core.KnownClientId">
              <summary>
              This manager class can be used to obtain a SharePointContext object
              </summary>
@@ -52290,19 +52308,10 @@
             </param>
             <returns>Authenticated SharePoint ClientContext</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.Security.SecureString,OfficeDevPnP.Core.AzureEnvironment)">
+        <!-- Badly formed XML comment ignored for member "M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.Security.SecureString,OfficeDevPnP.Core.AzureEnvironment,OfficeDevPnP.Core.KnownClientId)" -->
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.String,OfficeDevPnP.Core.AzureEnvironment,OfficeDevPnP.Core.KnownClientId)">
             <summary>
-            Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app being registered in your Azure AD.
-            </summary>
-            <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
-            <param name="userPrincipalName">The user id</param>
-            <param name="userPassword">The user's password as a secure string</param>
-            <param name="environment">SharePoint environment being used</param>
-            <returns>Client context object</returns>
-        </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.String,OfficeDevPnP.Core.AzureEnvironment)">
-            <summary>
-            Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app being registered in your Azure AD.
+            Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app or the PnP Management Shell app being registered in your Azure AD.
             </summary>
             <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
             <param name="userPrincipalName">The user id</param>
@@ -52310,14 +52319,15 @@
             <param name="environment">SharePoint environment being used</param>
             <returns>Client context object</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.AcquireTokenAsync(System.String,System.String,System.String,OfficeDevPnP.Core.AzureEnvironment)">
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.AcquireTokenAsync(System.String,System.String,System.String,OfficeDevPnP.Core.AzureEnvironment,System.String)">
             <summary>
-            Acquires an access token using Azure AD credential flow. This depends on the SPO Management Shell app being registered in your Azure AD.
+            Acquires an access token using Azure AD credential flow. This depends on the SPO Management Shell app or the PnP Management Shell app  being registered in your Azure AD.
             </summary>
             <param name="resourceUri">Resouce to request access for</param>
             <param name="username">User id</param>
             <param name="password">Password</param>
             <param name="environment">SharePoint environment being used</param>
+            <param name="clientId">Defaults to the SPO Management Shell client id. Alternatively provide the CLIENTID_PNPMANAGEMENTSHELL or your own client with appropriate permission scopes configured.</param>
             <returns>Acces token</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADNativeApplicationAuthenticatedContext(System.String,System.String,System.String,Microsoft.IdentityModel.Clients.ActiveDirectory.TokenCache,OfficeDevPnP.Core.AzureEnvironment)">
@@ -53602,7 +53612,7 @@
             Enable Microsoft Teams team in an O365 group connected team site
             Will also enable it on a newly Groupified classic site
             </summary>
-            <param name="context"></param>
+            <param name="context">Context to operate against</param>
             <returns></returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.IsTeamifyPromptHiddenAsync(Microsoft.SharePoint.Client.ClientContext)">
@@ -53640,6 +53650,21 @@
             </summary>
             <param name="context">Client context</param>
             <param name="sensitiveLabelString">Sensitive Label string value</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.GetGroupInfoByGroupIdAsync(Microsoft.SharePoint.Client.ClientContext,System.String)">
+            <summary>
+            Gets group alias information by group Id
+            </summary>
+            <param name="context">Context to operate against</param>
+            <param name="groupId">Id of the group</param>
+            <returns>True if in use, false otherwise</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Sites.SiteCollection.DeleteSiteAsync(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Deletes a Communication site or a Group-less Modern team site.
+            </summary>
+            <param name="context">Context to operate against</param>
             <returns></returns>
         </member>
         <member name="T:OfficeDevPnP.Core.Sites.CommunicationSiteCollectionCreationInformation">
@@ -55307,7 +55332,7 @@
             </summary>
             <returns>A string with the method name</returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.GetRequestDigest(Microsoft.SharePoint.Client.ClientContext)">
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.GetRequestDigestAsync(Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             Returns the request digest from the current session/site
             </summary>
@@ -55361,18 +55386,25 @@
             <param name="clientContext"></param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.IsTeamifyPromptHidden(Microsoft.SharePoint.Client.ClientContext)">
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.IsTeamifyPromptHiddenAsync(Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             Checks whether the teamify prompt is hidden in O365 Group connected sites
             </summary>
             <param name="clientContext">ClientContext of the site to operate against</param>
             <returns></returns>
         </member>
-        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.HideTeamifyPrompt(Microsoft.SharePoint.Client.ClientContext)">
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.HideTeamifyPromptAsync(Microsoft.SharePoint.Client.ClientContext)">
             <summary>
             Hide the teamify prompt displayed in O365 group connected sites
             </summary>
             <param name="clientContext">ClientContext of the site to operate against</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.ClientContextExtensions.DeleteSiteAsync(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Deletes a Communication site or a group-less Modern team site
+            </summary>
+            <param name="clientContext"></param>
             <returns></returns>
         </member>
         <member name="T:Microsoft.SharePoint.Client.ClientObjectExtensions">
@@ -60527,6 +60559,14 @@
             <param name="force">If true, and an appcatalog is already registered and present, the new appcatalog will be created. If the same URL is provided and the site is present the current one will be deleted and a new one will be created.</param>
             <returns></returns>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.IsSiteActive(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
+            <summary>
+            Checks if a site collection is Active
+            </summary>
+            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
+            <param name="siteFullUrl">URL to the site collection</param>
+            <returns>True if active, false if not</returns>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.DeleteSiteCollection(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.Boolean,System.Func{OfficeDevPnP.Core.TenantOperationMessage,System.Boolean})">
             <summary>
             Deletes a site collection
@@ -60702,6 +60742,13 @@
             <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
             <param name="siteUrl">Root site url of your tenant</param>
         </member>
+        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.GetTenantAdminSite(Microsoft.SharePoint.Client.ClientContext)">
+            <summary>
+            Gets the Uri for the tenant's admin site (if that one has already been created)
+            </summary>
+            <param name="clientContext">Context to operate against</param>
+            <returns>The Uri holding the admin site URL</returns>
+        </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.CheckIfSiteExists(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String,System.String)">
             <summary>
             Returns if a site collection is in a particular status. If the URL contains a sub site then returns true is the sub site exists, false if not. 
@@ -60711,14 +60758,6 @@
             <param name="siteFullUrl">Url to the site collection</param>
             <param name="status">Status to check (Active, Creating, Recycled)</param>
             <returns>True if in status, false if not in status</returns>
-        </member>
-        <member name="M:Microsoft.SharePoint.Client.TenantExtensions.IsSiteActive(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
-            <summary>
-            Checks if a site collection is Active
-            </summary>
-            <param name="tenant">A tenant object pointing to the context of a Tenant Administration site</param>
-            <param name="siteFullUrl">URL to the site collection</param>
-            <returns>True if active, false if not</returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.TenantExtensions.SiteExistsAnywhere(Microsoft.Online.SharePoint.TenantAdministration.Tenant,System.String)">
             <summary>
@@ -61220,6 +61259,13 @@
             </summary>
             <param name="web">The web to get the request access e-mail addresses from.</param>
             <returns>The request access e-mail addresses of the web.</returns>
+        </member>
+        <member name="M:Microsoft.SharePoint.Client.WebExtensions.IsAdminSite(Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Checks if the site is the SharePoint Admin site
+            </summary>
+            <param name="web"></param>
+            <returns></returns>
         </member>
         <member name="M:Microsoft.SharePoint.Client.WebExtensions.GetName(Microsoft.SharePoint.Client.Web)">
             <summary>

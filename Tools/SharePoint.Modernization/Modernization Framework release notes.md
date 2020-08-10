@@ -12,7 +12,7 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [Unreleased]
+## [August release - version 1.0.2008.0]
 
 - Fixed bug with replacement of URLs + tests #499 (fixes #495) [pkbullock]
 
