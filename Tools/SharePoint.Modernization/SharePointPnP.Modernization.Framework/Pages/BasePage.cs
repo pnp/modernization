@@ -1352,13 +1352,19 @@ namespace SharePointPnP.Modernization.Framework.Pages
                                         }
 
                                         // Use regex to extract the controlId value from the string 
-                                        var controlIdMatch = ControlIdRegex.Match(match.Value);
-                                        if (controlIdMatch != null && controlIdMatch.Success)
+                                        Regex controlIdStringRegex = new Regex($"ID=\"(.*?)\".*?{wsWebPartPropertiesEntity.Id.ToString()}", RegexOptions.IgnoreCase);
+                                        var controlIdStringMatch = controlIdStringRegex.Match(webpartPage);
+                                        //
+                                        if (controlIdStringMatch != null && controlIdStringMatch.Success)
                                         {
-                                            // returned value = ID="g_2b71545a_4278_4714_a26b_713b5365f44d"
+                                            var controlIdMatch = ControlIdRegex.Match(controlIdStringMatch.Value);
+                                            if (controlIdMatch != null && controlIdMatch.Success)
+                                            {
+                                                // returned value = ID="g_2b71545a_4278_4714_a26b_713b5365f44d"
 
-                                            // set ControlId property
-                                            wsWebPartPropertiesEntity.ControlId = controlIdMatch.Value.Replace("ID=\"", "", StringComparison.InvariantCultureIgnoreCase).Replace("\"", "");
+                                                // set ControlId property
+                                                wsWebPartPropertiesEntity.ControlId = controlIdMatch.Value.Replace("ID=\"", "", StringComparison.InvariantCultureIgnoreCase).Replace("\"", "");
+                                            }
                                         }
                                     }
                                 }                                
