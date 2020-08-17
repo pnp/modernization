@@ -5,6 +5,7 @@ using OfficeDevPnP.Core.Pages;
 using SharePointPnP.Modernization.Framework.Transform;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System.Collections.Generic;
+using Microsoft.Graph;
 
 namespace SharePointPnP.Modernization.Framework.SampleAddOn
 {
@@ -38,6 +39,7 @@ namespace SharePointPnP.Modernization.Framework.SampleAddOn
 
         public string MyListAddServerRelativeUrl(Guid listId)
         {
+            try { 
             if (listId == Guid.Empty)
             {
                 return "";
@@ -47,6 +49,12 @@ namespace SharePointPnP.Modernization.Framework.SampleAddOn
                 var list = this.clientContext.Web.GetListById(listId);
                 list.EnsureProperty(p => p.RootFolder).EnsureProperty(p => p.ServerRelativeUrl);
                 return list.RootFolder.ServerRelativeUrl;
+            }
+            }
+            catch (Exception ex)
+            {
+                LogError("MyListAddServerRelativeUrl", "MyCustomFunctions", ex);
+                return string.Empty;
             }
         }
 
