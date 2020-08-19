@@ -260,6 +260,11 @@ namespace SharePoint.Modernization.Scanner
                         scannerTelemetry.LogScanDone(duration);
                     }
                 }
+                catch (Exception Ex)
+                {
+                    Console.WriteLine("Error executing scan: \n"+Ex.Message+ "\n Press any key to continue");
+                    Console.ReadKey();
+                }
                 finally
                 {
                     if (scannerTelemetry != null)
