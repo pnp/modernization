@@ -63,7 +63,7 @@ namespace SharePointPnP.Modernization.Framework.Functions
                     
                     var assembly = Assembly.LoadFile(path);
                     var customType = assembly.GetType(addOn.Type);
-                    var instance = Activator.CreateInstance(customType, this.page.Context);
+                    var instance = Activator.CreateInstance(customType, baseTransformationInformation, this.page.Context, sourceClientContext, this.page, base.RegisteredLogObservers);
 
                     this.addOnTypes.Add(new AddOnType()
                     {
