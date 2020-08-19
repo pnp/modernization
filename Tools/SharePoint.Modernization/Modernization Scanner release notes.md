@@ -4,6 +4,14 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.16]
+
+## Added
+
+## Changed
+
+- Previous workflow versions are now correclty excluded, also when the site was created using a non-Enlish language #518
+
 ## [Version 2.15]
 
 ## Added

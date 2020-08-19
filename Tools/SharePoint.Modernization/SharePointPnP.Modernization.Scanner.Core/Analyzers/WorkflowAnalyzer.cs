@@ -76,7 +76,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 Web web = cc.Web;
 
                 // Pre-load needed properties in a single call
-                cc.Load(web, w => w.Id, w => w.ServerRelativeUrl, w => w.Url, w => w.WorkflowTemplates, w => w.WorkflowAssociations);
+                cc.Load(web, w => w.Id, w => w.Language, w => w.ServerRelativeUrl, w => w.Url, w => w.WorkflowTemplates, w => w.WorkflowAssociations);
                 cc.Load(web, p => p.ContentTypes.Include(ct => ct.WorkflowAssociations, ct => ct.Name, ct => ct.StringId));
                 cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate , li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations));
                 cc.Load(cc.Site, p => p.RootWeb);
@@ -409,7 +409,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
                                 // Skip previous versions of a workflow
                                 // TODO: non-english sites will use another string
-                                if (associatedWorkflow.WorkflowAssociation.Name.Contains("(Previous Version:"))
+                                if (associatedWorkflow.WorkflowAssociation.Name.Contains(PreviousWorkflowString(web.Language)))
                                 {
                                     continue;
                                 }
@@ -531,7 +531,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                     {
                         // Skip previous versions of a workflow
                         // TODO: non-english sites will use another string
-                        if (associatedWorkflow.WorkflowAssociation.Name.Contains("(Previous Version:"))
+                        if (associatedWorkflow.WorkflowAssociation.Name.Contains(PreviousWorkflowString(web.Language)))
                         {
                             continue;
                         }
@@ -841,6 +841,66 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
 
             return false;
         }
+
+        private static string PreviousWorkflowString(uint language)
+        {
+            switch (language)
+            {
+                case 1033: return "(Previous Version:";
+                case 1164: return "( نسخه گذشته ) :";
+                case 2108: return "(An Leagan Roimhe:";
+                case 1081: return "(पिछला संस्करण:";
+                case 1071: return "(Претходна верзија:";
+                case 1049: return "(предыдущая версия:";
+                case 1051: return "(predchádzajúca verzia:";
+                case 1028: return "(舊版本:";
+                case 1058: return "(Попередня версія:";
+                case 1027: return "(versió anterior:";
+                case 1029: return "(Předchozí verze:";
+                case 1030: return "(Tidligere version:";
+                case 3082: return "(Versión anterior:";
+                case 1069: return "(aurreko bertsioa:";
+                case 1038: return "(Előző verzió:";
+                case 1057: return "(Versi Sebelumnya:";
+                case 1042: return "(이전 버전:";
+                case 1063: return "(ankstesnė versija:";
+                case 1062: return "(iepriekšējā versija:";
+                case 1045: return "(poprzednia wersja:";
+                case 2070:
+                case 1046: return "(Versão Anterior:";
+                case 1048: return "(versiune anterioară:";
+                case 1060: return "(Prejšnja različica:";
+                case 10266: return "(претходна верзија:";
+                case 2074: return "(Prethodna verzija:";
+                case 1054: return "(เวอร์ชันก่อนหน้า:";
+                case 1055: return "(Önceki Sürüm:";
+                case 1025: return "(الإصدار السابق:";
+                case 1068: return "(Əvvəlki Versiya:";
+                case 1026: return "(Предишна версия:";
+                case 1106: return "(Fersiwn Blaenorol:";
+                case 1031: return "(Vorherige Version:";
+                case 1061: return "(eelmine versioon:";
+                case 1035: return "(aiempi versio:";
+                case 1036: return "(version précédente :";
+                case 1110: return "(Versión anterior:";
+                case 1037: return "(גירסה קודמת:";
+                case 1050: return "(Prethodna verzija:";
+                case 1040: return "(versione precedente:";
+                case 1041: return "(以前のバージョン:";
+                case 1087: return "(Алдыңғы нұсқа:";
+                case 1086: return "(Versi Sebelumnya:";
+                case 1044: return "(Tidligere versjon:";
+                case 1043: return "(vorige versie:";
+                case 1053: return "(Tidigare version:";
+                case 9242: return "(Prethodna verzija:";
+                case 1032: return "(Προηγούμενη έκδοση:";
+                case 1066: return "(Phiên bản Trước:";
+                case 2052: return "(以前版本:";
+                default:
+                    return "(Previous Version:";
+            }
+        }
+
         #endregion
     }
 }
