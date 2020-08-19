@@ -14,6 +14,7 @@
 
 ## [Unreleased]
 
+- Improved detection of zone id and web part id when transforming from SharePoint 2010 #517 [albegut]
 
 ## [August release - version 1.0.2008.0]
 
