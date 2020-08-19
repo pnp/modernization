@@ -11,6 +11,7 @@ See https://aka.ms/sppnp-modernizationscanner
 ## Changed
 
 - Previous workflow versions are now correclty excluded, also when the site was created using a non-Enlish language #518
+- Prevent rapid exit without waiting for the user to read error (if anything throws) #511 [victorbutuza]
 
 ## [Version 2.15]
 
