@@ -147,7 +147,7 @@ namespace SharePoint.Modernization.Scanner.Core.Workflow
         /// <param name="wfType">2010 or 2013 workflow</param>
         /// <returns>List of OOB actions used in the workflow</returns>
         public WorkflowActionAnalysis ParseWorkflowDefinition(string workflowDefinition, WorkflowTypes wfType)
-        {           
+        {
             try
             {
                 if (string.IsNullOrEmpty(workflowDefinition))
@@ -170,6 +170,7 @@ namespace SharePoint.Modernization.Scanner.Core.Workflow
                 }
 
                 var namespacePrefix = string.Empty;
+                var namespacePrefix1 = string.Empty;
                 XmlNamespaceManager nameSpaceManager = null;
                 if (xmlDoc.FirstChild.Attributes != null)
                 {
@@ -184,6 +185,18 @@ namespace SharePoint.Modernization.Scanner.Core.Workflow
 
                 // Grab all nodes with the workflow action namespace (ns0/local)
                 var nodes = xmlDoc.SelectNodes($"//{namespacePrefix}*", nameSpaceManager);
+                XmlNodeList ns1Nodes = null;
+                if (wfType == WorkflowTypes.SP2010)
+                {
+                    var xmlns = xmlDoc.FirstChild.Attributes["xmlns:ns1"];
+                    if (xmlns != null)
+                    {
+                        nameSpaceManager.AddNamespace("ns1", xmlns.Value);
+                        namespacePrefix1 = "ns1:";
+
+                        ns1Nodes = xmlDoc.SelectNodes($"//{namespacePrefix1}*", nameSpaceManager);
+                    }
+                }
 
                 // Iterate over the nodes and "identify the OOB activities"
                 List<string> usedOOBWorkflowActivities = new List<string>();
@@ -194,44 +207,15 @@ namespace SharePoint.Modernization.Scanner.Core.Workflow
 
                 foreach (XmlNode node in nodes)
                 {
-                    actionCounter++;
-                    
-                    WorkflowAction defaultOOBWorkflowAction = null;
+                    ParseXmlNode(wfType, usedOOBWorkflowActivities, unsupportedOOBWorkflowActivities, ref actionCounter, ref knownActionCounter, ref unsupportedActionCounter, node);
+                }
 
-                    if (wfType == WorkflowTypes.SP2010)
+
+                if (wfType == WorkflowTypes.SP2010 && ns1Nodes != null && ns1Nodes.Count > 0)
+                {
+                    foreach (XmlNode node in ns1Nodes)
                     {
-                        defaultOOBWorkflowAction = this.defaultWorkflowActions.SP2010DefaultActions.Where(p => p.ActionNameShort == node.LocalName).FirstOrDefault();
-                    }
-                    else if (wfType == WorkflowTypes.SP2013)
-                    {
-                        defaultOOBWorkflowAction = this.defaultWorkflowActions.SP2013DefaultActions.Where(p => p.ActionNameShort == node.LocalName).FirstOrDefault();
-                    }
-
-                    if (defaultOOBWorkflowAction != null)
-                    {
-                        knownActionCounter++;
-                        if (!usedOOBWorkflowActivities.Contains(defaultOOBWorkflowAction.ActionNameShort))
-                        {
-                            usedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
-                        }
-
-
-                        if (wfType == WorkflowTypes.SP2010)
-                        {
-                            if (!WorkflowManager.SP2010SupportedFlowActions.Contains(defaultOOBWorkflowAction.ActionName))
-                            {
-                                unsupportedActionCounter++;
-                                unsupportedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
-                            }
-                        }
-                        else if (wfType == WorkflowTypes.SP2013)
-                        {
-                            if (!WorkflowManager.SP2013SupportedFlowActions.Contains(defaultOOBWorkflowAction.ActionName))
-                            {
-                                unsupportedActionCounter++;
-                                unsupportedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
-                            }
-                        }
+                        ParseXmlNode(wfType, usedOOBWorkflowActivities, unsupportedOOBWorkflowActivities, ref actionCounter, ref knownActionCounter, ref unsupportedActionCounter, node);
                     }
                 }
 
@@ -250,6 +234,49 @@ namespace SharePoint.Modernization.Scanner.Core.Workflow
             }
 
             return null;
+        }
+
+        private void ParseXmlNode(WorkflowTypes wfType, List<string> usedOOBWorkflowActivities, List<string> unsupportedOOBWorkflowActivities, ref int actionCounter, ref int knownActionCounter, ref int unsupportedActionCounter, XmlNode node)
+        {
+            actionCounter++;
+
+            WorkflowAction defaultOOBWorkflowAction = null;
+
+            if (wfType == WorkflowTypes.SP2010)
+            {
+                defaultOOBWorkflowAction = this.defaultWorkflowActions.SP2010DefaultActions.Where(p => p.ActionNameShort == node.LocalName).FirstOrDefault();
+            }
+            else if (wfType == WorkflowTypes.SP2013)
+            {
+                defaultOOBWorkflowAction = this.defaultWorkflowActions.SP2013DefaultActions.Where(p => p.ActionNameShort == node.LocalName).FirstOrDefault();
+            }
+
+            if (defaultOOBWorkflowAction != null)
+            {
+                knownActionCounter++;
+                if (!usedOOBWorkflowActivities.Contains(defaultOOBWorkflowAction.ActionNameShort))
+                {
+                    usedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
+                }
+
+
+                if (wfType == WorkflowTypes.SP2010)
+                {
+                    if (!WorkflowManager.SP2010SupportedFlowActions.Contains(defaultOOBWorkflowAction.ActionName))
+                    {
+                        unsupportedActionCounter++;
+                        unsupportedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
+                    }
+                }
+                else if (wfType == WorkflowTypes.SP2013)
+                {
+                    if (!WorkflowManager.SP2013SupportedFlowActions.Contains(defaultOOBWorkflowAction.ActionName))
+                    {
+                        unsupportedActionCounter++;
+                        unsupportedOOBWorkflowActivities.Add(defaultOOBWorkflowAction.ActionNameShort);
+                    }
+                }
+            }
         }
 
         /// <summary>
