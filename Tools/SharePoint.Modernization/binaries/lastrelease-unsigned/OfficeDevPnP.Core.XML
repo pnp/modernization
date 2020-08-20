@@ -50524,7 +50524,7 @@
             <param name="handler"></param>
             <param name="context"></param>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.RESTUtilities.ExecuteGet(Microsoft.SharePoint.Client.Web,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.RESTUtilities.ExecuteGetAsync(Microsoft.SharePoint.Client.Web,System.String)">
             <summary>
             Executes a REST Get request. 
             </summary>
