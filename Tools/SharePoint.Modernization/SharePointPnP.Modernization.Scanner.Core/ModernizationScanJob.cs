@@ -14,7 +14,6 @@ using SharePoint.Modernization.Scanner.Core.Utilities;
 using SharePoint.Modernization.Scanner.Core.Workflow;
 using OfficeDevPnP.Core.Framework.Graph;
 using Newtonsoft.Json.Linq;
-using SharePointPnP.Modernization.Scanner.Core.Analyzers;
 using SharePointPnP.Modernization.Scanner.Core;
 using Microsoft.Extensions.Caching.Distributed;
 using SharePointPnP.Modernization.Framework.Cache;
@@ -400,6 +399,7 @@ namespace SharePoint.Modernization.Scanner.Core
                     }
                 }
 
+                /*
                 // Handle Delve blog scanning
                 if (Options.IncludeBlog(this.options.Mode))
                 {
@@ -415,6 +415,7 @@ namespace SharePoint.Modernization.Scanner.Core
                         }
                     }
                 }
+                */
 
                 // Create list of Teamified site collections
                 try

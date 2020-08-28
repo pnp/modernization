@@ -461,12 +461,16 @@ namespace SharePoint.Modernization.Scanner.Core
             }
         }
 
-        public List<Dictionary<string, string>> Search(Web web, string keywordQueryValue, List<string> propertiesToRetrieve, bool trimDuplicates = false)
+        public List<Dictionary<string, string>> Search(Web web, string keywordQueryValue, List<string> propertiesToRetrieve, bool trimDuplicates = false, bool singleResult = false)
         {
             try
             {
+                int maxSearchTime = 5 * 60 * 1000; // 5 minutes
+                Stopwatch stopwatch = new Stopwatch();
+
                 List<Dictionary<string, string>> sites = new List<Dictionary<string, string>>();
 
+                stopwatch.Start();
                 KeywordQuery keywordQuery = new KeywordQuery(web.Context);
                 keywordQuery.TrimDuplicates = trimDuplicates;
                 keywordQuery.SourceId = localSharePointResultsSourceId;
@@ -482,6 +486,13 @@ namespace SharePoint.Modernization.Scanner.Core
                 Log($"Start search query {keywordQueryValue}");
                 totalRows = this.ProcessQuery(web, keywordQueryValue, propertiesToRetrieve, sites, keywordQuery);
                 Log($"Found {totalRows} rows...");
+
+                if (singleResult)
+                {
+                    // No point in trying to get into a search loop as there's only 1 result
+                    return sites;
+                }
+
                 if (totalRows > 0)
                 {
                     string previousLastIndexDocId = null;
@@ -506,6 +517,13 @@ namespace SharePoint.Modernization.Scanner.Core
                             keywordQuery.SourceId = localSharePointResultsSourceId;
                             totalRows = this.ProcessQuery(web, keywordQueryValue + " AND IndexDocId >" + lastIndexDocId, propertiesToRetrieve, sites, keywordQuery);// From the second Query get the next set (rowlimit) of search result based on IndexDocId
                             previousLastIndexDocId = lastIndexDocIdString;
+                        }
+
+                        // Safetime measure to prevent endless looping to load search results...
+                        if (stopwatch.ElapsedMilliseconds > maxSearchTime)
+                        {
+                            Log($"Breaking search loop as we exceeded the max time of {maxSearchTime} milliseconds");
+                            return sites;
                         }
                     }
                 }

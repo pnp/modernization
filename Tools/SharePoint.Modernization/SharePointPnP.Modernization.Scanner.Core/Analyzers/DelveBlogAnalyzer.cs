@@ -1,4 +1,5 @@
-﻿using Microsoft.SharePoint.Client;
+﻿/*
+using Microsoft.SharePoint.Client;
 using SharePoint.Modernization.Scanner.Core;
 using SharePoint.Modernization.Scanner.Core.Analyzers;
 using SharePoint.Modernization.Scanner.Core.Results;
@@ -189,3 +190,4 @@ namespace SharePointPnP.Modernization.Scanner.Core.Analyzers
         #endregion
     }
 }
+*/

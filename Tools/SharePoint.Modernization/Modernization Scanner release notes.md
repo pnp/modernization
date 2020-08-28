@@ -4,6 +4,15 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.17]
+
+## Added
+
+## Changed
+
+- Prevent scanning the root site from issuing a search query that would return all sites
+- Removed the Delve blog scanning feature as Delve has been removed from SPO
+
 ## [Version 2.16]
 
 ## Added

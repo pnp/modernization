@@ -139,7 +139,7 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                         "ViewsLifeTimeUniqueUsers"
                     };
 
-                    var results = this.ScanJob.Search(cc.Web, $"path:{this.SiteCollectionUrl} AND contentclass=STS_Site", propertiesToRetrieve);
+                    var results = this.ScanJob.Search(cc.Web, $"path={this.SiteCollectionUrl} AND contentclass=STS_Site", propertiesToRetrieve, singleResult: true);
                     if (results != null && results.Count == 1)
                     {
                         scanResult.ViewsRecent = results[0]["ViewsRecent"].ToInt32();
