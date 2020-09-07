@@ -52171,13 +52171,14 @@
             <param name="expiresOn">The ExpiresOn time of the current access token</param>
             <returns>Returns a TimeSpan represents the time interval within which the current access token is valid thru.</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetWebLoginClientContext(System.String,System.Drawing.Icon,System.Boolean)">
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetWebLoginClientContext(System.String,System.Drawing.Icon,System.Boolean,System.Uri)">
             <summary>
             Returns a SharePoint on-premises / SharePoint Online ClientContext object. Requires claims based authentication with FedAuth cookie.
             </summary>
             <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
             <param name="icon">Optional icon to use for the popup form</param>
             <param name="scriptErrorsSuppressed">Optional parameter to set WebBrowser.ScriptErrorsSuppressed value in the popup form</param>
+            <param name="loginRequestUri">Optional URL to use to log the user in to a specific page. If not provided, the <paramref name="siteUrl"/> will be used.</param>
             <returns>ClientContext to be used by CSOM code</returns>
         </member>
         <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetNetworkCredentialAuthenticatedContext(System.String,System.String,System.String,System.String)">
@@ -52413,6 +52414,17 @@
             <param name="clientId">The Azure AD Application Client ID</param>
             <param name="tenant">The Azure AD Tenant, e.g. mycompany.onmicrosoft.com</param>
             <param name="certificate">Certificate used to authenticate</param>
+            <param name="environment">SharePoint environment being used</param>
+            <returns></returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADAppOnlyAuthenticatedContext(System.String,System.String,System.String,Microsoft.IdentityModel.Clients.ActiveDirectory.IClientAssertionCertificate,OfficeDevPnP.Core.AzureEnvironment)">
+            <summary>
+            Returns a SharePoint ClientContext using Azure Active Directory App Only Authentication. This requires that you have a certificated created, and updated the key credentials key in the application manifest in the azure AD accordingly.
+            </summary>
+            <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
+            <param name="clientId">The Azure AD Application Client ID</param>
+            <param name="tenant">The Azure AD Tenant, e.g. mycompany.onmicrosoft.com</param>
+            <param name="clientAssertionCertificate">IClientAssertionCertificate used to authenticate</param>
             <param name="environment">SharePoint environment being used</param>
             <returns></returns>
         </member>
