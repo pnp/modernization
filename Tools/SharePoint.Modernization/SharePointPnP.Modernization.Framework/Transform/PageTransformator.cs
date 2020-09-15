@@ -434,7 +434,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         pageTransformationInformation.SetDefaultTargetPagePrefix();
                     }
 
-                    if (hasTargetContext && !pageTransformationInformation.IsDuplicatedPage)
+                    if (hasTargetContext)
                     {
                         LogInfo(LogStrings.CrossSiteInUseUsingOriginalFileName, LogStrings.Heading_PageCreation);
                         if (IsBlogPage(pageType))

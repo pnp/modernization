@@ -63,10 +63,6 @@ namespace SharePointPnP.Modernization.Framework.Transform
         #endregion
 
         #region Page Properties     
-        /// <summary>
-        /// Force to set the property TargetPagePrefixTarget in page creation
-        /// </summary>
-        public bool IsDuplicatedPage { get; set; }
 
         /// <summary>
         /// Target page will get the source page name, source page will be renamed. Used in conjunction with SourcePagePrefix
