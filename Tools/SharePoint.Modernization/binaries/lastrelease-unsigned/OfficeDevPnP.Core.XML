@@ -6525,12 +6525,13 @@
             <param name="accessToken">Access token with scope Group.Read.All</param>
             <returns>True if there's a Teams linked to this group</returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateTeam(System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.CreateTeam(System.String,System.String,System.Int32)">
             <summary>
             Creates a team associated with an Office 365 group
             </summary>
             <param name="groupId">The ID of the Office 365 Group</param>
             <param name="accessToken">The OAuth 2.0 Access Token to use for invoking the Microsoft Graph</param>
+            <param name="timeoutSeconds">Time to wait till Team is created. Default is 300 seconds (5 mins)</param>
             <returns></returns>
         </member>
         <member name="M:OfficeDevPnP.Core.Framework.Graph.UnifiedGroupsUtility.GetDeletedUnifiedGroup(System.String,System.String)">
@@ -16546,11 +16547,12 @@
             <param name="accessToken">The OAuth 2.0 Access Token</param>
             <returns></returns>
         </member>
-        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetTeamApps(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.Team,System.String,System.String)">
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectTeams.SetTeamApps(OfficeDevPnP.Core.Diagnostics.PnPMonitoredScope,OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenParser,OfficeDevPnP.Core.Framework.Provisioning.Model.Teams.Team,System.String,System.String)">
             <summary>
             Synchronizes Team Apps settings
             </summary>
             <param name="scope">The PnP Provisioning Scope</param>
+            <param name="parser">Token parser</param>
             <param name="team">The Team settings, including security settings</param>
             <param name="teamId">The ID of the target Team</param>
             <param name="accessToken">The OAuth 2.0 Access Token</param>
