@@ -12,6 +12,10 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
+## [October release - version 1.0.2010.0]
+
+- No changes done
+
 ## [September release - version 1.0.2009.0]
 
 - No changes done
