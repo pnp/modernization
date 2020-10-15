@@ -78,12 +78,14 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                 // Pre-load needed properties in a single call
                 cc.Load(web, w => w.Id, w => w.Language, w => w.ServerRelativeUrl, w => w.Url, w => w.WorkflowTemplates, w => w.WorkflowAssociations);
                 cc.Load(web, p => p.ContentTypes.Include(ct => ct.WorkflowAssociations, ct => ct.Name, ct => ct.StringId));
-                cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate , li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations));
+                cc.Load(web, p=>p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate , li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations, li => li.ContentTypesEnabled, li=> li.ContentTypes.Include(ct => ct.WorkflowAssociations, ct => ct.Name, ct => ct.StringId)));
                 cc.Load(cc.Site, p => p.RootWeb);
-                cc.Load(cc.Site.RootWeb, p => p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations));
+                cc.Load(cc.Site.RootWeb, p => p.Lists.Include(li => li.Id, li => li.Title, li => li.Hidden, li => li.DefaultViewUrl, li => li.BaseTemplate, li => li.RootFolder.ServerRelativeUrl, li => li.ItemCount, li => li.WorkflowAssociations, li => li.ContentTypesEnabled, li => li.ContentTypes.Include(ct => ct.WorkflowAssociations, ct => ct.Name, ct => ct.StringId)));
                 cc.ExecuteQueryRetry();
 
                 var lists = web.Lists;
+
+                #region 2013 workflow
 
                 // *******************************************
                 // Site, reusable and list level 2013 workflow
@@ -347,6 +349,10 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                     }
                 }
 
+                #endregion
+
+                #region 2010 workflow
+
                 // ***********************************************
                 // Site, list and content type level 2010 workflow
                 // ***********************************************
@@ -365,6 +371,17 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                     foreach (var workflowAssociation in list.WorkflowAssociations)
                     {
                         this.sp2010WorkflowAssociations.Add(new SP2010WorkFlowAssociation() { Scope = "List", WorkflowAssociation = workflowAssociation, AssociatedList = list });
+                    }
+                }
+
+                foreach (var list in lists.Where(p => p.ContentTypesEnabled))
+                {
+                    foreach (var listContentType in list.ContentTypes.Where(p => p.WorkflowAssociations.Count > 0))
+                    {
+                        foreach (var workflowAssociation in listContentType.WorkflowAssociations)
+                        {
+                            this.sp2010WorkflowAssociations.Add(new SP2010WorkFlowAssociation() { Scope = "ContentType", WorkflowAssociation = workflowAssociation, AssociatedContentType = listContentType, AssociatedList = list });
+                        }
                     }
                 }
 
@@ -590,7 +607,10 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                             this.ScanJob.ScanErrors.Push(error);
                         }
                     }
+                    
                 }
+
+                #endregion
             }
             catch(Exception ex)
             {

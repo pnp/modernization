@@ -4,6 +4,14 @@
 
 See https://aka.ms/sppnp-modernizationscanner
 
+## [Version 2.18]
+
+## Added
+
+## Changed
+
+- Workflows on list content types are now included
+
 ## [Version 2.17]
 
 ## Added
