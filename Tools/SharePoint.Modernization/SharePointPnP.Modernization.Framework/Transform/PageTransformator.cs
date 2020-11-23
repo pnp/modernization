@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
@@ -140,6 +141,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
             var logsForSettings = pageTransformationInformation.DetailSettingsAsLogEntries(this.version);
             logsForSettings?.ForEach(o => Log(o, LogLevel.Information));
+
+            // Have this ensure to ensure system.text.json is included - needed by OfficeDevPnP
+            var jsonLoad = System.Text.Json.JsonSerializer.Serialize(new List<string>() { "something " });
 
             #region Check for Target Site Context
             var hasTargetContext = this.targetClientContext != null;

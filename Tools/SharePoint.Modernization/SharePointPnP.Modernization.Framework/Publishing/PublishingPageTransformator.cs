@@ -104,6 +104,9 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             var logsForSettings = this.DetailSettingsAsLogEntries(publishingPageTransformationInformation);
             logsForSettings?.ForEach(o => Log(o, LogLevel.Information));
 
+            // Have this ensure to ensure system.text.json is included - needed by OfficeDevPnP
+            var jsonLoad = System.Text.Json.JsonSerializer.Serialize(new List<string>() { "something " });
+
             #region Input validation
             if (publishingPageTransformationInformation.SourcePage == null)
             {
