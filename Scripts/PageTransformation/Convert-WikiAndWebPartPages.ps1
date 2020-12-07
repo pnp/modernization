@@ -56,7 +56,7 @@ process
     Write-Host "Ensure the modern page feature is enabled..." -ForegroundColor Green
     Enable-PnPFeature -Identity "B6917CB1-93A0-4B97-A84D-7CF49975D4EC" -Scope Web -Force
 
-    Write-Host "Modernizing wiki and web part pages..." -ForegroundColor Gree
+    Write-Host "Modernizing wiki and web part pages..." -ForegroundColor Green
     # Get all the pages in the site pages library. 
     # Use paging (-PageSize parameter) to ensure the query works when there are more than 5000 items in the list
     $pages = Get-PnPListItem -List sitepages -PageSize 500
