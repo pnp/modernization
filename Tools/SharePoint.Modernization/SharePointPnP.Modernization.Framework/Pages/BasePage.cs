@@ -1,6 +1,6 @@
 ﻿using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.WebParts;
 using SharePointPnP.Modernization.Framework.Entities;
@@ -551,7 +551,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         /// <returns>True if it contains a web part</returns>
         private bool ContainsWebPart(IHtmlElement element)
         {
-            var doc = parser.Parse(element.OuterHtml);
+            var doc = parser.ParseDocument(element.OuterHtml);
             var nodes = doc.All.Where(p => p.LocalName == "div");
             foreach (var node in nodes)
             {
@@ -571,7 +571,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
         private string StripWebPart(IHtmlElement element)
         {
             IElement copy = element.Clone(true) as IElement;
-            var doc = parser.Parse(copy.OuterHtml);
+            var doc = parser.ParseDocument(copy.OuterHtml);
             var nodes = doc.All.Where(p => p.LocalName == "div");
             if (nodes.Count() > 0)
             {
@@ -1080,7 +1080,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
             if (!string.IsNullOrEmpty(wsWebParts.Item2))
             {
-                var doc = parser.Parse(wsWebParts.Item2);
+                var doc = parser.ParseDocument(wsWebParts.Item2);
 
                 List<Tuple<string, string>> prefixesAndNameSpaces = ExtractWebPartPrefixesFromNamespaces(doc);
                 List<Tuple<string, string>> possibleWebPartsUsed = new List<Tuple<string, string>>();
@@ -1219,7 +1219,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
             }
 
             var fullBlock = blockHtml.ToString();
-            using (var subDocument = this.parser.Parse(fullBlock))
+            using (var subDocument = this.parser.ParseDocument(fullBlock))
             {
                 var registers = subDocument.All.Where(o => o.TagName == "REGISTER");
 

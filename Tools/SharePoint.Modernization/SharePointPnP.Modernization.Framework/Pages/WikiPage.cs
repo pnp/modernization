@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
+using AngleSharp.Html.Dom;
 using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Entities;
 using SharePointPnP.Modernization.Framework.Telemetry;
@@ -65,7 +65,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
                 pageContents = page.FieldValues[Constants.BodyField].ToString();
             }
 
-            var htmlDoc = parser.Parse(pageContents);
+            var htmlDoc = parser.ParseDocument(pageContents);
             var layout = GetLayout(htmlDoc);
             if (string.IsNullOrEmpty(pageContents))
             {

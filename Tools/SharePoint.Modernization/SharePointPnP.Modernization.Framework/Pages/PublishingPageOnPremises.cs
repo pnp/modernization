@@ -104,7 +104,7 @@ namespace SharePointPnP.Modernization.Framework.Pages
 
                     if (pageContents != null && !string.IsNullOrEmpty(pageContents))
                     {
-                        var htmlDoc = parser.Parse(pageContents);
+                        var htmlDoc = parser.ParseDocument(pageContents);
 
                         // Analyze the html block (which is a wiki block)
                         var content = htmlDoc.FirstElementChild.LastElementChild;

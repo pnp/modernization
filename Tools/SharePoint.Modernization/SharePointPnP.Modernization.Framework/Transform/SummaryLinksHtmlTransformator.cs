@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Dom;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Parser;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,9 +45,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
         /// <returns>Html that can be used and edited via the client side text part</returns>
         public string Transform(string text, bool usePlaceHolder)
         {            
-            using (var document = this.parser.Parse(text))
+            using (var document = this.parser.ParseDocument(text))
             {
-                using (var newDocument = this.parser.Parse(""))
+                using (var newDocument = this.parser.ParseDocument(""))
                 {
                     // Iterate over the divs
                     var divs = document.QuerySelectorAll("div").Where(p => p.GetAttribute("title") == "_link");
@@ -158,7 +158,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             List<SummaryLink> links = new List<SummaryLink>();
 
-            using (var document = this.parser.Parse(text))
+            using (var document = this.parser.ParseDocument(text))
             {
                 // Iterate over the divs
                 var divs = document.QuerySelectorAll("div").Where(p => p.GetAttribute("title") == "_link");

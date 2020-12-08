@@ -1,4 +1,4 @@
-﻿using AngleSharp.Parser.Html;
+﻿using AngleSharp.Html.Parser;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Taxonomy;
 using Newtonsoft.Json;
@@ -136,7 +136,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                 foreach (var textPart in textParts.ToList())
                 {
-                    using (var document = parser.Parse(((OfficeDevPnP.Core.Pages.ClientSideText)textPart).Text))
+                    using (var document = parser.ParseDocument(((OfficeDevPnP.Core.Pages.ClientSideText)textPart).Text))
                     {
                         if (document.FirstChild != null && string.IsNullOrEmpty(document.FirstChild.TextContent))
                         {

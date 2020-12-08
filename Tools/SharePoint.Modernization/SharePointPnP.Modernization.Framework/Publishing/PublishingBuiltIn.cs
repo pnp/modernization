@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Dom;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Parser;
 using Microsoft.Data.OData.Metadata;
 using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
@@ -251,7 +251,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // Sample input: <img alt="" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
-            var htmlDoc = parser.Parse(htmlImage);
+            var htmlDoc = parser.ParseDocument(htmlImage);
             var imgElement = htmlDoc.QuerySelectorAll("img").FirstOrDefault();
 
             string imageUrl = "";
@@ -288,7 +288,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // Sample input: <img alt="bla" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
-            var htmlDoc = parser.Parse(htmlImage);
+            var htmlDoc = parser.ParseDocument(htmlImage);
             var imgElement = htmlDoc.QuerySelectorAll("img").FirstOrDefault();
 
             string imageAltText = "";
@@ -319,7 +319,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             }
 
             // Sample input: <img alt="" src="/sites/devportal/PublishingImages/page-travel-instructions.jpg?RenditionID=2" style="BORDER: 0px solid; ">
-            var htmlDoc = parser.Parse(htmlImage);
+            var htmlDoc = parser.ParseDocument(htmlImage);
             var anchorElement = htmlDoc.QuerySelectorAll("a").FirstOrDefault();
 
             string imageAnchor = "";
@@ -358,7 +358,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
             // Sample input: <p>Some caption<BR></p> 
             try
             {
-                var htmlDoc = parser.Parse(htmlField);
+                var htmlDoc = parser.ParseDocument(htmlField);
 
                 string imageCaption = null;
 

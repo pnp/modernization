@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Dom;
+using AngleSharp.Css.Dom;
+using AngleSharp.Html.Parser;
 using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Entities;
 using System;
@@ -131,7 +132,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     replacedWebParts = new List<WebPartEntity>(10);
 
                     // Parse the html
-                    using (var document = this.parser.Parse(htmlToParse))
+                    using (var document = this.parser.ParseDocument(htmlToParse))
                     {
                         // Check if this text requires special handling due to embedded images or iframes...
                         var images = document.QuerySelectorAll("img");
@@ -401,7 +402,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
                                     if (splitText.Length >= index + 1)
                                     {
-                                        using (var docTemp = parser.Parse(splitText[index]))
+                                        using (var docTemp = parser.ParseDocument(splitText[index]))
                                         {
                                             if (docTemp.DocumentElement.Children.Count() > 1)
                                             {

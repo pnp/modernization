@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Dom;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Parser;
 using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Extensions;
 using SharePointPnP.Modernization.Framework.Publishing.Layouts;
@@ -441,7 +441,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 var fileUrl = pageLayout.File.ServerRelativeUrl;
                 string fileHtml = LoadPageLayoutFile(fileUrl);
 
-                using (var document = this.parser.Parse(fileHtml))
+                using (var document = this.parser.ParseDocument(fileHtml))
                 {
                     Regex regex = new Regex("&lt;%@(.*?)%&gt;", RegexOptions.IgnoreCase | RegexOptions.Multiline);
                     var aspxHeader = document.All.Where(o => o.TagName == "HTML").FirstOrDefault();
@@ -455,7 +455,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                     }
 
                     var fullBlock = blockHtml.ToString();
-                    using (var subDocument = this.parser.Parse(fullBlock))
+                    using (var subDocument = this.parser.ParseDocument(fullBlock))
                     {
                         var registers = subDocument.All.Where(o => o.TagName == "REGISTER");
 
@@ -501,7 +501,7 @@ namespace SharePointPnP.Modernization.Framework.Publishing
                 fileHtml = fileHtml.Replace("<![CDATA[", "<encodeddata>");
                 fileHtml = fileHtml.Replace("]]>", "</encodeddata>");
 
-                using (var document = this.parser.Parse(fileHtml))
+                using (var document = this.parser.ParseDocument(fileHtml))
                 {
 
                     // Item 1 - WebPart Name, Item 2 - Full assembly reference

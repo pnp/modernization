@@ -1,7 +1,9 @@
 ﻿using AngleSharp;
+using AngleSharp.Css.Dom;
 using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Dom;
+using AngleSharp.Html.Parser;
+using AngleSharp.Io;
 using SharePointPnP.Modernization.Framework.Telemetry;
 using System;
 using System.Collections.Generic;
@@ -82,7 +84,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
             }
 
             // Instantiate the AngleSharp Html parser, configure to load the Style property as well
-            parser = new HtmlParser(new HtmlParserOptions() { IsEmbedded = true }, Configuration.Default.WithDefaultLoader().WithCss());
+            var config = Configuration.Default.WithDefaultLoader(new LoaderOptions { IsResourceLoadingEnabled = true }).WithCss();
+            var context = BrowsingContext.New(config);
+            parser = new HtmlParser(new HtmlParserOptions { IsEmbedded = true }, context);
         }
         #endregion
 
@@ -98,7 +102,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
             text = text.Replace("\u200B", string.Empty);
             text = text.Replace("\u200b", string.Empty);
 
-            using (var document = this.parser.Parse(text))
+            using (var document = this.parser.ParseDocument(text))
             {
                 // Process headings: RTE does h2, h3, h4 while wiki does h1, h2, h3, h4. Wiki h4 to h6 will become (formatted) text
                 TransformHeadings(document, 6, 0);
@@ -165,7 +169,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                 return true;
             }
 
-            using (var document = this.parser.Parse(text))
+            using (var document = this.parser.ParseDocument(text))
             {
                 if (document.Body.InnerHtml.ToLower() == "<p></p>" ||
                     document.Body.InnerHtml.ToLower() == "<span><p></p></span>")
@@ -206,8 +210,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     if (IsBlockElement(element))
                     {
                         // Save the styles we want to maintain
-                        string marginLeft = element.Style.MarginLeft;
-                        string textAlign = element.Style.TextAlign;
+                        string marginLeft = element.GetStyle().GetMarginLeft();
+                        string textAlign = element.GetStyle().GetTextAlign();
 
                         // Delete all styling information from the element
                         element.RemoveAttribute("style");
@@ -215,18 +219,18 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // Add the "styles to keep" again
                         if (!string.IsNullOrEmpty(marginLeft))
                         {
-                            element.Style.MarginLeft = marginLeft;
+                            element.GetStyle().SetMarginLeft(marginLeft);
                         }
                         if (!string.IsNullOrEmpty(textAlign))
                         {
-                            element.Style.TextAlign = textAlign;
+                            element.GetStyle().SetTextAlign(textAlign);
                         }
                     }
                     else
                     {
                         // Save the styles we want to maintain
-                        string width = element.Style.Width;
-                        string textAlign = element.Style.TextAlign;
+                        string width = element.GetStyle().GetWidth();
+                        string textAlign = element.GetStyle().GetTextAlign();
 
                         // Delete all styling information from the element
                         element.RemoveAttribute("style");
@@ -234,11 +238,11 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // Add the "styles to keep" again
                         if (!string.IsNullOrEmpty(width))
                         {
-                            element.Style.Width = width;
+                            element.GetStyle().SetWidth(width);
                         }
                         if (!string.IsNullOrEmpty(textAlign))
                         {
-                            element.Style.TextAlign = textAlign;
+                            element.GetStyle().SetTextAlign(textAlign);
                         }
                     }
                 }
@@ -332,12 +336,12 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         }
 
                         var tableHeaderCell = document.CreateElement("td");
-                        tableHeaderCell.Style.Width = $"{cellWidth[headerCounter]}px";
+                        tableHeaderCell.GetStyle().SetWidth($"{cellWidth[headerCounter]}px");
 
                         // Restore alignment if needed
                         if (normalizedTable.Header[colPos].TextAlign != null)
                         {
-                            tableHeaderCell.Style.TextAlign = normalizedTable.Header[colPos].TextAlign;
+                            tableHeaderCell.GetStyle().SetTextAlign(normalizedTable.Header[colPos].TextAlign);
                         }
 
                         headerCounter++;
@@ -359,7 +363,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     for (int colPos = 0; colPos < normalizedTable.Cells.GetLength(1); colPos += 1)
                     {
                         var newTableCell = document.CreateElement("td");
-                        newTableCell.Style.Width = $"{cellWidth[cellCounter]}px";
+                        newTableCell.GetStyle().SetWidth($"{cellWidth[cellCounter]}px");
                         cellCounter++;
 
                         // Did we put a "real" cell?
@@ -373,7 +377,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         // Restore alignment if needed
                         if (normalizedTable.Cells[rowPos, colPos].TextAlign != null)
                         {
-                            newTableCell.Style.TextAlign = normalizedTable.Cells[rowPos, colPos].TextAlign;
+                            newTableCell.GetStyle().SetTextAlign(normalizedTable.Cells[rowPos, colPos].TextAlign);
                         }
 
                         newRow.AppendChild(newTableCell);
@@ -515,7 +519,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             if (isBlockElement)
                             {
                                 newElement = nodeToProcess;
-                                newElement.Style.MarginLeft = $"{level * 40}px";
+                                newElement.GetStyle().SetMarginLeft($"{level * 40}px");
                                 // Store the block element html for later adding
                                 innerHtml = nodeToProcess.InnerHtml;
                                 // since we're injecting the block element content again we first remove all nodes from it
@@ -527,7 +531,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             else
                             {
                                 newElement = document.CreateElement($"p");
-                                newElement.Style.MarginLeft = $"{level * 40}px";
+                                newElement.GetStyle().SetMarginLeft($"{level * 40}px");
                             }
 
                             if (strikeThroughWasUsed)
@@ -644,9 +648,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                     newElement.InnerHtml = fromNode.InnerHtml;
 
                     // Copy the text alignment style
-                    if (fromNode.Style != null && !string.IsNullOrEmpty(fromNode.Style.TextAlign))
+                    if (fromNode.GetStyle() != null && !string.IsNullOrEmpty(fromNode.GetStyle().GetTextAlign()))
                     {
-                        newElement.Style.TextAlign = fromNode.Style.TextAlign;
+                        newElement.GetStyle().SetTextAlign(fromNode.GetStyle().GetTextAlign());
                     }
                     parent.ReplaceChild(newElement, fromNode);
                 }
@@ -693,7 +697,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
                         rtestyle.Equals("IntenseReferences", StringComparison.InvariantCultureIgnoreCase) )
                     {
                         // Update current element Style which will be picked up later on 
-                        element.Style.TextDecoration = "underline";
+                        element.GetStyle().SetTextDecoration("underline");
                     }
 
                     // Light blue
@@ -1303,7 +1307,7 @@ namespace SharePointPnP.Modernization.Framework.Transform
         {
             // Let's inspect if there's still span's in the html we take over...these spans are not in our current list of spans 
             // and as such will be ignored if we don't handle them.
-            using (var documentTemp = this.parser.Parse(innerHtml))
+            using (var documentTemp = this.parser.ParseDocument(innerHtml))
             {
                 TransformElements(documentTemp.QuerySelectorAll("span"), documentTemp);
                 //TransformElements(documentTemp.QuerySelectorAll("sup"), documentTemp);
@@ -1429,8 +1433,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         private bool IsStrikeThrough(IElement element)
         {
-            if (element.Style != null && (!string.IsNullOrEmpty(element.Style.TextDecoration) && element.Style.TextDecoration.Equals("line-through", StringComparison.InvariantCultureIgnoreCase) ||
-                                          !string.IsNullOrEmpty(element.Style.GetPropertyValue("text-decoration-line")) && element.Style.GetPropertyValue("text-decoration-line").Equals("line-through", StringComparison.InvariantCultureIgnoreCase)))
+            if (element.GetStyle() != null && (!string.IsNullOrEmpty(element.GetStyle().GetTextDecoration()) && element.GetStyle().GetTextDecoration().Equals("line-through", StringComparison.InvariantCultureIgnoreCase) ||
+                                          !string.IsNullOrEmpty(element.GetStyle().GetPropertyValue("text-decoration-line")) && element.GetStyle().GetPropertyValue("text-decoration-line").Equals("line-through", StringComparison.InvariantCultureIgnoreCase)))
             {
                 return true;
             }
@@ -1442,8 +1446,8 @@ namespace SharePointPnP.Modernization.Framework.Transform
 
         private bool IsUnderline(IElement element)
         {
-            if (element.Style != null && (!string.IsNullOrEmpty(element.Style.TextDecoration) && element.Style.TextDecoration.Equals("underline", StringComparison.InvariantCultureIgnoreCase) ||
-                                          !string.IsNullOrEmpty(element.Style.GetPropertyValue("text-decoration-line")) && element.Style.GetPropertyValue("text-decoration-line").Equals("underline", StringComparison.InvariantCultureIgnoreCase)))
+            if (element.GetStyle() != null && (!string.IsNullOrEmpty(element.GetStyle().GetTextDecoration()) && element.GetStyle().GetTextDecoration().Equals("underline", StringComparison.InvariantCultureIgnoreCase) ||
+                                          !string.IsNullOrEmpty(element.GetStyle().GetPropertyValue("text-decoration-line")) && element.GetStyle().GetPropertyValue("text-decoration-line").Equals("underline", StringComparison.InvariantCultureIgnoreCase)))
             {
                 return true;
             }
@@ -1493,9 +1497,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                             headerCells[colPos] = new IElementCell(tableHeader);
 
                             //Check header styles
-                            if (tableHeader.Style != null && !string.IsNullOrEmpty(tableHeader.Style.TextAlign))
+                            if (tableHeader.GetStyle() != null && !string.IsNullOrEmpty(tableHeader.GetStyle().GetTextAlign()))
                             {
-                                headerCells[colPos].TextAlign = tableHeader.Style.TextAlign;
+                                headerCells[colPos].TextAlign = tableHeader.GetStyle().GetTextAlign();
                             }
 
                             // Prep for next cell
@@ -1534,9 +1538,9 @@ namespace SharePointPnP.Modernization.Framework.Transform
                                 cells[rowPos, colPos] = new IElementCell(tableCell);
 
                                 //Check header styles
-                                if (tableCell.Style != null && !string.IsNullOrEmpty(tableCell.Style.TextAlign))
+                                if (tableCell.GetStyle() != null && !string.IsNullOrEmpty(tableCell.GetStyle().GetTextAlign()))
                                 {
-                                    cells[rowPos, colPos].TextAlign = tableCell.Style.TextAlign;
+                                    cells[rowPos, colPos].TextAlign = tableCell.GetStyle().GetTextAlign();
                                 }
 
                                 // Prep for next cell
