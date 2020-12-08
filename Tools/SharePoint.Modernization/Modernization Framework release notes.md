@@ -14,7 +14,8 @@
 
 ## [December release - version 1.0.2012.0]
 
--  Enabled metadata copy of taxonomy and user fields during in-place page modernization [jansenbe - Bert Jansen]
+- Enabled metadata copy of taxonomy and user fields during in-place page modernization [jansenbe - Bert Jansen]
+- Bumped to AngleSharp version 0.14 [jansenbe - Bert Jansen]
 
 ## [October release - version 1.0.2010.0]
 

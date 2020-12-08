@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.SharePoint.Client;
 using SharePointPnP.Modernization.Framework.Transform;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html.Parser;
 using System.Linq;
 using Microsoft.SharePoint.Client.Workflow;
 using System.IO;
@@ -140,7 +140,7 @@ namespace SharePointPnP.Modernization.Framework.Tests
 
             foreach(var part in split)
             {
-                using (var document = parser.Parse(part))
+                using (var document = parser.ParseDocument(part))
                 {
                     if (document.DocumentElement.Children.Count() > 1)
                     {
