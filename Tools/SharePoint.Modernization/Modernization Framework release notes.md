@@ -12,7 +12,7 @@
 - From .Net: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-dotnet as nice sample to start with
 - From PnP PowerShell: see https://docs.microsoft.com/en-us/sharepoint/dev/transform/modernize-userinterface-site-pages-powershell for a sample
 
-## [Not release]
+## [December release - version 1.0.2012.0]
 
 -  Enabled metadata copy of taxonomy and user fields during in-place page modernization [jansenbe - Bert Jansen]
 

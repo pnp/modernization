@@ -2887,6 +2887,11 @@
             Specifies filds is required to enter vlaue or not.
             </summary>
         </member>
+        <member name="P:OfficeDevPnP.Core.Entities.FieldCreationInformation.FieldOptions">
+            <summary>
+            Specifies field options
+            </summary>
+        </member>
         <member name="P:OfficeDevPnP.Core.Entities.FieldCreationInformation.ClientSideComponentId">
             <summary>
             Ignored currently for SP2016
@@ -16684,6 +16689,22 @@
             <param name="context">The stream that contains the serialized data.</param>
             <exception cref="T:System.ArgumentNullException">The info parameter is null.-or-The context parameter is null.</exception>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.ListContentTypeIdToken.CreateToken(System.String,System.String)">
+            <summary>
+            Creates a token for the specified list title and list content type name
+            </summary>
+            <param name="listTitle">Title for the list</param>
+            <param name="contentTypeName">Name of the list content type</param>
+            <returns>List content type token. Example: "{listContentTypeId:My List,Document}"</returns>
+        </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.ListContentTypeIdToken.CreateToken(System.String,Microsoft.SharePoint.Client.ContentTypeId)">
+            <summary>
+            Creates a token for the specified list title and list content type id
+            </summary>
+            <param name="listTitle">Title for the list</param>
+            <param name="id">Content type id of the list content type</param>
+            <returns>List content type token. Example: "{listContentTypeId:My List,0x0101}"</returns>
+        </member>
         <member name="T:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.TokenDefinitions.SimpleTokenDefinition">
             <summary>
             Defines a provisioning engine Token. Make sure to only use the TokenContext property to execute queries in token methods.
@@ -17063,6 +17084,15 @@
             <param name="context"></param>
             <returns></returns>
         </member>
+        <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectHandlerBase.TokenizeListView(System.String,Microsoft.SharePoint.Client.List,Microsoft.SharePoint.Client.Web)">
+            <summary>
+            Tokenize a XML snippet based list view attribute with {listcontenttypeid:listname,contenttypeid}, {themecatalog} or {masterpagecatalog}
+            </summary>
+            <param name="xml">the XML snippet to tokenize as String</param>
+            <param name="list">List being used</param>
+            <param name="web">Web being used</param>
+            <returns>tokenized xml as String</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ObjectHandlerBase.TokenizeXml(System.String,Microsoft.SharePoint.Client.Web)">
             <summary>
             Tokenize a XML snippet based attribute with {themecatalog} or {masterpagecatalog}
@@ -17269,6 +17299,11 @@
             <remarks>
             Can contain the title or the ID of the lists to export
             </remarks>
+        </member>
+        <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation.ResourceTokens">
+            <summary>
+            List which contains information about resource tokens used and/or created during the extraction of a template.
+            </summary>
         </member>
         <member name="P:OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers.ProvisioningTemplateCreationInformation.ExtractConfiguration">
             <summary>
@@ -50526,7 +50561,7 @@
             <param name="handler"></param>
             <param name="context"></param>
         </member>
-        <member name="M:OfficeDevPnP.Core.Utilities.RESTUtilities.ExecuteGetAsync(Microsoft.SharePoint.Client.Web,System.String)">
+        <member name="M:OfficeDevPnP.Core.Utilities.RESTUtilities.ExecuteGetAsync(Microsoft.SharePoint.Client.Web,System.String,System.String)">
             <summary>
             Executes a REST Get request. 
             </summary>
@@ -52311,7 +52346,17 @@
             </param>
             <returns>Authenticated SharePoint ClientContext</returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.Security.SecureString,OfficeDevPnP.Core.AzureEnvironment,OfficeDevPnP.Core.KnownClientId)" -->
+        <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.Security.SecureString,OfficeDevPnP.Core.AzureEnvironment,OfficeDevPnP.Core.KnownClientId)">
+            <summary>
+            Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app or the PnP Management Shell app being registered in your Azure AD.
+            </summary>
+            <param name="siteUrl">Site for which the ClientContext object will be instantiated</param>
+            <param name="userPrincipalName">The user id</param>
+            <param name="userPassword">The user's password as a secure string</param>
+            <param name="environment">SharePoint environment being used</param>
+            <param name="clientId">Enum value pointing to one of the known client ids</param>
+            <returns>Client context object</returns>
+        </member>
         <member name="M:OfficeDevPnP.Core.AuthenticationManager.GetAzureADCredentialsContext(System.String,System.String,System.String,OfficeDevPnP.Core.AzureEnvironment,OfficeDevPnP.Core.KnownClientId)">
             <summary>
             Returns a SharePoint ClientContext using Azure Active Directory credential authentication. This depends on the SPO Management Shell app or the PnP Management Shell app being registered in your Azure AD.
