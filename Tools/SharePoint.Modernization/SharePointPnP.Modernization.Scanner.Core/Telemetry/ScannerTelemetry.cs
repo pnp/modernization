@@ -294,6 +294,46 @@ namespace SharePoint.Modernization.Scanner.Core.Telemetry
         }
 
         /// <summary>
+        /// Log customized form scanning results
+        /// </summary>
+        /// <param name="customizedFormsScanResults">customized form scan result collection</param>
+        public void LogCustomizedFormsScan(ConcurrentDictionary<string, CustomizedFormsScanResult> customizedFormsScanResults)
+        {
+            if (this.telemetryClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Prepare event data
+                Dictionary<string, string> properties = new Dictionary<string, string>();
+                Dictionary<string, double> metrics = new Dictionary<string, double>();
+
+                // Populate properties
+
+                properties.Add(EngineVersion, this.version);
+                properties.Add(CustomizedFormsResults.Forms.ToString(), customizedFormsScanResults.Count.ToString());
+                // Azure AD tenant
+                properties.Add(AADTenantId, this.aadTenantId.ToString());
+
+                // Send the event
+                this.telemetryClient.TrackEvent(TelemetryEvents.CustomizedForms.ToString(), properties, metrics);
+
+                Metric formType = this.telemetryClient.GetMetric($"CustomizedForms.{CustomizedFormsResults.FormType}", "CustomizedForms.FormType");
+
+                foreach (var item in customizedFormsScanResults)
+                {
+                    WriteMetric(formType, item.Value.FormType.ToString());
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        /// <summary>
         /// Log blog scanning results
         /// </summary>
         /// <param name="blogWebScanResults">Web blog scan result collection</param>

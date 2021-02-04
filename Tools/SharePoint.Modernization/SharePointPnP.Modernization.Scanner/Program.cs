@@ -246,7 +246,7 @@ namespace SharePoint.Modernization.Scanner
                             var blogReport = generator.CreateBlogReport(reportStreams);
                             PersistStream($"{workingFolder}\\{Generator.BlogReport}", blogReport);
                         }
-
+                        
                         // Dispose streams
                         foreach (var csvStream in job.GeneratedFileStreams)
                         {

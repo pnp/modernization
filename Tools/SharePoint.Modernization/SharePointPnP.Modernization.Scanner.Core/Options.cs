@@ -27,6 +27,7 @@ namespace SharePoint.Modernization.Scanner.Core
         InfoPathOnly,
         BlogOnly,
         HomePageOnly,
+        CustomizedFormsOnly
     }
 
     /// <summary>
@@ -104,7 +105,7 @@ namespace SharePoint.Modernization.Scanner.Core
         public string Separator { get; set; }
         #endregion
 
-        [Option('m', "mode", HelpText = "Execution mode. Use following modes: Full, GroupifyOnly, ListOnly, PageOnly, HomePageOnly, PublishingOnly, PublishingWithPagesOnly, WorkflowOnly, WorkflowWithDetailsOnly, InfoPathOnly or BlogOnly. Omit or use full for a full scan", DefaultValue = Mode.Full, Required = false)]
+        [Option('m', "mode", HelpText = "Execution mode. Use following modes: Full, GroupifyOnly, ListOnly, PageOnly, HomePageOnly, PublishingOnly, PublishingWithPagesOnly, WorkflowOnly, WorkflowWithDetailsOnly, InfoPathOnly, BlogOnly or CustomizedFormsOnly. Omit or use full for a full scan", DefaultValue = Mode.Full, Required = false)]
         public Mode Mode { get; set; }
 
         [Option('b', "exportwebpartproperties", HelpText = "Export the web part property data", DefaultValue = false, Required = false)]
@@ -472,6 +473,26 @@ namespace SharePoint.Modernization.Scanner.Core
             }
 
             if (mode == Mode.BlogOnly)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Include customized forms analysis
+        /// </summary>
+        /// <param name="mode">mode that was provided</param>
+        /// <returns>True if included, false otherwise</returns>
+        public static bool IncludeCustomizedForms(Mode mode)
+        {
+            if (mode == Mode.Full)
+            {
+                return true;
+            }
+
+            if (mode == Mode.CustomizedFormsOnly)
             {
                 return true;
             }

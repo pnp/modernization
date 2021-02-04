@@ -217,6 +217,13 @@ namespace SharePoint.Modernization.Scanner.Core.Analyzers
                     }
                 }
 
+                if (Options.IncludeCustomizedForms(this.ScanJob.Mode))
+                {
+                    // Kickoff the customized forms analyzer
+                    var customizedFormAnalyzer = new CustomizedFormsAnalyzer(this.SiteUrl, this.SiteCollectionUrl, this.ScanJob);
+                    customizedFormAnalyzer.Analyze(cc);
+                }
+
                 if (!this.ScanJob.SiteScanResults.TryAdd(this.SiteCollectionUrl, scanResult))
                 {
                     ScanError error = new ScanError()

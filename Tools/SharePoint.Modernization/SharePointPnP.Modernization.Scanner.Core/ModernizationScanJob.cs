@@ -59,6 +59,7 @@ namespace SharePoint.Modernization.Scanner.Core
         public ConcurrentDictionary<string, InfoPathScanResult> InfoPathScanResults;
         public ConcurrentDictionary<string, BlogWebScanResult> BlogWebScanResults;
         public ConcurrentDictionary<string, BlogPageScanResult> BlogPageScanResults;
+        public ConcurrentDictionary<string, CustomizedFormsScanResult> CustomizedFormsScanResults;
         public List<Guid> TeamifiedSiteCollections;
         public bool TeamifiedSiteCollectionsLoaded = false;
         public Tenant SPOTenant;
@@ -126,6 +127,7 @@ namespace SharePoint.Modernization.Scanner.Core
             this.PublishingPageScanResults = new ConcurrentDictionary<string, PublishingPageScanResult>(options.Threads, 10000);
             this.BlogWebScanResults = new ConcurrentDictionary<string, BlogWebScanResult>(options.Threads, 50000);
             this.BlogPageScanResults = new ConcurrentDictionary<string, BlogPageScanResult>(options.Threads, 500000);
+            this.CustomizedFormsScanResults = new ConcurrentDictionary<string, CustomizedFormsScanResult>(options.Threads, 50000);
             this.GeneratedFileStreams = new Dictionary<string, Stream>();
             this.TeamifiedSiteCollections = new List<Guid>();
 
@@ -1172,6 +1174,36 @@ namespace SharePoint.Modernization.Scanner.Core
                 else
                 {
                     streams.Add("ModernizationBlogPageScanResults.csv", modernizationBlogPageScanResults);
+                }
+            }
+
+            if (Options.IncludeCustomizedForms(this.Mode))
+            {
+                // Telemetry
+                if (this.ScannerTelemetry != null && final)
+                {
+                    this.ScannerTelemetry.LogCustomizedFormsScan(this.CustomizedFormsScanResults);
+                }
+
+                MemoryStream customizedFormsScanResults = new MemoryStream();
+                outputHeaders = new string[] { "Site Collection Url", "Form Type", "Form Url", "Page Id", "Webpart Id" };
+
+                outStream = new StreamWriter(customizedFormsScanResults);
+
+                outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, outputHeaders)));
+                foreach (var customizedForm in this.CustomizedFormsScanResults)
+                {
+                    outStream.Write(string.Format("{0}\r\n", string.Join(this.Separator, ToCsv(customizedForm.Value.SiteColUrl), ToCsv(customizedForm.Value.FormType.ToString()), ToCsv(customizedForm.Value.Url), ToCsv(customizedForm.Value.PageId.ToString()), ToCsv(customizedForm.Value.WebpartId.ToString())
+                                                     )));
+                }
+                outStream.Flush();
+                if (final)
+                {
+                    this.GeneratedFileStreams.Add("ModernizationCustomizedFormsScanResults.csv", customizedFormsScanResults);
+                }
+                else
+                {
+                    streams.Add("ModernizationCustomizedFormsScanResults.csv", customizedFormsScanResults);
                 }
             }
 

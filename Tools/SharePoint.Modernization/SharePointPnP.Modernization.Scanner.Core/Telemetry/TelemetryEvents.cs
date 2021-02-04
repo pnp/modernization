@@ -14,7 +14,8 @@
         PublishingPortals,
         Workflows,
         InfoPath,
-        Blogs
+        Blogs,
+        CustomizedForms
     }
 
     /// <summary>
@@ -155,5 +156,14 @@
         Webs,
         Posts,
         Language
+    }
+
+    /// <summary>
+    /// Measures collected for Customized Forms
+    /// </summary>
+    public enum CustomizedFormsResults
+    {
+        Forms,
+        FormType
     }
 }

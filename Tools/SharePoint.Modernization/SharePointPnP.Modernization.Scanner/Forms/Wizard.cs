@@ -111,6 +111,11 @@ namespace SharePoint.Modernization.Scanner.Forms
             }
             else if (cmbScanMode.SelectedIndex == 10)
             {
+                // Customized forms
+                options.Mode = Mode.CustomizedFormsOnly;
+            }
+            else if (cmbScanMode.SelectedIndex == 11)
+            {
                 // Full
                 options.Mode = Mode.Full;
             }
@@ -396,6 +401,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 1)
             {
@@ -410,6 +416,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 2)
             {
@@ -424,6 +431,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 3)
             {
@@ -452,6 +460,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 5)
             {
@@ -466,6 +475,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 6)
             {
@@ -480,6 +490,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 7)
             {
@@ -494,6 +505,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = true;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 8)
             {
@@ -508,6 +520,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = true;
                 tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 9)
             {
@@ -522,8 +535,24 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = false;
                 tgModeInfoPathUsage.Checked = false;
                 tgModeBlogUsage.Checked = true;
+                tgModeCustomizedForms.Checked = false;
             }
             else if (cmbScanMode.SelectedIndex == 10)
+            {
+                // SharePoint Designer customized forms
+                tgModeGroupConnect.Checked = true;
+                tgModeList.Checked = false;
+                tgModeHomePageOnly.Checked = false;
+                tgModePages.Checked = false;
+                tgModePublishing.Checked = false;
+                tgModePublishingDetailed.Checked = false;
+                tgModeClassicWorkflowUsage.Checked = false;
+                tgModeClassicWorkflowUsageDetailed.Checked = false;
+                tgModeInfoPathUsage.Checked = false;
+                tgModeBlogUsage.Checked = false;
+                tgModeCustomizedForms.Checked = true;
+            }
+            else if (cmbScanMode.SelectedIndex == 11)
             {
                 // Full
                 tgModeGroupConnect.Checked = true;
@@ -536,6 +565,7 @@ namespace SharePoint.Modernization.Scanner.Forms
                 tgModeClassicWorkflowUsageDetailed.Checked = true;
                 tgModeInfoPathUsage.Checked = true;
                 tgModeBlogUsage.Checked = true;
+                tgModeCustomizedForms.Checked = true;
             }
 
             tgListBlockedDueToOOB.Enabled = cmbScanMode.SelectedIndex == 1 || cmbScanMode.SelectedIndex == 9;
