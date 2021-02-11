@@ -2,7 +2,7 @@
 .SYNOPSIS
 Modernizes the pages of a site. 
 
-IMPORTANT: this requires the PnP PowerShell version 3.16.1912.* (December 2019) or higher to work!
+IMPORTANT: this requires the PnP PowerShell version 1.3.0 or higher to work!
 Version: 1.1
 
 .EXAMPLE
@@ -10,7 +10,7 @@ PS C:\> .\modernizesitecollection.ps1
 #>
 
 # Connect to the web holding the pages to modernize
-Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/modernizationme
+Connect-PnPOnline -Url https://contoso.sharepoint.com/sites/modernizationme -Interactive
 
 # Get all the pages in the site pages library. SitePages is the only supported library for using modern pages
 # Use paging (-PageSize parameter) to ensure the query works when there are more than 5000 items in the list
@@ -33,7 +33,7 @@ foreach($page in $pages)
             # Create a modern version of this page
             Write-Host "Modernizing " $page.FieldValues["FileLeafRef"] "..."
             # Use the PageID value instead of the page name in the Identity parameter as that is more performant + it works when there are more than 5000 items in the list
-            $modernPage = ConvertTo-PnPClientSidePage -Identity $page.FieldValues["ID"] -Overwrite
+            $modernPage = ConvertTo-PnPPage -Identity $page.FieldValues["ID"] -Overwrite
             Write-Host "Done" -ForegroundColor Green
         }
     }  

@@ -18,14 +18,16 @@ SOFTWARE.
 
     Converts all publishing pages from an on-premises server
 
+    You need to install PnP PowerShell: https://pnp.github.io/powershell/
+
     Sample includes:
         - Conversion of publishing pages from on-premises
         - Renaming default/welcome subsite pages
         - Includes Logging to File, log flushing into single log file
         - Post Processing of file after transformation
 
-    To generate mapping files, see Export-PnPClientSidePageMapping cmdlet:
-        e.g Export-PnPClientSidePageMapping -CustomPageLayoutMapping -BuiltInWebPartMapping -Folder (Get-Location)
+    To generate mapping files, see Export-PnPPageMapping cmdlet:
+        e.g Export-PnPPageMapping -CustomPageLayoutMapping -BuiltInWebPartMapping -Folder (Get-Location)
 
 .Example
 
@@ -34,22 +36,22 @@ SOFTWARE.
         $sourceCredentials = Get-Credential
         $targetCredentials = Get-Credential
     
-    Generate mapping and store in "Mapping-2010" folder
+    Generate mapping and store in "Mapping-2013" folder
     
-        $sourceConn = Connect-PnPOnline http://portal2010 -Credentials $sourceCredentials -ReturnConnection
+        $sourceConn = Connect-PnPOnline http://portal2013 -Credentials $sourceCredentials -TransformationOnPrem -ReturnConnection
 
     To generate mapping files, see Export-PnPClientSidePageMapping cmdlet
     Get mapping for Single Page:
 
-        Export-PnPClientSidePageMapping -CustomPageLayoutMapping -Connection $sourceConn -Folder "$(Get-Location)\Mapping-2010"
+        Export-PnPPageMapping -CustomPageLayoutMapping -Connection $sourceConn -Folder "$(Get-Location)\Mapping-2010"
     
     Get mapping for all page layouts
         
-        Export-PnPClientSidePageMapping -PublishingPage "Article-2010-Custom.aspx" -CustomPageLayoutMapping -Connection $sourceConn -Folder "$(Get-Location)\Mapping-2010"
+        Export-PnPPageMapping -PublishingPage "Article-2013-Custom.aspx" -CustomPageLayoutMapping -Connection $sourceConn -Folder "$(Get-Location)\Mapping-2013"
     
     Run this transform script example
     
-        .\Convert-OnPremisesPublishingPages.ps1 -SourceCredentials $sourceCredentials -SourceUrl "http://portal2010" -TargetSitePartUrl "PnPKatchup" -TargetCredentials $targetCredentials
+        .\Convert-OnPremisesPublishingPages.ps1 -SourceCredentials $sourceCredentials -SourceUrl "http://portal2013" -TargetSitePartUrl "PnPKatchup" -TargetCredentials $targetCredentials
 
 .Notes
     
@@ -94,8 +96,7 @@ begin{
     Write-Host "Connecting to " $sourceSiteUrl " and " $targetSiteUrl
     
     # To transform to On-Premises servers you need to create connections to both source and target
-    # Note: that not all PnP commands work against SharePoint 2010, this script is designed for transform only
-    $sourceConnection = Connect-PnPOnline -Url $sourceSiteUrl -ReturnConnection -Credentials $SourceCredentials
+    $sourceConnection = Connect-PnPOnline -Url $sourceSiteUrl -TransformationOnPrem -ReturnConnection -Credentials $SourceCredentials
     Write-Host "Connected to " $sourceSiteUrl
 
     # This connection should target SharePoint Online
@@ -120,7 +121,7 @@ process {
         # typical for flattening multiple sites that contain standard page(s) e.g. Welcome.aspx or Default.aspx
         if($targetFileName -eq "Welcome.aspx"){
 
-            #$targetFileName  = "Welcome-2010.aspx"
+            #$targetFileName  = "Welcome-2013.aspx"
             #Write-Host " - Updating Welcome.aspx page to $($targetFileName)" -ForegroundColor Yellow
             Write-Host "  Skipping welcome.aspx" -ForegroundColor Yellow
             continue
@@ -128,7 +129,7 @@ process {
 
         if($targetFileName -eq "Default.aspx"){
 
-            #$targetFileName  = "Default-2010.aspx"
+            #$targetFileName  = "Default-2013.aspx"
             #Write-Host " - Updating Default.aspx page to $($targetFileName)" -ForegroundColor Yellow
             Write-Host "  Skipping default.aspx" -ForegroundColor Yellow
             continue
@@ -139,7 +140,7 @@ process {
         # Use -Connection parameter to pass the source 201X SharePoint connection
         # Use -TargetConnection to pass in the target connection to SharePoint Online modern site,
         #   no need to use -TargetUrl in this case
-        $result = ConvertTo-PnPClientSidePage -Identity $page.FieldValues["FileLeafRef"] `
+        $result = ConvertTo-PnPPage -Identity $page.FieldValues["FileLeafRef"] `
                     -PublishingPage `
                     -TargetConnection $targetConnection `
                     -PublishingTargetPageName $targetFileName `
@@ -170,7 +171,7 @@ process {
     }
 
     # Write the logs to the folder
-    Save-PnPClientSidePageConversionLog
+    Save-PnPPageConversionLog
 
     Write-Host "Script Complete! :)" -ForegroundColor Green
 }

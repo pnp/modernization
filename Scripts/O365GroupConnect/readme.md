@@ -36,6 +36,7 @@ validateinput.ps1 | Bert Jansen (**Microsoft**)
 
 Version|Date|Comments
 -------|----|--------
+2.0 | February 11th 2021 | Upgraded to latest PowerShell version
 1.0 | March 1st 2018 | Initial commit
 
 ## Disclaimer

@@ -3,7 +3,7 @@
 .Synopsis
 
     Converts all classic wiki and web part pages in a site. 
-    You need to install PnP PowerShell version 3.16.1912.* (December 2019) or higher to use this script.
+    You need to install PnP PowerShell: https://pnp.github.io/powershell/
 
     Sample includes:
         - Conversion of wiki and web part pages
@@ -47,7 +47,7 @@ begin
     }
     else
     {
-        Connect-PnPOnline -Url $sourceUrl -SPOManagementShell -ClearTokenCache
+        Connect-PnPOnline -Url $sourceUrl -Interactive
         Start-Sleep -s 3
     }
 }
@@ -93,20 +93,20 @@ process
             # Copies metadata of the original page to the created modern page. Remove this
             # switch if you don't want to copy the page metadata
 
-            ConvertTo-PnPClientSidePage -Identity $page.FieldValues["ID"] `
-                                        -Overwrite `
-                                        -TakeSourcePageName:$TakeSourcePageName `
-                                        -LogType File `
-                                        -LogFolder $LogOutputFolder `
-                                        -LogSkipFlush `
-                                        -KeepPageCreationModificationInformation `
-                                        -CopyPageMetadata
+            ConvertTo-PnPPage -Identity $page.FieldValues["ID"] `
+                                -Overwrite `
+                                -TakeSourcePageName:$TakeSourcePageName `
+                                -LogType File `
+                                -LogFolder $LogOutputFolder `
+                                -LogSkipFlush `
+                                -KeepPageCreationModificationInformation `
+                                -CopyPageMetadata
         }
     }
 
     # Write the logs to the folder
     Write-Host "Writing the conversion log file..." -ForegroundColor Green
-    Save-PnPClientSidePageConversionLog
+    Save-PnPPageConversionLog
 
     Write-Host "Wiki and web part page modernization complete! :)" -ForegroundColor Green
 }

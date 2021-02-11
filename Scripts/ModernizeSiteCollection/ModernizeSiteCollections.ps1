@@ -306,7 +306,7 @@ function ModernizeSite
             {
                 $sourceFileName = $page.FieldValues["FileLeafRef"]
                 LogWrite "Modernizing $sourceFileName..."    
-                $modernPage = ConvertTo-PnPClientSidePage -Identity $sourceFileName `
+                $modernPage = ConvertTo-PnPPage -Identity $sourceFileName `
                                                           -Overwrite `
                                                           -TakeSourcePageName `
                                                           -CopyPageMetadata `
@@ -319,7 +319,7 @@ function ModernizeSite
 
             # Write the logs to the folder
             LogWrite "Writing the page modernization log"
-            Save-PnPClientSidePageConversionLog
+            Save-PnPPageConversionLog
         }
         else 
         {
@@ -542,12 +542,12 @@ $global:strmWrtError=[System.IO.StreamWriter]$Errorfile
 
 #region Load needed PowerShell modules
 # Ensure PnP PowerShell is loaded
-$minimumVersion = New-Object System.Version("3.16.1912.0")
-if (-not (Get-InstalledModule -Name SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -ErrorAction Ignore)) 
+$minimumVersion = New-Object System.Version("1.3.0")
+if (-not (Get-InstalledModule -Name PnP.PowerShell -MinimumVersion $minimumVersion -ErrorAction Ignore)) 
 {
-    Install-Module SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -Scope CurrentUser
+    Install-Module PnP.PowerShell -MinimumVersion $minimumVersion -Scope CurrentUser
 }
-Import-Module SharePointPnPPowerShellOnline -DisableNameChecking -MinimumVersion $minimumVersion
+Import-Module PnP.PowerShell -DisableNameChecking -MinimumVersion $minimumVersion
 
 # Ensure Azure PowerShell is loaded
 $loadAzurePreview = $false # false to use 2.x stable, true to use the preview versions of cmdlets

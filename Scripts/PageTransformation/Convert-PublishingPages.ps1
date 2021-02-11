@@ -19,6 +19,8 @@ SOFTWARE.
 
     Converts all publishing pages in a site
 
+    You need to install PnP PowerShell: https://pnp.github.io/powershell/
+
     Sample includes:
         - Conversion of publishing pages
         - Renaming default/welcome subsite pages
@@ -83,10 +85,10 @@ begin{
     else
     {
         # For MFA Tenants - UseWebLogin opens a browser window
-        $sourceConnection = Connect-PnPOnline -Url $sourceSiteUrl  -ReturnConnection -UseWebLogin
+        $sourceConnection = Connect-PnPOnline -Url $sourceSiteUrl  -ReturnConnection -Interactive
         
         # For post transform processing
-        $targetConnection = Connect-PnPOnline -Url $targetSiteUrl  -ReturnConnection -UseWebLogin
+        $targetConnection = Connect-PnPOnline -Url $targetSiteUrl  -ReturnConnection -Interactive
     }
 
     $location = Get-Location
@@ -124,7 +126,7 @@ process {
         Write-Host " Modernizing $($targetFileName)..."
 
         # Use the PageID value instead of the page name in the Identity parameter as that is more performant + it works when there are more than 5000 items in the list
-        $result = ConvertTo-PnPClientSidePage -Identity $page.FieldValues["ID"] `
+        $result = ConvertTo-PnPPage -Identity $page.FieldValues["ID"] `
                     -PublishingPage `
                     -TargetWebUrl $targetSiteUrl `
                     -PublishingTargetPageName $targetFileName `
@@ -155,7 +157,7 @@ process {
     }
 
     # Write the logs to the folder
-    Save-PnPClientSidePageConversionLog
+    Save-PnPPageConversionLog
 
     Write-Host "Script Complete! :)" -ForegroundColor Green
 }

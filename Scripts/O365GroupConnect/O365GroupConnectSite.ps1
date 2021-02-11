@@ -424,12 +424,12 @@ $global:strmWrtError=[System.IO.StreamWriter]$Errorfile
 
 #region Load needed PowerShell modules
 # Ensure PnP PowerShell is loaded
-$minimumVersion = New-Object System.Version("3.4.1812.2")
-if (-not (Get-InstalledModule -Name SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -ErrorAction Ignore)) 
+$minimumVersion = New-Object System.Version("1.3.0")
+if (-not (Get-InstalledModule -Name PnP.PowerShell -MinimumVersion $minimumVersion -ErrorAction Ignore)) 
 {
-    Install-Module SharePointPnPPowerShellOnline -MinimumVersion $minimumVersion -Scope CurrentUser
+    Install-Module PnP.PowerShell -MinimumVersion $minimumVersion -Scope CurrentUser
 }
-Import-Module SharePointPnPPowerShellOnline -DisableNameChecking -MinimumVersion $minimumVersion
+Import-Module PnP.PowerShell -DisableNameChecking -MinimumVersion $minimumVersion
 
 # Ensure Azure PowerShell is loaded
 $loadAzurePreview = $false # false to use 2.x stable, true to use the preview versions of cmdlets

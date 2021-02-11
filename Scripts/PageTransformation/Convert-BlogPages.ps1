@@ -2,7 +2,7 @@
 
 .Synopsis
 
-    Converts all blog pages in a site
+    Converts all blog pages in a site. Uses PnP PowerShell: https://pnp.github.io/powershell/
 
     Sample includes:
         - Conversion of blog pages
@@ -45,7 +45,7 @@ begin
     }
     else
     {
-        Connect-PnPOnline -Url $sourceUrl -SPOManagementShell -ClearTokenCache -Verbose
+        Connect-PnPOnline -Url $sourceUrl -Interactive -Verbose
         Start-Sleep -s 3
     }
 }
@@ -64,23 +64,23 @@ process
 
         Write-Host " Processing blog post $($postTitle)"
 
-        ConvertTo-PnPClientSidePage -Identity $postTitle `
-                                    -BlogPage `
-                                    -Overwrite `
-                                    -TargetWebUrl $TargetUrl `
-                                    -LogType File `
-                                    -LogVerbose `
-                                    -LogSkipFlush `
-                                    -LogFolder $LogOutputFolder `
-                                    -KeepPageCreationModificationInformation `
-                                    -PostAsNews `
-                                    -SetAuthorInPageHeader `
-                                    -CopyPageMetadata
+        ConvertTo-PnPPage -Identity $postTitle `
+                            -BlogPage `
+                            -Overwrite `
+                            -TargetWebUrl $TargetUrl `
+                            -LogType File `
+                            -LogVerbose `
+                            -LogSkipFlush `
+                            -LogFolder $LogOutputFolder `
+                            -KeepPageCreationModificationInformation `
+                            -PostAsNews `
+                            -SetAuthorInPageHeader `
+                            -CopyPageMetadata
 
     }
 
     # Write the logs to the folder
-    Save-PnPClientSidePageConversionLog
+    Save-PnPPageConversionLog
 
     Write-Host "Blog site modernization complete! :)" -ForegroundColor Green
 }

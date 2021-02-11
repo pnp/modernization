@@ -27,6 +27,7 @@ ModernizeSitecollections.ps1 and ValidateSiteCollectionsInput.ps1 | Bert Jansen 
 
 Version|Date|Comments
 -------|----|--------
+3.0 | February 11th 2021 | Updated to use the latest PnP PowerShell version
 2.0 | November 19th 2019 | Updated version that performs a bulk site collection modernization
 1.1 | December 18th 2018 | Updated to use the PnP PowerShell option for transforming pages
 1.0 | November 26th 2018 | Initial commit
