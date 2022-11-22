@@ -11,7 +11,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@microsoft/gulp-core-build-karma": "^4.6.54",
+    "@microsoft/gulp-core-build-karma": "^5.0.0",
     "@microsoft/sp-core-library": "1.7.0",
     "@microsoft/sp-lodash-subset": "1.7.0",
     "@microsoft/sp-office-ui-fabric-core": "1.7.0",
@@ -28,10 +28,10 @@
     "react-dom": "16.3.3"
   },
   "devDependencies": {
-    "@microsoft/sp-build-web": "1.7.0",
+    "@microsoft/sp-build-web": "1.16.0",
     "@microsoft/sp-tslint-rules": "1.7.0",
     "@microsoft/sp-module-interfaces": "1.7.0",
-    "@microsoft/sp-webpart-workbench": "1.7.0",
+    "@microsoft/sp-webpart-workbench": "1.12.1",
     "gulp": "~3.9.1",
     "@types/chai": "3.4.34",
     "@types/mocha": "2.2.38",
